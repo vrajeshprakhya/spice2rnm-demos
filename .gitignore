@@ -1,0 +1,6 @@
+# Run outputs live under ~/s2r_runs, not here -- but keep stray artifacts out
+# if anyone ever points a demo at its own directory.
+*.vcd
+*.log
+__pycache__/
+*.pyc
