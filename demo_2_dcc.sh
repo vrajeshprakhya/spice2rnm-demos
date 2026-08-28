@@ -2,17 +2,12 @@
 # DEMO 2 of 3 -- Duty-cycle corrector: the flow runs, and tells you when its
 # own assumption does not hold.
 #
-# The point of this one: a good fit is not the same as a valid model, and the
-# difference is STRUCTURAL. The AC fit here is fine (0.19 dB) either way, but
-# the usual `static + (H - H(0))*u` decomposition is only valid near the bias:
-# a comparator's linear correction term is a +-24 V quantity on a 1.8 V supply.
-# The pipeline detects the level dependence and emits a Wiener structure
-# instead, which is bounded by the static curve by construction. What is left
-# over after that is the real, honest limitation -- the poles were fitted at one
-# bias point and the block's move 613,666x across its range.
-#
-# Also: duty is invisible to an rms voltage comparison, which is why the
-# equivalence check now reports edge placement alongside it.
+# The point of this one: the hardest block here, and what it took to model
+# it. A comparator's dominant pole moves 613,666x across its input range, so
+# every fixed-pole structure gets it wrong -- and the obvious fix, scheduling
+# the pole against the operating point, was scheduled from a measurement that
+# was describing the wrong node. Four structures, each one fixing a defect the
+# previous one made visible, ending at 0.077 against a 0.15 threshold.
 #
 #   DEMO_PAUSE=1 ./demo_2_dcc.sh    pause between acts, for presenting live
 
@@ -57,54 +52,62 @@ say ""
 say "elapsed: $(( $(date +%s) - T0 )) s"
 beat
 
-hr "3. Read that result carefully"
-say "The FIT is good:      AC 0.19 dB, DC curve a clean tanh."
-say "The TRANSIENT fails:  rms 0.34 against a 0.15 threshold."
-say ""
-say "Two separate things are happening, and only one of them is a defect."
+hr "3. It passes -- and what it took is the interesting part"
+say "AC fit 0.027 dB, DC curve a clean tanh, transient 0.077 against a"
+say "0.15 threshold. But this block failed every fixed-pole structure, and"
+say "the two lines the run printed are the reason it does not any more:"
+echo
+python3 - "$OUT/result.json" <<'PY' | sed 's/^/      /'
+import json, sys, textwrap
+for w in json.load(open(sys.argv[1]))["result"].get("warnings", []):
+    if w.startswith(("collapsed", "LARGE-SIGNAL")):
+        print("\n".join(textwrap.wrap(w, 66)))
+        print()
+PY
 beat
 
-hr "3a. The tool changed the model's STRUCTURE by itself"
-say "A comparator's incremental gain is -26.6 at the slicing threshold and"
-say "essentially zero once it has slid past. The textbook decomposition"
+hr "3a. The measurement that was describing the wrong node"
+say "Scheduling a pole against the operating point is the right idea, and"
+say "the pipeline could already do it. The question is where the schedule"
+say "comes from -- and the obvious source is wrong here:"
 say ""
-say "      y = static_curve(u) + (H(s) - H(0)) * (u - bias)"
+say "    from the AC sweep   1.2 .. 3.7e8 rad/s      613,666x"
+say "    by stepping it      1.3e10 .. 5.1e10        3.9x"
 say ""
-say "is only right NEAR the bias. static_curve saturates; the linear"
-say "correction term does not. With H(0) = -26.6 and a rail-to-rail +-0.9 V"
-say "input, that correction alone is a +-24 V quantity on a 1.8 V supply."
+say "Both are real measurements of this circuit. The first is the"
+say "comparator's small-signal pole at its high-gain null, where its"
+say "incremental gain has collapsed -- a true fact about an INTERNAL node."
+say "But vout is buffered by an inverter, and does not obey it."
 say ""
-say "So the pipeline emits a Wiener structure instead -- unity-DC-gain"
-say "dynamics applied to the already-nonlinear signal, bounded by the static"
-say "curve by construction. This is the line that does it:"
-echo
-grep -E "u_dev = static_curve|final_out = static_curve" "$OUT/dcc_rnm.sv" 2>/dev/null | sed 's/^/      /'
-echo
-say "Identical fitted coefficients, the two structures:"
+say "Scheduled on the AC number the model crawls at tau = 0.83 s exactly"
+say "where the circuit is pinned at a rail: over the third quarter of the"
+say "chirp it held 0.299..0.629 V while SPICE held -0.001..0.000 V."
 say ""
-say "      additive : model spans -22.15 .. +13.14 V     rms 5.64   FAIL"
-say "      Wiener   : model spans   0.00 ..   1.63 V     rms 0.34   fail"
-say "      SPICE    :               -0.01 ..  +1.81 V"
-say ""
-say "Both score rms_error_db = 0.186. The fit residual is IDENTICAL for a"
-say "model that stays on the supply and one that misses it by 20 V, because"
-say "the error is in the structure, not the coefficients. Nothing in the"
-say "frequency domain can see this. Simulating the model against the circuit"
-say "in time is what catches it."
+say "Stepping the input and timing the output measures the rate the model"
+say "actually integrates. 33 of 33 operating points, and a block that"
+say "spans 3.9x rather than six orders of magnitude."
 beat
 
-hr "3b. What is left over is real, and was announced up front"
-grep -oE "the dominant pole moves [0-9.e+-]+ Hz -> [0-9.e+-]+ Hz \([0-9]+x\) across the characterized DC range" "$OUT/run.log" 2>/dev/null | tail -1 | sed 's/^/      /'
-echo
-say "The dynamics still carry the poles fitted at ONE bias point. So the"
-say "model is now the right size and the wrong shape -- which is exactly"
-say "what level dependence should look like, and why it still reads 0.34"
-say "instead of passing."
+hr "3b. Four structures, each fixing what the last one exposed"
 say ""
-say "That is the honest state of this block: the pipeline models it as well"
-say "as a fixed-pole structure can, detects that a fixed pole is not enough,"
-say "and says so. Closing the gap needs pole scheduling, which is currently"
-say "implemented only for one-pole/no-zero blocks."
+say "    5.64    additive       static_curve(u) + (H(s)-H(0))*(u-bias)"
+say "                           the correction term is +-24 V on a 1.8 V"
+say "                           supply: static_curve saturates, it does not"
+say ""
+say "    0.337   Wiener         H_norm(s)[static_curve(u)] -- bounded by"
+say "                           the static curve, but the dynamics are still"
+say "                           one bias point's poles"
+say ""
+say "    0.249   scheduled lag  dy/dt = wp(in)*(static_curve(in) - y), with"
+say "                           wp from the AC sweep -- the wrong node"
+say ""
+say "    0.077   the same form, scheduled from the STEP response   PASS"
+say ""
+say "Every one of those numbers is a transient comparison. The AC fit never"
+say "moved more than 0.03 dB across the whole progression, which is the"
+say "point worth taking away: the frequency-domain residual could not"
+say "distinguish a model that leaves the supply rails from one that does"
+say "not. Only simulating the model against the circuit in time can."
 beat
 
 hr "4. So measure what the block actually does"
@@ -136,12 +139,14 @@ python3 "$HARNESS/dcc_vcd.py" 2>&1 | grep -viE '^\s*$' | sed 's/^/    /'
 beat
 
 hr "Summary"
-say "fit quality       : AC 0.19 dB, DC residual 0.000586"
-say "structure         : Wiener, chosen automatically from the level-dependence"
-say "                    probe (additive would score the same 0.19 dB and swing"
-say "                    -22 .. +13 V on a 1.8 V supply)"
-say "transient         : 0.34 vs 0.15 threshold -- bounded, wrong shape, and"
-say "                    that residual IS the 613,666x pole movement"
+say "fit quality       : AC 0.027 dB (one pole), DC residual 0.000586"
+say "structure         : scheduled lag, chosen automatically -- the 3p2z fit"
+say "                    was collapsed to one pole because that is the shape"
+say "                    scheduling needs, at a cost of 0.013 dB in band"
+say "transient         : 0.077 vs 0.15 threshold   PASS"
+say "what it took      : a schedule measured by STEPPING the input, not read"
+say "                    off the AC sweep -- 3.9x of real rate spread where"
+say "                    the AC pole reported 613,666x of the wrong node"
 say "50% duty null     : vctrl = 1.1477 V"
 say "correction range  : 51.5 percentage points of duty"
 say ""
