@@ -89,7 +89,28 @@ echo
 python3 "$HARNESS/pi_model.py" 2>&1 | sed 's/^/  /'
 beat
 
-hr "6. How we know the residual is real"
+hr "6. And a verification environment for it"
+say "The other two demos end on a generated UVM-MS testbench. This block"
+say "could not have one until recently: that generator is built around DC"
+say "operating points and an AC sweep, and neither describes an"
+say "interpolator -- its function is edge placement, and its model has a"
+say "code port the DC/AC environment has nowhere to drive."
+say ""
+say "So there is a second generator for blocks whose golden is a value per"
+say "code. Same user-defined nettype, same interconnect ports, same uvm_ms"
+say "library, same rule that goldens are ngspice measurements -- what"
+say "changes is the stimulus and the check."
+echo
+python3 "$HARNESS/pi_uvm.py" 2>&1 | sed 's/^/  /'
+echo
+say "Note what act 5 could not tell you. That act drove the model from a"
+say "plain testbench and compared edges in Python -- our own arithmetic"
+say "checking our own model. This is the scoreboard making the call, at a"
+say "tolerance of a tenth of an LSB, which is the delay line's own"
+say "quantisation floor rather than a number chosen to fit the answer."
+beat
+
+hr "7. How we know the residual is real"
 say "Three mechanisms, each chosen from what the measurement said, and the"
 say "first two rejected by it:"
 say ""
@@ -110,6 +131,8 @@ say "DNL / INL    : -1.61 / -1.59 LSB"
 say ""
 say "model        : code-selected delay line, 9 codes, generated and simulated"
 say "               -- edge lands within 1.2 ps, under 2% of a 62.5 ps LSB"
+say "UVM-MS       : 9 phase checks, 0 failed, worst 3.3 ps against a 6.3 ps"
+say "               tolerance (a tenth of an LSB)"
 say ""
 say "Both of the gaps this demo used to end on are closed: a timing"
 say "observable in the equivalence check (see the DCC demo), and a model for"
