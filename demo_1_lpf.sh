@@ -95,9 +95,21 @@ echo
     | grep -E "SB_SUMMARY|UVM_ERROR|UVM_FATAL|compiling|running|COMPILE FAILED" \
     | head -12 | sed 's/^/    /' )
 echo
-say "52 DC checks pass exactly. 2 of 18 AC checks fail by 0.03 dB at 89 MHz,"
-say "23x above the dominant pole and 38 dB down -- a checker set tighter than"
-say "it strictly needs to be, reporting honestly."
+say "52 DC checks exact, 18 AC checks clean, worst 0.06 dB against a"
+say "0.25 dB tolerance."
+say ""
+say "Two of those AC checks used to fail, at 89 MHz, and the reason is"
+say "worth a moment. The model was right: driven and measured on its own"
+say "it reads -38.30 dB where the fit and ngspice both say -38.35. The"
+say "TESTBENCH was wrong. It synthesises its excitation at 64 samples per"
+say "cycle, while the model only advances on its own 304 ps step -- so at"
+say "89 MHz the model saw every OTHER drive update and nothing it was"
+say "asked for. The reading came out 0.28 dB low, over a 0.25 dB tolerance."
+say ""
+say "The fix was not the tolerance. The check now stops where the model can"
+say "still see the excitation it is given, which is 50 MHz here. A"
+say "testbench that reports a good model as bad is the failure mode that"
+say "teaches people to widen tolerances until nothing fails at all."
 beat
 
 hr "Summary"
