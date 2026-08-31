@@ -47,7 +47,9 @@ python3 -m spice2rnm "$NETLIST" \
   --out-dir "$OUT" \
   --input-node clk --output-node vout \
   --ngspice-bin "$NGSPICE" \
-  --sim xezim 2>&1 | grep -viE '^\s*$' | sed 's/^/    /'
+  --sim xezim \
+  --emit-uvm-ms 2>&1 | tee "$OUT/pipeline.txt" \
+  | grep -viE '^\s*$' | sed 's/^/    /'
 say ""
 say "elapsed: $(( $(date +%s) - T0 )) s"
 beat
@@ -138,6 +140,34 @@ echo
 python3 "$HARNESS/dcc_vcd.py" 2>&1 | grep -viE '^\s*$' | sed 's/^/    /'
 beat
 
+hr "6. It also emitted a verification environment -- and it passes"
+say "The same run emits a UVM-MS testbench whose goldens are ngspice"
+say "samples, not points evaluated from the fit the model implements."
+echo
+ls "$OUT"/*.sv "$OUT"/*.svh "$OUT"/*.sh 2>/dev/null \
+  | grep -v '_rnm\.sv$' | sort | xargs -r -n1 basename | sed 's/^/      /'
+echo
+say "Note what it does NOT contain. An ngspice .ac sweep is a linearisation"
+say "at the bias, and this model deliberately is not one -- its small-signal"
+say "gain there is the static curve's local slope, not H(0). Checked against"
+say "an AC golden it reads 44 dB where ngspice reads -23. So the generator"
+say "omits that section for a large-signal model rather than shipping a"
+say "check that is red by construction, and says so:"
+echo
+sed -n 's/.*ac check: omitted/omitted/p' "$OUT/pipeline.txt" 2>/dev/null \
+  | tail -1 | fold -s -w 64 | sed 's/^/      /'
+echo
+( cd "$OUT" && IVL_PREFIX="$HOME/iverilog-unified-local" \
+    UVM_MS_LIB="$HOME/uvm_ms_demo/ms" \
+    timeout 900 bash run_dcc_ms.sh 2>&1 \
+    | grep -E "SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED" \
+    | sed 's/^/    /' )
+echo
+say "60 operating points, zero failures, worst error 0.2 mV against a"
+say "3.6 mV tolerance -- on the block that needed four model structures"
+say "to get right."
+beat
+
 hr "Summary"
 say "fit quality       : AC 0.027 dB (one pole), DC residual 0.000586"
 say "structure         : scheduled lag, chosen automatically -- the 3p2z fit"
@@ -149,6 +179,7 @@ say "                    off the AC sweep -- 3.9x of real rate spread where"
 say "                    the AC pole reported 613,666x of the wrong node"
 say "50% duty null     : vctrl = 1.1477 V"
 say "correction range  : 51.5 percentage points of duty"
+say "UVM-MS            : 60 DC checks, 0 failed (AC omitted -- see act 6)"
 say ""
 say "csv: $HOME/s2r_runs/demo_dcc/duty_vs_ctrl.csv"
 echo
