@@ -52,6 +52,19 @@ python3 -m spice2rnm "$NETLIST" \
   | grep -viE '^\s*$' | sed 's/^/    /'
 say ""
 say "elapsed: $(( $(date +%s) - T0 )) s"
+
+# The generated testbench takes about 45 s and depends on nothing acts 4 and
+# 5 do, so start it now and collect it in act 6. Nothing is skipped -- the
+# run is the same run, it just happens alongside narration instead of after
+# it.
+MS_LOG="$OUT/uvm_ms_run.log"
+MS_PID=""
+if [ -f "$OUT/run_dcc_ms.sh" ]; then
+  ( cd "$OUT" && IVL_PREFIX="$HOME/iverilog-unified-local" \
+      UVM_MS_LIB="$HOME/uvm_ms_demo/ms" \
+      timeout 900 bash run_dcc_ms.sh > "$MS_LOG" 2>&1 ) &
+  MS_PID=$!
+fi
 beat
 
 hr "3. It passes -- and what it took is the interesting part"
@@ -157,11 +170,16 @@ echo
 sed -n 's/.*ac check: omitted/omitted/p' "$OUT/pipeline.txt" 2>/dev/null \
   | tail -1 | fold -s -w 64 | sed 's/^/      /'
 echo
-( cd "$OUT" && IVL_PREFIX="$HOME/iverilog-unified-local" \
-    UVM_MS_LIB="$HOME/uvm_ms_demo/ms" \
-    timeout 900 bash run_dcc_ms.sh 2>&1 \
-    | grep -E "SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED" \
-    | sed 's/^/    /' )
+if [ -n "$MS_PID" ]; then
+  wait "$MS_PID"
+  say "(started right after act 2 and run alongside acts 4 and 5 -- the"
+  say " same run, just not made to wait its turn)"
+  echo
+  grep -E "SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED" "$MS_LOG" \
+    | sed 's/^/    /'
+else
+  say "no generated runner found -- was --emit-uvm-ms passed?"
+fi
 echo
 say "60 operating points, zero failures, worst error 0.2 mV against a"
 say "3.6 mV tolerance -- on the block that needed four model structures"
