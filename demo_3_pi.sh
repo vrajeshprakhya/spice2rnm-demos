@@ -74,40 +74,49 @@ say "which is what a system-level simulation of a PI actually wants. Measure"
 say "the phase at every code, and that table IS the model."
 beat
 
-hr "4. Phase against code"
-say "Sweeping the thermometer code, measuring where the output edge lands."
+hr "4. One command"
+say "The single-input path cannot express this block. The code-phase path"
+say "can, and it is the same tool: measure at every setting, generate the"
+say "model from the measurement, emit an environment that checks it."
 echo
-python3 "$HARNESS/demo_pi.py" 2>&1 | tail -26 | sed 's/^/    /'
-beat
-
-hr "5. From that table to a model that runs"
-say "The nine numbers above are the model. Emitted as SystemVerilog and"
-say "then SIMULATED -- comparing a model against the table it was built"
-say "from would prove nothing, so this drives the generated module with a"
-say "clock and asks where its output edge actually lands."
+say "  python3 -m spice2rnm work/pi_therm.cir --output-node vout \\"
+say "      --code-map thermometer:8 --code-period 2e-9 --emit-uvm-ms"
 echo
-python3 "$HARNESS/pi_model.py" 2>&1 | sed 's/^/  /'
-beat
-
-hr "6. And a verification environment for it"
-say "The other two demos end on a generated UVM-MS testbench. This block"
-say "could not have one until recently: that generator is built around DC"
-say "operating points and an AC sweep, and neither describes an"
-say "interpolator -- its function is edge placement, and its model has a"
-say "code port the DC/AC environment has nowhere to drive."
+T0=$(date +%s)
+( cd "$S2R" && python3 -m spice2rnm work/pi_therm.cir \
+    --out-dir "$OUT" --output-node vout \
+    --code-map thermometer:8 --code-period 2e-9 \
+    --ngspice-bin "$NGSPICE" --emit-uvm-ms 2>&1 ) \
+  | grep -viE '^\s*$' | sed 's/^/    /'
 say ""
-say "So there is a second generator for blocks whose golden is a value per"
-say "code. Same user-defined nettype, same interconnect ports, same uvm_ms"
-say "library, same rule that goldens are ngspice measurements -- what"
-say "changes is the stimulus and the check."
+say "elapsed: $(( $(date +%s) - T0 )) s"
+say ""
+say 'thermometer:8 is shorthand for the 9 settings of 16 sources this'
+say "block has. A JSON list of {source: volts} covers any other coded"
+say "block -- it says nothing about what the settings mean, which is what"
+say "makes it general."
+beat
+
+hr "5. The environment it emitted, running"
+say "Goldens are the ngspice edge measurements from the sweep above --"
+say "not points read back from the model's own delay table, which would"
+say "pass unconditionally."
 echo
-python3 "$HARNESS/pi_uvm.py" 2>&1 | sed 's/^/  /'
+( cd "$OUT" && timeout 900 bash run_pi_therm_ms.sh 2>&1 \
+  | grep -E "SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED|=== " \
+  | sort -u | sed 's/^/    /' )
 echo
-say "Note what act 5 could not tell you. That act drove the model from a"
-say "plain testbench and compared edges in Python -- our own arithmetic"
-say "checking our own model. This is the scoreboard making the call, at a"
-say "tolerance of a tenth of an LSB, which is the delay line's own"
-say "quantisation floor rather than a number chosen to fit the answer."
+say "A tenth of an LSB is the delay line's own quantisation floor, not a"
+say "tolerance chosen to fit the answer: the model sizes its time step at"
+say "ten steps per LSB, so this fails on a regression and not on rounding."
+beat
+
+hr "6. What the numbers mean"
+say "A PI is specified by phase per code, DNL and INL. All of it derives"
+say "from the run above -- one measurement behind the model, the"
+say "testbench, and this table."
+echo
+python3 "$HARNESS/pi_analyze.py" "$OUT/result.json" 2>&1 | sed 's/^/    /'
 beat
 
 hr "7. How we know the residual is real"
@@ -129,8 +138,8 @@ say "traversal    : -500.1 ps against a 500 ps I/Q separation -- the full span"
 say "codes        : 9, monotonic, zero cycle-to-cycle jitter"
 say "DNL / INL    : -1.61 / -1.59 LSB"
 say ""
-say "model        : code-selected delay line, 9 codes, generated and simulated"
-say "               -- edge lands within 1.2 ps, under 2% of a 62.5 ps LSB"
+say "one command  : netlist -> measured model -> running testbench"
+say "model        : code-selected delay line, 9 codes"
 say "UVM-MS       : 9 phase checks, 0 failed, worst 3.3 ps against a 6.3 ps"
 say "               tolerance (a tenth of an LSB)"
 say ""
@@ -143,5 +152,5 @@ say "This works by enumerating a finite set of discrete settings -- which is"
 say "what makes it tractable, since thermometer coding turns 2^16"
 say "combinations into nine. A 2-D surface is different work."
 say ""
-say "csv: $HOME/s2r_runs/demo_pi/phase_vs_code.csv"
+say "run: $OUT/result.json  (model, testbench and table all derive from it)"
 echo
