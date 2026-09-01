@@ -130,11 +130,23 @@ spice2rnm dcc.cir --input-node clk --output-node vout \
         1800-2017 \S6.6.7) with a generated resolution function, so
         multiple drivers on a net --- an offset source, a noise injector, a
         second bridge --- combine in the net type rather than in hand-edited
-        testbench code; there is no \texttt{wreal} anywhere, and no AMS
-        licence needed to run it. Bridge and wrapper ports are
+        testbench code; the default output contains no \texttt{wreal}
+        and needs no AMS licence to run. Bridge and wrapper ports are
         \texttt{interconnect} (\S6.6.8), inheriting the testbench's nettype
         instead of naming one, and scoreboard golden values are SPICE
         measurements of your circuit.
+  \item \textbf{An optional wreal boundary}
+        (\texttt{-{}-emit-wreal}) for flows standardised on
+        \texttt{wreal} nets: a thin wrapper with wreal ports around the
+        untouched core model, mirroring what the DMS wrapper does on the
+        nettype side --- one boundary file per discipline, so adopting the
+        model never means adopting a net discipline. Verified against all
+        three case-study models using xezim's wreal support: wrapper and
+        bare core, driven with identical stimulus, agree exactly (worst
+        difference $0$ over $120$ randomised samples, code-controlled
+        model included). wreal is a simulator extension rather than IEEE
+        1800, so the wrapper is a separate file the default output does
+        not depend on.
   \item \textbf{Equivalence evidence}: circuit and model driven with the
         identical stimulus, compared in the domain that matters for the
         block --- waveform error for signal-path blocks, edge placement for
@@ -380,8 +392,8 @@ pipeline runs entirely on measurement.
   \item \textbf{Inputs}: SPICE netlists (ngspice dialect), flat or with
         subcircuits; optional plain-language functional specification.
   \item \textbf{Outputs}: SystemVerilog real-number models (plain
-        \texttt{real} ports), UVM-MS 1.0 environments, equivalence reports
-        with archived waveforms.
+        \texttt{real} ports), UVM-MS 1.0 environments, optional wreal
+        wrappers, equivalence reports with archived waveforms.
   \item \textbf{Toolchain}: ngspice for characterisation; any
         Icarus-compatible SystemVerilog simulator with UVM support for the
         generated environments. The generated models and environments are

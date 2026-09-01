@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-01T18:19:45.050585+00:00",
+    "timestamp_utc": "2026-09-01T18:46:09.741397+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -18,7 +18,8 @@
       "/home/vraje/ngspice-install/bin/ngspice",
       "--sim",
       "xezim",
-      "--emit-uvm-ms"
+      "--emit-uvm-ms",
+      "--emit-wreal"
     ],
     "cwd": "/home/vraje/spice2rnm",
     "netlist": "/home/vraje/spice2rnm/work/rc_lpf2.cir",

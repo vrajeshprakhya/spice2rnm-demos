@@ -47,6 +47,11 @@ no AC section, because neither describes edge placement. Its scoreboard
 holds one measured phase golden per thermometer code, checked to a tenth
 of an LSB.
 
+**The wreal boundary.** Each case also carries a `*_wreal.sv` wrapper —
+the same core model behind `wreal` ports, for flows standardised on wreal
+nets. Ten lines of discipline conversion around an untouched core:
+adopting the model never means adopting a net discipline.
+
 **The evidence.** Each case's `result.json` and `pipeline.txt` are the
 tool's own record of the run: the fit, the equivalence verdict, and every
 warning it raised on the way — including the measurements behind choices
