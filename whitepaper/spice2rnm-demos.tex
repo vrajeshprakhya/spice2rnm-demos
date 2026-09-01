@@ -263,7 +263,12 @@ Phase interpolator & phase per code        & $9$       & $0$ \\
 
 \noindent All three case studies --- characterisation, model generation,
 both simulators, and every generated environment --- run end to end in
-$355$ seconds on a laptop. The generated artifacts themselves --- the
+$355$ seconds on a laptop. spice2rnm's outputs are simulator-agnostic ---
+plain IEEE 1800 SystemVerilog, tied to no vendor --- and to keep every
+result in this paper reproducible by anyone, all of it was produced with
+universally available open-source simulators: \textbf{ngspice} on the
+analog side and \textbf{xezim} for the SystemVerilog and UVM-MS runs. No
+commercial licence was used anywhere in this document. The generated artifacts themselves --- the
 models, the complete environments, and the evidence files, exactly as the
 tool wrote them --- are published for inspection at
 
@@ -379,7 +384,9 @@ pipeline runs entirely on measurement.
         with archived waveforms.
   \item \textbf{Toolchain}: ngspice for characterisation; any
         Icarus-compatible SystemVerilog simulator with UVM support for the
-        generated environments.
+        generated environments. The generated models and environments are
+        standard SystemVerilog and carry no vendor dependence; every run
+        in this paper used the open-source pair ngspice and xezim.
   \item \textbf{Block-level scope}: single-input single-output blocks and
         compositions of them, including current-mode blocks sharing a
         node. Hierarchical composition trades some accuracy for structure;
