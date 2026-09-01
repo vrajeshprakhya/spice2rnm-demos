@@ -120,10 +120,20 @@ spice2rnm dcc.cir --input-node clk --output-node vout \
         ports, simulator-portable, with the model structure chosen
         automatically to match the block's measured behaviour --- including
         blocks whose dynamics move with signal level, where any
-        fixed-response model is wrong across most of its range.
+        fixed-response model is wrong across most of its range. The model's
+        own ports are plain \texttt{real}, so it runs on any IEEE 1800
+        simulator with no nettype or AMS support at all; the generated DMS
+        wrapper is what lifts it onto the testbench's nettypes.
   \item \textbf{A UVM-MS verification environment} following the Accellera
-        UVM-MS specification: user-defined nettypes, \texttt{interconnect}
-        ports, a DMS bridge, and scoreboards whose golden values are SPICE
+        UVM-MS specification, built on IEEE 1800 --- not on Verilog-AMS.
+        Analog values travel on \emph{user-defined nettypes} (IEEE
+        1800-2017 \S6.6.7) with a generated resolution function, so
+        multiple drivers on a net --- an offset source, a noise injector, a
+        second bridge --- combine in the net type rather than in hand-edited
+        testbench code; there is no \texttt{wreal} anywhere, and no AMS
+        licence needed to run it. Bridge and wrapper ports are
+        \texttt{interconnect} (\S6.6.8), inheriting the testbench's nettype
+        instead of naming one, and scoreboard golden values are SPICE
         measurements of your circuit.
   \item \textbf{Equivalence evidence}: circuit and model driven with the
         identical stimulus, compared in the domain that matters for the
