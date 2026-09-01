@@ -1,0 +1,518 @@
+% spice2rnm --- three worked examples
+%
+% Standard classes and packages only, so this builds with a stock TeX Live
+% or MiKTeX and needs no local .sty files:
+%   pdflatex spice2rnm-demos.tex   (twice, for the table of contents)
+%
+% Every figure quoted here is machine-produced. Regenerate them with
+%   cd demos && ./run_all.sh
+% and the numbers in Section 6 are what that prints.
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{accent}{HTML}{1F5673}
+\definecolor{pass}{HTML}{1B7A3D}
+\definecolor{fail}{HTML}{A8322D}
+\definecolor{rule}{HTML}{C8CDD2}
+
+\newcommand{\pass}{\textcolor{pass}{\textsc{pass}}}
+\newcommand{\fail}{\textcolor{fail}{\textsc{fail}}}
+\newcommand{\unit}[1]{\,\textrm{#1}}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  frame=leftline,
+  framerule=1pt,
+  rulecolor=\color{rule},
+  xleftmargin=1em,
+  framexleftmargin=1em,
+  aboveskip=1em,
+  belowskip=1em,
+  showstringspaces=false,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize\textcolor{accent}{spice2rnm}}
+\rhead{\footnotesize Three worked examples}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\title{\vspace{-2em}
+  {\color{accent}\Huge From netlist to verified model}\\[0.4em]
+  {\large Three worked examples of automatic real-number-model generation}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-3em}
+
+\begin{abstract}
+\noindent
+Real number models are how a mixed-signal block joins a digital regression
+suite. Writing one by hand is slow, and keeping it honest as the circuit
+changes is slower. \textbf{spice2rnm} takes a SPICE netlist and produces a
+synthesisable SystemVerilog real-number model, a UVM-MS verification
+environment, and evidence that the two agree with the circuit --- in one
+command, with no hand-written model and no hand-written testbench.
+
+This paper walks through three blocks of increasing difficulty: a filter
+whose behaviour is a frequency response, a duty-cycle corrector whose
+behaviour is emphatically not, and a phase interpolator that has almost no
+amplitude behaviour at all. The third one breaks the usual approach
+outright, which is why it is here.
+
+Every number in this document was produced by running the tool. Where a
+result is unflattering it is printed anyway, because a verification tool
+that only reports its wins is not a verification tool.
+\end{abstract}
+
+\vspace{1em}
+\tableofcontents
+\vspace{1em}
+
+%======================================================================
+\section{The problem}
+
+A behavioural model has to be two contradictory things: fast enough to sit
+in a digital regression, and faithful enough that passing it means
+something. Hand-written models drift from their circuits, and the drift is
+silent --- the model still compiles, still simulates, still passes.
+
+The usual defence is a hand-written testbench, which has the same problem
+one level up. Somebody decides what to check and how close is close enough,
+and those decisions are rarely written down next to the number they
+produced.
+
+\textbf{spice2rnm} attacks both. It characterises the circuit in ngspice,
+fits a structure to what it measured, emits SystemVerilog, and then emits a
+UVM-MS environment whose golden values are \emph{ngspice measurements} ---
+never the fitted equations. Checking a model against the equations it
+implements passes unconditionally and means nothing; that rule is the spine
+of everything below.
+
+%======================================================================
+\section{The pipeline}
+
+\begin{lstlisting}
+python3 -m spice2rnm dcc.cir --input-node clk --output-node vout \
+        --emit-uvm-ms --spec dcc_spec.md
+\end{lstlisting}
+
+\noindent Seven stages run without further input:
+
+\begin{enumerate}[leftmargin=2em,itemsep=0.2em]
+  \item \textbf{Parse and repair} the netlist; supply missing model cards.
+  \item \textbf{Partition} into blocks from the device graph, when the
+        circuit has recoverable structure.
+  \item \textbf{Characterise} each block in context: operating point, DC
+        sweep, AC sweep, and --- where the dynamics move with level --- a
+        large-signal step schedule.
+  \item \textbf{Fit} a rational $H(s)$ and a static transfer curve.
+  \item \textbf{Choose a structure} from what the measurements say, not
+        from a fixed template (Section~\ref{sec:dcc}).
+  \item \textbf{Emit} SystemVerilog, plus a UVM-MS environment with
+        ngspice-measured goldens.
+  \item \textbf{Prove it} by driving circuit and model with the same
+        stimulus and comparing.
+\end{enumerate}
+
+\noindent An optional natural-language functional spec supplies what a
+netlist cannot: what the block is \emph{for}, the rate it must run at, and
+how close is close enough (Section~\ref{sec:spec}).
+
+%======================================================================
+\section{Demo 1 --- Two-pole filter: the baseline}
+
+An RC low-pass with two poles. This is the case the classical approach
+handles well, and it is here to establish what ``working'' looks like
+before the harder blocks complicate it.
+
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Fitted response} & $2$ poles, $3.82\unit{MHz}$ and $26.2\unit{MHz}$ \\
+AC fit residual          & $1.4\times10^{-8}\unit{dB}$ \\
+DC curve                 & linear, residual $2.2\times10^{-16}$ \\
+\midrule
+Chirp equivalence        & $0.0290$ against a $0.15$ threshold \quad \pass \\
+PRBS (independent stimulus) & $0.0097$ normalised \quad \pass \\
+\midrule
+UVM-MS, DC section       & $51$ checks, $0$ failed \\
+UVM-MS, AC section       & $19$ checks, $0$ failed \\
+\quad worst magnitude    & $0.0390\unit{dB}$ of $0.25$ at $50.1\unit{MHz}$ \\
+\quad worst phase        & $2.70^{\circ}$ of $8.00^{\circ}$ at $708\unit{kHz}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Two details are worth more than the pass.
+
+\textbf{The PRBS run is not the fit's own stimulus.} The model was fitted
+against a chirp and is then checked against a pseudo-random bit sequence it
+never saw. A model that had memorised its training signal would show it
+here.
+
+\textbf{One AC point was once wrong, and the fix was not to widen the
+tolerance.} A $89\unit{MHz}$ point read $-38.63\unit{dB}$ where the model
+computes $-38.30$. The model was right; the \emph{testbench} was driving at
+$64$ samples per cycle while the model stepped at $303.663\unit{ps}$ ---
+$36.9$ samples per cycle --- so it was missing every other update. Raising
+the testbench's sampling rate fixed it. Widening the tolerance would also
+have made the red go away, and would have hidden a real measurement bug.
+
+%======================================================================
+\section{Demo 2 --- Duty-cycle corrector: when the usual approach fails}
+\label{sec:dcc}
+
+A comparator whose dominant pole moves $613{,}666\times$ across its input
+range. Every fixed-pole structure fails on it, and each failure was
+informative.
+
+\subsection{Four structures}
+
+\begin{center}
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{Structure} & \textbf{Why it fails} & \textbf{Error} \\
+\midrule
+Additive, $\text{static} + (H - H(0))\!\cdot\! u$
+  & correction term is $\pm24\unit{V}$ on a $1.8\unit{V}$ supply & $5.64$ \\
+Wiener, $H_{\text{norm}}(s)[\,g(u)\,]$
+  & bounded, but carries one bias point's poles & $0.337$ \\
+Scheduled lag, rate from the AC sweep
+  & measures an \emph{internal} node the output does not obey & $0.249$ \\
+\textbf{Scheduled lag, rate from stepping}
+  & \textbf{---} & $\mathbf{0.0769}$ \quad \pass \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent \textbf{The AC fit never moved more than $0.03\unit{dB}$ across
+all four.} The frequency-domain residual could not distinguish a model that
+leaves the supply rails from one that does not. That is the argument for
+transient verification, stated as a measurement rather than as a principle.
+
+The winning structure schedules its rate against a \emph{large-signal step}
+measurement: step the input, time the output's own recovery. That spans
+$2.1$ to $8.1\unit{GHz}$ of real rate, where the AC sweep reported six
+orders of magnitude of the wrong node.
+
+\subsection{The section that is deliberately absent}
+
+The generated environment for this block has \emph{no AC section}. That is
+not an omission, it is a measurement. Forced on:
+
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+All $10$ AC magnitude points & \fail, by $55.6$ to $62.1\unit{dB}$ \\
+Model reads, flat across $3.16$--$112\unit{MHz}$ & $44.08\unit{dB}$ \\
+ngspice reads over the same band & $-11.5$ to $-18.0\unit{dB}$ \\
+\midrule
+Same model, transient check & $0.0769$ \quad \pass \\
+Same model, DC operating points & $51$ of $51$ \quad \pass \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Both are measurements of this circuit at this bias, and they
+disagree by ${\sim}56\unit{dB}$, because they measure different things: the
+model's small-signal gain at the bias is the static curve's \emph{local
+slope}, not $H(0)$. Emitting that section would produce a testbench that
+cannot pass --- and it costs more than the whole demo to say so, running
+past $1200\unit{s}$ without reaching a verdict where the rest of the run
+takes $72\unit{s}$.
+
+\subsection{What replaces it}
+
+A duty section: drive the circuit with clocks, record the output duty from
+ngspice, drive the model with the same clocks. For a clock-path block that
+is the function.
+
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+DC section    & $51$ checks, $0$ failed \\
+Duty section  & $15$ checks, $0$ failed, worst $0.314$ pp of $0.500$ \\
+Golden table spans & $20.1$ pp of output duty \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The span matters: a model that ignored its input entirely would
+reproduce a flat table. This one cannot.
+
+\subsection{A defect the new section found}
+
+The model returned \emph{exactly} $50.000\%$ duty for a $50\%$ input,
+whatever the circuit did. Structural, not a fitting error --- the rate was
+indexed by input level alone, so the same level gave the same rate whichever
+way the output travelled, and a symmetric curve driving a symmetric lag has
+no asymmetry to give. The circuit has one: it falls in $239\unit{ps}$ and
+rises in $334\unit{ps}$.
+
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+At $50\%$ input duty & \textbf{before} & \textbf{after} \\
+\midrule
+model                & $50.000\%$ & $49.855\%$ \\
+ngspice              & $49.855\%$ & $49.855\%$ \\
+error                & $0.148$ pp & $\mathbf{0.000}$ \textbf{pp} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Two things about this are worth stating plainly.
+
+\textbf{The obvious fix did not work.} A rise/fall \emph{rate} asymmetry is
+real and free to measure ($0.8005$, from the schedule's own endpoints) and
+moved the worst error from $0.257$ to $0.256$ pp. Near the threshold the
+scheduled rate is a $20\unit{ps}$ time constant, and $12\%$ of $20\unit{ps}$
+is $2\unit{ps}$ against the $95\unit{ps}$ wanted. The edge position is set
+by the static curve, not by the lag. The skew had to be emitted as a
+\emph{delay}.
+
+\textbf{The headline number got worse while the model got better.} Worst
+duty error moved $0.258 \rightarrow 0.314$ pp, because a second defect --- a
+${\sim}0.2$ pp edge-shape error, identical at both clock rates and so not a
+delay --- had been partially masking the skew at $40/60\%$ duty. Removing
+the skew stopped the masking. Both were always there; now one is fixed and
+the other is measured and named.
+
+%======================================================================
+\section{Demo 3 --- Phase interpolator: no frequency response at all}
+
+A thermometer-coded phase interpolator has essentially no amplitude
+transfer: measured gain $-0.03$ into a $39\unit{mV}$ excursion. There is no
+$H(s)$ worth fitting, and an rms voltage comparison scores noise. The
+classical pipeline stops at characterisation.
+
+The block's specification is phase per code, DNL and INL --- so the tool
+measures phase per code and emits a delay-line model,
+$\text{out}(t) = \text{in}(t - \tau[\text{code}])$.
+
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Settings measured        & $9$ of $9$ \\
+Total traversal          & $-500.1\unit{ps}$, monotonic \\
+Mean step (1 LSB)        & $-62.51\unit{ps}$ \\
+Worst DNL                & $-100.5\unit{ps}$ \quad ($-1.61$ LSB) \\
+\midrule
+UVM-MS phase section     & $9$ checks, $0$ failed \\
+\quad worst              & $3.2627\unit{ps}$ of a $6.2513\unit{ps}$ tolerance \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The tolerance is a tenth of an LSB --- the delay line's own
+quantisation floor, ten steps per LSB, so the check fails on a regression
+and not on rounding. The environment is a different one from demos 1 and 2:
+no DC section, no AC section, because neither an operating-point sweep nor
+a small-signal linearisation describes edge placement.
+
+The worst DNL of $-1.61$ LSB is a property of \emph{the circuit}, reported
+faithfully. The model's job is to reproduce it, and it does.
+
+%======================================================================
+\section{Results}
+
+\begin{center}
+\begin{tabular}{@{}llrr@{}}
+\toprule
+\textbf{Demo} & \textbf{Environment} & \textbf{Checks} & \textbf{Failed} \\
+\midrule
+1 --- filter  & DC $+$ AC                    & $51 + 19$ & $0$ \\
+2 --- DCC     & DC $+$ duty (AC omitted)     & $51 + 15$ & $0$ \\
+3 --- PI      & phase per code               & $9$       & $0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{@{}lrl@{}}
+\toprule
+\textbf{Transient equivalence} & \textbf{Error} & \\
+\midrule
+Demo 1, chirp        & $0.0290$ & of $0.15$ \quad \pass \\
+Demo 1, PRBS         & $0.0097$ & independent stimulus \quad \pass \\
+Demo 2, chirp        & $0.0769$ & of $0.15$ \quad \pass \\
+Demo 3, phase        & $3.26\unit{ps}$ & of $6.25\unit{ps}$ \quad \pass \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent All three demos run end to end in $355\unit{s}$ on a laptop,
+including every ngspice characterisation run, both simulators, and the
+generated UVM-MS environments.
+
+%======================================================================
+\section{Why the green is worth believing}
+
+A suite that passes everything is worth as much as one that fails
+everything. Three mechanisms keep this one honest.
+
+\textbf{Goldens are measurements, never the fit.} Every golden value in
+every generated environment comes from ngspice. Checking a model against
+its own equations passes unconditionally.
+
+\textbf{Passing models are fault-injected, and the verdict must flip.}
+Sensitivity is pinned from both sides --- a $1\%$ gain error must
+\emph{not} be caught against a $15\%$ threshold, a $25\%$ one must be, and a
+$2\times$ pole shift must be. For the duty section, measured on the emitted
+model:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Injected fault} & \textbf{DC section} & \textbf{Duty section} \\
+\midrule
+comparator offset $+5\unit{mV}$   & caught & missed \\
+comparator offset $+20\unit{mV}$  & caught & caught \\
+pole schedule $\times0.5$         & \textcolor{fail}{blind} & missed \\
+pole schedule $\times0.1$         & \textcolor{fail}{blind} & missed \\
+pole schedule $\times0.02$        & \textcolor{fail}{blind} & caught \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Read honestly: the duty section is coarser than DC on offsets and
+only catches a gross rate error. The row that justifies it is the middle
+column --- DC samples settled values, so it is blind to \emph{every} rate
+fault by construction, and this model has no valid AC section. Without the
+duty half, nothing in that environment checks the dynamics at all.
+
+\textbf{No circuit has to stay broken.} An earlier version of the suite
+depended on one case continuing to fail, as a canary. That decayed twice in
+one day as the tool improved. Fault injection replaced it.
+
+%======================================================================
+\section{The functional spec, and what it is really for}
+\label{sec:spec}
+
+A netlist says what a circuit \emph{is}. It never says what it is
+\emph{for}, what rate it must run at, or how close is close enough. Those
+were defaults the tool invented for itself --- and two were poor: a clock
+rate derived from the fitted poles, and a duty tolerance chosen by
+measuring what a model could already do, which is close to circular.
+
+\texttt{--spec} reads a plain-language specification and fills them in:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & \textbf{invented} & \textbf{from the spec} \\
+\midrule
+Clock rates      & $14.8$, $29.5\unit{MHz}$ & $50$, $119.5\unit{MHz}$ \\
+Input duties     & $40/50/60\%$ & $35/50/65\%$ \\
+Duty tolerance   & $0.500$ pp & $1.000$ pp \\
+Golden span      & $20.1$ pp & $30.7$ pp \\
+\midrule
+Verdict          & \multicolumn{2}{l}{$15$ checks, $0$ failed, worst $0.428$ pp \quad \pass} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent \textbf{But the most valuable output is disagreement:}
+
+\begin{lstlisting}
+SPEC CONFLICT: the spec says this block operates up to 4e+08 Hz, but
+the fitted model is only valid below 1.195e+08 Hz -- 3.3x lower.
+\end{lstlisting}
+
+\noindent Either the characterisation must be run wider or the spec's range
+is out of scope. That is a question for an engineer, not something a tool
+should absorb --- so the measurement wins, the check is held at the band,
+and the gap is reported.
+
+\textbf{What a spec will not do} is improve a number the netlist can be
+measured for. The rise/fall skew of Section~\ref{sec:dcc} was found by
+stepping the circuit and timing the output. A sentence claiming ``typical
+propagation delay $300\unit{ps}$'' would have been worse than that
+measurement --- and indeed the real spec states the asymmetry exists
+without giving a number, which is how specifications are actually written.
+
+%======================================================================
+\section{Where the model in the loop sits}
+
+Language models are used at three points, and every one of them follows the
+same rule: \textbf{intent from the model, physics from the measurement.} A
+proposal that does not survive validation against the measured circuit is
+discarded, and the run continues on the default it would have used anyway.
+
+\begin{itemize}[leftmargin=1.5em,itemsep=0.3em]
+  \item \textbf{Partitioning} --- proposing block boundaries in the device
+        graph.
+  \item \textbf{Block function} --- what the block is for, which selects
+        the stimulus, the scoring metric, the verification environment, and
+        the model structure itself.
+  \item \textbf{Specification reading} --- extracting the handful of facts
+        from prose that change how a model is built.
+\end{itemize}
+
+\noindent On the duty-cycle corrector the advisor classified the block
+correctly from measured evidence, independently identified a degenerate
+artefact in the fitted response, and exposed a wrong gate in the tool's own
+validator. It also once chose a verification environment that requires a
+discrete control the block does not have --- which the validator refused,
+with the reason printed. Both outcomes are the system working.
+
+%======================================================================
+\section{Limits}
+
+\begin{itemize}[leftmargin=1.5em,itemsep=0.3em]
+  \item \textbf{Composition costs accuracy.} On a two-block feedback
+        amplifier both blocks pass individually, at $0.0748$ and $0.1366$,
+        while the composed system misses at $0.1995$. The cascade of the
+        two in-context fits matches the real circuit to $0.023\unit{dB}$
+        with no systematic bias, so this is error propagating through gain,
+        not double-counted loading --- checked, not assumed.
+  \item \textbf{The duty check is coarse on offsets}, as the fault table
+        above shows.
+  \item \textbf{An edge-shape error of ${\sim}0.2$ pp} remains in the
+        duty-cycle corrector's model, independent of clock rate and so not
+        a delay. It is measured, named, and unfixed.
+  \item \textbf{Loops the device graph cannot represent} --- and loops that
+        are never in the netlist at all --- are outside what structural
+        partitioning can recover.
+\end{itemize}
+
+%======================================================================
+\section{Reproducing this}
+
+\begin{lstlisting}
+git clone <spice2rnm>  &&  git clone <spice2rnm-demos>
+cd demos && ./run_all.sh
+\end{lstlisting}
+
+\noindent Requires ngspice and an Icarus-compatible simulator with UVM
+support. \texttt{--spec} and the advisors additionally need an Anthropic API
+key; without one, every advisor declines cleanly and the pipeline runs on
+its measured defaults.
+
+\vspace{1.5em}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{0.3em}
+
+\noindent{\footnotesize Figures in this document were produced by
+\texttt{demos/run\_all.sh} and \texttt{tests/run\_tests.py} on
+2026-09-01. Unit suite $28/28$; end-to-end suite $6/6$ against stored
+goldens.}
+
+\end{document}
