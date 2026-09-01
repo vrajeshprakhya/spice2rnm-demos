@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-01T16:40:33.861043+00:00",
+    "timestamp_utc": "2026-09-01T18:19:45.050585+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -144,7 +144,7 @@
     "sv_path": "/home/vraje/s2r_runs/lpf2/rc_lpf2_rnm.sv",
     "sv_text": {
       "__omitted__": "bulk field; written to its own file",
-      "chars": 3667
+      "chars": 3698
     },
     "equivalence": {
       "success": true,
