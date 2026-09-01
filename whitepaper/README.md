@@ -34,6 +34,6 @@ results at that time. If a number in the paper and a number from `run_all.sh`
 disagree, the paper is the stale one — update it rather than the other way
 round.
 
-The fault-injection table in §8 comes from
+The fault-injection table ("Why a green testbench is worth believing") comes from
 `spice2rnm/work/fault_inject_duty.sh`, which takes several minutes and is
 not part of either suite.
