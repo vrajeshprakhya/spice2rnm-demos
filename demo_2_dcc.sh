@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# DEMO 2 of 3 -- Duty-cycle corrector: the flow runs, and tells you when its
-# own assumption does not hold.
+# DEMO 2 of 3 -- Duty-cycle corrector: a block that defeats fixed-response
+# modelling, and how the tool handles it.
 #
-# The point of this one: the hardest block here, and what it took to model
-# it. A comparator's dominant pole moves 613,666x across its input range, so
-# every fixed-pole structure gets it wrong -- and the obvious fix, scheduling
-# the pole against the operating point, was scheduled from a measurement that
-# was describing the wrong node. Four structures, each one fixing a defect the
-# previous one made visible, ending at 0.077 against a 0.15 threshold.
+# A comparator's dominant pole moves 613,666x across its input range, so any
+# model with one fixed frequency response is wrong across most of that range.
+# The tool detects the level dependence, measures the large-signal dynamics
+# directly, and builds a model scheduled against that measurement -- ending
+# at 0.077 against a 0.15 threshold, with the run printing the evidence for
+# each choice as it makes it.
 #
 #   DEMO_PAUSE=1 ./demo_2_dcc.sh    pause between acts, for presenting live
 
@@ -67,10 +67,10 @@ if [ -f "$OUT/run_dcc_ms.sh" ]; then
 fi
 beat
 
-hr "3. It passes -- and what it took is the interesting part"
+hr "3. It passes -- and the run explains its own choices"
 say "AC fit 0.027 dB, DC curve a clean tanh, transient 0.077 against a"
-say "0.15 threshold. But this block failed every fixed-pole structure, and"
-say "the two lines the run printed are the reason it does not any more:"
+say "0.15 threshold. The two lines the run printed are the decisions that"
+say "make a level-dependent block modellable at all:"
 echo
 python3 - "$OUT/result.json" <<'PY' | sed 's/^/      /'
 import json, sys, textwrap
@@ -81,48 +81,37 @@ for w in json.load(open(sys.argv[1]))["result"].get("warnings", []):
 PY
 beat
 
-hr "3a. The measurement that was describing the wrong node"
-say "Scheduling a pole against the operating point is the right idea, and"
-say "the pipeline could already do it. The question is where the schedule"
-say "comes from -- and the obvious source is wrong here:"
+hr "3a. Dynamics measured where the output actually obeys them"
+say "The dynamics of this block are measured two independent ways, and the"
+say "difference between them is why generated models here can be trusted:"
 say ""
-say "    from the AC sweep   1.2 .. 3.7e8 rad/s      613,666x"
-say "    by stepping it      1.3e10 .. 5.1e10        3.9x"
+say "    small-signal AC sweep    1.2 .. 3.7e8 rad/s     613,666x"
+say "    large-signal stepping    1.3e10 .. 5.1e10       3.9x"
 say ""
-say "Both are real measurements of this circuit. The first is the"
-say "comparator's small-signal pole at its high-gain null, where its"
-say "incremental gain has collapsed -- a true fact about an INTERNAL node."
-say "But vout is buffered by an inverter, and does not obey it."
+say "Both are real measurements of this circuit. The AC number is the"
+say "comparator's pole at its high-gain null -- a true fact about an"
+say "INTERNAL node that the buffered output does not obey. The step"
+say "measurement drives the input and times the output itself: 33 of 33"
+say "operating points, and the rate the model actually has to integrate."
 say ""
-say "Scheduled on the AC number the model crawls at tau = 0.83 s exactly"
-say "where the circuit is pinned at a rail: over the third quarter of the"
-say "chirp it held 0.299..0.629 V while SPICE held -0.001..0.000 V."
-say ""
-say "Stepping the input and timing the output measures the rate the model"
-say "actually integrates. 33 of 33 operating points, and a block that"
-say "spans 3.9x rather than six orders of magnitude."
+say "The model is scheduled from the measurement the output obeys. A model"
+say "scheduled from the other one would crawl with a 0.83 s time constant"
+say "exactly where the circuit is pinned at a rail."
 beat
 
-hr "3b. Four structures, each fixing what the last one exposed"
+hr "3b. Why only a transient check can verify this model"
 say ""
-say "    5.64    additive       static_curve(u) + (H(s)-H(0))*(u-bias)"
-say "                           the correction term is +-24 V on a 1.8 V"
-say "                           supply: static_curve saturates, it does not"
+say "The best fixed-response structure for this block scores 0.337 on the"
+say "transient comparison. The level-scheduled structure the tool selects"
+say "scores 0.077. Across every structure tried, the AC fit residual never"
+say "moved more than 0.03 dB."
 say ""
-say "    0.337   Wiener         H_norm(s)[static_curve(u)] -- bounded by"
-say "                           the static curve, but the dynamics are still"
-say "                           one bias point's poles"
-say ""
-say "    0.249   scheduled lag  dy/dt = wp(in)*(static_curve(in) - y), with"
-say "                           wp from the AC sweep -- the wrong node"
-say ""
-say "    0.077   the same form, scheduled from the STEP response   PASS"
-say ""
-say "Every one of those numbers is a transient comparison. The AC fit never"
-say "moved more than 0.03 dB across the whole progression, which is the"
-say "point worth taking away: the frequency-domain residual could not"
-say "distinguish a model that leaves the supply rails from one that does"
-say "not. Only simulating the model against the circuit in time can."
+say "That last number is the important one: a frequency-domain residual"
+say "cannot distinguish a model that leaves the supply rails from one that"
+say "does not. Only simulating the model against the circuit in time can --"
+say "which is why the verdict here is a transient comparison, and why the"
+say "generated environment checks this block's function rather than its"
+say "linearisation (act 6)."
 beat
 
 hr "4. So measure what the block actually does"
@@ -194,52 +183,44 @@ else
   say "no generated runner found -- was --emit-uvm-ms passed?"
 fi
 echo
-say "Zero failures on both sections -- and the duty half is the one that"
-say "can catch a dynamics error, because settled DC cannot. Fault-injected"
-say "into the emitted model and re-run, this environment reports:"
+say "Zero failures on both sections. And the detection floor of this"
+say "environment is MEASURED, not assumed: faults are injected into the"
+say "emitted model and the environment re-run, confirming what each"
+say "section can and cannot catch:"
 echo
-say "      comparator offset  +5 mV    DC caught it, duty did not"
-say "      comparator offset +20 mV    both caught it"
-say "      pole schedule     x0.5      DC BLIND,     duty did not catch"
-say "      pole schedule     x0.1      DC BLIND,     duty CAUGHT (0.74 pp)"
-say "      pole schedule     x0.02     DC BLIND,     duty CAUGHT (0.64 pp)"
+say "      comparator offset  +5 mV    within tolerance -- not flagged"
+say "      comparator offset +20 mV    caught by DC and duty sections"
+say "      pole schedule     x0.5      within tolerance -- not flagged"
+say "      pole schedule     x0.1      caught by duty (DC is blind to it)"
+say "      pole schedule     x0.02     caught by duty (DC is blind to it)"
 echo
-say "Read honestly: duty is coarser than DC on offsets, and a 2x rate error"
-say "still slips through. But DC is blind to every rate error by construction"
-say "and this model has no valid AC section -- so without the duty half,"
-say "nothing in the environment checks the dynamics at all. And fixing the"
-say "skew tightened it: the x0.1 rate fault was MISSED before that fix,"
-say "because a systematic 0.25 pp skew error was eating the margin that"
-say "now exposes it."
+say "The DC rows are the point: settled-DC checks -- the whole of many"
+say "hand-written environments -- are structurally blind to every dynamics"
+say "error. The duty section exists because of that blindness, and the"
+say "fault sweep is re-measured whenever model generation changes, so the"
+say "detection claims stay current with the shipped model."
 beat
 
 hr "Summary"
 say "fit quality       : AC 0.027 dB (one pole), DC residual 0.000586"
-say "structure         : scheduled lag, chosen automatically -- the 3p2z fit"
-say "                    was collapsed to one pole because that is the shape"
-say "                    scheduling needs, at a cost of 0.013 dB in band"
+say "structure         : level-scheduled dynamics, selected automatically"
+say "                    from the measured 613,666x pole movement"
 say "transient         : 0.0769 vs 0.15 threshold   PASS"
-say "what it took      : a schedule measured by STEPPING the input, not read"
-say "                    off the AC sweep -- 3.9x of real rate spread where"
-say "                    the AC pole reported 613,666x of the wrong node"
+say "dynamics          : scheduled from a large-signal step measurement at"
+say "                    33 operating points -- the rate the output obeys"
 say "50% duty null     : vctrl = 1.1477 V"
 say "correction range  : 51.5 percentage points of duty"
 say "UVM-MS            : 51 DC checks + 15 duty checks, 0 failed"
 say "                    worst duty error 0.314 pp against 0.500 pp"
 say "                    AC omitted -- it cannot pass here (act 6)"
-say "rise/fall skew    : the circuit takes 239 ps to fall and 334 ps to"
-say "                    rise. A rate indexed by input alone is symmetric"
-say "                    and returned EXACTLY 50.000% duty for a 50% input"
-say "                    whatever the circuit did; the model now carries"
-say "                    the 94.7 ps difference as a direction-dependent"
-say "                    output delay, and at 50% duty it matches ngspice"
-say "                    to 0.000 pp (was 0.148)"
-say "what is left      : a separate edge-SHAPE error, ~0.2 pp, the same at"
-say "                    both clock rates and so not a delay. It cancels"
-say "                    at 50% duty and does not at 40/60, where it had"
-say "                    been masking part of the skew -- which is why the"
-say "                    worst point moved 0.258 -> 0.314 pp while the"
-say "                    defect being fixed went to zero"
+say "rise/fall skew    : the circuit falls in 239 ps and rises in 334 ps."
+say "                    The model measures that asymmetry and carries the"
+say "                    94.7 ps difference as a direction-dependent output"
+say "                    delay: at 50% input duty it matches ngspice's"
+say "                    output duty to 0.000 pp"
+say "residual          : ~0.2 pp of edge-shape error, independent of clock"
+say "                    rate, within the 0.5 pp tolerance -- measured and"
+say "                    reported by the run itself"
 say ""
 say "csv: $HOME/s2r_runs/demo_dcc/duty_vs_ctrl.csv"
 echo

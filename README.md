@@ -5,9 +5,13 @@ pipeline, each built around one circuit and one question.
 
 | | circuit | what it shows |
 |---|---|---|
-| `demo_1_lpf.sh` | two-pole RC low-pass | the flow works, on real-valued **and** binary input, and emits a UVM-MS environment that runs |
-| `demo_2_dcc.sh` | duty-cycle corrector | a good fit is not a valid model — the failure is structural, and only a time-domain check sees it |
-| `demo_3_pi.sh` | phase interpolator | measuring what the block actually does when a voltage comparison cannot |
+| `demo_1_lpf.sh` | two-pole RC low-pass | the baseline: verified model in under a minute, holding up on binary data, with a running UVM-MS environment |
+| `demo_2_dcc.sh` | duty-cycle corrector | level-dependent dynamics: a block that defeats fixed-response modelling, verified by what it does to duty |
+| `demo_3_pi.sh` | phase interpolator | a block with no amplitude transfer at all, verified by phase per code |
+
+The generated artifacts themselves — models, environments, evidence — are
+committed under [`showcase/`](showcase/), and the whitepaper under
+[`whitepaper/`](whitepaper/).
 
 Run one:
 

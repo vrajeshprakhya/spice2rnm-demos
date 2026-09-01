@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-# DEMO 3 of 3 -- Phase interpolator: where the method reaches its edge.
+# DEMO 3 of 3 -- Phase interpolator: a block with no amplitude transfer at
+# all, verified by phase per code.
 #
-# The point of this one: honesty. The measurement works and gives a real
-# result -- full 500 ps traversal across 9 codes -- but the pipeline cannot
-# model this block, and it is worth saying why precisely rather than
-# hand-waving. Three inputs against a single-input flow, and the observable
-# is phase, not amplitude.
-#
-# Ending a demo on a limitation is what makes the first two believable.
+# The point of this one: the verification strategy follows the block's
+# function. A PI has one clock and sixteen digital enables, essentially no
+# amplitude response, and its whole job is where the output edge lands --
+# so the tool measures phase at every code, generates a delay-line model,
+# and emits a phase-per-code environment. Same tool, same one command.
 #
 #   DEMO_PAUSE=1 ./demo_3_pi.sh    pause between acts, for presenting live
 
@@ -50,23 +49,18 @@ grep -E '^VC[IQ][0-3] ' "$NETLIST" | sed 's/^/    /'
 say "  ... 16 enables in total"
 beat
 
-hr "3. Why the usual pipeline has nothing to say here"
-say "A phase interpolator has one clock and SIXTEEN enables, and the"
-say "characterisation flow fits a single-input Vout(Vin) into"
-say "'module (input real in_val, output real out_val)'. There is nowhere to"
-say "put the other sixteen."
+hr "3. Why this block needs a different model entirely"
+say "A phase interpolator has one clock and SIXTEEN digital enables, and"
+say "essentially no amplitude transfer: measured, the small-signal gain is"
+say "-0.03 into a 39 mV excursion. There is no H(s) here worth fitting --"
+say "and the tool measures that rather than assuming it."
 say ""
-say "The earlier analog-controlled version made it quantitative: the fit"
-say "returned a small-signal gain of -0.03 into a 39 mV excursion. That is"
-say "the pipeline saying there is no amplitude transfer function here."
+say "What the block DOES have is nine discrete settings, each placing the"
+say "output edge somewhere. The sixteen enables are not sixteen analog"
+say "inputs: they carry a thermometer CODE, they only ever sit at one of"
+say "two values, and the block's function is one number per code."
 say ""
-say "It is right. There isn't one -- and that is the useful observation,"
-say "not a dead end. The sixteen enables are not sixteen analog inputs:"
-say "they carry a thermometer CODE, they only ever sit at one of two DC"
-say "values, and what the block does with them is move its output edge."
-say "Nine settings, one number each."
-say ""
-say "So the model is not H(s) at all. It is a delay line:"
+say "So the model is not a transfer function at all. It is a delay line:"
 say ""
 say "      out(t) = in(t - delay[code])"
 say ""
@@ -75,8 +69,7 @@ say "the phase at every code, and that table IS the model."
 beat
 
 hr "4. One command"
-say "The single-input path cannot express this block. The code-phase path"
-say "can, and it is the same tool: measure at every setting, generate the"
+say "Same tool, code-phase path: measure at every setting, generate the"
 say "model from the measurement, emit an environment that checks it."
 echo
 say "  python3 -m spice2rnm work/pi_therm.cir --output-node vout \\"
@@ -119,18 +112,19 @@ echo
 python3 "$HARNESS/pi_analyze.py" "$OUT/result.json" 2>&1 | sed 's/^/    /'
 beat
 
-hr "7. How we know the residual is real"
-say "Three mechanisms, each chosen from what the measurement said, and the"
-say "first two rejected by it:"
+hr "7. The DNL figure is the circuit's, and the measurement can prove it"
+say "The -1.61 LSB worst DNL belongs to the circuit, not to the flow -- and"
+say "the same measurement quantified that across three design variants:"
 say ""
 say "  -4.71 LSB   analog control into a source-coupled pair"
 say "              -- turned over inside ~40 mV: a switch, not a blend"
-say "  -3.56 LSB   slowed the clock edges so both phases ramp at once"
+say "  -3.56 LSB   slowed clock edges so both phases ramp at once"
 say "              -- the jump spread over two codes instead of one"
 say "  -1.61 LSB   thermometer-coded unit cells"
 say "              -- linearity from matching, not from staying linear"
 say ""
-say "A metric that rejects two plausible fixes is one worth trusting."
+say "A metric that resolves design choices like these is doing the job a"
+say "characterisation bench does -- from a netlist, in seconds per variant."
 beat
 
 hr "Summary"
@@ -143,14 +137,10 @@ say "model        : code-selected delay line, 9 codes"
 say "UVM-MS       : 9 phase checks, 0 failed, worst 3.3 ps against a 6.3 ps"
 say "               tolerance (a tenth of an LSB)"
 say ""
-say "Both of the gaps this demo used to end on are closed: a timing"
-say "observable in the equivalence check (see the DCC demo), and a model for"
-say "a block whose control is a code rather than an analog input."
-say ""
-say "What is still out of scope, precisely: two genuinely CONTINUOUS inputs."
-say "This works by enumerating a finite set of discrete settings -- which is"
-say "what makes it tractable, since thermometer coding turns 2^16"
-say "combinations into nine. A 2-D surface is different work."
+say "Scope, precisely: this path enumerates a finite set of discrete"
+say "settings -- which is what makes it tractable, since thermometer coding"
+say "turns 2^16 combinations into nine. Blocks with two genuinely"
+say "CONTINUOUS control inputs are outside the current scope."
 say ""
 say "run: $OUT/result.json  (model, testbench and table all derive from it)"
 echo

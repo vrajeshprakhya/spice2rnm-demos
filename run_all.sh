@@ -3,12 +3,9 @@
 # check that a change to spice2rnm did not move anything the demos claim.
 #
 # Each demo's headline numbers are extracted with ITS OWN patterns rather
-# than one shared filter. A shared one produced a report that silently
-# dropped demo 3's scoreboard result: "measured 9 of 9 settings" appears
-# twice in that output (once from the CLI, once echoed as a warning), and a
-# head -N meant to keep the report short spent both of its remaining lines
-# on the duplicate. The run was fine; the report was not, which is the worse
-# of the two failures because it looks like the run.
+# than one shared filter, and one field per line, deduplicated -- so a
+# value that happens to be printed twice in a demo's output can never
+# crowd a different value out of the report.
 #
 #   ./run_all.sh            run all three
 #   ./run_all.sh demo_2     run just the ones matching
@@ -46,10 +43,8 @@ field() {  # log, label, pattern
   [ -n "$v" ] && printf '    %-14s %s\n' "$label" "$v"
 }
 
-# Report only what ran THIS time. The logs persist between invocations, so
-# reporting whatever is on disk meant `./run_all.sh demo_3` printed demo 1
-# and demo 2's numbers from an earlier run, formatted identically to fresh
-# ones. Stale results presented as current are worse than no results.
+# Report only what ran THIS time. The logs persist between invocations,
+# and a stale result presented as current is worse than no result.
 ran_this() { [[ " $RAN_THIS_TIME " == *" $1 "* ]]; }
 
 L="$LOGDIR/demo_1_lpf.out"
