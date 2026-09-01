@@ -3,6 +3,10 @@
 `spice2rnm-demos.tex` — the spice2rnm product whitepaper: three worked
 case studies of automatic real-number-model and testbench generation.
 
+**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (5
+pages). The PDF is regenerated from the `.tex` whenever it changes; if
+the two ever disagree, the `.tex` is the source of truth.
+
 ## Building
 
 ```sh
