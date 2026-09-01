@@ -42,6 +42,40 @@ curate() {  # src-dir, dest-name
   echo "  $2: $n files"
 }
 
+# The house-style case is not one of the demos: it is the same circuit as
+# lpf2, generated a second time against the sample library in house_lib/,
+# so the two directories can be diffed. Generated here rather than in a
+# demo because it demonstrates an ADOPTION path, not a modelling one --
+# and because its whole point is to sit next to lpf2 for comparison.
+S2R="${S2R:-$HOME/spice2rnm}"
+NGSPICE="${NGSPICE:-$HOME/ngspice-install/bin/ngspice}"
+#
+# Generated DIRECTLY into its published location, unlike the demo cases,
+# and for a reason: the conformed run script references the house package
+# by a path relative to itself, so that the artifact and the library it
+# joined can be published, moved or copied together. Generating in a
+# scratch directory and copying here afterwards would bake in a path
+# correct for a directory this case does not live in.
+if [ "${1:-}" != "--no-run" ]; then
+  echo "generating the house-style case:"
+  rm -rf "$HERE/lpf2_house"
+  ( cd "$S2R" && python3 -m spice2rnm work/rc_lpf2.cir \
+      --out-dir "$HERE/lpf2_house" \
+      --input-node vin --output-node vout \
+      --ngspice-bin "$NGSPICE" --sim xezim \
+      --emit-uvm-ms --style-from "$HERE/house_lib" ) \
+    | grep -E "house style|SUCCESS|FAILED" | sed 's/^/  /'
+  # Same whitelist curate() applies, but in place: characterisation
+  # scratch, waveform dumps and build products are not deliverables.
+  find "$HERE/lpf2_house" -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
+  find "$HERE/lpf2_house" -mindepth 1 -maxdepth 1 -type f \
+    ! -name '*.sv' ! -name '*.svh' ! -name 'run_*.sh' \
+    ! -name 'result.json' ! -name 'pipeline.txt' -delete
+  n=$(ls "$HERE/lpf2_house" | wc -l)
+  [ "$n" -ge 3 ] || { echo "house-style case produced only $n file(s)"; exit 1; }
+  echo "  lpf2_house: $n files"
+fi
+
 echo "curating:"
 curate lpf2      lpf2
 curate dcc2      dcc2
@@ -51,6 +85,7 @@ curate demo3_pi  pi
 # files the customer does not have. This gate exists because both have
 # happened; the generators were fixed, and this keeps them fixed.
 leaks=$(grep -rln "/home/$(id -un)" "$HERE"/lpf2 "$HERE"/dcc2 "$HERE"/pi \
+          "$HERE"/lpf2_house \
           --include='*.sv' --include='*.svh' --include='*.sh' 2>/dev/null || true)
 if [ -n "$leaks" ]; then
   echo "REFUSING to stamp: local paths leaked into generated files:"

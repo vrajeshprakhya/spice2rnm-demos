@@ -2,7 +2,7 @@
 
 *spice2rnm is a Veylon Systems product.*
 
-This directory holds the **unedited output** of the three demo runs: the
+This directory holds the **unedited output** of the demo runs: the
 SystemVerilog real-number models, the complete UVM-MS verification
 environments, and the evidence files, exactly as the tool wrote them. One
 command produced each case:
@@ -11,16 +11,22 @@ command produced each case:
 spice2rnm <netlist> --input-node <in> --output-node <out> --emit-uvm-ms
 ```
 
-Nothing here is hand-written and nothing is hand-edited. `refresh.sh`
-regenerates the whole directory from the demos and stamps `STAMP` with the
-tool version and the run summary — if these files and the tool ever
-disagree, the refresh is the fix, not an edit.
+Nothing generated here is hand-edited. `refresh.sh` regenerates the whole
+directory and stamps `STAMP` with the tool version and the run summary —
+if these files and the tool ever disagree, the refresh is the fix, not an
+edit.
+
+One directory is deliberately *not* generated: [`house_lib/`](house_lib/)
+is a small hand-written model library standing in for a customer's
+existing one, so that `lpf2_house/` can demonstrate joining it rather than
+merely describing what that would look like. Its own README says so.
 
 | Case | Circuit | What it shows |
 |------|---------|---------------|
 | [`lpf2/`](lpf2/) | two-pole RC filter | the baseline: DC + AC environment |
 | [`dcc2/`](dcc2/) | duty-cycle corrector | level-dependent dynamics; duty checked instead of AC |
 | [`pi/`](pi/) | phase interpolator | phase-per-code environment; no DC or AC at all |
+| [`lpf2_house/`](lpf2_house/) | the filter again | the same circuit generated against an existing model library — see below |
 
 ## Where to look first
 
@@ -59,34 +65,44 @@ like omitting the AC section.
 
 ## If you already have an RNM library
 
-These artifacts show the **default** boundary: each case emits its own
-types package (`*_ms_types_pkg.sv`) declaring a nettype named after the
-block, and the environment's nets use it. That is the right answer for a
-team starting fresh, and the wrong one for a team that already has a
-library — generated files importing their own freshly-invented nettype do
-not join yours, they sit beside it.
+`lpf2/` and `dcc2/` and `pi/` show the **default** boundary: each emits its
+own types package (`*_ms_types_pkg.sv`) declaring a nettype named after the
+block. That is right for a team starting fresh and wrong for a team that
+already has a library — generated files importing their own
+freshly-invented nettype do not join yours, they sit beside it.
 
-Point `--style-from` at your library and the same run conforms to it:
+So there is a fourth case. [`house_lib/`](house_lib/) is a small
+hand-written library standing in for yours: a package declaring
+`nettype real ng_anet`, and two models using it.
+[`lpf2_house/`](lpf2_house/) is **the same circuit as `lpf2/`**, generated
+against it with `--style-from`. Diff the two directories:
 
-| | default (what you see here) | `--style-from <your library>` |
+```sh
+diff -r lpf2 lpf2_house
+```
+
+| | `lpf2/` | `lpf2_house/` |
 |---|---|---|
-| types package | `rc_lpf2_ms_types_pkg.sv` emitted | not emitted — yours already declares the net |
-| nets in the environment | `rc_lpf2_wire` | your nettype |
-| imports | `rc_lpf2_ms_types_pkg::*` | your package |
-| run script | compiles the generated package | compiles your package file (`HOUSE_NET_SRC` override) |
-| wreal-ported library | wrapper on request | wrapper emitted unasked |
+| types package | `rc_lpf2_ms_types_pkg.sv` emitted | **not emitted** — `house_lib` already declares the net |
+| nets | `rc_lpf2_wire` | `ng_anet` |
+| imports | `rc_lpf2_ms_types_pkg::*` | `ng_ams_pkg::*` |
+| run script | compiles the generated package | compiles `../house_lib/ng_ams_pkg.sv` (`HOUSE_NET_SRC` override) |
 
-Nothing else moves: same model, same goldens, same checks. Measured on two
-different house libraries — one resolving its net by summing, one by
-averaging — the conformed environment passed exactly as the default one
-does, 51 DC + 19 AC checks, 0 failed.
+**The model file is byte-identical between the two.** So is the
+scoreboard. Conformance changes the boundary and nothing else — and
+`lpf2_house/run_rc_lpf2_ms.sh` runs from where it sits, against the
+library next door, with the same result the default environment gives:
+51 DC and 19 AC checks, 0 failed.
+
+A library that uses `wreal` ports rather than a nettype gets the wreal
+wrapper emitted unasked instead; measured separately, a library resolving
+its net by averaging rather than summing conforms and passes the same way.
 
 Reading a library's conventions is a judgement call, so it is read and
 then verified: which of several declared nettypes is the living standard
 is often stated only in a comment, and whatever the tool concludes is
 re-checked against the file that supposedly shows it before anything uses
 it. A claim the file does not support is refused, and the run says so.
-Sample libraries to try it against ship with the tool.
 
 ## Running the environments yourself
 
@@ -103,9 +119,10 @@ They need an Icarus-compatible simulator with UVM support and the
 Accellera UVM-MS library. Expected result, from the stamped run:
 
 ```
-lpf2   dc checks=51 failed=0 | ac checks=19 failed=0
-dcc2   dc checks=51 failed=0 | duty checks=15 failed=0 (worst 0.314 pp of 0.500)
-pi     phase checks=9 failed=0 (worst 3.26 ps of 6.25 ps)
+lpf2         dc checks=51 failed=0 | ac checks=19 failed=0
+dcc2         dc checks=51 failed=0 | duty checks=15 failed=0 (worst 0.314 pp of 0.500)
+pi           phase checks=9 failed=0 (worst 3.26 ps of 6.25 ps)
+lpf2_house   dc checks=51 failed=0 | ac checks=19 failed=0   (on the house net)
 ```
 
 ## What is deliberately not here

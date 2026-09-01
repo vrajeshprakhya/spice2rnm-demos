@@ -1,15 +1,15 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-01T23:52:57.950232+00:00",
+    "timestamp_utc": "2026-09-01T23:56:57.805138+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
     "argv": [
       "/home/vraje/spice2rnm/spice2rnm/__main__.py",
-      "/home/vraje/spice2rnm/work/rc_lpf2.cir",
+      "work/rc_lpf2.cir",
       "--out-dir",
-      "/home/vraje/s2r_runs/lpf2",
+      "/home/vraje/demos/showcase/lpf2_house",
       "--input-node",
       "vin",
       "--output-node",
@@ -19,10 +19,11 @@
       "--sim",
       "xezim",
       "--emit-uvm-ms",
-      "--emit-wreal"
+      "--style-from",
+      "/home/vraje/demos/showcase/house_lib"
     ],
     "cwd": "/home/vraje/spice2rnm",
-    "netlist": "/home/vraje/spice2rnm/work/rc_lpf2.cir",
+    "netlist": "work/rc_lpf2.cir",
     "ngspice_bin": "/home/vraje/ngspice-install/bin/ngspice",
     "iverilog_bin": "/home/vraje/xezim/target/release/xezim",
     "vvp_bin": "/home/vraje/xezim/target/release/xezim"
@@ -73,7 +74,7 @@
       },
       "netlist_used": {
         "__omitted__": "bulk field; written to its own file",
-        "chars": 864
+        "chars": 888
       }
     },
     "tf": {
@@ -120,7 +121,7 @@
       },
       "netlist_used": {
         "__omitted__": "bulk field; written to its own file",
-        "chars": 791
+        "chars": 803
       }
     },
     "dc_fit": {
@@ -142,7 +143,7 @@
     "band_hz": null,
     "uvm_ms_environment": null,
     "dc_bias": 0.9,
-    "sv_path": "/home/vraje/s2r_runs/lpf2/rc_lpf2_rnm.sv",
+    "sv_path": "/home/vraje/demos/showcase/lpf2_house/rc_lpf2_rnm.sv",
     "sv_text": {
       "__omitted__": "bulk field; written to its own file",
       "chars": 3698
@@ -207,8 +208,8 @@
       "norm_mode": "composite_excursion",
       "norm_value": 1.8087846,
       "n_compared": 276350,
-      "compare_csv_path": "/home/vraje/s2r_runs/lpf2/equivalence/waveform_compare.csv",
-      "vcd_path": "/home/vraje/s2r_runs/lpf2/equivalence/tb_equiv.vcd",
+      "compare_csv_path": "/home/vraje/demos/showcase/lpf2_house/equivalence/waveform_compare.csv",
+      "vcd_path": "/home/vraje/demos/showcase/lpf2_house/equivalence/tb_equiv.vcd",
       "warnings": [
         "replaced value spec of input source 'VIN' with PWL stimulus"
       ],
@@ -221,20 +222,20 @@
   },
   "uvm_ms": {
     "notes": [
-      "ac check: 10 points, 1.995e+05 Hz to 5.012e+07 Hz (model step 3.04e-10 s caps it at 5.146e+07 Hz)"
+      "ac check: 10 points, 1.995e+05 Hz to 5.012e+07 Hz (model step 3.04e-10 s caps it at 5.146e+07 Hz)",
+      "house style: environment nets use ng_anet from ng_ams_pkg; rc_lpf2_ms_types_pkg.sv not emitted; the run script compiles ../house_lib/ng_ams_pkg.sv (override with HOUSE_NET_SRC)"
     ],
     "files": [
-      "/home/vraje/s2r_runs/lpf2/rc_lpf2_bridge.sv",
-      "/home/vraje/s2r_runs/lpf2/rc_lpf2_bridge_core.sv",
-      "/home/vraje/s2r_runs/lpf2/rc_lpf2_dms.sv",
-      "/home/vraje/s2r_runs/lpf2/rc_lpf2_ms_pkg.sv",
-      "/home/vraje/s2r_runs/lpf2/rc_lpf2_ms_scoreboard.svh",
-      "/home/vraje/s2r_runs/lpf2/rc_lpf2_ms_tb.svh",
-      "/home/vraje/s2r_runs/lpf2/rc_lpf2_ms_test.svh",
-      "/home/vraje/s2r_runs/lpf2/rc_lpf2_ms_types_pkg.sv",
-      "/home/vraje/s2r_runs/lpf2/rc_lpf2_proxy_pkg.sv",
-      "/home/vraje/s2r_runs/lpf2/run_rc_lpf2_ms.sh",
-      "/home/vraje/s2r_runs/lpf2/top_rc_lpf2_ms.sv"
+      "/home/vraje/demos/showcase/lpf2_house/rc_lpf2_bridge.sv",
+      "/home/vraje/demos/showcase/lpf2_house/rc_lpf2_bridge_core.sv",
+      "/home/vraje/demos/showcase/lpf2_house/rc_lpf2_dms.sv",
+      "/home/vraje/demos/showcase/lpf2_house/rc_lpf2_ms_pkg.sv",
+      "/home/vraje/demos/showcase/lpf2_house/rc_lpf2_ms_scoreboard.svh",
+      "/home/vraje/demos/showcase/lpf2_house/rc_lpf2_ms_tb.svh",
+      "/home/vraje/demos/showcase/lpf2_house/rc_lpf2_ms_test.svh",
+      "/home/vraje/demos/showcase/lpf2_house/rc_lpf2_proxy_pkg.sv",
+      "/home/vraje/demos/showcase/lpf2_house/run_rc_lpf2_ms.sh",
+      "/home/vraje/demos/showcase/lpf2_house/top_rc_lpf2_ms.sv"
     ],
     "model_form": "additive",
     "ac_omitted": false
