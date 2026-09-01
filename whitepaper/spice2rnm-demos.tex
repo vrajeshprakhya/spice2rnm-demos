@@ -289,7 +289,33 @@ tool wrote them --- are published for inspection at
 \end{center}
 
 \noindent under \texttt{showcase/}, stamped with the tool version and run
-summary that produced them.
+summary that produced them. What the repository holds:
+
+\begin{lstlisting}
+spice2rnm-demos/
+  demo_1_lpf.sh  demo_2_dcc.sh  demo_3_pi.sh  run_all.sh
+                     the three case studies, runnable end to end
+  harness/           8 measurement scripts the demos call
+  showcase/          the generated artifacts, byte-for-byte
+    lpf2/            14 files: model, wreal wrapper, DC+AC
+                     environment, run script, evidence
+    dcc2/            15 files: model, wreal wrapper, DC+duty
+                     environment, run script, evidence
+    pi/              11 files: model, wreal wrapper, phase
+                     environment, run script, evidence
+    STAMP            date, tool version, and run summary that
+                     produced the artifacts above
+    refresh.sh       regenerates everything; the only way this
+                     directory is ever updated
+  whitepaper/        this document, source and PDF
+\end{lstlisting}
+
+\noindent And what it deliberately does not hold: the spice2rnm tool
+itself (the product is licensed separately; this repository is its
+evidence), and the build products of the runs --- characterisation
+scratch, compiled simulator objects, DPI shims. \texttt{refresh.sh}
+filters those out, so the showcase is what a user would keep, not
+everything a run produces.
 
 %======================================================================
 \section{Why a green testbench is worth believing}
