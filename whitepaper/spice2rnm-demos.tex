@@ -400,11 +400,66 @@ correlation --- and it is the kind of finding no amount of manual model
 review produces, because no one document contains both halves of it.
 
 %======================================================================
+\section{Joining an existing model library}
+\label{sec:style}
+
+A team with real-number models already has conventions --- which
+user-defined nettype analog values travel on, which package declares it,
+what discipline their model ports use. Generated files that import their
+own freshly-invented nettype do not join that library; they sit beside it,
+each net scheme blind to the other, and the integration cost lands on the
+customer.
+
+Point \texttt{-{}-style-from} at the library and the output conforms: the
+environment's analog nets use \emph{their} nettype, its files import
+\emph{their} package, no types package of the tool's own is emitted, and
+the generated run script compiles their package file. A library whose
+models use \texttt{wreal} ports gets the wreal wrapper without being
+asked. Their timescale is reported but deliberately not adopted ---
+generated delays are computed femtosecond values, and timescale is per
+compilation unit, so the directives interoperate unchanged.
+
+\textbf{Reading a house style is a judgement, so it is read and then
+verified.} A library may declare several nettypes, only one of which is
+the living standard --- and what says so is often a comment. Measured on a
+library that declares two, where the deprecated one happens to sort first
+alphabetically:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+mechanical scan & picks the deprecated nettype, and warns \\
+model reading   & picks the live one, quoting the deprecation notice \\
+verification    & re-checks the choice against the named file \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The model's stated grounds, verbatim from that run: \emph{``line
+15 marks \texttt{aaa{}\_legacy{}\_wire} deprecated (``kept only so ancient
+testbenches still compile. Do NOT use in new code\,''), \ldots{} both models
+declare all analog ports as \texttt{acme{}\_ewire}, confirming this is the
+live convention.''} Nothing in that reading is taken on trust: the named
+nettype, package and file are checked against the file before use, and a
+claim the file does not support leaves the mechanical answer standing,
+out loud. Where the tool has a \emph{measurement} --- a count of which
+discipline the library's ports actually use --- the count wins outright
+and a disagreement is recorded rather than adopted.
+
+\textbf{The result is an environment that runs on the house net.} On a
+library using a summing resolver and again on one using an averaging
+resolver, the generated environment adopted the house nettype and passed
+unchanged: $51$ DC and $19$ AC checks, $0$ failed, identical to the
+default environment's results. Without \texttt{-{}-style-from}, or against
+a directory with nothing recognisable in it, nothing changes --- and the
+run says so.
+
 \section{AI where it helps, physics where it decides}
 
-spice2rnm uses language models at three points: proposing block boundaries
-in the device graph, classifying what a block is for, and reading
-functional specifications. All three follow one rule: \textbf{intent from
+spice2rnm uses language models at four points: proposing block boundaries
+in the device graph, classifying what a block is for, reading functional
+specifications, and reading an existing library's conventions
+(Section~\ref{sec:style}). All four follow one rule: \textbf{intent from
 the model, physics from the measurement}. Every proposal is validated
 against the measured circuit before it is used, and a proposal that fails
 validation is discarded --- the run continues on measured defaults, and
@@ -416,7 +471,8 @@ pipeline runs entirely on measurement.
 
 \begin{itemize}[leftmargin=1.5em,itemsep=0.3em]
   \item \textbf{Inputs}: SPICE netlists (ngspice dialect), flat or with
-        subcircuits; optional plain-language functional specification.
+        subcircuits; optional plain-language functional specification;
+        optionally an existing RNM library to take conventions from.
   \item \textbf{Outputs}: SystemVerilog real-number models (plain
         \texttt{real} ports), UVM-MS 1.0 environments, optional wreal
         wrappers, equivalence reports with archived waveforms.
