@@ -1,0 +1,33 @@
+Generated: 2026-09-01T16:45:25Z
+spice2rnm: aec9097
+demos:     9de3e71
+
+Run summary:
+    demo_1_lpf.sh      67 s   exit 0
+    demo_2_dcc.sh     227 s   exit 0
+    demo_3_pi.sh       35 s   exit 0
+    TOTAL             329 s
+  
+    demo 1  LPF
+      chirp          rms_error_norm=0.029008790476737805
+      PRBS           rms 0.0097 normalized
+      DC             dc checks=51 failed=0
+      AC             ac checks=19 failed=0
+  
+    demo 2  DCC
+      transient      rms_error_norm=0.07687720775304299
+      duty null      50% duty null at vctrl = 1.1477 V
+      DC             dc checks=51 failed=0
+      AC             ac checks=0 (no AC golden
+      duty           duty checks=15 failed=0 | worst 0.314 pp
+  
+    demo 3  PI
+      settings       measured 9 of 9 settings
+      traversal      traversal -500.1 ps, LSB -62.51 ps, monotonic
+      phase          phase checks=9 failed=0 | worst 3.2627 ps
+      DNL            DNL worst         : -100.5 ps  (-1.61 LSB)
+  
+    problems
+      none
+  
+    logs: /tmp/spice2rnm_demos

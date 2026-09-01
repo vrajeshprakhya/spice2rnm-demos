@@ -1,0 +1,111 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "timestamp_utc": "2026-09-01T16:45:19.551891+00:00",
+    "python": "3.14.4",
+    "numpy": "2.5.1",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "argv": [
+      "/home/vraje/spice2rnm/spice2rnm/__main__.py",
+      "work/pi_therm.cir",
+      "--out-dir",
+      "/home/vraje/s2r_runs/demo3_pi",
+      "--output-node",
+      "vout",
+      "--code-map",
+      "thermometer:8",
+      "--code-period",
+      "2e-9",
+      "--ngspice-bin",
+      "/home/vraje/ngspice-install/bin/ngspice",
+      "--emit-uvm-ms"
+    ],
+    "cwd": "/home/vraje/spice2rnm"
+  },
+  "result_type": "CodePhasePipelineResult",
+  "result": {
+    "success": true,
+    "stage": "code_phase",
+    "netlist": "work/pi_therm.cir",
+    "output_node": "vout",
+    "period": 2e-09,
+    "n_codes": 9,
+    "phases": [
+      [
+        0,
+        9.379975611957859e-10,
+        1.00630726,
+        5.115481778608304e-19
+      ],
+      [
+        1,
+        9.210192522466358e-10,
+        0.9551698049999999,
+        8.365644884568751e-25
+      ],
+      [
+        2,
+        8.907282824831643e-10,
+        0.935399539,
+        1.1052776858990812e-24
+      ],
+      [
+        3,
+        8.425102937407077e-10,
+        0.9192133080000001,
+        7.429190558992098e-25
+      ],
+      [
+        4,
+        6.795150066696299e-10,
+        0.9048113600000001,
+        9.042242305187328e-25
+      ],
+      [
+        5,
+        5.261261670928249e-10,
+        0.893500435,
+        9.185003606575375e-25
+      ],
+      [
+        6,
+        4.781095603027309e-10,
+        0.8885628769999999,
+        7.310724716394827e-25
+      ],
+      [
+        7,
+        4.502590425019447e-10,
+        0.900660946,
+        7.7825674959371945e-25
+      ],
+      [
+        8,
+        4.3789604370284857e-10,
+        0.9645628150000001,
+        8.929840949662725e-25
+      ]
+    ],
+    "traversal_s": -5.001015174929373e-10,
+    "lsb_s": -6.251268968661716e-11,
+    "monotonic": true,
+    "module_name": "pi_therm_rnm",
+    "sv_path": "/home/vraje/s2r_runs/demo3_pi/pi_therm_rnm.sv",
+    "uvm_ms_files": [
+      "/home/vraje/s2r_runs/demo3_pi/pi_therm_ms_types_pkg.sv",
+      "/home/vraje/s2r_runs/demo3_pi/pi_therm_dms.sv",
+      "/home/vraje/s2r_runs/demo3_pi/pi_therm_ms_pkg.sv",
+      "/home/vraje/s2r_runs/demo3_pi/pi_therm_ms_scoreboard.svh",
+      "/home/vraje/s2r_runs/demo3_pi/pi_therm_ms_tb.svh",
+      "/home/vraje/s2r_runs/demo3_pi/pi_therm_ms_test.svh",
+      "/home/vraje/s2r_runs/demo3_pi/top_pi_therm_ms.sv",
+      "/home/vraje/s2r_runs/demo3_pi/run_pi_therm_ms.sh"
+    ],
+    "warnings": [
+      "measured 9 of 9 settings: traversal -500.1 ps, LSB -62.51 ps, monotonic",
+      "uvm-ms: phase check: 9 codes, tolerance 6.251 ps (0.1 of a 62.513 ps LSB); goldens are ngspice edge measurements",
+      "uvm-ms: no DC or AC section: this block's function is edge placement, and neither an operating-point sweep nor a small-signal linearisation describes it"
+    ],
+    "errors": []
+  }
+}

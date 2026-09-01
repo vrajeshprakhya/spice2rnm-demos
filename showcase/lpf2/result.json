@@ -1,0 +1,241 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "timestamp_utc": "2026-09-01T16:40:33.861043+00:00",
+    "python": "3.14.4",
+    "numpy": "2.5.1",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "argv": [
+      "/home/vraje/spice2rnm/spice2rnm/__main__.py",
+      "/home/vraje/spice2rnm/work/rc_lpf2.cir",
+      "--out-dir",
+      "/home/vraje/s2r_runs/lpf2",
+      "--input-node",
+      "vin",
+      "--output-node",
+      "vout",
+      "--ngspice-bin",
+      "/home/vraje/ngspice-install/bin/ngspice",
+      "--sim",
+      "xezim",
+      "--emit-uvm-ms"
+    ],
+    "cwd": "/home/vraje/spice2rnm",
+    "netlist": "/home/vraje/spice2rnm/work/rc_lpf2.cir",
+    "ngspice_bin": "/home/vraje/ngspice-install/bin/ngspice",
+    "iverilog_bin": "/home/vraje/xezim/target/release/xezim",
+    "vvp_bin": "/home/vraje/xezim/target/release/xezim"
+  },
+  "result_type": "PipelineResult",
+  "result": {
+    "success": true,
+    "stage": "equivalence",
+    "input_node": "vin",
+    "output_node": "vout",
+    "module_name": "rc_lpf2_rnm",
+    "parsed": {
+      "__omitted__": "bulk field; written to its own file",
+      "chars": null
+    },
+    "characterization": {
+      "success": true,
+      "op": {
+        "v(vout)": 0.9
+      },
+      "ac_freq": {
+        "kind": "array",
+        "len": 221,
+        "shape": [
+          221
+        ],
+        "n_nonfinite": 0,
+        "min": 1.0,
+        "max": 100000000000.0,
+        "first": 1.0,
+        "last": 100000000000.0
+      },
+      "ac_out_complex": {
+        "kind": "complex_array",
+        "len": 221,
+        "shape": [
+          221
+        ],
+        "abs_min": 1.0019498851756599e-08,
+        "abs_max": 1.0000000002250953
+      },
+      "ac_drive": 1.0,
+      "warnings": [],
+      "errors": [],
+      "stdout": {
+        "__omitted__": "bulk field; written to its own file",
+        "chars": 406
+      },
+      "netlist_used": {
+        "__omitted__": "bulk field; written to its own file",
+        "chars": 864
+      }
+    },
+    "tf": {
+      "gain": 1.0000000000092075,
+      "zeros_hz": [],
+      "poles_hz": [
+        3823382.3097665044,
+        26205852.219306976
+      ],
+      "rms_error_db": 1.417442508426416e-08,
+      "max_error_db": 5.8104447475670895e-08
+    },
+    "dc_sweep": {
+      "success": true,
+      "x": {
+        "kind": "array",
+        "len": 401,
+        "shape": [
+          401
+        ],
+        "n_nonfinite": 0,
+        "min": 0.0,
+        "max": 1.8,
+        "first": 0.0,
+        "last": 1.8
+      },
+      "y": {
+        "kind": "array",
+        "len": 401,
+        "shape": [
+          401
+        ],
+        "n_nonfinite": 0,
+        "min": 0.0,
+        "max": 1.8,
+        "first": 0.0,
+        "last": 1.8
+      },
+      "warnings": [],
+      "errors": [],
+      "stdout": {
+        "__omitted__": "bulk field; written to its own file",
+        "chars": 286
+      },
+      "netlist_used": {
+        "__omitted__": "bulk field; written to its own file",
+        "chars": 791
+      }
+    },
+    "dc_fit": {
+      "is_lut": false,
+      "kind": "poly",
+      "coeffs": [
+        -2.1983639225914661e-16,
+        1.0
+      ],
+      "lut_x": [],
+      "lut_y": [],
+      "x_min": 0.0,
+      "x_max": 1.8,
+      "rms_error": 2.219982983728855e-16,
+      "order": 1
+    },
+    "pole_schedule": null,
+    "model_form": "additive",
+    "band_hz": null,
+    "uvm_ms_environment": null,
+    "dc_bias": 0.9,
+    "sv_path": "/home/vraje/s2r_runs/lpf2/rc_lpf2_rnm.sv",
+    "sv_text": {
+      "__omitted__": "bulk field; written to its own file",
+      "chars": 3667
+    },
+    "equivalence": {
+      "success": true,
+      "checked": true,
+      "rms_error_norm": 0.029008790476737805,
+      "max_error_norm": 0.4975716838333135,
+      "threshold": 0.15,
+      "timing": null,
+      "spice_t": {
+        "kind": "array",
+        "len": 276355,
+        "shape": [
+          276355
+        ],
+        "n_nonfinite": 0,
+        "min": 0.0,
+        "max": 7.84646e-06,
+        "first": 0.0,
+        "last": 7.84646e-06
+      },
+      "spice_out": {
+        "kind": "array",
+        "len": 276355,
+        "shape": [
+          276355
+        ],
+        "n_nonfinite": 0,
+        "min": 0.0,
+        "max": 1.8087846,
+        "first": 0.0,
+        "last": 0.000899202525
+      },
+      "sv_t": {
+        "kind": "array",
+        "len": 39479,
+        "shape": [
+          39479
+        ],
+        "n_nonfinite": 0,
+        "min": 0.0,
+        "max": 7.84644989e-06,
+        "first": 0.0,
+        "last": 7.84644989e-06
+      },
+      "sv_out": {
+        "kind": "array",
+        "len": 39479,
+        "shape": [
+          39479
+        ],
+        "n_nonfinite": 0,
+        "min": 0.0,
+        "max": 1.80802012,
+        "first": 0.0,
+        "last": 0.000894687823
+      },
+      "metric": "rms_voltage",
+      "timing_threshold_pp": null,
+      "norm_mode": "composite_excursion",
+      "norm_value": 1.8087846,
+      "n_compared": 276350,
+      "compare_csv_path": "/home/vraje/s2r_runs/lpf2/equivalence/waveform_compare.csv",
+      "vcd_path": "/home/vraje/s2r_runs/lpf2/equivalence/tb_equiv.vcd",
+      "warnings": [
+        "replaced value spec of input source 'VIN' with PWL stimulus"
+      ],
+      "errors": []
+    },
+    "warnings": [
+      "replaced value spec of input source 'VIN' with PWL stimulus"
+    ],
+    "errors": []
+  },
+  "uvm_ms": {
+    "notes": [
+      "ac check: 10 points, 1.995e+05 Hz to 5.012e+07 Hz (model step 3.04e-10 s caps it at 5.146e+07 Hz)"
+    ],
+    "files": [
+      "/home/vraje/s2r_runs/lpf2/rc_lpf2_bridge.sv",
+      "/home/vraje/s2r_runs/lpf2/rc_lpf2_bridge_core.sv",
+      "/home/vraje/s2r_runs/lpf2/rc_lpf2_dms.sv",
+      "/home/vraje/s2r_runs/lpf2/rc_lpf2_ms_pkg.sv",
+      "/home/vraje/s2r_runs/lpf2/rc_lpf2_ms_scoreboard.svh",
+      "/home/vraje/s2r_runs/lpf2/rc_lpf2_ms_tb.svh",
+      "/home/vraje/s2r_runs/lpf2/rc_lpf2_ms_test.svh",
+      "/home/vraje/s2r_runs/lpf2/rc_lpf2_ms_types_pkg.sv",
+      "/home/vraje/s2r_runs/lpf2/rc_lpf2_proxy_pkg.sv",
+      "/home/vraje/s2r_runs/lpf2/run_rc_lpf2_ms.sh",
+      "/home/vraje/s2r_runs/lpf2/top_rc_lpf2_ms.sv"
+    ],
+    "model_form": "additive",
+    "ac_omitted": false
+  }
+}

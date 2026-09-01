@@ -1,0 +1,382 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "timestamp_utc": "2026-09-01T16:42:59.345215+00:00",
+    "python": "3.14.4",
+    "numpy": "2.5.1",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "argv": [
+      "/home/vraje/spice2rnm/spice2rnm/__main__.py",
+      "/home/vraje/spice2rnm/work/dcc.cir",
+      "--out-dir",
+      "/home/vraje/s2r_runs/dcc2",
+      "--input-node",
+      "clk",
+      "--output-node",
+      "vout",
+      "--ngspice-bin",
+      "/home/vraje/ngspice-install/bin/ngspice",
+      "--sim",
+      "xezim",
+      "--emit-uvm-ms"
+    ],
+    "cwd": "/home/vraje/spice2rnm",
+    "netlist": "/home/vraje/spice2rnm/work/dcc.cir",
+    "ngspice_bin": "/home/vraje/ngspice-install/bin/ngspice",
+    "iverilog_bin": "/home/vraje/xezim/target/release/xezim",
+    "vvp_bin": "/home/vraje/xezim/target/release/xezim"
+  },
+  "result_type": "PipelineResult",
+  "result": {
+    "success": true,
+    "stage": "equivalence",
+    "input_node": "clk",
+    "output_node": "vout",
+    "module_name": "dcc_rnm",
+    "parsed": {
+      "__omitted__": "bulk field; written to its own file",
+      "chars": null
+    },
+    "characterization": {
+      "success": true,
+      "op": {
+        "v(vout)": 0.0468388242
+      },
+      "ac_freq": {
+        "kind": "array",
+        "len": 221,
+        "shape": [
+          221
+        ],
+        "n_nonfinite": 0,
+        "min": 1.0,
+        "max": 100000000000.0,
+        "first": 1.0,
+        "last": 100000000000.0
+      },
+      "ac_out_complex": {
+        "kind": "complex_array",
+        "len": 221,
+        "shape": [
+          221
+        ],
+        "abs_min": 6.194969368749339e-05,
+        "abs_max": 0.2659230304782363
+      },
+      "ac_drive": 0.01,
+      "warnings": [],
+      "errors": [],
+      "stdout": {
+        "__omitted__": "bulk field; written to its own file",
+        "chars": 732
+      },
+      "netlist_used": {
+        "__omitted__": "bulk field; written to its own file",
+        "chars": 2864
+      }
+    },
+    "tf": {
+      "gain": -26.61696552975084,
+      "zeros_hz": [],
+      "poles_hz": [
+        59087756.12306249
+      ],
+      "rms_error_db": 0.02685949946841744,
+      "max_error_db": 0.13937831892004482
+    },
+    "dc_sweep": {
+      "success": true,
+      "x": {
+        "kind": "array",
+        "len": 401,
+        "shape": [
+          401
+        ],
+        "n_nonfinite": 0,
+        "min": 0.0,
+        "max": 1.8,
+        "first": 0.0,
+        "last": 1.8
+      },
+      "y": {
+        "kind": "array",
+        "len": 401,
+        "shape": [
+          401
+        ],
+        "n_nonfinite": 0,
+        "min": -5.10999758e-07,
+        "max": 1.8,
+        "first": 1.8,
+        "last": 2.23456785e-10
+      },
+      "warnings": [],
+      "errors": [],
+      "stdout": {
+        "__omitted__": "bulk field; written to its own file",
+        "chars": 612
+      },
+      "netlist_used": {
+        "__omitted__": "bulk field; written to its own file",
+        "chars": 2792
+      }
+    },
+    "dc_fit": {
+      "is_lut": false,
+      "kind": "tanh",
+      "coeffs": [
+        -0.899971440658702,
+        630.844418415777,
+        0.8971323897807401,
+        0.8999699255675296
+      ],
+      "lut_x": [],
+      "lut_y": [],
+      "x_min": 0.0,
+      "x_max": 1.8,
+      "rms_error": 0.0005859651312189696,
+      "order": 4
+    },
+    "pole_schedule": [
+      [
+        0.0,
+        16226082324.539465
+      ],
+      [
+        0.05625,
+        16533272069.727646
+      ],
+      [
+        0.1125,
+        16801620323.111626
+      ],
+      [
+        0.16875,
+        17096675204.557058
+      ],
+      [
+        0.225,
+        17487762926.231255
+      ],
+      [
+        0.28125,
+        17673714263.42911
+      ],
+      [
+        0.3375,
+        17907810151.88918
+      ],
+      [
+        0.39375,
+        18025817030.48459
+      ],
+      [
+        0.45,
+        18081637617.478436
+      ],
+      [
+        0.50625,
+        19301061626.791985
+      ],
+      [
+        0.5625,
+        21257196777.1258
+      ],
+      [
+        0.61875,
+        21731008853.523773
+      ],
+      [
+        0.675,
+        22516373868.42406
+      ],
+      [
+        0.7312500000000001,
+        22834260609.87031
+      ],
+      [
+        0.7875,
+        23579322597.94066
+      ],
+      [
+        0.84375,
+        25556870249.003365
+      ],
+      [
+        0.9,
+        50970011653.88737
+      ],
+      [
+        0.95625,
+        18645460571.141476
+      ],
+      [
+        1.0125,
+        16920716839.122955
+      ],
+      [
+        1.06875,
+        15858038768.498457
+      ],
+      [
+        1.125,
+        15453829841.6314
+      ],
+      [
+        1.1812500000000001,
+        15254432445.967083
+      ],
+      [
+        1.2375,
+        15186867805.895235
+      ],
+      [
+        1.29375,
+        14437682944.958485
+      ],
+      [
+        1.35,
+        14161974586.6137
+      ],
+      [
+        1.40625,
+        14069429839.790333
+      ],
+      [
+        1.4625000000000001,
+        13926890987.626703
+      ],
+      [
+        1.51875,
+        13746688072.306602
+      ],
+      [
+        1.575,
+        13683661963.423767
+      ],
+      [
+        1.63125,
+        13567104174.785496
+      ],
+      [
+        1.6875,
+        13548383844.972633
+      ],
+      [
+        1.7437500000000001,
+        13162050557.878231
+      ],
+      [
+        1.8,
+        12989376976.301079
+      ]
+    ],
+    "model_form": "scheduled_lag",
+    "band_hz": 119488199.11681677,
+    "uvm_ms_environment": null,
+    "dc_bias": 0.9,
+    "sv_path": "/home/vraje/s2r_runs/dcc2/dcc_rnm.sv",
+    "sv_text": {
+      "__omitted__": "bulk field; written to its own file",
+      "chars": 6054
+    },
+    "equivalence": {
+      "success": true,
+      "checked": true,
+      "rms_error_norm": 0.07687720775304299,
+      "max_error_norm": 0.9987805724191321,
+      "threshold": 0.15,
+      "timing": null,
+      "spice_t": {
+        "kind": "array",
+        "len": 40311,
+        "shape": [
+          40311
+        ],
+        "n_nonfinite": 0,
+        "min": 0.0,
+        "max": 5.07719e-07,
+        "first": 0.0,
+        "last": 5.07719e-07
+      },
+      "spice_out": {
+        "kind": "array",
+        "len": 40311,
+        "shape": [
+          40311
+        ],
+        "n_nonfinite": 0,
+        "min": -0.00112562952,
+        "max": 1.80107202,
+        "first": 1.8,
+        "last": 1.80000003
+      },
+      "sv_t": {
+        "kind": "array",
+        "len": 5759,
+        "shape": [
+          5759
+        ],
+        "n_nonfinite": 0,
+        "min": 0.0,
+        "max": 5.07717408e-07,
+        "first": 0.0,
+        "last": 5.07717408e-07
+      },
+      "sv_out": {
+        "kind": "array",
+        "len": 5759,
+        "shape": [
+          5759
+        ],
+        "n_nonfinite": 0,
+        "min": -1.5151e-06,
+        "max": 1.79994137,
+        "first": 0.0,
+        "last": 1.79994137
+      },
+      "metric": "rms_voltage",
+      "timing_threshold_pp": null,
+      "norm_mode": "composite_excursion",
+      "norm_value": 1.80219764952,
+      "n_compared": 40310,
+      "compare_csv_path": "/home/vraje/s2r_runs/dcc2/equivalence/waveform_compare.csv",
+      "vcd_path": "/home/vraje/s2r_runs/dcc2/equivalence/tb_equiv.vcd",
+      "warnings": [
+        "replaced value spec of input source 'VCLK' with PWL stimulus"
+      ],
+      "errors": []
+    },
+    "warnings": [
+      "collapsed the fitted 3p2z to ONE POLE at 5.909e+07 Hz so the dynamics can be SCHEDULED: in band (<= 1.195e+08 Hz) it costs 0.0269 dB vs 0.0139 dB, and the poles it drops sit above anything the comparison can drive",
+      "rise/fall SKEW 9.466e-11 s measured from the two full-swing traversals (the output falls in 2.394e-10 s and rises in 3.341e-10 s, each to its own 50% crossing): emitted as a direction-dependent output delay. Without it the model is symmetric about its threshold and returns exactly 50.000% duty for a 50% input, whatever the circuit does.",
+      "rise/fall asymmetry 0.8005 measured from the two full-swing traversals (2.067e+09 rising vs 2.582e+09 falling, 1/t63): the scheduled rate is split by the direction the output travels, because a rate indexed by input alone is symmetric about the threshold and returns exactly 50.000% duty for a 50% input.",
+      "LARGE-SIGNAL schedule measured at 33 of 33 operating points by stepping the input and timing the output: rate spans 1.299e+10 .. 5.097e+10 rad/s. Used in place of the AC pole schedule, which reports a stage's small-signal pole where its incremental gain has collapsed.",
+      "replaced value spec of input source 'VCLK' with PWL stimulus"
+    ],
+    "errors": []
+  },
+  "uvm_ms": {
+    "notes": [
+      "duty goldens: the circuit carries a -73.7 ps rise/fall skew, measured as the output duty moving with clock rate at a fixed input duty. That is 0.218 pp at 2.954e+07 Hz and scales in proportion to the clock. The generated model forms are symmetric -- a symmetric static curve driving a symmetric lag returns exactly 50.000% for a 50% input -- so this skew is a floor on the duty error that no amount of fitting removes.",
+      "duty goldens: 6 point(s) measured in ngspice, 1.477e+07..2.954e+07 Hz, input duty 40%..60%, output duty 39.74%..59.85%",
+      "ac check: omitted: this model's small-signal gain at the bias is the static curve's local slope rather than H(0), so an ngspice .ac sweep is not a valid golden for it. The DC operating points are, and the large-signal behaviour is what the transient equivalence check covers.",
+      "duty check: 6 point(s), 1.477e+07..2.954e+07 Hz, input duty 40%..60%; golden output duty spans 20.108 pp, tolerance 0.500 pp"
+    ],
+    "files": [
+      "/home/vraje/s2r_runs/dcc2/dcc_bridge.sv",
+      "/home/vraje/s2r_runs/dcc2/dcc_bridge_core.sv",
+      "/home/vraje/s2r_runs/dcc2/dcc_dms.sv",
+      "/home/vraje/s2r_runs/dcc2/dcc_ms_pkg.sv",
+      "/home/vraje/s2r_runs/dcc2/dcc_ms_scoreboard.svh",
+      "/home/vraje/s2r_runs/dcc2/dcc_ms_tb.svh",
+      "/home/vraje/s2r_runs/dcc2/dcc_ms_test.svh",
+      "/home/vraje/s2r_runs/dcc2/dcc_ms_types_pkg.sv",
+      "/home/vraje/s2r_runs/dcc2/dcc_proxy_pkg.sv",
+      "/home/vraje/s2r_runs/dcc2/run_dcc_ms.sh",
+      "/home/vraje/s2r_runs/dcc2/top_dcc_ms.sv"
+    ],
+    "model_form": "scheduled_lag",
+    "ac_omitted": true
+  }
+}

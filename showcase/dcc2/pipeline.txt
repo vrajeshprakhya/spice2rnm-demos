@@ -1,0 +1,27 @@
+netlist: /home/vraje/spice2rnm/work/dcc.cir
+toolchain: ngspice=/home/vraje/ngspice-install/bin/ngspice  iverilog=/home/vraje/xezim/target/release/xezim  vvp=/home/vraje/xezim/target/release/xezim
+stage reached: equivalence
+input_node: clk  output_node: vout
+fitted AC TF: gain=-26.617  zeros_hz=[]  poles_hz=[59087756.12306249]  rms_error_db=0.02686
+input DC bias: 0.9
+fitted DC curve: tanh  domain=[0, 1.8]  rms_error=0.000586
+generated RNM: /home/vraje/s2r_runs/dcc2/dcc_rnm.sv
+equivalence check: checked=True  rms_error_norm=0.07687720775304299  max_error_norm=0.9987805724191321  threshold=0.15
+  normalization: composite_excursion  norm_value=1.8022  samples=40310
+  aligned waveforms: /home/vraje/s2r_runs/dcc2/equivalence/waveform_compare.csv
+  waveform dump: /home/vraje/s2r_runs/dcc2/equivalence/tb_equiv.vcd   (gtkwave /home/vraje/s2r_runs/dcc2/equivalence/tb_equiv.vcd)
+warning: collapsed the fitted 3p2z to ONE POLE at 5.909e+07 Hz so the dynamics can be SCHEDULED: in band (<= 1.195e+08 Hz) it costs 0.0269 dB vs 0.0139 dB, and the poles it drops sit above anything the comparison can drive
+warning: rise/fall SKEW 9.466e-11 s measured from the two full-swing traversals (the output falls in 2.394e-10 s and rises in 3.341e-10 s, each to its own 50% crossing): emitted as a direction-dependent output delay. Without it the model is symmetric about its threshold and returns exactly 50.000% duty for a 50% input, whatever the circuit does.
+warning: rise/fall asymmetry 0.8005 measured from the two full-swing traversals (2.067e+09 rising vs 2.582e+09 falling, 1/t63): the scheduled rate is split by the direction the output travels, because a rate indexed by input alone is symmetric about the threshold and returns exactly 50.000% duty for a 50% input.
+warning: LARGE-SIGNAL schedule measured at 33 of 33 operating points by stepping the input and timing the output: rate spans 1.299e+10 .. 5.097e+10 rad/s. Used in place of the AC pole schedule, which reports a stage's small-signal pole where its incremental gain has collapsed.
+warning: replaced value spec of input source 'VCLK' with PWL stimulus
+generated UVM-MS testbench: 11 files in /home/vraje/s2r_runs/dcc2
+  run it: /home/vraje/s2r_runs/dcc2/run_dcc_ms.sh
+  UVM-MS library expected at: /home/vraje/uvm_ms_demo/ms
+  duty goldens: the circuit carries a -73.7 ps rise/fall skew, measured as the output duty moving with clock rate at a fixed input duty. That is 0.218 pp at 2.954e+07 Hz and scales in proportion to the clock. The generated model forms are symmetric -- a symmetric static curve driving a symmetric lag returns exactly 50.000% for a 50% input -- so this skew is a floor on the duty error that no amount of fitting removes.
+  duty goldens: 6 point(s) measured in ngspice, 1.477e+07..2.954e+07 Hz, input duty 40%..60%, output duty 39.74%..59.85%
+  ac check: omitted: this model's small-signal gain at the bias is the static curve's local slope rather than H(0), so an ngspice .ac sweep is not a valid golden for it. The DC operating points are, and the large-signal behaviour is what the transient equivalence check covers.
+  duty check: 6 point(s), 1.477e+07..2.954e+07 Hz, input duty 40%..60%; golden output duty spans 20.108 pp, tolerance 0.500 pp
+run log: /home/vraje/s2r_runs/dcc2/run.log
+result json: /home/vraje/s2r_runs/dcc2/result.json
+SUCCESS

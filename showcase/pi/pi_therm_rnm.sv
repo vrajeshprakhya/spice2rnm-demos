@@ -1,0 +1,57 @@
+`timescale 1fs/1fs
+// Auto-generated SystemVerilog Real Number Model.
+// CODE-SELECTED DELAY: out(t) = in(t - delay[code]).
+// This block's function is where its edge lands, not a
+// transfer function worth fitting. Measured phase per
+// code, and the delay each becomes after referring to the
+// earliest edge (437.9 ps of common offset dropped):
+//
+//   code   phase(ps)   delay(ps)   steps
+//      0      938.00      500.10     405
+//      1      921.02      483.12     391
+//      2      890.73      452.83     366
+//      3      842.51      404.61     327
+//      4      679.52      241.62     195
+//      5      526.13       88.23      71
+//      6      478.11       40.21      33
+//      7      450.26       12.36      10
+//      8      437.90        0.00       0
+
+module pi_therm_rnm(input real in_val, input int code, output real out_val);
+
+  localparam int  NC = 9;
+  localparam int  NH = 406;
+  localparam real TSTEP = 1236.3; // femtoseconds, for #(...) only
+
+  int  DLY [0:NC-1];   // delay in whole steps
+  real hist [0:NH-1];  // circular history of the input
+  int  wp;
+
+  initial begin
+    DLY[0] = 405;
+    DLY[1] = 391;
+    DLY[2] = 366;
+    DLY[3] = 327;
+    DLY[4] = 195;
+    DLY[5] = 71;
+    DLY[6] = 33;
+    DLY[7] = 10;
+    DLY[8] = 0;
+    for (int i = 0; i < NH; i++) hist[i] = 0.0;
+    wp = 0;
+  end
+
+  always #(TSTEP) begin : delay_step
+    int c, rd;
+    // An out-of-range code is CLAMPED, not wrapped: a wrap
+    // would silently return a different code's delay, which
+    // reads as a plausible phase rather than as a mistake.
+    c = (code < 0) ? 0 : ((code >= NC) ? NC-1 : code);
+    hist[wp] = in_val;
+    rd = wp - DLY[c];
+    if (rd < 0) rd = rd + NH;
+    out_val = hist[rd];
+    wp = (wp + 1) % NH;
+  end
+
+endmodule

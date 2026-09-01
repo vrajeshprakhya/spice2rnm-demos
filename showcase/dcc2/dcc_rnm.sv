@@ -1,0 +1,156 @@
+`timescale 1fs/1fs
+// Auto-generated SystemVerilog Real Number Model.
+// SCHEDULED-LAG form: dy/dt = wp(in)*(static_curve(in) - y),
+// with wp measured at 33 operating points. Chosen over the
+// node-ODE form because this block's static curve is too steep
+// for its inverse to be well-conditioned.
+// schedule spanned 1.299e+10 .. 5.097e+10 rad/s
+// rise/fall asymmetry 0.8005 (rise x0.8947, fall x1.1177), from
+// the two full-swing traversals of the step schedule
+// rise/fall SKEW 9.466e-11 s, as a 54/0 step output delay --
+// the measured difference between the two traversals' own
+// 50% crossings. Without it this model is symmetric about
+// its own threshold and returns exactly 50.000% duty.
+
+module dcc_rnm(input real in_val, output real out_val);
+
+  localparam int  NW = 33;
+  localparam real TSTEP = 1755.39; // femtoseconds, for #(...) only
+  localparam real DT_SECONDS = 1.755385837e-12;
+  localparam real DC_BIAS = 0.9;
+
+  real WX [0:NW-1];   // input value
+  real WP [0:NW-1];   // measured pole there, rad/s
+  initial begin
+    WX[0] = 0.0; WP[0] = 1.622608232e+10;
+    WX[1] = 0.05625; WP[1] = 1.653327207e+10;
+    WX[2] = 0.1125; WP[2] = 1.680162032e+10;
+    WX[3] = 0.16875; WP[3] = 1.70966752e+10;
+    WX[4] = 0.225; WP[4] = 1.748776293e+10;
+    WX[5] = 0.28125; WP[5] = 1.767371426e+10;
+    WX[6] = 0.3375; WP[6] = 1.790781015e+10;
+    WX[7] = 0.39375; WP[7] = 1.802581703e+10;
+    WX[8] = 0.45; WP[8] = 1.808163762e+10;
+    WX[9] = 0.50625; WP[9] = 1.930106163e+10;
+    WX[10] = 0.5625; WP[10] = 2.125719678e+10;
+    WX[11] = 0.61875; WP[11] = 2.173100885e+10;
+    WX[12] = 0.675; WP[12] = 2.251637387e+10;
+    WX[13] = 0.73125; WP[13] = 2.283426061e+10;
+    WX[14] = 0.7875; WP[14] = 2.35793226e+10;
+    WX[15] = 0.84375; WP[15] = 2.555687025e+10;
+    WX[16] = 0.9; WP[16] = 5.097001165e+10;
+    WX[17] = 0.95625; WP[17] = 1.864546057e+10;
+    WX[18] = 1.0125; WP[18] = 1.692071684e+10;
+    WX[19] = 1.06875; WP[19] = 1.585803877e+10;
+    WX[20] = 1.125; WP[20] = 1.545382984e+10;
+    WX[21] = 1.18125; WP[21] = 1.525443245e+10;
+    WX[22] = 1.2375; WP[22] = 1.518686781e+10;
+    WX[23] = 1.29375; WP[23] = 1.443768294e+10;
+    WX[24] = 1.35; WP[24] = 1.416197459e+10;
+    WX[25] = 1.40625; WP[25] = 1.406942984e+10;
+    WX[26] = 1.4625; WP[26] = 1.392689099e+10;
+    WX[27] = 1.51875; WP[27] = 1.374668807e+10;
+    WX[28] = 1.575; WP[28] = 1.368366196e+10;
+    WX[29] = 1.63125; WP[29] = 1.356710417e+10;
+    WX[30] = 1.6875; WP[30] = 1.354838384e+10;
+    WX[31] = 1.74375; WP[31] = 1.316205056e+10;
+    WX[32] = 1.8; WP[32] = 1.298937698e+10;
+  end
+
+  function automatic real static_curve(input real xin);
+    real xc;
+    begin
+      xc = (xin < 0.0) ? 0.0 : ((xin > 1.8) ? 1.8 : xin);
+      static_curve = -0.8999714407 * $tanh(630.8444184 * (xc - (0.8971323898))) + 0.8999699256;
+    end
+  endfunction
+
+  // Rate at this input, linearly interpolated between measured
+  // points and CLAMPED outside them -- extrapolating a rate is
+  // how a schedule produces a negative or absurd pole.
+  function automatic real wp_of(input real xin);
+    int i;
+    real t;
+    begin
+      if (xin <= WX[0]) wp_of = WP[0];
+      else if (xin >= WX[NW-1]) wp_of = WP[NW-1];
+      else begin
+        wp_of = WP[NW-1];
+        for (i = 0; i < NW-1; i++) begin
+          if (xin >= WX[i] && xin <= WX[i+1]) begin
+            t = (WX[i+1] == WX[i]) ? 0.0 : (xin - WX[i]) / (WX[i+1] - WX[i]);
+            wp_of = WP[i] + t * (WP[i+1] - WP[i]);
+          end
+        end
+      end
+    end
+  endfunction
+
+  // Direction-dependent output delay, in integration steps.
+  // Only the DIFFERENCE between the directions changes duty,
+  // so the faster one carries zero. The block's COMMON
+  // propagation delay is not modelled: it moves both edges
+  // together and leaves every duty unchanged.
+  localparam int ND_RISE = 54;
+  localparam int ND_FALL = 0;
+  localparam int NDEPTH  = 56;
+  real dbuf [0:NDEPTH-1];
+  int  dhead, dtap;
+  bit  dir_up;
+  real yprev;
+
+  // Measured rise/fall asymmetry. wp is indexed by the input
+  // alone, which gives the same rate whichever way the output
+  // is going -- and a model that is symmetric about its own
+  // threshold returns exactly 50.000% duty for a 50% input,
+  // whatever the circuit does. These come from the schedule's
+  // two full-swing traversals and multiply to 1.
+  localparam real K_RISE = 0.8947203658;
+  localparam real K_FALL = 1.11766764;
+
+  real y, tgt, w;
+  bit  primed;
+  initial begin
+    y = static_curve(DC_BIAS);
+    primed = 1'b0;
+    for (int i = 0; i < NDEPTH; i++) dbuf[i] = y;
+    dhead = 0; dir_up = 1'b0; yprev = y;
+  end
+
+  always #(TSTEP) begin : lag_step
+    real dt, k1, k2, k3, k4;
+    dt = DT_SECONDS;
+    // Open at the DC solution for the stimulus's OWN first
+    // value, which is what SPICE's t=0 operating point solves.
+    if (!primed) begin
+      y = static_curve(in_val);
+      primed = 1'b1;
+    end
+    // The target and the rate are both functions of the INPUT,
+    // so they are constant across the four RK4 stages; only y
+    // advances. That keeps the step explicit and cheap.
+    tgt = static_curve(in_val);
+    // Direction is decided once per step, from the sign of
+    // the error, and held across the four RK4 stages -- the
+    // same treatment tgt and w already get.
+    w   = wp_of(in_val) * ((tgt > y) ? K_RISE : K_FALL);
+    k1  = w * (tgt - y);
+    k2  = w * (tgt - (y + 0.5*dt*k1));
+    k3  = w * (tgt - (y + 0.5*dt*k2));
+    k4  = w * (tgt - (y + dt*k3));
+    y   = y + (dt/6.0)*(k1 + 2.0*k2 + 2.0*k3 + k4);
+    // Direction is LATCHED: it changes only when the output
+    // actually moves, so the tap is stable through a
+    // transition, and the flat regions -- where every history
+    // sample is equal anyway -- cannot flip it.
+    if (y > yprev + 1.0e-9)      dir_up = 1'b1;
+    else if (y < yprev - 1.0e-9) dir_up = 1'b0;
+    yprev = y;
+    dbuf[dhead] = y;
+    dtap = dhead - (dir_up ? ND_RISE : ND_FALL);
+    while (dtap < 0) dtap = dtap + NDEPTH;
+    out_val = dbuf[dtap];
+    dhead = (dhead + 1) % NDEPTH;
+  end
+
+endmodule
