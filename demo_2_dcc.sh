@@ -201,13 +201,16 @@ echo
 say "      comparator offset  +5 mV    DC caught it, duty did not"
 say "      comparator offset +20 mV    both caught it"
 say "      pole schedule     x0.5      DC BLIND,     duty did not catch"
-say "      pole schedule     x0.1      DC BLIND,     duty did not catch"
-say "      pole schedule     x0.02     DC BLIND,     duty CAUGHT (2.0 pp)"
+say "      pole schedule     x0.1      DC BLIND,     duty CAUGHT (0.74 pp)"
+say "      pole schedule     x0.02     DC BLIND,     duty CAUGHT (0.64 pp)"
 echo
-say "Read honestly: duty is coarser than DC on offsets and only catches a"
-say "gross rate error. But DC is blind to every rate error by construction,"
+say "Read honestly: duty is coarser than DC on offsets, and a 2x rate error"
+say "still slips through. But DC is blind to every rate error by construction"
 say "and this model has no valid AC section -- so without the duty half,"
-say "nothing in the environment checks the dynamics at all."
+say "nothing in the environment checks the dynamics at all. And fixing the"
+say "skew tightened it: the x0.1 rate fault was MISSED before that fix,"
+say "because a systematic 0.25 pp skew error was eating the margin that"
+say "now exposes it."
 beat
 
 hr "Summary"

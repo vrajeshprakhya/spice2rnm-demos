@@ -386,17 +386,26 @@ model:
 comparator offset $+5\unit{mV}$   & caught & missed \\
 comparator offset $+20\unit{mV}$  & caught & caught \\
 pole schedule $\times0.5$         & \textcolor{fail}{blind} & missed \\
-pole schedule $\times0.1$         & \textcolor{fail}{blind} & missed \\
+pole schedule $\times0.1$         & \textcolor{fail}{blind} & caught \\
 pole schedule $\times0.02$        & \textcolor{fail}{blind} & caught \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent Read honestly: the duty section is coarser than DC on offsets and
-only catches a gross rate error. The row that justifies it is the middle
-column --- DC samples settled values, so it is blind to \emph{every} rate
-fault by construction, and this model has no valid AC section. Without the
-duty half, nothing in that environment checks the dynamics at all.
+\noindent Read honestly: the duty section is coarser than DC on offsets,
+and a $2\times$ rate error still slips through. The row that justifies it is
+the middle column --- DC samples settled values, so it is blind to
+\emph{every} rate fault by construction, and this model has no valid AC
+section. Without the duty half, nothing in that environment checks the
+dynamics at all.
+
+Two rows in this table moved when the rise/fall skew of
+Section~\ref{sec:dcc} was fixed, and the direction is worth noting: the
+$\times0.1$ rate fault was \emph{missed} by the pre-skew model's check,
+because a systematic $0.25$ pp skew error was consuming the margin that now
+exposes it. Fixing a model defect made the checker sharper --- the two are
+not independent, and a fault table is only as current as the model it was
+measured on. This one was re-measured on the shipped model.
 
 \textbf{No circuit has to stay broken.} An earlier version of the suite
 depended on one case continuing to fail, as a canary. That decayed twice in
