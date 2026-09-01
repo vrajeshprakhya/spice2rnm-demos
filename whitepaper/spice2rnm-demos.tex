@@ -83,9 +83,9 @@ results produced end to end by the shipped tool in under six minutes on a
 laptop.
 \end{abstract}
 
-\vspace{1em}
+\vspace{0.2em}
 \tableofcontents
-\vspace{1em}
+\vspace{0.2em}
 
 %======================================================================
 \section{The problem}
@@ -144,7 +144,7 @@ spice2rnm dcc.cir --input-node clk --output-node vout \
         three case-study models using xezim's wreal support: wrapper and
         bare core, driven with identical stimulus, agree exactly (worst
         difference $0$ over $120$ randomised samples, code-controlled
-        model included). wreal is a simulator extension rather than IEEE
+        model included). \texttt{wreal} is a simulator extension rather than IEEE
         1800, so the wrapper is a separate file the default output does
         not depend on.
   \item \textbf{Equivalence evidence}: circuit and model driven with the
