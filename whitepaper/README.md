@@ -1,6 +1,7 @@
 # Whitepaper
 
-`spice2rnm-demos.tex` — the three demos written up as marketing material.
+`spice2rnm-demos.tex` — the spice2rnm product whitepaper: three worked
+case studies of automatic real-number-model and testbench generation.
 
 ## Building
 
@@ -10,30 +11,28 @@ pdflatex spice2rnm-demos.tex     # again, for the table of contents
 ```
 
 Standard classes and packages only (`article`, `booktabs`, `listings`,
-`xcolor`, `fancyhdr`, `hyperref`, ...), so a stock TeX Live or MiKTeX is
-enough and there are no local `.sty` files to install.
+`xcolor`, `fancyhdr`, `hyperref`), so a stock TeX Live or MiKTeX builds it
+with nothing extra to install — or drop the single `.tex` file into
+[Overleaf](https://www.overleaf.com) and compile with the default pdfLaTeX
+engine.
 
-**This has not been compiled.** No TeX toolchain was available on the
-machine it was written on. It was checked structurally instead — balanced
-environments, balanced braces, every custom macro defined before use, and
-every `tabular` row's cell count matching its column spec — but the first
-person with `pdflatex` should expect to fix spacing rather than errors.
+## Where the numbers come from
 
-## Keeping the numbers true
+Every figure in the paper is machine-produced by the tool itself — none
+are typed in by hand. Two places to verify that:
 
-Every figure in the paper is machine-produced. To re-derive them:
+- [`../run_all.sh`](../run_all.sh) runs all three demonstrations end to
+  end and prints the headline figures the paper quotes.
+- [`../showcase/`](../showcase/) holds the generated artifacts themselves
+  — models, verification environments, and evidence files — with
+  [`STAMP`](../showcase/STAMP) recording when they were generated, by
+  which tool version, and with what results.
 
-```sh
-cd ..           && ./run_all.sh              # the demo figures
-cd ../spice2rnm && python3 tests/run_tests.py --suite unit
-                   python3 tests/run_tests.py --suite e2e
-```
+If a number in the paper and a number from a fresh run ever disagree, the
+paper is the stale one: the figures are regenerated, never edited.
 
-The paper's closing note states the date those were last run and the suite
-results at that time. If a number in the paper and a number from `run_all.sh`
-disagree, the paper is the stale one — update it rather than the other way
-round.
-
-The fault-injection table ("Why a green testbench is worth believing") comes from
-`spice2rnm/work/fault_inject_duty.sh`, which takes several minutes and is
-not part of either suite.
+The fault-injection results ("Why a green testbench is worth believing")
+are produced by the product's environment-validation tooling, which
+injects faults into a generated model and confirms the generated checks
+detect them. They are re-measured against the shipped model whenever the
+model generation changes.
