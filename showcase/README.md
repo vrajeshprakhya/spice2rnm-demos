@@ -57,6 +57,37 @@ tool's own record of the run: the fit, the equivalence verdict, and every
 warning it raised on the way — including the measurements behind choices
 like omitting the AC section.
 
+## If you already have an RNM library
+
+These artifacts show the **default** boundary: each case emits its own
+types package (`*_ms_types_pkg.sv`) declaring a nettype named after the
+block, and the environment's nets use it. That is the right answer for a
+team starting fresh, and the wrong one for a team that already has a
+library — generated files importing their own freshly-invented nettype do
+not join yours, they sit beside it.
+
+Point `--style-from` at your library and the same run conforms to it:
+
+| | default (what you see here) | `--style-from <your library>` |
+|---|---|---|
+| types package | `rc_lpf2_ms_types_pkg.sv` emitted | not emitted — yours already declares the net |
+| nets in the environment | `rc_lpf2_wire` | your nettype |
+| imports | `rc_lpf2_ms_types_pkg::*` | your package |
+| run script | compiles the generated package | compiles your package file (`HOUSE_NET_SRC` override) |
+| wreal-ported library | wrapper on request | wrapper emitted unasked |
+
+Nothing else moves: same model, same goldens, same checks. Measured on two
+different house libraries — one resolving its net by summing, one by
+averaging — the conformed environment passed exactly as the default one
+does, 51 DC + 19 AC checks, 0 failed.
+
+Reading a library's conventions is a judgement call, so it is read and
+then verified: which of several declared nettypes is the living standard
+is often stated only in a comment, and whatever the tool concludes is
+re-checked against the file that supposedly shows it before anything uses
+it. A claim the file does not support is refused, and the run says so.
+Sample libraries to try it against ship with the tool.
+
 ## Running the environments yourself
 
 Each case's `run_*.sh` compiles and runs its environment. The scripts
