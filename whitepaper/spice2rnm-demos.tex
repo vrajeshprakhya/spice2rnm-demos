@@ -253,7 +253,16 @@ Phase interpolator & phase per code        & $9$       & $0$ \\
 
 \noindent All three case studies --- characterisation, model generation,
 both simulators, and every generated environment --- run end to end in
-$355$ seconds on a laptop.
+$355$ seconds on a laptop. The generated artifacts themselves --- the
+models, the complete environments, and the evidence files, exactly as the
+tool wrote them --- are published for inspection at
+
+\begin{center}
+\url{https://github.com/vrajeshprakhya/spice2rnm-demos}
+\end{center}
+
+\noindent under \texttt{showcase/}, stamped with the tool version and run
+summary that produced them.
 
 %======================================================================
 \section{Why a green testbench is worth believing}
@@ -374,6 +383,8 @@ pipeline runs entirely on measurement.
 
 \noindent{\footnotesize Every figure in this document was produced by the
 shipped tool from its bundled demonstration circuits, most recently on
-2026-09-01. The demonstration suite regenerates them in one command.}
+2026-09-01. The demonstration suite at
+\url{https://github.com/vrajeshprakhya/spice2rnm-demos} regenerates them
+in one command.}
 
 \end{document}
