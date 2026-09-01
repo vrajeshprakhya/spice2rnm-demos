@@ -1,5 +1,7 @@
 # What spice2rnm actually generates
 
+*spice2rnm is a Veylon Systems product.*
+
 This directory holds the **unedited output** of the three demo runs: the
 SystemVerilog real-number models, the complete UVM-MS verification
 environments, and the evidence files, exactly as the tool wrote them. One

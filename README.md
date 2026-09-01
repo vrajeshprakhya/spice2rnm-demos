@@ -1,7 +1,8 @@
 # spice2rnm demos
 
-Three customer-facing walkthroughs of the SPICE-netlist-to-Real-Number-Model
-pipeline, each built around one circuit and one question.
+Three walkthroughs of **spice2rnm**, Veylon Systems' netlist-to-verified-model
+pipeline for mixed-signal verification -- each built around one circuit and
+one question.
 
 | | circuit | what it shows |
 |---|---|---|
