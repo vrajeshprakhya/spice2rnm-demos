@@ -1,12 +1,12 @@
-Generated: 2026-09-01T18:51:15Z
-spice2rnm: 2b6b5eb
-demos:     ad5f5dc
+Generated: 2026-09-01T21:28:03Z
+spice2rnm: c1852d1
+demos:     a7d2b87
 
 Run summary:
-    demo_1_lpf.sh      79 s   exit 0
-    demo_2_dcc.sh     237 s   exit 0
+    demo_1_lpf.sh      69 s   exit 0
+    demo_2_dcc.sh     242 s   exit 0
     demo_3_pi.sh       37 s   exit 0
-    TOTAL             353 s
+    TOTAL             348 s
   
     demo 1  LPF
       chirp          rms_error_norm=0.029008790476737805
