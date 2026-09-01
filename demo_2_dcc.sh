@@ -162,13 +162,26 @@ ls "$OUT"/*.sv "$OUT"/*.svh "$OUT"/*.sh 2>/dev/null \
 echo
 say "Note what it does NOT contain. An ngspice .ac sweep is a linearisation"
 say "at the bias, and this model deliberately is not one -- its small-signal"
-say "gain there is the static curve's local slope, not H(0). Checked against"
-say "an AC golden it reads 44 dB where ngspice reads -23. So the generator"
-say "omits that section for a large-signal model rather than shipping a"
-say "check that is red by construction, and says so:"
+say "gain there is the static curve's local slope, not H(0). Forced on, all"
+say "ten AC points fail by 55.6 to 62.1 dB: the model reads a flat 44.08 dB"
+say "where ngspice reads -11.5 to -18.0. Both measure this circuit at this"
+say "bias and they disagree by 56 dB, because they measure different things."
+say "So the generator omits that section rather than shipping a check that"
+say "cannot pass, and says so:"
 echo
 sed -n 's/.*ac check: omitted/omitted/p' "$OUT/pipeline.txt" 2>/dev/null \
   | tail -1 | fold -s -w 64 | sed 's/^/      /'
+echo
+say "But omitting it would leave only settled DC, and a duty-cycle block is"
+say "not a DC block. So the same run measures what it actually DOES to duty"
+say "-- ngspice transients at two clock rates and three input duties -- and"
+say "checks the model against those instead:"
+echo
+sed -n 's/.*duty check: /      /p' "$OUT/pipeline.txt" 2>/dev/null \
+  | tail -1 | fold -s -w 64 | sed 's/^/      /'
+echo
+say "That table spans 20.1 points of output duty, which is what lets it"
+say "fail: a model ignoring its input reproduces a flat table, not this one."
 echo
 if [ -n "$MS_PID" ]; then
   wait "$MS_PID"
@@ -181,9 +194,20 @@ else
   say "no generated runner found -- was --emit-uvm-ms passed?"
 fi
 echo
-say "60 operating points, zero failures, worst error 0.2 mV against a"
-say "3.6 mV tolerance -- on the block that needed four model structures"
-say "to get right."
+say "Zero failures on both sections -- and the duty half is the one that"
+say "can catch a dynamics error, because settled DC cannot. Fault-injected"
+say "into the emitted model and re-run, this environment reports:"
+echo
+say "      comparator offset  +5 mV    DC caught it, duty did not"
+say "      comparator offset +20 mV    both caught it"
+say "      pole schedule     x0.5      DC BLIND,     duty did not catch"
+say "      pole schedule     x0.1      DC BLIND,     duty did not catch"
+say "      pole schedule     x0.02     DC BLIND,     duty CAUGHT (2.0 pp)"
+echo
+say "Read honestly: duty is coarser than DC on offsets and only catches a"
+say "gross rate error. But DC is blind to every rate error by construction,"
+say "and this model has no valid AC section -- so without the duty half,"
+say "nothing in the environment checks the dynamics at all."
 beat
 
 hr "Summary"
@@ -197,7 +221,14 @@ say "                    off the AC sweep -- 3.9x of real rate spread where"
 say "                    the AC pole reported 613,666x of the wrong node"
 say "50% duty null     : vctrl = 1.1477 V"
 say "correction range  : 51.5 percentage points of duty"
-say "UVM-MS            : 60 DC checks, 0 failed (AC omitted -- see act 6)"
+say "UVM-MS            : 51 DC checks + 15 duty checks, 0 failed"
+say "                    worst duty error 0.257 pp against 0.500 pp"
+say "                    AC omitted -- it cannot pass here (act 6)"
+say "known model limit : the circuit carries a ~74 ps rise/fall skew; a"
+say "                    symmetric static curve driving a symmetric lag"
+say "                    cannot reproduce one, so duty error grows with"
+say "                    clock rate -- 0.26 pp at 29.5 MHz, 1.14 pp at"
+say "                    119.5 MHz, the top of the fitted band"
 say ""
 say "csv: $HOME/s2r_runs/demo_dcc/duty_vs_ctrl.csv"
 echo

@@ -70,6 +70,10 @@ if ran_this demo_2_dcc.sh && [ -f "$L" ]; then
   field "$L" 'duty null' '50% duty null at vctrl = [0-9.]+ V'
   field "$L" 'DC'      'dc checks=[0-9]+ failed=[0-9]+'
   field "$L" 'AC'      'ac checks=0 \(no AC golden'
+  # The section that REPLACES AC for this model. Reported explicitly: a
+  # demo whose only frequency-domain line reads "checks=0" looks like
+  # something was skipped rather than like something was substituted.
+  field "$L" 'duty'    'duty checks=[0-9]+ failed=[0-9]+ \| worst [0-9.]+ pp'
 fi
 
 L="$LOGDIR/demo_3_pi.out"
