@@ -116,14 +116,29 @@ spice2rnm dcc.cir --input-node clk --output-node vout \
 \end{lstlisting}
 
 \begin{itemize}[leftmargin=1.5em,itemsep=0.3em]
-  \item \textbf{A SystemVerilog real-number model}, plain \texttt{real}
-        ports, simulator-portable, with the model structure chosen
-        automatically to match the block's measured behaviour --- including
-        blocks whose dynamics move with signal level, where any
-        fixed-response model is wrong across most of its range. The model's
-        own ports are plain \texttt{real}, so it runs on any IEEE 1800
-        simulator with no nettype or AMS support at all; the generated DMS
-        wrapper is what lifts it onto the testbench's nettypes.
+  \item \textbf{A SystemVerilog real-number model}, with the model
+        structure chosen automatically to match the block's measured
+        behaviour --- including blocks whose dynamics move with signal
+        level, where any fixed-response model is wrong across most of its
+        range.
+
+        Its ports are yours to choose (\texttt{-{}-model-ports}). The
+        computing core is emitted with plain \texttt{real} ports, because a
+        \texttt{real} port is a \emph{variable}: it depends on no package,
+        no nettype declaration and no simulator extension, so it compiles
+        standalone anywhere. Around that core the tool emits the boundary
+        your flow uses --- \texttt{wreal}, or a user-defined nettype taken
+        from your own library (Section~\ref{sec:style}) --- so the model
+        presents the same ports as the models beside it.
+
+        The core is untouched in every case --- it is the file the
+        equivalence check ran against --- and a boundary costs nothing in
+        fidelity: driven with identical stimulus, boundary and bare core
+        agree exactly, worst difference $0$ over $120$ randomised samples
+        across all three case-study models, and again on a library's own
+        nettype. \texttt{wreal} is a simulator extension rather than
+        IEEE 1800, so that boundary is a separate file the core does not
+        depend on.
   \item \textbf{A UVM-MS verification environment} following the Accellera
         UVM-MS specification, built on IEEE 1800 --- not on Verilog-AMS.
         Analog values travel on \emph{user-defined nettypes} (IEEE
@@ -135,18 +150,6 @@ spice2rnm dcc.cir --input-node clk --output-node vout \
         \texttt{interconnect} (\S6.6.8), inheriting the testbench's nettype
         instead of naming one, and scoreboard golden values are SPICE
         measurements of your circuit.
-  \item \textbf{An optional wreal boundary}
-        (\texttt{-{}-emit-wreal}) for flows standardised on
-        \texttt{wreal} nets: a thin wrapper with wreal ports around the
-        untouched core model, mirroring what the DMS wrapper does on the
-        nettype side --- one boundary file per discipline, so adopting the
-        model never means adopting a net discipline. Verified against all
-        three case-study models using xezim's wreal support: wrapper and
-        bare core, driven with identical stimulus, agree exactly (worst
-        difference $0$ over $120$ randomised samples, code-controlled
-        model included). \texttt{wreal} is a simulator extension rather than IEEE
-        1800, so the wrapper is a separate file the default output does
-        not depend on.
   \item \textbf{Equivalence evidence}: circuit and model driven with the
         identical stimulus, compared in the domain that matters for the
         block --- waveform error for signal-path blocks, edge placement for
@@ -501,9 +504,10 @@ pipeline runs entirely on measurement.
   \item \textbf{Inputs}: SPICE netlists (ngspice dialect), flat or with
         subcircuits; optional plain-language functional specification;
         optionally an existing RNM library to take conventions from.
-  \item \textbf{Outputs}: SystemVerilog real-number models (plain
-        \texttt{real} ports), UVM-MS 1.0 environments, optional wreal
-        wrappers, equivalence reports with archived waveforms.
+  \item \textbf{Outputs}: SystemVerilog real-number models, with the
+        port discipline of your choice --- plain \texttt{real} (portable
+        anywhere), \texttt{wreal}, or your library's own nettype; UVM-MS 1.0
+        environments; equivalence reports with archived waveforms.
   \item \textbf{Toolchain}: ngspice for characterisation; any
         Icarus-compatible SystemVerilog simulator with UVM support for the
         generated environments. The generated models and environments are
