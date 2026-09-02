@@ -303,6 +303,10 @@ spice2rnm-demos/
                      environment, run script, evidence
     pi/              11 files: model, wreal wrapper, phase
                      environment, run script, evidence
+    house_lib/       4 files: a hand-written stand-in for an
+                     existing customer model library
+    lpf2_house/      12 files: the lpf2 circuit again, generated
+                     to join house_lib -- diff against lpf2/
     STAMP            date, tool version, and run summary that
                      produced the artifacts above
     refresh.sh       regenerates everything; the only way this
@@ -446,13 +450,37 @@ out loud. Where the tool has a \emph{measurement} --- a count of which
 discipline the library's ports actually use --- the count wins outright
 and a disagreement is recorded rather than adopted.
 
-\textbf{The result is an environment that runs on the house net.} On a
-library using a summing resolver and again on one using an averaging
-resolver, the generated environment adopted the house nettype and passed
-unchanged: $51$ DC and $19$ AC checks, $0$ failed, identical to the
-default environment's results. Without \texttt{-{}-style-from}, or against
-a directory with nothing recognisable in it, nothing changes --- and the
-run says so.
+\textbf{The result is an environment that runs on the house net},
+and it is published rather than described. The showcase carries the same
+filter twice: \texttt{lpf2/} generated normally, and
+\texttt{lpf2{}\_house/} generated against
+\texttt{house{}\_lib/} --- a small hand-written library standing in for a
+customer's own. Diffing the two directories is the whole argument:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & \textbf{\texttt{lpf2/}} & \textbf{\texttt{lpf2{}\_house/}} \\
+\midrule
+types package & emitted            & \textbf{not emitted} \\
+nets          & \texttt{rc{}\_lpf2{}\_wire} & \texttt{ng{}\_anet} \\
+imports       & the generated one  & \texttt{ng{}\_ams{}\_pkg} \\
+run script    & compiles it        & compiles the house package \\
+\midrule
+the model     & \multicolumn{2}{l}{byte-identical} \\
+the scoreboard & \multicolumn{2}{l}{byte-identical} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Conformance changes the boundary and nothing else --- and the
+published environment runs from where it sits, against the library beside
+it: $51$ DC and $19$ AC checks, $0$ failed, exactly the default
+environment's result. Measured separately, a library resolving its net by
+averaging rather than summing conforms and passes the same way, and a
+library using \texttt{wreal} ports gets the wreal wrapper instead.
+Without \texttt{-{}-style-from}, or against a directory with nothing
+recognisable in it, nothing changes --- and the run says so.
 
 \section{AI where it helps, physics where it decides}
 
