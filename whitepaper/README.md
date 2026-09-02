@@ -16,7 +16,8 @@ pdflatex spice2rnm-demos.tex     # again, for the table of contents
 ```
 
 Standard classes and packages only (`article`, `booktabs`, `listings`,
-`xcolor`, `fancyhdr`, `hyperref`), so a stock TeX Live or MiKTeX builds it
+`xcolor`, `fancyhdr`, `hyperref`, `draftwatermark`), so a stock TeX Live
+or MiKTeX builds it
 with nothing extra to install — or drop the single `.tex` file into
 [Overleaf](https://www.overleaf.com) and compile with the default pdfLaTeX
 engine.

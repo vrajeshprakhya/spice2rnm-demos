@@ -18,7 +18,17 @@
 \usepackage{amsmath}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
+\usepackage{draftwatermark}
 \usepackage[hidelinks]{hyperref}
+
+% Ownership mark on every page. Deliberately faint: at lightness 0.93
+% it reads as a mark on the paper rather than as something printed over
+% the text, so tables and code listings stay legible on screen and in
+% greyscale.
+\SetWatermarkText{Veylon Systems}
+\SetWatermarkScale{0.32}
+\SetWatermarkLightness{0.93}
+\SetWatermarkAngle{45}
 
 \definecolor{accent}{HTML}{1F5673}
 \definecolor{pass}{HTML}{1B7A3D}
