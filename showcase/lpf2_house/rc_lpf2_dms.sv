@@ -22,17 +22,11 @@ module rc_lpf2_dms import ng_ams_pkg::*; (
   output interconnect aout
 );
 
-  // Net -> variable, so the RNM's `input real` port can take it.
-  real in_r = 0.9;
-  always @(ain) in_r = ain;
-
-  // Variable -> net on the way back out.
-  real out_r;
-  assign aout = out_r;
-
-  rc_lpf2_rnm u_rnm (
-    .in_val (in_r),
-    .out_val (out_r)
-  );
+  // The DELIVERABLE is the boundary module, so that is what
+  // the environment instantiates: what is verified is what
+  // ships. Its ports are already net-typed, so these
+  // interconnect ports connect straight through -- the
+  // net/variable conversion happens once, inside it.
+  rc_lpf2_rnm_ng_anet u_rnm (.ain(ain), .aout(aout));
 
 endmodule : rc_lpf2_dms

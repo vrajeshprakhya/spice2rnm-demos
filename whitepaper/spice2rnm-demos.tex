@@ -308,7 +308,7 @@ spice2rnm-demos/
                      environment, run script, evidence
     house_lib/       4 files: a hand-written stand-in for an
                      existing customer model library
-    lpf2_house/      12 files: the lpf2 circuit again, generated
+    lpf2_house/      13 files: the lpf2 circuit again, generated
                      to join house_lib -- diff against lpf2/
     STAMP            date, tool version, and run summary that
                      produced the artifacts above
@@ -469,6 +469,8 @@ types package & emitted            & \textbf{not emitted} \\
 nets          & \texttt{rc{}\_lpf2{}\_wire} & \texttt{ng{}\_anet} \\
 imports       & the generated one  & \texttt{ng{}\_ams{}\_pkg} \\
 run script    & compiles it        & compiles the house package \\
+model ports   & plain \texttt{real}     & \texttt{ng{}\_anet}, and the
+                                     environment instantiates it \\
 \midrule
 the model     & \multicolumn{2}{l}{byte-identical} \\
 the scoreboard & \multicolumn{2}{l}{byte-identical} \\
@@ -479,7 +481,13 @@ the scoreboard & \multicolumn{2}{l}{byte-identical} \\
 \noindent Conformance changes the boundary and nothing else --- and the
 published environment runs from where it sits, against the library beside
 it: $51$ DC and $19$ AC checks, $0$ failed, exactly the default
-environment's result. Measured separately, a library resolving its net by
+environment's result.
+
+Note what the environment instantiates in that second column. When the
+model is delivered behind a port boundary, the generated testbench drives
+\emph{that} module rather than the core inside it, and the boundary's
+file joins the compile list --- so what the evidence covers is what
+ships, not a component of it. Measured separately, a library resolving its net by
 averaging rather than summing conforms and passes the same way, and a
 library using \texttt{wreal} ports gets the wreal wrapper instead.
 Without \texttt{-{}-style-from}, or against a directory with nothing

@@ -42,6 +42,7 @@ $IV -g2012 -DUVM_NO_DPI \
     "${HOUSE_NET_SRC:-../house_lib/ng_ams_pkg.sv}" \
     rc_lpf2_proxy_pkg.sv \
     rc_lpf2_rnm.sv \
+    rc_lpf2_rnm_ng_anet.sv \
     rc_lpf2_dms.sv \
     rc_lpf2_bridge_core.sv \
     rc_lpf2_bridge.sv \

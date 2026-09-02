@@ -87,9 +87,13 @@ diff -r lpf2 lpf2_house
 | nets | `rc_lpf2_wire` | `ng_anet` |
 | imports | `rc_lpf2_ms_types_pkg::*` | `ng_ams_pkg::*` |
 | run script | compiles the generated package | compiles `../house_lib/ng_ams_pkg.sv` (`HOUSE_NET_SRC` override) |
+| model ports | plain `real` | `ng_anet` — and the environment instantiates that module, so what is verified is what ships |
 
 **The model file is byte-identical between the two.** So is the
-scoreboard. Conformance changes the boundary and nothing else — and
+scoreboard. The computing core never changes; `lpf2_house/` simply adds
+`rc_lpf2_rnm_ng_anet.sv`, the boundary presenting the house net, which is
+the module its testbench drives. Conformance changes the boundary and
+nothing else — and
 `lpf2_house/run_rc_lpf2_ms.sh` runs from where it sits, against the
 library next door, with the same result the default environment gives:
 51 DC and 19 AC checks, 0 failed.

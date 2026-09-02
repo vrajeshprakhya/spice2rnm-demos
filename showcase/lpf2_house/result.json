@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-01T23:56:57.805138+00:00",
+    "timestamp_utc": "2026-09-02T01:35:25.260288+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -20,7 +20,9 @@
       "xezim",
       "--emit-uvm-ms",
       "--style-from",
-      "/home/vraje/demos/showcase/house_lib"
+      "/home/vraje/demos/showcase/house_lib",
+      "--model-ports",
+      "house"
     ],
     "cwd": "/home/vraje/spice2rnm",
     "netlist": "work/rc_lpf2.cir",

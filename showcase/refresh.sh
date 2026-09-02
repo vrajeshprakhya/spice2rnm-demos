@@ -63,7 +63,8 @@ if [ "${1:-}" != "--no-run" ]; then
       --out-dir "$HERE/lpf2_house" \
       --input-node vin --output-node vout \
       --ngspice-bin "$NGSPICE" --sim xezim \
-      --emit-uvm-ms --style-from "$HERE/house_lib" ) \
+      --emit-uvm-ms --style-from "$HERE/house_lib" \
+      --model-ports house ) \
     | grep -E "house style|SUCCESS|FAILED" | sed 's/^/  /'
   # Same whitelist curate() applies, but in place: characterisation
   # scratch, waveform dumps and build products are not deliverables.
