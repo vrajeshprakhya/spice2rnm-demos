@@ -300,16 +300,30 @@ spice2rnm-demos/
                      the three case studies, runnable end to end
   harness/           8 measurement scripts the demos call
   showcase/          the generated artifacts, byte-for-byte
-    lpf2/            14 files: model, wreal wrapper, DC+AC
-                     environment, run script, evidence
-    dcc2/            15 files: model, wreal wrapper, DC+duty
-                     environment, run script, evidence
-    pi/              11 files: model, wreal wrapper, phase
-                     environment, run script, evidence
-    house_lib/       4 files: a hand-written stand-in for an
-                     existing customer model library
-    lpf2_house/      13 files: the lpf2 circuit again, generated
-                     to join house_lib -- diff against lpf2/
+    lpf2/            the baseline case, 14 files:
+      rc_lpf2_rnm.sv          the model, plain real ports
+      rc_lpf2_rnm_wreal.sv    the same model, wreal ports
+      rc_lpf2_ms_types_pkg.sv the generated nettype
+      rc_lpf2_dms.sv          net <-> variable, interconnect ports
+      rc_lpf2_bridge*.sv      MS bridge and its driving core
+      rc_lpf2_proxy_pkg.sv    agent <-> bridge API
+      rc_lpf2_ms_pkg.sv       agent, and the ngspice goldens
+      rc_lpf2_ms_scoreboard.svh  the checks and tolerances
+      rc_lpf2_ms_tb/test.svh  environment and test
+      top_rc_lpf2_ms.sv       nets, DUT, bridge, test
+      run_rc_lpf2_ms.sh       compiles and runs it
+      result.json             fit, verdict, warnings
+    dcc2/            same shape, 15 files: no AC section, adds
+                     duty goldens in dcc_ms_pkg.sv and the run
+                     log pipeline.txt
+    pi/              same shape, 11 files: phase-per-code
+                     goldens, no DC or AC section
+    house_lib/       4 files, NOT generated: ng_ams_pkg.sv
+                     declaring nettype real ng_anet, and two
+                     hand-written models using it
+    lpf2_house/      13 files: lpf2 again, joined to house_lib --
+                     no types package, and rc_lpf2_rnm_ng_anet.sv
+                     in place of the wreal boundary
     STAMP            date, tool version, and run summary that
                      produced the artifacts above
     refresh.sh       regenerates everything; the only way this

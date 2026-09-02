@@ -28,6 +28,66 @@ merely describing what that would look like. Its own README says so.
 | [`pi/`](pi/) | phase interpolator | phase-per-code environment; no DC or AC at all |
 | [`lpf2_house/`](lpf2_house/) | the filter again | the same circuit generated against an existing model library — see below |
 
+## Every file, and what is in it
+
+The four cases share one file naming scheme, so a file does the same job
+in each. `lpf2/` in full:
+
+```
+lpf2/
+  rc_lpf2_rnm.sv              THE MODEL. Plain `real` ports, the fitted
+                              structure, and in its header the measurements
+                              that chose that structure
+  rc_lpf2_rnm_wreal.sv        the same model behind wreal ports, for flows
+                              standardised on wreal nets
+  rc_lpf2_ms_types_pkg.sv     the generated user-defined nettype the
+                              environment's analog nets travel on
+  rc_lpf2_dms.sv              net <-> variable wrapper: interconnect ports
+                              outside, the model's real ports inside
+  rc_lpf2_bridge.sv           MS bridge: the concrete proxy the class-based
+                              testbench drives the analog side through
+  rc_lpf2_bridge_core.sv      what actually drives and senses the DUT pins,
+                              including the settling and AC measurement
+  rc_lpf2_proxy_pkg.sv        the abstract proxy: the API between agent and
+                              bridge, so either side can be swapped
+  rc_lpf2_ms_pkg.sv           the agent -- item, driver, monitor, sequences
+                              -- AND THE GOLDEN TABLES measured from ngspice
+  rc_lpf2_ms_scoreboard.svh   the checks, and the tolerances, with the
+                              reasoning for each tolerance in comments
+  rc_lpf2_ms_tb.svh           the environment: agent + scoreboard wiring
+  rc_lpf2_ms_test.svh         the UVM test that runs the sequences
+  top_rc_lpf2_ms.sv           top level: nets, DUT, bridge, test
+  run_rc_lpf2_ms.sh           compiles and runs the whole thing
+  result.json                 the run's own record: fit, verdict, warnings
+```
+
+### Where each example actually lives
+
+| Looking for | Open |
+|---|---|
+| a generated model, plain `real` ports | [`lpf2/rc_lpf2_rnm.sv`](lpf2/rc_lpf2_rnm.sv) |
+| a model with **wreal** ports | [`lpf2/rc_lpf2_rnm_wreal.sv`](lpf2/rc_lpf2_rnm_wreal.sv) |
+| a model with **UDN** ports, on a library's own nettype | [`lpf2_house/rc_lpf2_rnm_ng_anet.sv`](lpf2_house/rc_lpf2_rnm_ng_anet.sv) |
+| a **UDN declaration** the tool generated | [`lpf2/rc_lpf2_ms_types_pkg.sv`](lpf2/rc_lpf2_ms_types_pkg.sv) |
+| a **UDN declaration** a customer already had | [`house_lib/ng_ams_pkg.sv`](house_lib/ng_ams_pkg.sv) |
+| an environment on **its own** nettype | [`lpf2/top_rc_lpf2_ms.sv`](lpf2/top_rc_lpf2_ms.sv) |
+| an environment on **a library's** nettype | [`lpf2_house/top_rc_lpf2_ms.sv`](lpf2_house/top_rc_lpf2_ms.sv) |
+| `interconnect` ports (IEEE 1800-2017 §6.6.8) | [`lpf2/rc_lpf2_dms.sv`](lpf2/rc_lpf2_dms.sv) |
+| goldens that are **SPICE measurements** | [`lpf2/rc_lpf2_ms_pkg.sv`](lpf2/rc_lpf2_ms_pkg.sv) (`gold_x`/`gold_y`, `ac_freq`/`ac_mag_db`) |
+| a model whose **dynamics move with level** | [`dcc2/dcc_rnm.sv`](dcc2/dcc_rnm.sv) — 33-point rate schedule, measured rise/fall skew |
+| **duty** goldens, where AC cannot apply | [`dcc2/dcc_ms_pkg.sv`](dcc2/dcc_ms_pkg.sv) (`duty_freq`/`duty_in`/`duty_gold`/`duty_vth`) |
+| why an environment has **no AC section** | [`dcc2/pipeline.txt`](dcc2/pipeline.txt) — the run says it in its own words |
+| a **delay-line** model (no transfer function at all) | [`pi/pi_therm_rnm.sv`](pi/pi_therm_rnm.sv) |
+| **phase-per-code** goldens | [`pi/pi_therm_ms_pkg.sv`](pi/pi_therm_ms_pkg.sv) |
+| a **digital code port** crossing an analog boundary | [`pi/pi_therm_rnm_wreal.sv`](pi/pi_therm_rnm_wreal.sv) — `input int code` stays `int` |
+| what a **conformed** run script compiles | [`lpf2_house/run_rc_lpf2_ms.sh`](lpf2_house/run_rc_lpf2_ms.sh) — the house package, not a generated one |
+
+`dcc2/` and `pi/` differ from the list above only where their block does:
+`dcc2/` has no AC section and adds `pipeline.txt`; `pi/` has neither a DC
+nor an AC section and no bridge pair, because its environment measures
+edges directly. `lpf2_house/` has no `*_ms_types_pkg.sv` — that is the
+point of it — and adds the `ng_anet` boundary instead of a wreal one.
+
 ## Where to look first
 
 **The model headers.** Open `dcc2/dcc_rnm.sv` and read the first fifteen
