@@ -307,7 +307,7 @@ spice2rnm-demos/
       rc_lpf2_dms.sv          net <-> variable, interconnect ports
       rc_lpf2_bridge*.sv      MS bridge and its driving core
       rc_lpf2_proxy_pkg.sv    agent <-> bridge API
-      rc_lpf2_ms_pkg.sv       agent, and the ngspice goldens
+      rc_lpf2_ms_pkg.sv       agent, and the SPICE goldens
       rc_lpf2_ms_scoreboard.svh  the checks and tolerances
       rc_lpf2_ms_tb/test.svh  environment and test
       top_rc_lpf2_ms.sv       nets, DUT, bridge, test
@@ -523,18 +523,19 @@ pipeline runs entirely on measurement.
 \section{Scope and requirements}
 
 \begin{itemize}[leftmargin=1.5em,itemsep=0.3em]
-  \item \textbf{Inputs}: SPICE netlists (ngspice dialect), flat or with
-        subcircuits; optional plain-language functional specification;
-        optionally an existing RNM library to take conventions from.
+  \item \textbf{Inputs}: SPICE netlists, flat or with subcircuits;
+        optional plain-language functional specification; optionally an
+        existing RNM library to take conventions from.
   \item \textbf{Outputs}: SystemVerilog real-number models, with the
         port discipline of your choice --- plain \texttt{real} (portable
         anywhere), \texttt{wreal}, or your library's own nettype; UVM-MS 1.0
         environments; equivalence reports with archived waveforms.
-  \item \textbf{Toolchain}: ngspice for characterisation; any
-        Icarus-compatible SystemVerilog simulator with UVM support for the
-        generated environments. The generated models and environments are
-        standard SystemVerilog and carry no vendor dependence; every run
-        in this paper used the open-source pair ngspice and xezim.
+  \item \textbf{Toolchain}: a SPICE simulator for characterisation,
+        and a digital simulator capable of running real number models ---
+        with UVM support for the generated environments. The generated
+        models and environments are standard SystemVerilog and carry no
+        vendor dependence, so either may be the one your flow already
+        uses.
   \item \textbf{Block-level scope}: single-input single-output blocks and
         compositions of them, including current-mode blocks sharing a
         node. Hierarchical composition trades some accuracy for structure;
