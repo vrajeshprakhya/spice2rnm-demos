@@ -48,7 +48,7 @@ python3 -m spice2rnm "$NETLIST" \
   --input-node clk --output-node vout \
   --ngspice-bin "$NGSPICE" \
   --sim xezim \
-  --emit-uvm-ms --emit-wreal 2>&1 | tee "$OUT/pipeline.txt" \
+  --emit-uvm-ms --emit-wreal --emit-assertions 2>&1 | tee "$OUT/pipeline.txt" \
   | grep -viE '^\s*$' | sed 's/^/    /'
 say ""
 say "elapsed: $(( $(date +%s) - T0 )) s"

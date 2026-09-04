@@ -113,4 +113,41 @@ module rc_lpf2_rnm(input real in_val, output real out_val);
     out_val = final_out;
   end
 
+`ifndef SPICE2RNM_NO_ASSERT
+  //--------------------------------------------------------------------
+  // Validity domain, from the measurements that built this model.
+  //
+  // These state where the evidence applies. Outside it the model does
+  // not extrapolate -- it CLAMPS, and keeps returning a plausible
+  // number -- so being told once is the difference between a wrong
+  // answer you can see and one you cannot.
+  //
+  // Compile out with +define+SPICE2RNM_NO_ASSERT.
+  //--------------------------------------------------------------------
+  localparam real DOMAIN_LO  = 0.0;
+  localparam real DOMAIN_HI  = 1.8;
+  localparam real DOMAIN_EPS = 0.036; // 2% of the span, see model_assertions.py
+  bit domain_reported = 1'b0;
+
+  always @(in_val) begin : domain_check
+    a_input_domain: assert (in_val >= DOMAIN_LO - DOMAIN_EPS && in_val <= DOMAIN_HI + DOMAIN_EPS)
+    else if (!domain_reported) begin
+      domain_reported = 1'b1;
+      $warning("%m: input %0.6g V is outside the characterized range %0.6g..%0.6g V. static_curve clamps there, so this model keeps running and returns the endpoint value -- it is not extrapolating, and it is no longer evidence. Reported once.",
+               in_val, DOMAIN_LO, DOMAIN_HI);
+    end
+  end
+
+  bit nan_reported = 1'b0;
+
+  always @(out_val) begin : output_health
+    // NaN is the one value that is not equal to itself.
+    a_output_finite: assert (out_val == out_val)
+    else if (!nan_reported) begin
+      nan_reported = 1'b1;
+      $error("%m: output is NaN -- the integration diverged. Reported once.");
+    end
+  end
+`endif
+
 endmodule

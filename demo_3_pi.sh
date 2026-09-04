@@ -79,7 +79,7 @@ T0=$(date +%s)
 ( cd "$S2R" && python3 -m spice2rnm work/pi_therm.cir \
     --out-dir "$OUT" --output-node vout \
     --code-map thermometer:8 --code-period 2e-9 \
-    --ngspice-bin "$NGSPICE" --emit-uvm-ms --emit-wreal 2>&1 ) \
+    --ngspice-bin "$NGSPICE" --emit-uvm-ms --emit-wreal --emit-assertions 2>&1 ) \
   | grep -viE '^\s*$' | sed 's/^/    /'
 say ""
 say "elapsed: $(( $(date +%s) - T0 )) s"

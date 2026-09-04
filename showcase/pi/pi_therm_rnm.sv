@@ -54,4 +54,41 @@ module pi_therm_rnm(input real in_val, input int code, output real out_val);
     wp = (wp + 1) % NH;
   end
 
+
+`ifndef SPICE2RNM_NO_ASSERT
+  //--------------------------------------------------------------------
+  // Validity domain, from the measurements that built this model.
+  //
+  // These state where the evidence applies. Outside it the model does
+  // not extrapolate -- it CLAMPS, and keeps returning a plausible
+  // number -- so being told once is the difference between a wrong
+  // answer you can see and one you cannot.
+  //
+  // Compile out with +define+SPICE2RNM_NO_ASSERT.
+  //--------------------------------------------------------------------
+
+  localparam int CODE_MAX = 8;
+  bit code_reported = 1'b0;
+
+  always @(code) begin : code_check
+    a_code_range: assert (code >= 0 && code <= CODE_MAX)
+    else if (!code_reported) begin
+      code_reported = 1'b1;
+      $warning("%m: code %0d is outside the measured 0..%0d. Only those settings were characterized; the model clamps. Reported once.",
+               code, CODE_MAX);
+    end
+  end
+
+  bit nan_reported = 1'b0;
+
+  always @(out_val) begin : output_health
+    // NaN is the one value that is not equal to itself.
+    a_output_finite: assert (out_val == out_val)
+    else if (!nan_reported) begin
+      nan_reported = 1'b1;
+      $error("%m: output is NaN -- the integration diverged. Reported once.");
+    end
+  end
+`endif
+
 endmodule

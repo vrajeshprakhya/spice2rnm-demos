@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-02T01:34:33.115612+00:00",
+    "timestamp_utc": "2026-09-04T01:56:51.997514+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -19,7 +19,8 @@
       "--ngspice-bin",
       "/home/vraje/ngspice-install/bin/ngspice",
       "--emit-uvm-ms",
-      "--emit-wreal"
+      "--emit-wreal",
+      "--emit-assertions"
     ],
     "cwd": "/home/vraje/spice2rnm"
   },

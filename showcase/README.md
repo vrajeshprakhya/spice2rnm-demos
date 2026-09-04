@@ -36,8 +36,9 @@ in each. `lpf2/` in full:
 ```
 lpf2/
   rc_lpf2_rnm.sv              THE MODEL. Plain `real` ports, the fitted
-                              structure, and in its header the measurements
-                              that chose that structure
+                              structure, the measurements that chose that
+                              structure in its header, and assertions
+                              stating the range it is valid over
   rc_lpf2_rnm_wreal.sv        the same model behind wreal ports, for flows
                               standardised on wreal nets
   rc_lpf2_ms_types_pkg.sv     the generated user-defined nettype the
@@ -80,6 +81,8 @@ lpf2/
 | a **delay-line** model (no transfer function at all) | [`pi/pi_therm_rnm.sv`](pi/pi_therm_rnm.sv) |
 | **phase-per-code** goldens | [`pi/pi_therm_ms_pkg.sv`](pi/pi_therm_ms_pkg.sv) |
 | a **digital code port** crossing an analog boundary | [`pi/pi_therm_rnm_wreal.sv`](pi/pi_therm_rnm_wreal.sv) — `input int code` stays `int` |
+| a model asserting **its own validity range** | [`lpf2/rc_lpf2_rnm.sv`](lpf2/rc_lpf2_rnm.sv) — `a_input_domain`, at the end |
+| the same idea for **discrete settings** | [`pi/pi_therm_rnm.sv`](pi/pi_therm_rnm.sv) — `a_code_range`; a delay line has no amplitude domain |
 | what a **conformed** run script compiles | [`lpf2_house/run_rc_lpf2_ms.sh`](lpf2_house/run_rc_lpf2_ms.sh) — the house package, not a generated one |
 
 `dcc2/` and `pi/` differ from the list above only where their block does:
@@ -117,6 +120,21 @@ of an LSB.
 the same core model behind `wreal` ports, for flows standardised on wreal
 nets. Ten lines of discipline conversion around an untouched core:
 adopting the model never means adopting a net discipline.
+
+**The assertions at the end of each model.** A model clamps outside the
+range it was fitted over — deliberately, since extrapolating a fitted
+curve is how you get a confident wrong answer — and then keeps returning
+a plausible number. These say so, once, the first time it happens:
+
+```systemverilog
+a_input_domain: assert (in_val >= DOMAIN_LO - DOMAIN_EPS &&
+                        in_val <= DOMAIN_HI + DOMAIN_EPS)
+```
+
+They check *use*, not correctness — "this model is being driven outside
+where it was verified" — and they are silent on every run in this
+directory, which is the only way a check stays switched on. Remove them
+with `+define+SPICE2RNM_NO_ASSERT`.
 
 **The evidence.** Each case's `result.json` and `pipeline.txt` are the
 tool's own record of the run: the fit, the equivalence verdict, and every

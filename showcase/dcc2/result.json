@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-02T01:32:13.256793+00:00",
+    "timestamp_utc": "2026-09-04T01:54:17.525777+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -19,7 +19,8 @@
       "--sim",
       "xezim",
       "--emit-uvm-ms",
-      "--emit-wreal"
+      "--emit-wreal",
+      "--emit-assertions"
     ],
     "cwd": "/home/vraje/spice2rnm",
     "netlist": "/home/vraje/spice2rnm/work/dcc.cir",
@@ -279,7 +280,7 @@
     "sv_path": "/home/vraje/s2r_runs/dcc2/dcc_rnm.sv",
     "sv_text": {
       "__omitted__": "bulk field; written to its own file",
-      "chars": 6085
+      "chars": 7672
     },
     "equivalence": {
       "success": true,
@@ -341,6 +342,8 @@
       "norm_mode": "composite_excursion",
       "norm_value": 1.80219764952,
       "n_compared": 40310,
+      "stim_min": -0.008310271899572182,
+      "stim_max": 1.8060700046889089,
       "compare_csv_path": "/home/vraje/s2r_runs/dcc2/equivalence/waveform_compare.csv",
       "vcd_path": "/home/vraje/s2r_runs/dcc2/equivalence/tb_equiv.vcd",
       "warnings": [
