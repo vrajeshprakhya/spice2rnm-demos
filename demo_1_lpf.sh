@@ -77,7 +77,8 @@ say "from the fit the model implements."
 echo
 # Not `*_ms*` -- that glob missed the DPI bridge and the proxy package,
 # which are the interesting half. Everything generated here except the model
-# itself (shown in act 3) and the .vvp/.c build products of a previous run.
+# itself (shown in act 3); xezim runs from source, so there are no build
+# products to skip over.
 UVM_FILES=$(ls "$OUT"/*.sv "$OUT"/*.svh "$OUT"/*.sh 2>/dev/null \
   | grep -v '_rnm\.sv$' | sort)
 echo "$UVM_FILES" | xargs -r -n1 basename | sed 's/^/      /'
@@ -85,18 +86,21 @@ echo
 say "$(echo "$UVM_FILES" | grep -c .) files: a DUT bridge, a DPI proxy package, the"
 say "scoreboard that holds the goldens, the test, and the runner script."
 echo
-say "Running it. This needs an Icarus with UVM *and* 6.6.7 nettype support --"
-say "a narrower requirement than running the model itself, so the prefix is"
-say "explicit here."
+say "Running it. The generated runner drives xezim in a single invocation --"
+say "it compiles and simulates UVM, the 6.6.7 nettypes and the proxy's OOMR"
+say "into the analog core with no separate elaborate step."
 echo
-( cd "$OUT" && IVL_PREFIX="$HOME/iverilog-unified-local" \
+( cd "$OUT" && XEZIM="$XEZIM" \
     UVM_MS_LIB="$HOME/uvm_ms_demo/ms" \
     timeout 900 bash run_rc_lpf2_ms.sh 2>&1 \
     | grep -E "SB_SUMMARY|UVM_ERROR|UVM_FATAL|compiling|running|COMPILE FAILED" \
     | head -12 | sed 's/^/    /' )
 echo
-say "51 DC checks and 19 AC checks, zero failures -- worst magnitude error"
-say "0.039 dB against a 0.25 dB tolerance, worst phase 2.7 degrees against 8."
+say "41 DC goldens and 10 AC goldens, plus a constrained-random tail, zero"
+say "failures -- worst magnitude error under 0.07 dB against a 0.25 dB"
+say "tolerance, worst phase 2.7 degrees against 8. (The random tail draws a"
+say "different count on each simulator, so the printed totals run a little"
+say "above the golden counts and are not a fixed number.)"
 say ""
 say "One detail of the AC section worth knowing: the testbench synthesises"
 say "its excitation at a sampling rate matched to the model's own time step,"

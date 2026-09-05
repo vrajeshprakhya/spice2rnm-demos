@@ -60,7 +60,7 @@ say "elapsed: $(( $(date +%s) - T0 )) s"
 MS_LOG="$OUT/uvm_ms_run.log"
 MS_PID=""
 if [ -f "$OUT/run_dcc_ms.sh" ]; then
-  ( cd "$OUT" && IVL_PREFIX="$HOME/iverilog-unified-local" \
+  ( cd "$OUT" && XEZIM="$XEZIM" \
       UVM_MS_LIB="$HOME/uvm_ms_demo/ms" \
       timeout 900 bash run_dcc_ms.sh > "$MS_LOG" 2>&1 ) &
   MS_PID=$!
