@@ -291,9 +291,11 @@ both simulators, and every generated environment --- run end to end in
 $355$ seconds on a laptop. spice2rnm's outputs are simulator-agnostic ---
 plain IEEE 1800 SystemVerilog, tied to no vendor --- and to keep every
 result in this paper reproducible by anyone, all of it was produced with
-universally available open-source simulators: \textbf{ngspice} on the
-analog side and \textbf{xezim} for the SystemVerilog and UVM-MS runs. No
-commercial licence was used anywhere in this document. The generated artifacts themselves --- the
+universally available open-source simulators: \textbf{ngspice} for
+characterisation and the reference transients, \textbf{xezim} for the
+transient equivalence co-simulation, and \textbf{Icarus Verilog} for the
+generated UVM-MS environments. No commercial licence was used anywhere in
+this document. The generated artifacts themselves --- the
 models, the complete environments, and the evidence files, exactly as the
 tool wrote them --- are published for inspection at
 
