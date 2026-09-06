@@ -48,15 +48,17 @@ S2R=/path/to/spice2rnm NGSPICE=/path/to/ngspice XEZIM=/path/to/xezim ./demo_1_lp
 | `NGSPICE` | `~/ngspice-install/bin/ngspice` | stock ngspice; the netlists are PDK-free LEVEL=3 |
 | `XEZIM` | `~/xezim/target/release/xezim` | used as both compiler and runtime |
 
-Demo 1's sixth act additionally needs an Icarus build with **both** UVM and
-IEEE 1800-2017 §6.6.7 nettype support, and the Accellera UVM-MS library:
+Demo 1's sixth act additionally needs the Accellera UVM-MS library, and a UVM
+source tree if yours is not in the default location:
 
 ```sh
-IVL_PREFIX=~/iverilog-unified-local UVM_MS_LIB=~/uvm_ms_demo/ms ./demo_1_lpf.sh
+UVM_MS_LIB=~/uvm_ms_demo/ms ./demo_1_lpf.sh
 ```
 
-That is a narrower requirement than running the model itself, which is why the
-prefix is passed explicitly rather than derived.
+The generated environment runs on xezim in a single invocation --- it compiles
+and simulates UVM, the §6.6.7 nettypes and the proxy's out-of-module references
+together, so there is no separate elaborate step and no second simulator to
+install.
 
 ## Layout
 

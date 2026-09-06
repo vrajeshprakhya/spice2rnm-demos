@@ -53,16 +53,17 @@ python3 -m spice2rnm "$NETLIST" \
 say ""
 say "elapsed: $(( $(date +%s) - T0 )) s"
 
-# The generated testbench takes about 45 s and depends on nothing acts 4 and
-# 5 do, so start it now and collect it in act 6. Nothing is skipped -- the
-# run is the same run, it just happens alongside narration instead of after
-# it.
+# The generated testbench takes about 15 minutes -- a duty environment
+# samples a trapezoidal clock hundreds of times per period over many periods
+# -- and depends on nothing acts 4 and 5 do, so start it now and collect it
+# in act 6. Nothing is skipped: the run is the same run, it just happens
+# alongside the narration instead of after it.
 MS_LOG="$OUT/uvm_ms_run.log"
 MS_PID=""
 if [ -f "$OUT/run_dcc_ms.sh" ]; then
   ( cd "$OUT" && XEZIM="$XEZIM" \
       UVM_MS_LIB="$HOME/uvm_ms_demo/ms" \
-      timeout 900 bash run_dcc_ms.sh > "$MS_LOG" 2>&1 ) &
+      timeout 3600 bash run_dcc_ms.sh > "$MS_LOG" 2>&1 ) &
   MS_PID=$!
 fi
 beat

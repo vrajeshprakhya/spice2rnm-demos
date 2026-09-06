@@ -95,7 +95,7 @@ say "Goldens are the ngspice edge measurements from the sweep above --"
 say "not points read back from the model's own delay table, which would"
 say "pass unconditionally."
 echo
-( cd "$OUT" && timeout 900 bash run_pi_therm_ms.sh 2>&1 \
+( cd "$OUT" && timeout 3600 bash run_pi_therm_ms.sh 2>&1 \
   | grep -E "SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED|=== " \
   | sort -u | sed 's/^/    /' )
 echo

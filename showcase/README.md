@@ -194,18 +194,32 @@ environment:
 
 ```sh
 cd dcc2
-IVL_PREFIX=/path/to/icarus-uvm UVM_MS_LIB=/path/to/uvm-ms bash run_dcc_ms.sh
+XEZIM=/path/to/xezim UVM_MS_LIB=/path/to/uvm-ms bash run_dcc_ms.sh
 ```
 
-They need an Icarus-compatible simulator with UVM support and the
-Accellera UVM-MS library. Expected result, from the stamped run:
+Each script is a single xezim invocation: it compiles and simulates UVM,
+the IEEE 1800-2017 §6.6.7 nettypes and the proxy's out-of-module
+references together, so there is no separate elaborate step. You need
+xezim and the Accellera UVM-MS library, nothing else.
+
+Expected result, from the stamped run:
 
 ```
-lpf2         dc checks=51 failed=0 | ac checks=19 failed=0
-dcc2         dc checks=51 failed=0 | duty checks=15 failed=0 (worst 0.314 pp of 0.500)
+lpf2         dc checks=49 failed=0 | ac checks=15 failed=0
+dcc2         dc checks=46 failed=0 | duty checks=14 failed=0 (worst 0.313 pp of 0.500)
 pi           phase checks=9 failed=0 (worst 3.26 ps of 6.25 ps)
-lpf2_house   dc checks=51 failed=0 | ac checks=19 failed=0   (on the house net)
+lpf2_house   dc checks=49 failed=0 | ac checks=15 failed=0   (on the house net)
 ```
+
+Two notes on those counts. Each environment ends with a
+constrained-random tail, so the totals sit a little above the fixed
+golden counts (lpf2: 41 DC + 10 AC goldens) and vary between simulators
+and runs; `failed=0` is the part that must hold, not the total. And
+`dcc2` takes about 15 minutes -- a duty environment samples a
+trapezoidal clock hundreds of times per period over many periods. The
+runner allows an hour (`WALL_TIMEOUT`, in seconds); if you shorten it
+and it fires, the run is cut off *before* the scoreboard reports, which
+looks deceptively like a clean pass.
 
 ## What is deliberately not here
 

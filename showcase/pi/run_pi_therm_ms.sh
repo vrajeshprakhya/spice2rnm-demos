@@ -15,6 +15,9 @@ UVM_MS=${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}
 # A simulation-time ceiling, not a run length -- the run still ends at
 # $finish. Override with $MAX_TIME.
 MAX_TIME=${MAX_TIME:-50ms}
+# Wall-clock guard, in seconds. A cap that cuts the run short truncates the
+# test BEFORE the scoreboard reports, which reads as a silent pass.
+WALL_TIMEOUT=${WALL_TIMEOUT:-3600}
 
 if [ ! -x "$XEZIM" ]; then
   echo "ERROR: xezim not found or not executable at '$XEZIM'." >&2
@@ -28,7 +31,7 @@ done
 cd "$ROOT"
 
 echo "=== running UVM-MS phase testbench for pi_therm_rnm on xezim ==="
-timeout 600 "$XEZIM" --max-time "$MAX_TIME" -DUVM_NO_DPI \
+timeout "$WALL_TIMEOUT" "$XEZIM" --max-time "$MAX_TIME" -DUVM_NO_DPI \
     -I "$UVM" -I "$UVM_MS" -I "$ROOT" \
     "$UVM/uvm_pkg.sv" \
     "$UVM_MS/uvm_ms_pkg.sv" \

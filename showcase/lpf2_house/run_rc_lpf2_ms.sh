@@ -15,6 +15,11 @@ UVM_MS=${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}
 # $finish. Generous because a low-frequency AC point advances tens of us of
 # sim time per measurement, past xezim's 100us default guard.
 MAX_TIME=${MAX_TIME:-50ms}
+# Wall-clock guard, in seconds. A duty environment samples a trapezoidal
+# clock hundreds of times per period over many periods, so it can run for
+# tens of minutes of real time; a cap that cuts it short truncates the test
+# BEFORE the scoreboard reports, which reads as a silent pass.
+WALL_TIMEOUT=${WALL_TIMEOUT:-3600}
 
 # Say what is missing rather than letting the first command fail with "no
 # such file". xezim is the one simulator here that compiles UVM *and* 6.6.7
@@ -31,7 +36,7 @@ done
 cd "$ROOT"
 
 echo "=== running UVM-MS testbench for rc_lpf2_rnm on xezim ==="
-timeout 600 "$XEZIM" --max-time "$MAX_TIME" -DUVM_NO_DPI \
+timeout "$WALL_TIMEOUT" "$XEZIM" --max-time "$MAX_TIME" -DUVM_NO_DPI \
     -I "$UVM" -I "$UVM_MS" -I "$ROOT" \
     "$UVM/uvm_pkg.sv" \
     "$UVM_MS/uvm_ms_pkg.sv" \

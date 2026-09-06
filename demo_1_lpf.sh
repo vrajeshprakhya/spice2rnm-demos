@@ -92,7 +92,7 @@ say "into the analog core with no separate elaborate step."
 echo
 ( cd "$OUT" && XEZIM="$XEZIM" \
     UVM_MS_LIB="$HOME/uvm_ms_demo/ms" \
-    timeout 900 bash run_rc_lpf2_ms.sh 2>&1 \
+    timeout 3600 bash run_rc_lpf2_ms.sh 2>&1 \
     | grep -E "SB_SUMMARY|UVM_ERROR|UVM_FATAL|compiling|running|COMPILE FAILED" \
     | head -12 | sed 's/^/    /' )
 echo
