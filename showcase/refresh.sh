@@ -94,10 +94,28 @@ if [ -n "$leaks" ]; then
   exit 1
 fi
 
+# The simulator belongs in the stamp as much as the generator does. These
+# artifacts are evidence, and evidence that cannot say which simulator
+# produced it is weaker than it looks: the environments were once validated
+# on one xezim revision while the tree moved on to another, and nothing here
+# could have told you. Best effort -- a checkout may not be present.
+XEZIM_BIN="${XEZIM:-$HOME/xezim/target/release/xezim}"
+XEZIM_REPO="$(cd "$(dirname "$XEZIM_BIN")/../.." 2>/dev/null && pwd || true)"
+xz_rev() {
+  [ -n "${XEZIM_REPO:-}" ] && git -C "$XEZIM_REPO" rev-parse --short HEAD 2>/dev/null && return
+  echo "unknown"
+}
+core_rev() {
+  [ -n "${XEZIM_REPO:-}" ] && git -C "$XEZIM_REPO/../xezim-core" rev-parse --short HEAD 2>/dev/null && return
+  echo "unknown"
+}
+
 {
   echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "spice2rnm: $(git -C "$HOME/spice2rnm" rev-parse --short HEAD)"
   echo "demos:     $(git -C "$DEMOS" rev-parse --short HEAD)"
+  echo "xezim:     $(xz_rev)"
+  echo "xezim-core: $(core_rev)"
   echo
   echo "Run summary:"
   sed 's/^/  /' /tmp/showcase_run_summary.txt
