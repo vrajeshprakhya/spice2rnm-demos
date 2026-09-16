@@ -490,6 +490,101 @@ filters those out, so the showcase is what a user would keep, not
 everything a run produces.
 
 %======================================================================
+\section{What the equivalence check compares}
+\label{sec:equiv}
+
+Every model in this document was checked the same way. The emitted
+SystemVerilog is elaborated in a digital simulator and driven; the
+transistor circuit is driven with the identical stimulus in SPICE; the two
+outputs are compared on a common time base, and the aligned traces are
+archived so the verdict can be re-derived from its own run directory.
+
+Two properties of that arrangement matter more than the numbers it
+produces. The first is that \textbf{it reads the file that ships}. A
+characterisation residual describes how well a fit matched its own
+measurements, and would be unchanged if the model were written out
+incorrectly afterwards; it never opens the emitted file. This check
+elaborates that file, so a code-generation error fails it.
+
+The second is that \textbf{it is scored in the block's own domain}. A
+single error figure applied everywhere would be blind on most of these
+blocks --- an rms voltage error cannot see edge placement, and a
+frequency has no voltage residual at all:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{What the block is} & \textbf{What is compared} & \textbf{Verdict in} \\
+\midrule
+signal path      & output waveform, swept    & error over the output's \\
+                 & stimulus and an           & own excursion \\
+                 & independent one           & \\
+clock path       & edge placement at the     & duty error, \\
+                 & measured operating rate   & percentage points \\
+per-code timing  & crossing time at every    & picoseconds, plus \\
+                 & control code              & monotonicity and DNL \\
+oscillator       & output frequency against  & per cent of frequency \\
+                 & control voltage           & \\
+switched current & terminal current per      & per cent, per state \\
+                 & control state             & \\
+passive network  & output response to an     & per cent of the output's \\
+                 & injected current          & own excursion \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Each verdict states which of these it came from, so a report
+read later distinguishes the figure that decided from the figures that
+were merely recorded alongside it.
+
+\subsection{What keeps a figure from flattering itself}
+
+\textbf{Points held out of characterisation.} Where a block is
+characterised by measuring points, a share of them is withheld and scored
+separately, so the headline figure is not the fit's own residual. The
+charge pump in case study 4 reports $0.549\%$ held out; the ring
+oscillator reports its held-out frequency error directly.
+
+\textbf{A stimulus the model has not seen.} The filter in case study 1 is
+characterised against a swept-frequency stimulus and then checked against
+a pseudo-random sequence it never saw ($0.0097$ normalised). A model that
+had memorised its characterisation stimulus is exposed there.
+
+\textbf{The range a verdict is evidence about.} A comparison says nothing
+about conditions it did not drive, so the report states the range it
+exercised. The ring oscillator is the clearest case: its held-out
+frequency error is $0.002\%$ inside the operating band the loop actually
+uses, and $4.99\%$ at the far edge of the wider range that was
+characterised, where the curve bends hardest and the loop does not go.
+Both figures are reported. The verdict is taken in the band, and the
+other number is printed rather than dropped.
+
+\textbf{What the emitted form cannot represent, priced in advance.} Where
+a model form cannot carry a measured property, the cost is stated in the
+units of the verdict before scoring --- as with the inverter skew in case
+study 4, quoted as duty error at the clock in use. A pass is then read
+against that floor rather than as unqualified.
+
+\subsection{Blocks, and then the system}
+
+The table above scores blocks. A composition asks a further question,
+because errors that are individually small need not stay small once the
+blocks are wired together, and two levels of check answer it.
+
+The first needs only the netlist: the composed model is driven at the
+top-level boundary and compared against the full transistor circuit.
+The second applies when the input is a co-simulation, and is the one
+case study 4 reports --- the design's own testbench is run twice, once
+reading the generated models and once calling the transistors, with only
+its bridge functions rewritten. Thresholds, expressions and verdict are
+byte-identical across both, so the two boundary logs compare directly:
+$4$ signals, $0$ failed, the control voltage agreeing to $0.224\unit{mV}$
+while both loops lock to the same frequency.
+
+A check that does not apply is reported as not applicable, with the
+reason. It is never reported as a pass.
+
+%======================================================================
 \section{Why a green testbench is worth believing}
 
 Generated verification has a credibility problem: if the same tool writes
