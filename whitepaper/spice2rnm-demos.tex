@@ -351,26 +351,53 @@ edge placement, and an rms voltage error is close to blind to it. Both
 pass an rms comparison comfortably while their worst-instant error is
 $99.9\%$ of the full swing, because a model whose edge is displaced in
 time sits at one rail while the reference sits at the other. The pipeline
-classifies them from the measured DC curve --- $62\%$ of swept points
-within $5\%$ of a rail is a switching characteristic, not a smooth
-response --- and scores them on duty cycle instead.
+classifies them from the measured DC curve --- $62\%$ and $61\%$ of
+swept points within $5\%$ of a rail is a switching characteristic, not a
+smooth response --- and scores them on duty cycle instead.
 
 The frequency it scores them at is measured. Where a block operates is a
 property of the closed loop and exists only once the digital side is
 attached, exactly like the operating range the golden probe already
 measures. The probe therefore measures each net's switching rate beside
-its voltage band: both inverter inputs return $399.8\unit{MHz}$, the
-$400\unit{MHz}$ this PLL locks to. Scored there, they pass at
-$0.276$ and $0.307\unit{pp}$ of duty against a $0.5\unit{pp}$ bar.
+its voltage band: the two inverter inputs return $399.8$ and
+$399.7\unit{MHz}$, the $400\unit{MHz}$ this PLL locks to. Scored there,
+they pass at $0.276$ and $0.307\unit{pp}$ of duty against a
+$0.5\unit{pp}$ bar.
 
-That number is not one a language model can supply. Asked four times
-about the same block with the same measurements, the classifier proposed
-clock rates of $2\unit{MHz}$, $765\unit{MHz}$, $300\unit{MHz}$ and
-$10\unit{GHz}$ --- the first two hundred times below where the buffer
-runs, the last twenty-five times above what its own model can follow. The
-measurement returns the same answer every run, and gives both stages the
-same answer, which no classifier run did. Intent from the model, physics
-from the circuit, applied to a number that looked like intent and was not.
+The form they are re-emitted in has no delay line, so it cannot carry the
+measured rise/fall skew --- $0.589$ and $0.672\unit{pp}$ of duty at that
+clock. Both blocks measure below their own floor, so the skew partly
+cancels rather than adding. That makes the floor an upper bound on what
+the form costs, not margin to spend, and the pipeline states it before
+scoring rather than leaving a pass to be read as unqualified.
+
+That number is not one a language model can supply. Asked five times
+about the same inverter with the same measurements, the classifier
+proposed clock rates of $2\unit{MHz}$, $765\unit{MHz}$, $300\unit{MHz}$,
+$10\unit{GHz}$ and $15\unit{GHz}$; asked about the second stage, it
+proposed $10\unit{GHz}$. The lowest is two hundred times below where the
+buffer runs and the highest thirty-seven times above what its own model
+can follow. The measurement returns the same answer every run, and gives
+the two stages answers agreeing to $0.03\%$, which no classifier run did.
+Intent from the model, physics from the circuit, applied to a number that
+looked like intent and was not.
+
+What the classifier is asked for, it has been steady on: buffer, clock
+stimulus, duty metric, on every run of both stages. That is the judgement
+gated on a measurement it can check itself against. What moved is the one
+number it was in no position to know.
+
+\paragraph{The verdict names the metric it came from.}
+Asking for the classifier is not the same as getting it. Every duty
+figure above comes from a run with a key present and the classifier
+consulted. The same demonstration was then run deliberately \emph{without}
+one, to see what a reader would be shown if it declined: the chirp is
+kept, and these same two blocks pass an rms comparison at $0.025$ against
+a $0.15$ bar --- a green result from a measurement that cannot see the
+property in question. The two transcripts are otherwise alike, and the
+command line is identical, so the run records which figure each verdict
+was reached by and the demonstration reports it from that record. A flag
+requesting a check is not evidence the check happened.
 
 %======================================================================
 \section{Results at a glance}
@@ -391,7 +418,7 @@ Phase-locked loop & co-simulation vs transistors & $5 + 4$   & $0$ \\
 \noindent The first three case studies --- characterisation, model
 generation, both simulators, and every generated environment --- run end
 to end in under $16$ minutes on a laptop. The PLL is a further
-$19$ minutes, most of it the ring oscillator's tuning curve.
+$15$ minutes, most of it the ring oscillator's tuning curve.
 
 All four are one command, and \texttt{demo\_4\_pll.sh} runs this one. It
 differs from the others in what it needs rather than in how it is run:
@@ -643,6 +670,12 @@ validation is discarded --- the run continues on measured defaults, and
 says so. Without an API key, every AI feature declines cleanly and the
 pipeline runs entirely on measurement.
 
+Which of those two happened is recorded in the run's own result, not only
+in its log. A verdict carries the metric it was reached by, so a report
+read months later distinguishes a check that ran from one that declined
+and fell back --- without which every green result would have to be taken
+on trust that the feature requested was the feature exercised.
+
 %======================================================================
 \section{Scope and requirements}
 
@@ -674,7 +707,7 @@ pipeline runs entirely on measurement.
 \noindent{\footnotesize \textcopyright{} 2026 Veylon Systems.
 spice2rnm is a Veylon Systems product. Every figure in this document was
 produced by the shipped tool from its bundled demonstration circuits, most
-recently on 2026-09-01. The demonstration suite at
+recently on 2026-09-16. The demonstration suite at
 \url{https://github.com/vrajeshprakhya/spice2rnm-demos} regenerates them
 in one command.}
 
