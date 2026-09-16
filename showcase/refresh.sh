@@ -77,16 +77,58 @@ if [ "${1:-}" != "--no-run" ]; then
   echo "  lpf2_house: $n files"
 fi
 
+# The PLL curates differently, for two reasons.
+#
+# ITS DELIVERABLES ARE NOT AT THE RUN ROOT. The other three are single
+# blocks and write their model beside their result.json; a hierarchical run
+# writes one model per block in that block's own directory, plus the
+# composed analog top under loop/analog. curate()'s root glob finds none of
+# them and would trip its own "found only 0 files" guard.
+#
+# AND IT IS OPTIONAL. It needs the co-simulation it models -- RTL, the DPI
+# bridge, a shared libngspice -- which the other three do not. curate()
+# exits 1 on a missing run directory, which would mean nobody without that
+# co-simulation could refresh this showcase at all. So a missing PLL run is
+# reported and skipped.
+curate_pll() {  # src-dir, dest-name
+  local src="$RUNS/$1" dst="$HERE/$2"
+  if [ ! -d "$src" ]; then
+    echo "  $2: SKIPPED -- no run at $src (demo 4 needs the co-simulation)"
+    return 0
+  fi
+  rm -rf "$dst"
+  mkdir -p "$dst"
+  local n=0 f
+  # One model per block, from wherever the block wrote it.
+  for f in "$src"/*/*_rnm.sv; do
+    [ -f "$f" ] || continue
+    cp "$f" "$dst/"; n=$((n + 1))
+  done
+  # The composed analog top and the interfaces it instantiates: the thing
+  # the RTL actually binds to, which no single block file is.
+  for f in "$src"/loop/analog/*.sv; do
+    [ -f "$f" ] || continue
+    cp "$f" "$dst/"; n=$((n + 1))
+  done
+  for f in "$src"/result.json; do
+    [ -f "$f" ] || continue
+    cp "$f" "$dst/"; n=$((n + 1))
+  done
+  [ "$n" -ge 3 ] || { echo "curation for $2 found only $n file(s)"; exit 1; }
+  echo "  $2: $n files"
+}
+
 echo "curating:"
 curate lpf2      lpf2
 curate dcc2      dcc2
 curate demo3_pi  pi
+curate_pll demo4_pll pll
 
 # No generated file may point back at this machine or at product source
 # files the customer does not have. This gate exists because both have
 # happened; the generators were fixed, and this keeps them fixed.
 leaks=$(grep -rln "/home/$(id -un)" "$HERE"/lpf2 "$HERE"/dcc2 "$HERE"/pi \
-          "$HERE"/lpf2_house \
+          "$HERE"/lpf2_house "$HERE"/pll \
           --include='*.sv' --include='*.svh' --include='*.sh' 2>/dev/null || true)
 if [ -n "$leaks" ]; then
   echo "REFUSING to stamp: local paths leaked into generated files:"

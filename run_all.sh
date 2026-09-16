@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
-# Run all three demos and summarise. Useful before presenting, and as the
+# Run all four demos and summarise. Useful before presenting, and as the
 # check that a change to spice2rnm did not move anything the demos claim.
+#
+# Demo 4 is not self-contained: it models the analog half of a
+# co-simulation, so it needs the other half -- the RTL, the DPI bridge, and
+# a SHARED libngspice, which is a different ngspice build from the binary
+# the others use. It checks for those and exits 1 naming what is missing, so
+# a machine without them reports a skip here rather than a failure.
 #
 # Each demo's headline numbers are extracted with ITS OWN patterns rather
 # than one shared filter, and one field per line, deduplicated -- so a
 # value that happens to be printed twice in a demo's output can never
 # crowd a different value out of the report.
 #
-#   ./run_all.sh            run all three
+#   ./run_all.sh            run all four
 #   ./run_all.sh demo_2     run just the ones matching
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -16,7 +22,7 @@ FILTER="${1:-}"
 LOGDIR="${TMPDIR:-/tmp}/spice2rnm_demos"
 mkdir -p "$LOGDIR"
 
-DEMOS=(demo_1_lpf.sh demo_2_dcc.sh demo_3_pi.sh)
+DEMOS=(demo_1_lpf.sh demo_2_dcc.sh demo_3_pi.sh demo_4_pll.sh)
 total=0
 ran=0
 RAN_THIS_TIME=""   # only these get reported; see below
@@ -30,7 +36,15 @@ for d in "${DEMOS[@]}"; do
   total=$(( total + el ))
   ran=$(( ran + 1 ))
   RAN_THIS_TIME="$RAN_THIS_TIME $d"
-  printf '  %-16s %4d s   exit %d\n' "$d" "$el" "$rc"
+  # A demo that exited because its prerequisites are absent has not failed,
+  # and reporting it as a failure would make the summary useless on any
+  # machine without the co-simulation. It says so itself; repeat that.
+  if grep -q 'Nothing was run' "$LOGDIR/${d%.sh}.out" 2>/dev/null; then
+    printf '  %-16s %4d s   SKIPPED -- prerequisites absent\n' "$d" "$el"
+    RAN_THIS_TIME="${RAN_THIS_TIME% $d}"
+  else
+    printf '  %-16s %4d s   exit %d\n' "$d" "$el" "$rc"
+  fi
 done
 [ "$ran" -gt 1 ] && printf '  %-16s %4d s\n' TOTAL "$total"
 
@@ -79,6 +93,17 @@ if ran_this demo_3_pi.sh && [ -f "$L" ]; then
   field "$L" traversal 'traversal [-0-9.]+ ps, LSB [-0-9.]+ ps, [a-z]+'
   field "$L" phase     'phase checks=[0-9]+ failed=[0-9]+ \| worst [0-9.]+ ps'
   field "$L" DNL       'DNL worst *: [-+0-9.]+ ps *\([-+0-9.]+ LSB\)'
+fi
+
+L="$LOGDIR/demo_4_pll.out"
+if ran_this demo_4_pll.sh && [ -f "$L" ]; then
+  echo
+  echo '  demo 4  PLL'
+  field "$L" equivalence 'equivalence  : [0-9]+ pass, [0-9]+ fail'
+  field "$L" floor       'floor        : [A-Z]+'
+  field "$L" system      'system       : [A-Z]+ -- [0-9]+ boundary signal\(s\), [0-9]+ failed'
+  field "$L" vout        'vout worst \|diff\| [0-9.e-]+ V'
+  field "$L" lock        'locked within [-0-9.]+% of [0-9.]+ MHz'
 fi
 
 echo

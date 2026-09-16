@@ -391,11 +391,16 @@ Phase-locked loop & co-simulation vs transistors & $5 + 4$   & $0$ \\
 \noindent The first three case studies --- characterisation, model
 generation, both simulators, and every generated environment --- run end
 to end in under $16$ minutes on a laptop. The PLL is a further
-$19$ minutes, most of it the ring oscillator's tuning curve, and unlike
-the others it is not self-contained: it needs the co-simulation it is
-modelled from, which supplies the RTL, the DPI bridge and a shared
-libngspice. It is presented here as a case study rather than as a fourth
-one-command demo for that reason. spice2rnm's outputs are simulator-agnostic ---
+$19$ minutes, most of it the ring oscillator's tuning curve.
+
+All four are one command, and \texttt{demo\_4\_pll.sh} runs this one. It
+differs from the others in what it needs rather than in how it is run:
+being the analog half of a co-simulation, it needs the other half --- the
+RTL, the DPI bridge, and a \emph{shared} libngspice, which is a different
+ngspice build from the binary the first three use. It checks for each of
+those before doing any work and names what is missing, so a machine without
+them gets a skip that says which piece and where it comes from, rather than
+a failure twelve minutes into a run. spice2rnm's outputs are simulator-agnostic ---
 plain IEEE 1800 SystemVerilog, tied to no vendor --- and to keep every
 result in this paper reproducible by anyone, all of it was produced with
 universally available open-source simulators: \textbf{ngspice} for
