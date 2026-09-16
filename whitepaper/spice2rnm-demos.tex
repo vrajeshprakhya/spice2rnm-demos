@@ -88,7 +88,7 @@ verification strategy adapts to what each block is \emph{for} --- a filter
 is checked as a frequency response, a duty-cycle corrector by where its
 edges land, a phase interpolator by phase per code.
 
-This paper presents three case studies of increasing difficulty, with
+This paper presents four case studies of increasing difficulty, with
 results produced end to end by the shipped tool in under six minutes on a
 laptop.
 \end{abstract}
@@ -272,6 +272,107 @@ rounding. The DNL figure is a property of the circuit, reported
 faithfully; the model's job is to reproduce it, and it does.
 
 %======================================================================
+\section{Case study 4 --- Phase-locked loop}
+
+The first three are blocks. This one is a \emph{loop}, and that changes
+what a model has to get right. A small error in any block does not stay
+small: the loop integrates it into a different operating point, so a
+model that is individually plausible everywhere can still settle the
+system somewhere the circuit does not.
+
+It is also three different characterisation problems in one netlist, and
+no single method covers them. The pipeline classifies each block from its
+topology and routes it accordingly:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Block} & \textbf{Why the default does not fit} & \textbf{Route taken} \\
+\midrule
+\texttt{ro\_vco} & oscillates with its inputs at DC ---
+                   & tuning curve, \\
+                 & its output is a frequency, not a gain
+                   & scored on rate \\
+\texttt{cpump}   & a complementary pair driven from
+                   & one $I(V)$ table \\
+                 & independently controlled gates
+                   & per control state \\
+\texttt{lpfilt}  & only R and C, so its state space is
+                   & exact state space, \\
+                 & exact and needs no fitting
+                   & read from topology \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent None of those is a transfer function, and a conventional flow
+that fits one to each would be fitting the wrong quantity three times.
+
+\subsection{Checked as a system, against the transistors}
+
+Per-block scores are evidence about each block alone. The question a loop
+asks is different --- do these models behave like the circuit once wired
+together --- and the co-simulation answers it directly. The design's own
+testbench runs twice, with only its DPI bridge functions rewritten: once
+reading the generated models, once calling the real analog through
+ngspice. Thresholds, expressions and verdict are byte-identical in both,
+so the two boundary logs compare directly.
+
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Blocks modelled, three routes        & $3$ composed, $2$ more emitted \\
+Per-block equivalence                & $5$ of $5$ pass \\
+\midrule
+System check vs transistors          & $4$ boundary signals, $0$ failed \\
+\quad \texttt{vout} (control voltage) & $0.224\unit{mV}$ \\
+\quad \texttt{aout} (VCO output)      & $0.4\%$ of threshold crossings \\
+\quad \texttt{dra} (internal probe)   & $1.12\unit{mV}$ \\
+\midrule
+Both loops lock at                   & $400.00\unit{MHz}$ \\
+\quad lock points                    & $1.8502\unit{V}$ vs $1.8499\unit{V}$ \\
+\midrule
+Model half vs transistor half        & $2.12\unit{s}$ vs $66.1\unit{s}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The control voltage is the number to read. It is where the loop
+stores its state, so a model that settles anywhere else disagrees here
+first --- and the two agree to a quarter of a millivolt while reaching the
+same frequency. Run to $20\unit{\textmu s}$, where both halves settle
+rather than being caught mid-transient, the agreement improves to
+$0.135\unit{mV}$.
+
+\subsection{Where the block works is measured, not assumed}
+
+The two output-buffer inverters are clock-path blocks: their function is
+edge placement, and an rms voltage error is close to blind to it. Both
+pass an rms comparison comfortably while their worst-instant error is
+$99.9\%$ of the full swing, because a model whose edge is displaced in
+time sits at one rail while the reference sits at the other. The pipeline
+classifies them from the measured DC curve --- $62\%$ of swept points
+within $5\%$ of a rail is a switching characteristic, not a smooth
+response --- and scores them on duty cycle instead.
+
+The frequency it scores them at is measured. Where a block operates is a
+property of the closed loop and exists only once the digital side is
+attached, exactly like the operating range the golden probe already
+measures. The probe therefore measures each net's switching rate beside
+its voltage band: both inverter inputs return $399.8\unit{MHz}$, the
+$400\unit{MHz}$ this PLL locks to. Scored there, they pass at
+$0.276$ and $0.307\unit{pp}$ of duty against a $0.5\unit{pp}$ bar.
+
+That number is not one a language model can supply. Asked four times
+about the same block with the same measurements, the classifier proposed
+clock rates of $2\unit{MHz}$, $765\unit{MHz}$, $300\unit{MHz}$ and
+$10\unit{GHz}$ --- the first two hundred times below where the buffer
+runs, the last twenty-five times above what its own model can follow. The
+measurement returns the same answer every run, and gives both stages the
+same answer, which no classifier run did. Intent from the model, physics
+from the circuit, applied to a number that looked like intent and was not.
+
+%======================================================================
 \section{Results at a glance}
 
 \begin{center}
@@ -282,13 +383,19 @@ faithfully; the model's job is to reproduce it, and it does.
 Filter        & DC $+$ AC                  & $51 + 19$ & $0$ \\
 Duty corrector & DC $+$ duty               & $51 + 15$ & $0$ \\
 Phase interpolator & phase per code        & $9$       & $0$ \\
+Phase-locked loop & co-simulation vs transistors & $5 + 4$   & $0$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent All three case studies --- characterisation, model generation,
-both simulators, and every generated environment --- run end to end in
-under $16$ minutes on a laptop. spice2rnm's outputs are simulator-agnostic ---
+\noindent The first three case studies --- characterisation, model
+generation, both simulators, and every generated environment --- run end
+to end in under $16$ minutes on a laptop. The PLL is a further
+$19$ minutes, most of it the ring oscillator's tuning curve, and unlike
+the others it is not self-contained: it needs the co-simulation it is
+modelled from, which supplies the RTL, the DPI bridge and a shared
+libngspice. It is presented here as a case study rather than as a fourth
+one-command demo for that reason. spice2rnm's outputs are simulator-agnostic ---
 plain IEEE 1800 SystemVerilog, tied to no vendor --- and to keep every
 result in this paper reproducible by anyone, all of it was produced with
 universally available open-source simulators: \textbf{ngspice} for
