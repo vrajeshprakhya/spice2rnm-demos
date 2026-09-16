@@ -1,10 +1,10 @@
 # Whitepaper
 
 `spice2rnm-demos.tex` — the whitepaper for spice2rnm, Veylon Systems'
-automatic real-number-model and testbench generator: three worked case
+automatic real-number-model and testbench generator: four worked case
 studies.
 
-**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (5
+**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (9
 pages). The PDF is regenerated from the `.tex` whenever it changes; if
 the two ever disagree, the `.tex` is the source of truth.
 
