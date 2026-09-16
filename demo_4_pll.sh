@@ -95,18 +95,33 @@ say "  python3 -m spice2rnm \\"
 say "      $PLL/pll_analog.cir \\"
 say "      $PLL/pfd.sv $PLL/divn.sv $PLL/tb_pll.sv \\"
 say "      --hierarchical --emit-assertions --output-node vout \\"
+say "      --llm-block-function \\"
 say "      --out-dir $OUT"
 echo
-say "This takes about 19 minutes, most of it measuring the ring's tuning"
+say "This takes about 15 minutes, most of it measuring the ring's tuning"
 say "curve one point at a time. Demos 1-3 finish in under 16 minutes between"
 say "them; a loop costs more because the oscillator has to be timed, not"
 say "swept."
+echo
+say "--llm-block-function asks a model what each block is FOR. It changes no"
+say "measurement and emits no model -- it picks the STIMULUS and the METRIC"
+say "that score one, which for the two inverters in the ring is the whole"
+say "difference between a verdict that means something and one that does"
+say "not. Everything it proposes is checked against the measured circuit,"
+say "and where they disagree the measurement wins."
+if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+  echo
+  say "ANTHROPIC_API_KEY is NOT set here, so the advisor will fail safe and"
+  say "the chirp will be kept. The run still completes, and act 5 will say so"
+  say "-- it reads the metric the run recorded, not the flag on this line."
+fi
 beat
 
 rm -rf "$OUT"
 python3 -m spice2rnm \
   "$PLL/pll_analog.cir" "$PLL/pfd.sv" "$PLL/divn.sv" "$PLL/tb_pll.sv" \
   --hierarchical --emit-assertions --output-node vout \
+  --llm-block-function \
   --out-dir "$OUT" \
   --ngspice-bin "$NGSPICE" --xezim-bin "$XEZIM" \
   --ngspice-lib "$NGLIB" --ams-bridge "$BRIDGE" \
@@ -139,6 +154,53 @@ say "held-out score cannot see because it never reads the emitted file."
 echo
 grep -aE "block (ro_vco|cpump|lpfilt):|equivalence (PASS|FAIL)|rc\): equivalence" "$OUT.log" \
   | sed 's/^[0-9T:.-]*Z *//' | cut -c1-150 | sed 's/^/    /' | head -8
+echo
+say "The two inverters are where the DEFAULT verdict is wrong. An rms voltage"
+say "comparison is close to blind to edge placement, which is the entire"
+say "function of a buffer. What each was actually scored on:"
+echo
+python3 - "$OUT/result.json" <<'PY'
+import json, sys
+r = json.load(open(sys.argv[1]))["result"]
+for row in r.get("block_results") or []:
+    eq = ((row.get("pipeline_result") or {}).get("equivalence")) or {}
+    if not eq.get("checked"):
+        continue
+    name = row["block"]["name"]
+    if eq.get("metric") == "timing":
+        t = eq.get("timing") or {}
+        print("    %-5s DUTY  %+.3f pp against a %.3f pp bar"
+              % (name, t.get("duty_error_pp", float("nan")),
+                 eq.get("timing_threshold_pp", float("nan"))))
+    else:
+        print("    %-5s RMS   %.4f against a %.2f bar -- and its worst instant"
+              % (name, eq.get("rms_error_norm", float("nan")),
+                 eq.get("threshold", float("nan"))))
+        print("    %-5s       is %.1f%% of full swing, which that figure cannot see"
+              % ("", 100.0 * (eq.get("max_error_norm") or 0.0)))
+PY
+echo
+say "And what the advisor proposed, checked against the circuit:"
+echo
+python3 - "$OUT/result.json" <<'PY'
+import json, sys, textwrap
+keep = ("block function:", "clock from MEASUREMENT", "the re-emitted")
+r = json.load(open(sys.argv[1]))["result"]
+ws = []
+for row in r.get("block_results") or []:
+    name = row["block"]["name"]
+    for w in ((row.get("pipeline_result") or {}).get("warnings") or []):
+        if w.startswith(keep):
+            ws.append("%s: %s" % (name, w if len(w) <= 340 else w[:337] + "..."))
+ws += [w for w in (r.get("warnings") or []) if w.startswith(keep)]
+if not ws:
+    ws = ["the advisor reached no proposal, so the chirp and the rms verdict "
+          "stand untouched -- which is the fail-safe, not a failure"]
+for w in ws:
+    print(textwrap.fill(w, 70, initial_indent="    ",
+                        subsequent_indent="      "))
+    print()
+PY
 beat
 
 hr "6. Checked as a system, against the transistors"
