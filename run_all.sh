@@ -52,9 +52,20 @@ done
 # twice cannot crowd out a different one.
 field() {  # log, label, pattern
   local log="$1" label="$2" pat="$3" v
-  [ -f "$log" ] || return
+  if [ ! -f "$log" ]; then
+    printf '    %-14s (no log)\n' "$label"
+    return
+  fi
   v=$(grep -hoE "$pat" "$log" | head -1)
-  [ -n "$v" ] && printf '    %-14s %s\n' "$label" "$v"
+  if [ -n "$v" ]; then
+    printf '    %-14s %s\n' "$label" "$v"
+  else
+    # NOT silently skipped. Three fields vanished from the stamp this way
+    # -- the demos reworded the lines they print and these patterns were
+    # never updated -- and because a missing row looks like a row that was
+    # never asked for, the summary got quieter and nothing failed.
+    printf '    %-14s NOT FOUND -- the pattern no longer matches this log\n' "$label"
+  fi
 }
 
 # Report only what ran THIS time. The logs persist between invocations,
@@ -65,7 +76,7 @@ L="$LOGDIR/demo_1_lpf.out"
 if ran_this demo_1_lpf.sh && [ -f "$L" ]; then
   echo
   echo '  demo 1  LPF'
-  field "$L" chirp   'rms_error_norm=[0-9.]+'
+  field "$L" chirp   'rms_error_norm=[0-9.]+|chirp[^:]*: +rms [0-9.]+'
   field "$L" PRBS    'rms 0\.[0-9]+ normalized'
   field "$L" 'DC'    'dc checks=[0-9]+ failed=[0-9]+'
   field "$L" 'AC'    'ac checks=[0-9]+ failed=[0-9]+'
@@ -75,7 +86,7 @@ L="$LOGDIR/demo_2_dcc.out"
 if ran_this demo_2_dcc.sh && [ -f "$L" ]; then
   echo
   echo '  demo 2  DCC'
-  field "$L" transient 'rms_error_norm=[0-9.]+'
+  field "$L" transient 'rms_error_norm=[0-9.]+|transient +: +[0-9.]+ vs [0-9.]+ threshold +[A-Z]+'
   field "$L" 'duty null' '50% duty null at vctrl = [0-9.]+ V'
   field "$L" 'DC'      'dc checks=[0-9]+ failed=[0-9]+'
   field "$L" 'AC'      'ac checks=0 \(no AC golden'
@@ -91,7 +102,7 @@ if ran_this demo_3_pi.sh && [ -f "$L" ]; then
   echo '  demo 3  PI'
   field "$L" settings  'measured [0-9]+ of [0-9]+ settings'
   field "$L" traversal 'traversal [-0-9.]+ ps, LSB [-0-9.]+ ps, [a-z]+'
-  field "$L" phase     'phase checks=[0-9]+ failed=[0-9]+ \| worst [0-9.]+ ps'
+  field "$L" phase     'phase checks=[0-9]+ failed=[0-9]+ \| worst [0-9.]+ ps|[0-9]+ phase checks, [0-9]+ failed, worst [0-9.]+ ps'
   field "$L" DNL       'DNL worst *: [-+0-9.]+ ps *\([-+0-9.]+ LSB\)'
 fi
 
