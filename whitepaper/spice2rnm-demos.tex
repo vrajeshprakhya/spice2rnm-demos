@@ -560,11 +560,10 @@ clone carrying it. What is published comes to $232\unit{kB}$.
 
 The distinction is the point, and it is a size rather than a filename:
 a comparison table small enough to read is evidence, and one large enough
-to be a waveform is a trace. Selecting these folders by file extension
-instead published nothing at all for two of the five routes --- the RC
-network and the phase sweep produce no log file, only a table --- which
-is the kind of gap a directory listing hides, because a folder holding a
-manifest and no evidence still looks populated.
+to be a waveform is a trace. The routes differ in which they produce --- a
+network compared point by point writes a table, a waveform compared
+sample by sample writes a trace --- so the rule has to be about the file,
+not about what it is called.
 
 \noindent And what it deliberately does not hold: the spice2rnm tool
 itself (the product is licensed separately; this repository is its
