@@ -1,23 +1,22 @@
-Generated: 2026-09-07T22:29:32Z
-spice2rnm: d792bac
-demos:     1f8d693
-xezim:     e2fe3e7
-xezim-core: a895ece
+Generated: 2026-09-16T19:37:35Z
+spice2rnm: 79eb336
+demos:     d974aeb
+xezim:     531e42a
+xezim-core: 482f03f
 
 Run summary:
-    demo_1_lpf.sh     147 s   exit 0
-    demo_2_dcc.sh     700 s   exit 0
-    demo_3_pi.sh       44 s   exit 0
-    TOTAL             891 s
+    demo_1_lpf.sh      93 s   exit 0
+    demo_2_dcc.sh    1009 s   exit 0
+    demo_3_pi.sh       31 s   exit 0
+    demo_4_pll.sh     879 s   exit 0
+    TOTAL            2012 s
   
     demo 1  LPF
-      chirp          rms_error_norm=0.029008790476737805
       PRBS           rms 0.0097 normalized
       DC             dc checks=49 failed=0
       AC             ac checks=15 failed=0
   
     demo 2  DCC
-      transient      rms_error_norm=0.07687720775304299
       duty null      50% duty null at vctrl = 1.1477 V
       DC             dc checks=46 failed=0
       AC             ac checks=0 (no AC golden
@@ -26,8 +25,14 @@ Run summary:
     demo 3  PI
       settings       measured 9 of 9 settings
       traversal      traversal -500.1 ps, LSB -62.51 ps, monotonic
-      phase          phase checks=9 failed=0 | worst 3.2627 ps
       DNL            DNL worst         : -100.5 ps  (-1.61 LSB)
+  
+    demo 4  PLL
+      equivalence    equivalence  : 5 pass, 0 fail
+      floor          floor        : PASS
+      system         system       : PASS -- 4 boundary signal(s), 0 failed
+      vout           vout worst |diff| 0.0002243 V
+      lock           locked within 0.00% of 400.00 MHz
   
     problems
       none
