@@ -10,7 +10,7 @@
 set -u
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 XEZIM=${XEZIM:-$HOME/xezim/target/release/xezim}
-UVM=${UVM_SRC:-$HOME/iverilog-unified/uvm-core/src}
+UVM=${UVM_SRC:-}
 UVM_MS=${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}
 # A simulation-time ceiling, not a run length -- the run still ends at
 # $finish. Override with $MAX_TIME.

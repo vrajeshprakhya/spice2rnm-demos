@@ -72,24 +72,32 @@
 
 \begin{abstract}
 \noindent
-Real number models are how a mixed-signal block joins a digital regression
-suite --- and writing one by hand is slow, keeping it faithful as the
-circuit changes is slower, and proving it is faithful is the part that
-usually never happens. \textbf{spice2rnm} closes the loop in one command:
-give it a SPICE netlist and it delivers a SystemVerilog real-number model,
-a UVM-MS verification environment, and the evidence that both agree with
-the circuit.
+A real number model is a fast stand-in for an analog block. Rather than
+solving transistor physics the way SPICE does, it computes an output
+number from an input number --- so it runs in an ordinary digital
+simulator, alongside the chip's logic, fast enough for a full regression
+suite.
 
-Three properties set it apart. Every golden value in every generated
-testbench is a \emph{SPICE measurement} of your circuit, never the model's
-own equations. Every generated environment is proven able to fail, by
-injecting faults into the model and confirming the verdict flips. And the
-verification strategy adapts to what each block is \emph{for} --- a filter
-is checked as a frequency response, a duty-cycle corrector by where its
-edges land, a phase interpolator by phase per code.
+The trouble is that somebody has to write it, keep it matching the circuit
+as the circuit changes, and convince the team it still matches. The first
+two are slow. The third usually never happens at all.
 
-This paper presents four case studies of increasing difficulty, with
-results produced end to end by the shipped tool in under six minutes on a
+\textbf{spice2rnm} does all three from one command. Give it a SPICE
+netlist and you get back a SystemVerilog real number model, a UVM-MS
+verification environment that exercises it, and the evidence that both
+agree with the real circuit.
+
+Three things make that evidence worth reading. Every expected value in
+every generated testbench is a \emph{SPICE measurement of your circuit},
+never the model's own equations, so a test cannot pass by agreeing with
+itself. Every generated environment is proven able to fail: the tool
+breaks the model on purpose and confirms the test goes red. And how a
+block gets checked depends on what that block is for --- a filter as a
+frequency response, a duty-cycle corrector by where its edges land, a
+phase interpolator by how far it moves the clock at each setting.
+
+This paper walks through four circuits, getting harder as it goes. Every
+number in it was produced by the shipped tool, in about half an hour on a
 laptop.
 \end{abstract}
 
@@ -100,22 +108,26 @@ laptop.
 %======================================================================
 \section{The problem}
 
-A behavioural model has to be two contradictory things: fast enough to run
-in a digital regression, and faithful enough that passing it means
-something. Hand-written models drift from their circuits, and the drift is
-silent --- the model still compiles, still simulates, still passes.
+A model of an analog block has to be two things at once, and they pull
+against each other. Fast, or it cannot run in a digital regression suite
+at all. Accurate, or passing it does not mean anything.
+
+Hand-written models drift away from the circuits they stand for, and the
+drift is silent. Nothing breaks. The model still compiles, still
+simulates, still passes its tests. It has simply stopped describing the
+circuit.
 
 The usual defence is a hand-written testbench, which has the same problem
-one level up. Somebody decides what to check and how close is close
-enough, and those decisions are rarely written down next to the numbers
-they produced. When the circuit is revised, the model, the testbench, and
-the tolerances all have to be revisited by hand --- so in practice they are
-not.
+one level up. A person decides what to check and how close is close
+enough, and those decisions are rarely written down beside the numbers
+they produced. When the circuit is revised, the model, the testbench and
+the tolerances all need revisiting by hand --- which, in practice, is not
+what happens.
 
-\textbf{spice2rnm} regenerates all three from the netlist, on demand. The
-model, the environment that checks it, and the evidence trail are outputs
-of one command, so they can never fall out of step with the circuit or with
-each other.
+\textbf{spice2rnm} regenerates all three from the netlist whenever you ask
+it to. The model, the environment that checks it, and the evidence trail
+all come out of the same command, so they cannot quietly fall out of step
+with the circuit or with each other.
 
 %======================================================================
 \section{What you get from one command}
@@ -174,8 +186,9 @@ criteria (Section~\ref{sec:spec}).
 %======================================================================
 \section{Case study 1 --- Two-pole filter}
 
-A two-pole RC low-pass: the representative signal-path case. The generated
-model is checked four independent ways.
+A two-pole RC low-pass filter --- the ordinary case, a block that takes a
+signal in and shapes it on the way out. The generated model is checked
+four independent ways.
 
 \begin{center}
 \begin{tabular}{@{}lr@{}}
@@ -191,28 +204,32 @@ UVM-MS, AC section          & $19$ checks, $0$ failed \\
 \end{tabular}
 \end{center}
 
-\noindent The PRBS row matters more than it looks: the model is fitted
-against a chirp and then checked against a pseudo-random sequence it never
-saw. A model that had merely memorised its characterisation stimulus would
-be exposed here.
+\noindent The PRBS row matters more than it looks. The model is built from
+a chirp --- a tone sweeping upward through frequency --- and then tested
+with a pseudo-random bit sequence it has never seen. A model that had
+merely memorised the input it was built from would come apart here. This
+one does not.
 
 %======================================================================
 \section{Case study 2 --- Duty-cycle corrector}
 \label{sec:dcc}
 
-A comparator-based duty-cycle corrector whose dominant pole moves by a
-factor of $613{,}666$ across its input range. Blocks like this defeat
-fixed-response modelling outright, and they defeat conventional AC-based
-verification too --- which is exactly why they are usually the blocks whose
-hand-written models are trusted least.
+A duty-cycle corrector built around a comparator. How fast it responds is
+not fixed: it changes by a factor of $613{,}666$ depending on the input
+level. A model with one fixed response cannot represent that at all, and
+the standard AC-based way of checking such a model does not work either.
+That combination is why blocks like this tend to have the hand-written
+models people trust least.
 
 \subsection{A model that follows the circuit's dynamics}
 
-spice2rnm detects the level dependence during characterisation and builds a
-model whose dynamics are \emph{scheduled against measured large-signal
-behaviour} --- including the circuit's rise/fall timing asymmetry, which it
-measures at $95\unit{ps}$ and reproduces. At a $50\%$ input duty the model
-matches the circuit's output duty to $0.000$ percentage points.
+spice2rnm notices that level dependence while it is measuring the circuit,
+and builds a model whose speed varies with level the way the measurements
+say it should. That includes the circuit's rise/fall asymmetry --- it takes
+longer to switch one way than the other, by a measured $95\unit{ps}$ ---
+which the model reproduces. Fed a clock that is high exactly half the
+time, the model's output duty matches the circuit's to $0.000$ percentage
+points.
 
 \begin{center}
 \begin{tabular}{@{}lr@{}}
@@ -227,30 +244,35 @@ UVM-MS, duty section    & $15$ checks, $0$ failed \\
 
 \subsection{Verified by function, not by formula}
 
-The generated environment for this block contains \emph{no AC section} ---
-by measurement, not by omission. A small-signal sweep linearises the
-circuit at one operating point, and a comparator in normal operation is
-never near that regime; checked that way, a demonstrably accurate model
-fails every point by more than $55\unit{dB}$, telling you nothing about the
-model and everything about the mismatch between the check and the block.
+The testbench generated for this block has \emph{no AC section}, and that
+is a measured decision rather than an oversight. An AC sweep assumes the
+circuit sits at one operating point and wiggles gently around it. A
+comparator in normal use never does that --- it slams between two states.
+Check this model that way and it fails every single point by more than
+$55\unit{dB}$, despite being demonstrably accurate. The failure tells you
+nothing about the model and everything about using the wrong check.
 
-Instead, the environment checks what a duty-cycle corrector is
-\emph{for}. The tool drives the circuit with clocks at multiple rates and
-input duties, records the output duty from SPICE, and holds the model to
-those goldens --- a table spanning $20$ percentage points of measured
-behaviour, so a model that ignored its input could not reproduce it.
+So the environment checks what a duty-cycle corrector is actually for. The
+tool drives the real circuit with clocks at several rates and several input
+duties, records what duty comes back out of SPICE each time, and holds the
+model to those recorded answers. The table spans $20$ percentage points of
+measured behaviour --- wide enough that a model ignoring its input could
+not fake its way through.
 
 %======================================================================
 \section{Case study 3 --- Phase interpolator}
 
-A thermometer-coded phase interpolator has essentially no amplitude
-transfer at all --- there is no frequency response worth fitting, and a
-voltage-domain comparison scores noise. Conventional flows stop here.
+A phase interpolator does not change a signal's size. It shifts the signal
+in \emph{time}: each control code slides the clock edge a little further
+along. So there is no frequency response worth fitting, and comparing
+voltages just measures noise. Conventional flows have nothing to offer
+this block.
 
-spice2rnm recognises the block's function and switches strategy: it
-measures phase per code, generates a delay-line model, and emits a
-\emph{phase} verification environment --- one measured golden per control
-code, no DC or AC section, because neither describes edge placement.
+spice2rnm recognises what the block does and changes approach. It measures
+how far the edge moves at each code, builds a delay-line model, and
+generates a \emph{phase} testbench --- one measured answer per control
+code, and no DC or AC section, because neither of those describes where an
+edge lands.
 
 \begin{center}
 \begin{tabular}{@{}lr@{}}
@@ -266,19 +288,21 @@ UVM-MS phase section     & $9$ checks, $0$ failed \\
 \end{tabular}
 \end{center}
 
-\noindent The tolerance is a tenth of an LSB, at the model's own
-quantisation floor --- tight enough to fail on a real regression, never on
-rounding. The DNL figure is a property of the circuit, reported
-faithfully; the model's job is to reproduce it, and it does.
+\noindent Two terms from that table: one LSB is one step of the control
+code, and DNL is how much the steps vary in size from one another. The
+tolerance here is a tenth of an LSB, the finest the model can resolve ---
+tight enough to catch a real error, loose enough never to trip on
+rounding. The DNL figure is the circuit's own imperfection, reported as
+measured. The model's job is to reproduce it, and it does.
 
 %======================================================================
 \section{Case study 4 --- Phase-locked loop}
 
-The first three are blocks. This one is a \emph{loop}, and that changes
-what a model has to get right. A small error in any block does not stay
-small: the loop integrates it into a different operating point, so a
-model that is individually plausible everywhere can still settle the
-system somewhere the circuit does not.
+The first three are single blocks. This one is a \emph{loop}, and that
+changes what a model has to get right. In a loop, a small error does not
+stay small --- it is fed back around and pushes the whole system to a
+different operating point. So a model that looks perfectly reasonable on
+its own can still settle the loop somewhere the real circuit never goes.
 
 It is also three different characterisation problems in one netlist, and
 no single method covers them. The pipeline classifies each block from its
@@ -305,18 +329,21 @@ topology and routes it accordingly:
 \end{tabular}
 \end{center}
 
-\noindent None of those is a transfer function, and a conventional flow
-that fits one to each would be fitting the wrong quantity three times.
+\noindent Not one of those three is a simple input-to-output response. A
+conventional flow that fitted one to each would be fitting the wrong
+quantity three times over.
 
 \subsection{Checked as a system, against the transistors}
 
-Per-block scores are evidence about each block alone. The question a loop
-asks is different --- do these models behave like the circuit once wired
-together --- and the co-simulation answers it directly. The design's own
-testbench runs twice, with only its DPI bridge functions rewritten: once
-reading the generated models, once calling the real analog through
-ngspice. Thresholds, expressions and verdict are byte-identical in both,
-so the two boundary logs compare directly.
+A score for each block on its own is evidence about that block on its own.
+A loop asks a different question: wired together, do these models behave
+like the circuit? The co-simulation answers it directly. The design's own
+testbench is run twice --- once where the analog half is the generated
+models, once where it is the real transistors through ngspice --- with
+only the small piece of code that connects the two halves swapped between
+runs. The thresholds, the expressions and the pass/fail logic are
+byte-for-byte identical in both, so the two logs can be compared
+line against line.
 
 \begin{center}
 \begin{tabular}{@{}lr@{}}
@@ -346,11 +373,14 @@ $0.135\unit{mV}$.
 
 \subsection{Where the block works is measured, not assumed}
 
-The two output-buffer inverters are clock-path blocks: their function is
-edge placement, and an rms voltage error is close to blind to it. Both
-pass an rms comparison comfortably while their worst-instant error is
-$99.9\%$ of the full swing, because a model whose edge is displaced in
-time sits at one rail while the reference sits at the other. The pipeline
+The two output-buffer inverters sit in the clock path. Their job is to
+place edges in time, and an average voltage error is close to blind to
+that. Both pass an average-error comparison comfortably --- while their
+error at the single worst instant is $99.9\%$ of the full voltage swing.
+Those are not in conflict: if the model's edge lands slightly late, then
+for that brief moment the model sits at one supply rail while the real
+circuit sits at the other. Averaged over time it vanishes. For a clock
+buffer it is the entire point. The pipeline
 classifies them from the measured DC curve --- $62\%$ and $61\%$ of
 swept points within $5\%$ of a rail is a switching characteristic, not a
 smooth response --- and scores them on duty cycle instead.
@@ -493,113 +523,125 @@ everything a run produces.
 \section{What the equivalence check compares}
 \label{sec:equiv}
 
-Every model in this document was checked the same way. The emitted
-SystemVerilog is elaborated in a digital simulator and driven; the
-transistor circuit is driven with the identical stimulus in SPICE; the two
-outputs are compared on a common time base, and the aligned traces are
-archived so the verdict can be re-derived from its own run directory.
+Every model in this document was checked the same way. The generated
+SystemVerilog is loaded into a digital simulator and fed an input signal.
+The transistor circuit is fed the very same input in SPICE. The two
+outputs are then lined up in time and compared point by point, and both
+traces are saved, so anyone can go back to the run's own folder and work
+out the number again for themselves.
 
-Two properties of that arrangement matter more than the numbers it
-produces. The first is that \textbf{it reads the file that ships}. A
-characterisation residual describes how well a fit matched its own
-measurements, and would be unchanged if the model were written out
-incorrectly afterwards; it never opens the emitted file. This check
-elaborates that file, so a code-generation error fails it.
+Two things about that arrangement matter more than the numbers it
+produces. The first is that \textbf{it reads the file you are actually
+handed}. There is a weaker number some tools report --- how well the
+fitted maths matched its own measurements. That number never opens the
+generated file, and would look identical if the file had been written out
+wrongly. This check loads that file into a simulator and runs it, so a
+code-generation bug fails it.
 
-The second is that \textbf{it is scored in the block's own domain}. A
-single error figure applied everywhere would be blind on most of these
-blocks --- an rms voltage error cannot see edge placement, and a
-frequency has no voltage residual at all:
+The second is that \textbf{each block is scored on its own job}. One error
+figure used everywhere would be blind on most of these blocks: an average
+voltage error cannot see where an edge lands, and a frequency has no
+voltage error to measure in the first place.
 
 \begin{center}
 \begin{tabular}{@{}lll@{}}
 \toprule
-\textbf{What the block is} & \textbf{What is compared} & \textbf{Verdict in} \\
+\textbf{If the block} & \textbf{then compare} & \textbf{and score it as} \\
 \midrule
-signal path      & output waveform, swept    & error over the output's \\
-                 & stimulus and an           & own excursion \\
-                 & independent one           & \\
-clock path       & edge placement at the     & duty error, \\
-                 & measured operating rate   & percentage points \\
-per-code timing  & crossing time at every    & picoseconds, plus \\
-                 & control code              & monotonicity and DNL \\
-oscillator       & output frequency against  & per cent of frequency \\
-                 & control voltage           & \\
-switched current & terminal current per      & per cent, per state \\
-                 & control state             & \\
-passive network  & output response to an     & per cent of the output's \\
-                 & injected current          & own excursion \\
+passes a signal   & the output waveform, on    & the error, against how \\
+through           & a sweep and on a second,   & far the output itself \\
+                  & unrelated input            & moves \\[0.3em]
+drives a clock    & where the edges land, at   & duty error, in \\
+                  & the rate measured in use   & percentage points \\[0.3em]
+moves an edge     & the crossing time at       & picoseconds, plus step \\
+per setting       & every setting              & size and evenness \\[0.3em]
+oscillates        & the output frequency, as   & a percentage of that \\
+                  & the control voltage varies & frequency \\[0.3em]
+switches a        & the current it drives, in  & a percentage, for each \\
+current           & each switch position       & position \\[0.3em]
+is passive R/C    & the output's response to   & the error, against how \\
+                  & a current pushed into it   & far the output moves \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent Each verdict states which of these it came from, so a report
-read later distinguishes the figure that decided from the figures that
-were merely recorded alongside it.
+\noindent Every verdict records which of these rows it came from. Months
+later, a reader can still tell which number actually decided the result
+from the numbers that were merely noted alongside it.
 
 \subsection{What keeps a figure from flattering itself}
 
-\textbf{Points held out of characterisation.} Where a block is
-characterised by measuring points, a share of them is withheld and scored
-separately, so the headline figure is not the fit's own residual. The
-charge pump in case study 4 reports $0.549\%$ held out; the ring
-oscillator reports its held-out frequency error directly.
+\textbf{Some measurements are held back.} Where a block is characterised
+by measuring it at many points, a share of those points is kept out of the
+model-building and used only for scoring. The headline figure is then not
+the fit marking its own work. The charge pump in case study 4 reports
+$0.549\%$ held back; the ring oscillator reports its held-back frequency
+error directly.
 
-\textbf{A stimulus the model has not seen.} The filter in case study 1 is
-characterised against a swept-frequency stimulus and then checked against
-a pseudo-random sequence it never saw ($0.0097$ normalised). A model that
-had memorised its characterisation stimulus is exposed there.
+\textbf{An input the model has never seen.} The filter in case study 1 is
+built from a frequency sweep and then tested with a pseudo-random bit
+sequence it was never shown ($0.0097$). A model that had merely memorised
+what it was built from is exposed there.
 
-\textbf{The range a verdict is evidence about.} A comparison says nothing
-about conditions it did not drive, so the report states the range it
-exercised. The ring oscillator is the clearest case: its held-out
-frequency error is $0.002\%$ inside the operating band the loop actually
-uses, and $4.99\%$ at the far edge of the wider range that was
-characterised, where the curve bends hardest and the loop does not go.
-Both figures are reported. The verdict is taken in the band, and the
-other number is printed rather than dropped.
+\textbf{The report says what range the answer covers.} A comparison proves
+nothing about conditions it never drove, so the report states the range it
+did drive. The ring oscillator is the clearest case, and the honest answer
+there is two numbers. Inside the voltage band the loop actually operates
+in, its held-back frequency error is $0.002\%$. At the far edge of the
+wider range that was characterised --- where the curve bends hardest, and
+where the loop never goes --- it reaches $4.99\%$. Both are reported. The
+verdict is taken in the band that matters, and the less flattering number
+is printed rather than quietly dropped.
 
-\textbf{What the emitted form cannot represent, priced in advance.} Where
-a model form cannot carry a measured property, the cost is stated in the
-units of the verdict before scoring --- as with the inverter skew in case
-study 4, quoted as duty error at the clock in use. A pass is then read
-against that floor rather than as unqualified.
+\textbf{What the model shape cannot do is priced in advance.} Sometimes
+the shape of model chosen simply cannot represent something the circuit
+does. When that happens, the cost is stated up front, in the same units as
+the verdict --- as with the inverter timing asymmetry in case study 4,
+quoted as duty error at the clock rate in use. A pass is then read against
+that floor, instead of being taken as a clean win.
 
 \subsection{Blocks, and then the system}
 
-The table above scores blocks. A composition asks a further question,
-because errors that are individually small need not stay small once the
-blocks are wired together, and two levels of check answer it.
+The table above scores blocks one at a time. Putting blocks together asks
+a further question, because errors that are small individually need not
+stay small once everything is wired up. Two levels of check answer it.
 
-The first needs only the netlist: the composed model is driven at the
-top-level boundary and compared against the full transistor circuit.
-The second applies when the input is a co-simulation, and is the one
-case study 4 reports --- the design's own testbench is run twice, once
-reading the generated models and once calling the transistors, with only
-its bridge functions rewritten. Thresholds, expressions and verdict are
-byte-identical across both, so the two boundary logs compare directly:
-$4$ signals, $0$ failed, the control voltage agreeing to $0.224\unit{mV}$
-while both loops lock to the same frequency.
+The first needs nothing but the netlist. The assembled model is driven at
+the outside edge of the design, and its output is compared against the
+full transistor circuit driven the same way.
 
-A check that does not apply is reported as not applicable, with the
-reason. It is never reported as a pass.
+The second applies when what you hand the tool is a co-simulation --- a
+design whose analog half already talks to a digital half --- and it is the
+one case study 4 reports. Here the design's own testbench is run twice.
+Once, the analog half is the generated models. Once, it is the real
+transistors. Everything else is left alone: the digital logic, the limits
+it checks against, and the pass/fail rules are byte-for-byte identical in
+both runs, and only the small piece of code joining the two halves is
+swapped. That makes the two runs directly comparable, signal by signal:
+$4$ signals crossing between the halves, $0$ failed, the control voltage
+agreeing to $0.224\unit{mV}$, and both versions locking to the same
+frequency.
+
+And a check that does not apply to a given run is reported as not
+applicable, with the reason why. It is never quietly counted as a pass.
 
 %======================================================================
 \section{Why a green testbench is worth believing}
 
-Generated verification has a credibility problem: if the same tool writes
-the model and the test, what stops it from marking its own homework? Three
-design rules.
+Generated verification has an obvious credibility problem. If the same
+tool writes the model \emph{and} writes the test, what stops it from
+writing a test its own model is bound to pass? Three rules answer that.
 
-\textbf{Goldens are measurements, never the model.} Every golden value in
-every generated environment is a SPICE measurement of your circuit.
-Checking a model against the equations it implements would pass
-unconditionally; spice2rnm never does it.
+\textbf{The right answers come from SPICE, never from the model.} Every
+expected value in every generated environment is a SPICE measurement of
+your circuit. Checking a model against the equations that model itself
+implements would pass no matter how wrong the model was, so spice2rnm
+never does it.
 
-\textbf{Every environment is proven able to fail.} The tool injects faults
-into the generated model and confirms the verdict flips --- and the
-detection floor is \emph{measured}, not asserted. For the duty-cycle
-corrector's environment:
+\textbf{Every environment is proven able to fail.} The tool deliberately
+breaks the generated model and confirms the test goes red. It also
+\emph{measures} how small a break it can still catch, rather than simply
+claiming one. For the duty-cycle corrector's environment:
 
 \begin{center}
 \begin{tabular}{@{}ll@{}}
@@ -613,16 +655,18 @@ dynamics slowed $50\times$         & duty section (DC is structurally blind) \\
 \end{tabular}
 \end{center}
 
-\noindent The middle column is the point: settled-DC checks --- the whole
-of what many hand-written environments test --- cannot see \emph{any} error
-in a block's dynamics. The function-matched sections exist because of that
-blindness, and the fault sweep is re-run against the shipped model so the
-detection claims stay current.
+\noindent The right-hand column is the point. A DC check looks at the
+circuit after it has settled, and that is the whole of what many
+hand-written environments test. It cannot see \emph{any} error in how fast
+a block responds --- slow this model down fiftyfold and the DC check still
+passes it. The function-matched sections exist because of that blind spot,
+and the fault sweep is re-run against the shipped model so these detection
+claims stay true rather than becoming folklore.
 
-\textbf{Sensitivity is pinned from both sides.} A check that fails
-everything is as useless as one that passes everything, so fault injection
-also confirms that errors \emph{within} tolerance do not trip the
-environment.
+\textbf{The test is checked in both directions.} A test that fails
+everything is as useless as one that passes everything. So the same sweep
+also confirms that errors small enough to be acceptable do \emph{not} trip
+the environment.
 
 %======================================================================
 \section{Functional specifications as input}
@@ -755,15 +799,18 @@ recognisable in it, nothing changes --- and the run says so.
 
 \section{AI where it helps, physics where it decides}
 
-spice2rnm uses language models at four points: proposing block boundaries
-in the device graph, classifying what a block is for, reading functional
-specifications, and reading an existing library's conventions
-(Section~\ref{sec:style}). All four follow one rule: \textbf{intent from
-the model, physics from the measurement}. Every proposal is validated
-against the measured circuit before it is used, and a proposal that fails
-validation is discarded --- the run continues on measured defaults, and
-says so. Without an API key, every AI feature declines cleanly and the
-pipeline runs entirely on measurement.
+spice2rnm asks a language model four kinds of question: where one block
+ends and the next begins, what a block is for, what a written
+specification requires, and what conventions an existing model library
+follows (Section~\ref{sec:style}). Every one of those is a question of
+\emph{intent}. None is a question of physics.
+
+That is the rule the tool works by: \textbf{intent from the model, physics
+from the measurement}. Every suggestion is checked against the measured
+circuit before it is used. One that does not check out is discarded, the
+run carries on with what was measured, and it says that it did so. With no
+API key at all, every AI feature declines cleanly and the pipeline runs
+entirely on measurement.
 
 Which of those two happened is recorded in the run's own result, not only
 in its log. A verdict carries the metric it was reached by, so a report

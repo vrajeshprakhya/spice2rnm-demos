@@ -41,8 +41,16 @@ python3 -m spice2rnm "$NETLIST" \
   --out-dir "$OUT" \
   --input-node vin --output-node vout \
   --ngspice-bin "$NGSPICE" \
-  --sim xezim \
   --emit-uvm-ms --emit-wreal --emit-assertions 2>&1 | grep -viE '^\s*$' | sed 's/^/    /'
+rc=${PIPESTATUS[0]}
+if [ "$rc" -ne 0 ]; then
+  echo
+  say "MODEL GENERATION FAILED (exit $rc)."
+  say "Nothing below this point would be from this run -- the generated"
+  say "files in $OUT, if any, are left over from an earlier one. Stopping"
+  say "here rather than reporting stale results as if they were fresh."
+  exit 1
+fi
 say ""
 say "elapsed: $(( $(date +%s) - T0 )) s"
 beat
@@ -92,6 +100,7 @@ say "into the analog core with no separate elaborate step."
 echo
 ( cd "$OUT" && XEZIM="$XEZIM" \
     UVM_MS_LIB="$HOME/uvm_ms_demo/ms" \
+    UVM_SRC="$HOME/iverilog-unified/uvm-core/src" \
     timeout 3600 bash run_rc_lpf2_ms.sh 2>&1 \
     | grep -E "SB_SUMMARY|UVM_ERROR|UVM_FATAL|compiling|running|COMPILE FAILED" \
     | head -12 | sed 's/^/    /' )

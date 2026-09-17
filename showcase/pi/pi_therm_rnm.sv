@@ -42,13 +42,14 @@ module pi_therm_rnm(input real in_val, input int code, output real out_val);
   end
 
   always #(TSTEP) begin : delay_step
-    int c, rd;
+    int c, rd, dly;
     // An out-of-range code is CLAMPED, not wrapped: a wrap
     // would silently return a different code's delay, which
     // reads as a plausible phase rather than as a mistake.
     c = (code < 0) ? 0 : ((code >= NC) ? NC-1 : code);
     hist[wp] = in_val;
-    rd = wp - DLY[c];
+    dly = DLY[c];
+    rd = wp - dly;
     if (rd < 0) rd = rd + NH;
     out_val = hist[rd];
     wp = (wp + 1) % NH;

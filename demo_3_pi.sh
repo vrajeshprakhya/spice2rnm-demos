@@ -81,6 +81,15 @@ T0=$(date +%s)
     --code-map thermometer:8 --code-period 2e-9 \
     --ngspice-bin "$NGSPICE" --emit-uvm-ms --emit-wreal --emit-assertions 2>&1 ) \
   | grep -viE '^\s*$' | sed 's/^/    /'
+rc=${PIPESTATUS[0]}
+if [ "$rc" -ne 0 ]; then
+  echo
+  say "MODEL GENERATION FAILED (exit $rc)."
+  say "Nothing below this point would be from this run -- the generated"
+  say "files in $OUT, if any, are left over from an earlier one. Stopping"
+  say "here rather than reporting stale results as if they were fresh."
+  exit 1
+fi
 say ""
 say "elapsed: $(( $(date +%s) - T0 )) s"
 say ""
