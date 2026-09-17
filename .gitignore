@@ -4,3 +4,10 @@
 *.log
 __pycache__/
 *.pyc
+
+# The curated equivalence evidence is the exception: these logs are the
+# record of what actually ran, small by construction (refresh.sh copies
+# only logs and manifests the traces), and the whitepaper points readers
+# here for them. Without this the folder publishes a manifest of evidence
+# and none of the evidence.
+!showcase/*/equivalence/**/*.log

@@ -1,0 +1,1 @@
+equivalence            PASS  metric=rms_voltage  rms=0.029008790476737805  max=0.4975716838333135  threshold=0.15

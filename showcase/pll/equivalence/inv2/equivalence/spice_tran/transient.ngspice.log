@@ -1,0 +1,78 @@
+# command : /home/vraje/ngspice-install/bin/ngspice -b /home/vraje/s2r_runs/pll_sys/inv2/equivalence/spice_tran/transient.cir
+# started : 2026-09-17T00:26:46.839623+00:00
+# finished: 2026-09-17T00:26:48.142236+00:00
+# exit    : 0
+
+--- stdout ---
+
+Note: No compatibility mode selected!
+
+
+Circuit: subckt fragment: inv2
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+out                                        3.3
+in                                           0
+ss                                           0
+sub                                          0
+dd                                         3.3
+well                                       3.3
+vctx_in#branch                               0
+vctx_well#branch                  -5.67329e-19
+vctx_sub#branch                     3.3012e-12
+vctx_ss#branch                     1.99875e-09
+vctx_dd#branch                    -2.00205e-09
+
+ Reference value :  6.45708e-10
+ Reference value :  1.01136e-09
+ Reference value :  2.25386e-09
+ Reference value :  2.52413e-09
+ Reference value :  2.84515e-09
+ Reference value :  3.11114e-09
+ Reference value :  3.58074e-09
+ Reference value :  4.13840e-09
+ Reference value :  4.60617e-09
+ Reference value :  4.74669e-09
+ Reference value :  4.85284e-09
+ Reference value :  5.09534e-09
+ Reference value :  5.33993e-09
+ Reference value :  5.64579e-09
+ Reference value :  5.87080e-09
+ Reference value :  5.90113e-09
+ Reference value :  6.18681e-09
+ Reference value :  6.40204e-09
+ Reference value :  6.65446e-09
+ Reference value :  6.70961e-09
+ Reference value :  7.28867e-09
+ Reference value :  7.33575e-09
+ Reference value :  7.47627e-09
+ Reference value :  7.62155e-09
+ Reference value :  7.88363e-09
+ Reference value :  8.01265e-09
+ Reference value :  8.30248e-09
+ Reference value :  8.47063e-09
+ Reference value :  8.60760e-09
+ Reference value :  8.80327e-09
+ Reference value :  8.83812e-09
+ Reference value :  9.05336e-09
+ Reference value :  9.18691e-09
+ Reference value :  9.41779e-09
+ Reference value :  9.64465e-09
+ Reference value :  9.76021e-09
+ Reference value :  9.80118e-09
+ Reference value :  9.81354e-09
+ Reference value :  9.95050e-09
+ Reference value :  9.96566e-09
+No. of Data Rows : 7170
+Note: Simulation executed from .control section
+
+--- stderr ---
+

@@ -1,0 +1,72 @@
+# command : /home/vraje/ngspice-install/bin/ngspice -b /home/vraje/s2r_runs/lpf2/equivalence/spice_tran/transient.cir
+# started : 2026-09-16T21:30:20.462773+00:00
+# finished: 2026-09-16T21:30:30.969442+00:00
+# exit    : 0
+
+--- stdout ---
+
+Note: No compatibility mode selected!
+
+
+Circuit: 2-pole passive rc low-pass filter -- fast-running rnm test case
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vin                                          0
+mid                                          0
+vout                                         0
+vin#branch                                   0
+
+ Reference value :  6.74103e-07
+ Reference value :  1.17762e-06
+ Reference value :  1.69213e-06
+ Reference value :  2.13376e-06
+ Reference value :  2.50153e-06
+ Reference value :  2.84539e-06
+ Reference value :  3.17519e-06
+ Reference value :  3.48756e-06
+ Reference value :  3.74491e-06
+ Reference value :  3.94914e-06
+ Reference value :  4.13295e-06
+ Reference value :  4.30505e-06
+ Reference value :  4.46869e-06
+ Reference value :  4.61569e-06
+ Reference value :  4.75852e-06
+ Reference value :  4.89820e-06
+ Reference value :  5.03554e-06
+ Reference value :  5.15670e-06
+ Reference value :  5.26145e-06
+ Reference value :  5.38111e-06
+ Reference value :  5.51625e-06
+ Reference value :  5.64766e-06
+ Reference value :  5.77523e-06
+ Reference value :  5.90541e-06
+ Reference value :  6.02567e-06
+ Reference value :  6.13152e-06
+ Reference value :  6.25264e-06
+ Reference value :  6.38283e-06
+ Reference value :  6.49528e-06
+ Reference value :  6.61132e-06
+ Reference value :  6.72862e-06
+ Reference value :  6.84421e-06
+ Reference value :  6.96101e-06
+ Reference value :  7.06675e-06
+ Reference value :  7.17626e-06
+ Reference value :  7.28538e-06
+ Reference value :  7.39512e-06
+ Reference value :  7.49970e-06
+ Reference value :  7.60410e-06
+ Reference value :  7.70681e-06
+ Reference value :  7.81243e-06
+No. of Data Rows : 276355
+Note: Simulation executed from .control section
+
+--- stderr ---
+
