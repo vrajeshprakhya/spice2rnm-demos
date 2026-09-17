@@ -1,0 +1,109 @@
+`timescale 1ps/1ps
+//======================================================================
+// A UVM-MS environment over the WHOLE system: the design's RTL and the
+// generated analog models in one elaboration, checked against a run of
+// the same testbench against the transistors.
+//
+// The agent is passive by construction. The stimulus is the design's
+// own -- its testbench makes it, and every crossing uses the testbench's
+// own thresholds and expressions. A driver here would be a second
+// opinion about how the system is exercised, and the two runs would stop
+// being comparable. So the monitor observes, and the scoreboard judges.
+//======================================================================
+package pll_analog_sys_ms_pkg;
+
+  import uvm_pkg::*;
+  import uvm_ms_pkg::*;
+  `include "uvm_macros.svh"
+  import pll_analog_sys_proxy_pkg::*;
+
+  // One crossing of the analog/digital boundary.
+  typedef struct {
+    string kind;   // "S" driven into the analog, "G" read out, "I" probe
+    string node;
+    real   v;
+    real   t_s;
+  } ams_xact_t;
+
+  `include "pll_analog_sys_ms_scoreboard.svh"
+
+  //--------------------------------------------------------------------
+  class pll_analog_sys_monitor extends uvm_component;
+    `uvm_component_utils(pll_analog_sys_monitor)
+
+    pll_analog_sys_proxy bp;
+    uvm_analysis_port #(ams_xact_t) ap;
+    int n_seen;
+
+    function new(string name, uvm_component parent);
+      super.new(name, parent);
+      ap = new("ap", this);
+    endfunction
+
+    function void build_phase(uvm_phase phase);
+      if (!uvm_config_db #(pll_analog_sys_proxy)::get(this, "", "bridge_proxy", bp))
+        `uvm_fatal("NOPROXY",
+                   "no bridge proxy in uvm_config_db -- the bridge is not reachable")
+    endfunction
+
+    task run_phase(uvm_phase phase);
+      ams_xact_t x;
+      forever begin
+        bp.wait_xact();
+        // Drain, rather than sample. Several crossings happen inside one
+        // tick and a process wakes once per tick, so anything that reads
+        // a single slot per wake loses the rest.
+        while (bp.next_xact(x.kind, x.node, x.v, x.t_s)) begin
+          n_seen++;
+          ap.write(x);
+        end
+        if (pll_analog_sys_scoreboard::inst != null)
+          pll_analog_sys_scoreboard::inst.n_dropped = bp.dropped_count();
+      end
+    endtask
+
+    function void report_phase(uvm_phase phase);
+      if (n_seen == 0)
+        `uvm_error("SYS_MON",
+                   "the monitor saw no boundary traffic -- the proxy was reachable but nothing crossed")
+    endfunction
+  endclass : pll_analog_sys_monitor
+
+  //--------------------------------------------------------------------
+  class pll_analog_sys_env extends uvm_env;
+    `uvm_component_utils(pll_analog_sys_env)
+    pll_analog_sys_monitor    mon;
+    pll_analog_sys_scoreboard sb;
+    function new(string name, uvm_component parent);
+      super.new(name, parent);
+    endfunction
+    function void build_phase(uvm_phase phase);
+      mon = pll_analog_sys_monitor::type_id::create("mon", this);
+      sb  = pll_analog_sys_scoreboard::type_id::create("sb", this);
+    endfunction
+    function void connect_phase(uvm_phase phase);
+      mon.ap.connect(sb.ap);
+    endfunction
+  endclass : pll_analog_sys_env
+
+  //--------------------------------------------------------------------
+  class pll_analog_sys_test extends uvm_test;
+    `uvm_component_utils(pll_analog_sys_test)
+    pll_analog_sys_env env;
+    function new(string name, uvm_component parent);
+      super.new(name, parent);
+    endfunction
+    function void build_phase(uvm_phase phase);
+      env = pll_analog_sys_env::type_id::create("env", this);
+    endfunction
+    task run_phase(uvm_phase phase);
+      // The design's own testbench supplies the stimulus and ends the
+      // run; this objection only keeps UVM alive alongside it, for the
+      // span the goldens cover.
+      phase.raise_objection(this);
+      #2899950;   // 2.89995 us in ps -- the golden run's own span
+      phase.drop_objection(this);
+    endtask
+  endclass : pll_analog_sys_test
+
+endpackage : pll_analog_sys_ms_pkg

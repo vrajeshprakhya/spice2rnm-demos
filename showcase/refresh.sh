@@ -132,9 +132,26 @@ curate_pll() {  # src-dir, dest-name
   # curate()'s floor for a single-block case; here it passed a PLL missing
   # every interface file, because the analog glob still said loop/ after
   # spice2rnm renamed that directory to cosim/.
+  # The generated environments: per block, and for the whole system.
+  local envdir
+  for envdir in inv1/uvm_ms inv2/uvm_ms ro_vco cosim/uvm_ms; do
+    [ -d "$src/$envdir" ] || continue
+    for f in "$src/$envdir"/*.sv "$src/$envdir"/*.svh "$src/$envdir"/*.sh; do
+      [ -f "$f" ] || continue
+      mkdir -p "$dst/env/$envdir"
+      cp "$f" "$dst/env/$envdir/"; n=$((n + 1))
+    done
+  done
+  # Named, not counted. A file count cannot tell the difference between a
+  # composed top and a block model, which is how this case published a
+  # complete-looking directory with no environment in it.
   for want in netlist_top.sv result.json; do
     [ -f "$dst/$want" ] || { echo "curation for $2 has no $want"; exit 1; }
   done
+  [ -d "$dst/env/cosim/uvm_ms" ] || {
+    echo "curation for $2 has no SYSTEM environment (env/cosim/uvm_ms) --" \
+         "the composed case's whole point is that the RTL and the models" \
+         "are checked together, and that is what publishes it"; exit 1; }
   [ "$n" -ge 8 ] || { echo "curation for $2 found only $n file(s); expected the"\
                           " block models and the composed top"; exit 1; }
   echo "  $2: $n files"

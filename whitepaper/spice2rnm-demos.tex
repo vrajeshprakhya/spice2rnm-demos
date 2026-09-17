@@ -501,9 +501,12 @@ spice2rnm-demos/
                      log pipeline.txt
     pi/              same shape, 11 files: phase-per-code
                      goldens, no DC or AC section
-    pll/             11 files: five block models, three
+    pll/             49 files: five block models, three
                      interfaces, the composed analog top, the
-                     node package and result.json
+                     node package, result.json, and env/ --
+                     three per-block UVM-MS environments plus
+                     the SYSTEM one, where the design's own RTL
+                     and every block's model elaborate together
     house_lib/       4 files, NOT generated: ng_ams_pkg.sv
                      declaring nettype real ng_anet, and two
                      hand-written models using it
