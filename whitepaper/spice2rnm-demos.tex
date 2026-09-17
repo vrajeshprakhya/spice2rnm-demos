@@ -477,12 +477,15 @@ summary that produced them. What the repository holds:
 
 \begin{lstlisting}
 spice2rnm-demos/
+  README.md          what this repository is, and is not
+  .gitignore         run scratch; the showcase is curated, not
+                     whatever a run left behind
   demo_1_lpf.sh  demo_2_dcc.sh  demo_3_pi.sh
   demo_4_pll.sh  run_all.sh
                      the four case studies, runnable end to end
   harness/           8 measurement scripts the demos call
   showcase/          the generated artifacts, byte-for-byte
-    lpf2/            the baseline case, 14 files:
+    lpf2/            the baseline case, 14 files + equivalence/:
       rc_lpf2_rnm.sv          the model, plain real ports
       rc_lpf2_rnm_wreal.sv    the same model, wreal ports
       rc_lpf2_ms_types_pkg.sv the generated nettype
@@ -496,12 +499,12 @@ spice2rnm-demos/
       run_rc_lpf2_ms.sh       compiles and runs it
       result.json             fit, verdict, warnings
       equivalence/            what the check actually ran and found
-    dcc2/            same shape, 15 files: no AC section, adds
-                     duty goldens in dcc_ms_pkg.sv and the run
-                     log pipeline.txt
-    pi/              same shape, 11 files: phase-per-code
-                     goldens, no DC or AC section
-    pll/             49 files: five block models, three
+    dcc2/            same shape, 15 files + equivalence/: no AC
+                     section, adds duty goldens in dcc_ms_pkg.sv
+                     and the run log pipeline.txt
+    pi/              same shape, 11 files + equivalence/:
+                     phase-per-code goldens, no DC or AC section
+    pll/             49 files + equivalence/: five block models, three
                      interfaces, the composed analog top, the
                      node package, result.json, and env/ --
                      three per-block UVM-MS environments plus
