@@ -899,6 +899,39 @@ on trust that the feature requested was the feature exercised.
         node. Hierarchical composition trades some accuracy for structure;
         the equivalence report states the composed figure separately from
         the per-block figures, so the trade is visible, not hidden.
+  \item \textbf{Noise and jitter are not verified}, and the reason is
+        worth stating rather than leaving to be discovered. A real number
+        model is deterministic, and the reference runs are SPICE
+        transients with no noise sources, so neither side of the
+        comparison carries noise: checking one against the other would
+        produce a confident zero that means nothing. Device and phase
+        noise need \texttt{.noise} or transient-noise analysis on the
+        reference side and a model built to carry a noise source, which
+        is a different kind of model from the one this tool emits.
+
+        Edge JITTER is measured where the reference has edges --- on the
+        reference PLL's two clock-path buffers it is $3.98\unit{ps}$
+        and $3.60\unit{ps}$, reported beside the skew because the
+        two fail differently --- but it is reported, not judged: there is
+        no threshold, and inventing one from a single design would be
+        worse than showing the number. At system level it is not measured
+        at all, because the co-simulation boundary is sampled at
+        $100\unit{ps}$ and the composed model's output crosses
+        its threshold between samples, so a crossing can only be located
+        to the nearest tick. That is a property of the probe, not of the
+        model, and reporting it as jitter would be measuring the sampling
+        grid.
+
+        This is where the published practice sits too. Analog Devices'
+        production RNM suite for a GHz transceiver validates its PLL on
+        lock time and frequency error --- the same quantities checked in
+        Section~\ref{sec:equiv} --- and states that ``model validation
+        remains an area for improvement in the real number modeling
+        flow'', with frequency-domain performance named as future
+        work.\footnote{J.~Dudek, \emph{Real Number Modeling of RF
+        Circuits}, DVCon. The paper notes that because RNMs exist to
+        enable system-level testing, ``the requirements for model
+        validation are greatly relaxed in this environment''.}
 \end{itemize}
 
 \vspace{1.5em}
