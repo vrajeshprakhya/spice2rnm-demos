@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-16T19:36:57.432754+00:00",
+    "timestamp_utc": "2026-09-17T00:28:59.410657+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -16,8 +16,11 @@
       "--output-node",
       "vout",
       "--llm-block-function",
+      "--emit-uvm-ms",
+      "--uvm-ms-lib",
+      "/home/vraje/uvm_ms_demo/ms",
       "--out-dir",
-      "/home/vraje/s2r_runs/demo4_pll",
+      "/home/vraje/s2r_runs/pll_sys",
       "--ngspice-bin",
       "/home/vraje/ngspice-install/bin/ngspice",
       "--xezim-bin",
@@ -107,7 +110,7 @@
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 1776
+              "chars": 1772
             }
           },
           "tf": {
@@ -151,11 +154,11 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 244
+              "chars": 563
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 1706
+              "chars": 1704
             }
           },
           "dc_fit": {
@@ -1111,7 +1114,7 @@
           "band_hz": 23891732357.136116,
           "uvm_ms_environment": "none",
           "dc_bias": 1.764242784,
-          "sv_path": "/home/vraje/s2r_runs/demo4_pll/inv1/inv1_rnm.sv",
+          "sv_path": "/home/vraje/s2r_runs/pll_sys/inv1/inv1_rnm.sv",
           "sv_text": {
             "__omitted__": "bulk field; written to its own file",
             "chars": 26199
@@ -1195,7 +1198,7 @@
             "n_compared": 7165,
             "stim_min": 0.0,
             "stim_max": 3.528484,
-            "compare_csv_path": "/home/vraje/s2r_runs/demo4_pll/inv1/equivalence/waveform_compare.csv",
+            "compare_csv_path": "/home/vraje/s2r_runs/pll_sys/inv1/equivalence/waveform_compare.csv",
             "vcd_path": null,
             "warnings": [
               "stimulus: 3.998e+08 Hz clock at 50.0% duty across 0..3.528 V (4 cycles), in place of the chirp",
@@ -1212,8 +1215,8 @@
             "rise/fall SKEW 1.474e-11 s measured from the two full-swing traversals (the output falls in 3.038e-11 s and rises in 1.565e-11 s, each to its own 50% crossing): emitted as a direction-dependent output delay. Without it the model is symmetric about its threshold and returns exactly 50.000% duty for a 50% input, whatever the circuit does.",
             "rise/fall asymmetry 1.8642 measured from the two full-swing traversals (5.059e+10 rising vs 2.714e+10 falling, 1/t63): the scheduled rate is split by the direction the output travels, because a rate indexed by input alone is symmetric about the threshold and returns exactly 50.000% duty for a 50% input.",
             "LARGE-SIGNAL schedule measured at 33 of 33 operating points by stepping the input and timing the output: rate spans 1.705e+11 .. 3.853e+11 rad/s. Used in place of the AC pole schedule, which reports a stage's small-signal pole where its incremental gain has collapsed.",
-            "clock from MEASUREMENT not proposal: the golden run switches this block's input at 3.998e+08 Hz; the advisor proposed 1.5e+10 Hz. The measured rate is where the block works, so it is what the timing verdict uses",
-            "block function: buffer (clock stimulus, timing metric, none environment) -- This is a single CMOS inverter (mn1/mp1) with a static DC sweep showing rail-to-rail output (4.6e-9V to 3.3V) and 62.1% of points saturated near one rail or the other -- clear switching behavior, not a linear amplifier or filter. Since its function is edge placement/logic-level inversion rather than a frequency response, an rms voltage chirp comparison is the wrong metric; instead a clock stimulus with timing-based scoring (threshold crossings, duty cycle, period) tests what actually matters. The clock frequency is chosen at 1.5e10 Hz, within the required band (3.066e9 to 3.066e10 Hz) and comfortably below the model's slew-rate-limited ceiling of 6.132e10 Hz, while still engaging the inverter's dynamic switching behavior rather than the quasi-static regime.",
+            "clock from MEASUREMENT not proposal: the golden run switches this block's input at 3.998e+08 Hz; the advisor proposed 1e+10 Hz. The measured rate is where the block works, so it is what the timing verdict uses",
+            "block function: buffer (clock stimulus, timing metric, none environment) -- This is a single CMOS inverter (mn1/mp1) with a sharp DC transfer curve (output pinned near rails for 62.1% of swept points, spanning nearly 0 to VCC), indicating it functions as a digital switching stage rather than a linear amplifier. Since its job is edge placement/switching, an rms voltage frequency-response comparison would be blind to the relevant behavior; instead a clock stimulus scored via timing (threshold crossings, duty cycle, period) is appropriate. The clock frequency 1e10 Hz is chosen within the allowed band (3.066e9-3.066e10 Hz), near the block's dominant pole range where its switching dynamics actually engage, while staying safely below the model's slew-rate-limited ceiling of 6.132e10 Hz.",
             "re-emitted as wiener rather than scheduled_lag: the block's function is edge placement, and a scheduled form's rates come from a step measurement that describes slew rather than the response at the threshold crossing where duty is set",
             "the re-emitted wiener form cannot carry the measured 1.474e-11 s rise/fall skew (no delay line in that generator), which is 0.589 pp of duty at the 3.998e+08 Hz clock -- expect at least that much duty error from the form itself",
             "equivalence budget raised to 1800 s: an edge-placement form stepping at 4.98e-12 s, clocked at 3.998e+08 Hz, is roughly 2 thousand model steps",
@@ -1294,7 +1297,7 @@
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 1785
+              "chars": 1781
             }
           },
           "tf": {
@@ -1338,11 +1341,11 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 244
+              "chars": 435
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 1715
+              "chars": 1713
             }
           },
           "dc_fit": {
@@ -2296,7 +2299,7 @@
           "band_hz": 20120576012.453384,
           "uvm_ms_environment": "none",
           "dc_bias": 1.722517125,
-          "sv_path": "/home/vraje/s2r_runs/demo4_pll/inv2/inv2_rnm.sv",
+          "sv_path": "/home/vraje/s2r_runs/pll_sys/inv2/inv2_rnm.sv",
           "sv_text": {
             "__omitted__": "bulk field; written to its own file",
             "chars": 26115
@@ -2380,7 +2383,7 @@
             "n_compared": 7165,
             "stim_min": 0.0,
             "stim_max": 3.43642341,
-            "compare_csv_path": "/home/vraje/s2r_runs/demo4_pll/inv2/equivalence/waveform_compare.csv",
+            "compare_csv_path": "/home/vraje/s2r_runs/pll_sys/inv2/equivalence/waveform_compare.csv",
             "vcd_path": null,
             "warnings": [
               "stimulus: 3.997e+08 Hz clock at 30.0% duty across 0..3.436 V (4 cycles), in place of the chirp",
@@ -2398,7 +2401,7 @@
             "rise/fall asymmetry 1.8037 measured from the two full-swing traversals (4.138e+10 rising vs 2.294e+10 falling, 1/t63): the scheduled rate is split by the direction the output travels, because a rate indexed by input alone is symmetric about the threshold and returns exactly 50.000% duty for a 50% input.",
             "LARGE-SIGNAL schedule measured at 33 of 33 operating points by stepping the input and timing the output: rate spans 1.442e+11 .. 3.325e+11 rad/s. Used in place of the AC pole schedule, which reports a stage's small-signal pole where its incremental gain has collapsed.",
             "clock from MEASUREMENT not proposal: the golden run switches this block's input at 3.997e+08 Hz; the advisor proposed 1e+10 Hz. The measured rate is where the block works, so it is what the timing verdict uses",
-            "block function: buffer (clock stimulus, timing metric, none environment) -- This is a standard CMOS inverter (mn1/mp1 cross-coupled at 'out' with complementary gate drive) whose DC sweep saturates near the rails 60.8% of the time, i.e. it functions as a digital switching stage, not a linear amplifier. Since its job is edge placement/inversion, an rms voltage comparison on a chirp is blind to what matters; a clock stimulus scored on threshold-crossing timing (duty cycle, propagation delay) is the meaningful test, chosen skewed (duty=0.3) to reveal any rise/fall asymmetry the real-valued model must reproduce. The chosen clock frequency (1e10 Hz) sits within the mandated band [2.646e9, 2.646e10] Hz, well below the model's slew-limited ceiling but high enough to actually engage the inverter's dynamic (pole-dominated) behavior rather than just tracing the static DC curve.",
+            "block function: buffer (clock stimulus, timing metric, none environment) -- This is a single CMOS inverter stage (mn1/mp1, standard inv2 topology) whose DC transfer curve shows 60.8% of points saturated near the rails, i.e. it behaves as a switching digital element rather than a linear analog block. Since its function is edge placement/logic-level switching rather than shaping a frequency response, timing (threshold crossing, edge/duty behavior) is the meaningful metric, not rms voltage. A clock stimulus between the given bounds (chosen at 1e10 Hz, comfortably below the 2.646e10 Hz ceiling but well above the quiescent low end) exercises the inverter's switching dynamics, and a skewed duty cycle (0.3) checks that edge placement/propagation delays are modeled correctly.",
             "re-emitted as wiener rather than scheduled_lag: the block's function is edge placement, and a scheduled form's rates come from a step measurement that describes slew rather than the response at the threshold crossing where duty is set",
             "the re-emitted wiener form cannot carry the measured 1.681e-11 s rise/fall skew (no delay line in that generator), which is 0.672 pp of duty at the 3.997e+08 Hz clock -- expect at least that much duty error from the form itself",
             "equivalence budget raised to 1800 s: an edge-placement form stepping at 6.11e-12 s, clocked at 3.997e+08 Hz, is roughly 2 thousand model steps",
@@ -2591,9 +2594,9 @@
       "ro_vco": {
         "success": true,
         "stage": "equivalence",
-        "netlist": "/home/vraje/s2r_runs/demo4_pll/ro_vco/vco_char.cir",
+        "netlist": "/home/vraje/s2r_runs/pll_sys/ro_vco/vco_char.cir",
         "module_name": "ro_vco_rnm",
-        "sv_path": "/home/vraje/s2r_runs/demo4_pll/ro_vco/ro_vco_rnm.sv",
+        "sv_path": "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_rnm.sv",
         "tuning": {
           "success": true,
           "control_source": "vctrl",
@@ -2908,7 +2911,16 @@
           ],
           "errors": []
         },
-        "uvm_ms_files": [],
+        "uvm_ms_files": [
+          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_ms_types_pkg.sv",
+          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_dms.sv",
+          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_ms_pkg.sv",
+          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_ms_scoreboard.svh",
+          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_ms_tb.svh",
+          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_ms_test.svh",
+          "/home/vraje/s2r_runs/pll_sys/ro_vco/top_ro_vco_ms.sv",
+          "/home/vraje/s2r_runs/pll_sys/ro_vco/run_ro_vco_ms.sh"
+        ],
         "warnings": [
           "refinement pass 1: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
           "refinement pass 1: the worst held-out error did not improve (3.286% -> 6.694%). Subdividing is not converging here, which is what a curve bending faster than the grid can follow looks like -- each new midpoint lands somewhere harder. More passes would not fix it; a different range or a different interpolant would.",
@@ -2989,7 +3001,7 @@
           "last": 300.0
         },
         "dc_gain_to_out": null,
-        "sv_path": "/home/vraje/s2r_runs/demo4_pll/lpfilt/lpfilt_rc_rnm.sv",
+        "sv_path": "/home/vraje/s2r_runs/pll_sys/lpfilt/lpfilt_rc_rnm.sv",
         "equivalence": {
           "success": true,
           "checked": true,
@@ -3002,7 +3014,7 @@
           "i_step_a": 0.004358878570676368,
           "t_end_s": 3.555960495039637e-06,
           "n_compared": 1000,
-          "compare_csv_path": "/home/vraje/s2r_runs/demo4_pll/lpfilt/equivalence/rc_compare.csv",
+          "compare_csv_path": "/home/vraje/s2r_runs/pll_sys/lpfilt/equivalence/rc_compare.csv",
           "warnings": [],
           "errors": []
         },
@@ -3016,9 +3028,9 @@
       "cpump": {
         "success": true,
         "stage": "equivalence",
-        "netlist": "/home/vraje/s2r_runs/demo4_pll/cpump/cp_char.cir",
+        "netlist": "/home/vraje/s2r_runs/pll_sys/cpump/cp_char.cir",
         "module_name": "cpump_cp_rnm",
-        "sv_path": "/home/vraje/s2r_runs/demo4_pll/cpump/cpump_cp_rnm.sv",
+        "sv_path": "/home/vraje/s2r_runs/pll_sys/cpump/cpump_cp_rnm.sv",
         "char": {
           "success": true,
           "controls": [
@@ -3371,8 +3383,8 @@
       "block 'lpfilt' is not a transfer function: only resistors and capacitors (6), so its state space is exact and needs no fitting. Skipped by the hierarchical path; run the RC path, which extracts a state space from the topology rather than measuring it",
       "block 'lpfilt' (rc): no DC path to ground: a constant injected current ramps the output without settling. That is what a charge pump into a capacitive filter does, and it is why this is modelled as a state space rather than a DC gain",
       "block 'lpfilt' (rc): equivalence PASS -- the emitted model tracks SPICE to 0.019% of the output's own 1.353 V excursion (rms 0.008%), under a 0.004359 A step into 'dra' over 3.556e-06 s",
-      "block 'lpfilt': 3-state current-driven network (c1, int1, vout), current into 'dra' and voltage out of 'vout' by topology (no capacitance on 'dra') -- exact from the topology, nothing fitted -> /home/vraje/s2r_runs/demo4_pll/lpfilt/lpfilt_rc_rnm.sv",
-      "block 'cpump': 4 control state(s) measured as I(V) onto 'dra', 0.549% held out -> /home/vraje/s2r_runs/demo4_pll/cpump/cpump_cp_rnm.sv",
+      "block 'lpfilt': 3-state current-driven network (c1, int1, vout), current into 'dra' and voltage out of 'vout' by topology (no capacitance on 'dra') -- exact from the topology, nothing fitted -> /home/vraje/s2r_runs/pll_sys/lpfilt/lpfilt_rc_rnm.sv",
+      "block 'cpump': 4 control state(s) measured as I(V) onto 'dra', 0.549% held out -> /home/vraje/s2r_runs/pll_sys/cpump/cpump_cp_rnm.sv",
       "block 'ro_vco': control port 'cont' is net 'vout', which the golden co-simulation put in 1.8472..1.8534 V -- 0.3% of the 0.495..2.805 V being swept. Adding 5 measured points across 1.7972..1.9034 V (the band plus margin for acquisition); the full range is still swept, because the loop leaves the band on its way in and a table that stopped at the edge would clamp there.",
       "block 'ro_vco' (vco): refinement pass 1: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
       "block 'ro_vco' (vco): refinement pass 1: the worst held-out error did not improve (3.286% -> 6.694%). Subdividing is not converging here, which is what a curve bending faster than the grid can follow looks like -- each new midpoint lands somewhere harder. More passes would not fix it; a different range or a different interpolant would.",
