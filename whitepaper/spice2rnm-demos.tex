@@ -477,8 +477,9 @@ summary that produced them. What the repository holds:
 
 \begin{lstlisting}
 spice2rnm-demos/
-  demo_1_lpf.sh  demo_2_dcc.sh  demo_3_pi.sh  run_all.sh
-                     the three case studies, runnable end to end
+  demo_1_lpf.sh  demo_2_dcc.sh  demo_3_pi.sh
+  demo_4_pll.sh  run_all.sh
+                     the four case studies, runnable end to end
   harness/           8 measurement scripts the demos call
   showcase/          the generated artifacts, byte-for-byte
     lpf2/            the baseline case, 14 files:
@@ -494,11 +495,15 @@ spice2rnm-demos/
       top_rc_lpf2_ms.sv       nets, DUT, bridge, test
       run_rc_lpf2_ms.sh       compiles and runs it
       result.json             fit, verdict, warnings
+      equivalence/            what the check actually ran and found
     dcc2/            same shape, 15 files: no AC section, adds
                      duty goldens in dcc_ms_pkg.sv and the run
                      log pipeline.txt
     pi/              same shape, 11 files: phase-per-code
                      goldens, no DC or AC section
+    pll/             11 files: five block models, three
+                     interfaces, the composed analog top, the
+                     node package and result.json
     house_lib/       4 files, NOT generated: ng_ams_pkg.sv
                      declaring nettype real ng_anet, and two
                      hand-written models using it
@@ -511,6 +516,55 @@ spice2rnm-demos/
                      directory is ever updated
   whitepaper/        this document, source and PDF
 \end{lstlisting}
+
+\subsection{What the equivalence folders hold}
+
+Every case study publishes an \texttt{equivalence/} directory: what the
+check ran, what it found, and a manifest of what was left out.
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Case} & \textbf{Judged on} & \textbf{Published verdict} \\
+\midrule
+Filter        & rms voltage        & $0.0290$ against $0.15$ \\
+Duty corrector & rms voltage       & $0.0769$ against $0.15$ \\
+Phase interpolator & phase per code & worst $1.832\unit{ps}$ at code 2, \\
+              &                    & tolerance $6.251\unit{ps}$ \\
+Phase-locked loop & five routes, then & five block verdicts, and the \\
+              & the whole system   & system over $116{,}018$ samples \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Each folder carries \texttt{verdict.txt} --- lifted from that
+run's own \texttt{result.json} rather than retyped, so a number here
+cannot disagree with the run that produced it --- the simulator and SPICE
+logs saying what actually executed, and the comparison table where that
+table is one row per measured point. The phase interpolator's
+\texttt{phase\_compare.csv} is nine rows, one per control code, with the
+measured delay, the model's delay and the error. The PLL's
+\texttt{rc\_compare.csv} is the loop filter's response to an injected
+current, sample by sample.
+
+\paragraph{What is manifested rather than published, and why.}
+The waveform routes write one row per simulator timestep rather than one
+per measured point, so the filter's aligned comparison is
+$18.6\unit{MB}$ and its generated testbench $18\unit{MB}$; the duty
+corrector's waveform dump is $11.7\unit{MB}$. Around $80\unit{MB}$ across
+four cases, in a repository whose history is permanent, for files
+\texttt{refresh.sh} regenerates in half an hour. Every one is named in
+\texttt{MANIFEST.txt} with its exact size and the command that recreates
+it, so a reader sees what exists and what it weighs without every future
+clone carrying it. What is published comes to $232\unit{kB}$.
+
+The distinction is the point, and it is a size rather than a filename:
+a comparison table small enough to read is evidence, and one large enough
+to be a waveform is a trace. Selecting these folders by file extension
+instead published nothing at all for two of the five routes --- the RC
+network and the phase sweep produce no log file, only a table --- which
+is the kind of gap a directory listing hides, because a folder holding a
+manifest and no evidence still looks populated.
 
 \noindent And what it deliberately does not hold: the spice2rnm tool
 itself (the product is licensed separately; this repository is its
