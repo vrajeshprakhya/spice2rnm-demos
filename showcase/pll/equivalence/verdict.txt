@@ -1,0 +1,6 @@
+inv1                   PASS  metric=timing  rms=0.11487483170031151  max=0.9750098783828931  threshold=0.15
+inv2                   PASS  metric=timing  rms=0.13278279093074954  max=0.9766497578603519  threshold=0.15
+ro_vco                 PASS  metric=frequency_at_control  rms=None  max=None  threshold=None
+cpump                  PASS  metric=current_at_state_and_voltage  rms=None  max=None  threshold=None
+lpfilt                 PASS  metric=voltage_from_injected_current  rms=None  max=None  threshold=None
+cosim system           PASS  boundary_samples=116018

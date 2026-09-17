@@ -1,0 +1,46 @@
+# command : /home/vraje/xezim/target/release/xezim /home/vraje/s2r_runs/lpf2/rc_lpf2_rnm.sv /home/vraje/s2r_runs/lpf2/equivalence/tb_equiv.sv
+# started : 2026-09-16T21:30:39.053613+00:00
+# finished: 2026-09-16T21:30:39.053667+00:00
+# exit    : 0
+
+--- stdout ---
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 100000 ns
+------------------------------
+------------------------------
+Simulation finished at time 7846449890
+($finish called)
+
+--- stderr ---
+[PHASE] compilation: 4592.2ms
+[EVENT-EDGE] ARMED mode ON: 0 input signals, 0 fanout edges
+[EVENT-EDGE] measure (timestamp): 2 edge blocks, 0 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=0.00
+[EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
+Note: $dumpfile ignored — this run has no waveform support. Re-run with `--wave` to dump VCD/FST.
+Note: $dumpvars ignored — this run has no waveform support. Re-run with `--wave` to dump VCD/FST.
+[PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=0
+[PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=65317 insns=15761625 ns_per_insn=0.0 fallbacks=65317
+[FUSE] array-read-NBA fusions (static sites): 0
+[FUSE] packed-loop NBA copies (static sites): 0
+[FUSE] packed blocking fills (dynamic executions): 0
+[FUSE] const-operand ALU fusions (static sites): Add=0 Eq=0 CaseEq=0 Xor=0 total=0
+[FUSE] Move-into-assign forwards (static sites): 0
+[FUSE] provably-unsigned scrubs elided (static sites): 34
+[FUSE] AddC2 superinstructions (static sites): 0
+[PROF] fallback_reason                      Assertion: count=   65317 total=   147.6ms avg=    2.3µs
+[PROF] settle_dc=0.0ms(25840) settle_ca=0.0ms(0) settle_ab=0.0ms(302139)
+[PROF] engine=event
+[PROF] clock_tree: roots=0 entries=0 eager_evals=0
+[PROF] settle_calls=302140 settle_iters=302140 max_iters=1 entry_evals=327979 unresolved_entries=0/2
+[PROF] settle_writes=327978 (100.0% of evals changed a signal, 1 quiet) dep_edges=25839 (0.1 per write)
+[PROF] two_state_evals=0 (0 entries lowered)
+[PROF] simulation_loop=1866.8ms iters=341667 avg=5.46µs/iter
+[COV] assertions: 2 sites (assert=2, assume=0, cover=0) — 65316 passes, 0 fails
+[COV] coverage: 0 covergroup instances, 0 samples, 0 unique coverpoint values, 0 unique cross tuples
+[COV] wrote coverage DB to xezim_cov.json
+[PHASE] simulation: 1867.3ms
+[PHASE] total: 6459.6ms
+------------------------------

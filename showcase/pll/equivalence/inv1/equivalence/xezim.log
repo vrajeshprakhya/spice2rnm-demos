@@ -1,0 +1,44 @@
+# command : /home/vraje/xezim/target/release/xezim /home/vraje/s2r_runs/pll_sys/inv1/inv1_rnm.sv /home/vraje/s2r_runs/pll_sys/inv1/equivalence/tb_equiv.sv
+# started : 2026-09-17T00:25:03.699407+00:00
+# finished: 2026-09-17T00:25:03.699433+00:00
+# exit    : 0
+
+--- stdout ---
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 100000 ns
+------------------------------
+------------------------------
+Simulation finished at time 10003917
+($finish called)
+
+--- stderr ---
+[PHASE] compilation: 53.6ms
+[EVENT-EDGE] ARMED mode ON: 0 input signals, 0 fanout edges
+[EVENT-EDGE] measure (timestamp): 2 edge blocks, 0 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=0.00
+[EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
+[PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=0
+[PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=2220 insns=2220 ns_per_insn=0.0 fallbacks=2220
+[FUSE] array-read-NBA fusions (static sites): 0
+[FUSE] packed-loop NBA copies (static sites): 0
+[FUSE] packed blocking fills (dynamic executions): 0
+[FUSE] const-operand ALU fusions (static sites): Add=0 Eq=0 CaseEq=0 Xor=0 total=0
+[FUSE] Move-into-assign forwards (static sites): 0
+[FUSE] provably-unsigned scrubs elided (static sites): 0
+[FUSE] AddC2 superinstructions (static sites): 0
+[PROF] fallback_reason                      Assertion: count=    2220 total=     5.3ms avg=    2.4µs
+[PROF] settle_dc=0.0ms(2009) settle_ca=0.0ms(0) settle_ab=0.0ms(0)
+[PROF] engine=event
+[PROF] clock_tree: roots=0 entries=0 eager_evals=0
+[PROF] settle_calls=4819 settle_iters=4017 max_iters=1 entry_evals=2009 unresolved_entries=0/1
+[PROF] settle_writes=2008 (100.0% of evals changed a signal, 1 quiet) dep_edges=0 (0.0 per write)
+[PROF] two_state_evals=0 (0 entries lowered)
+[PROF] simulation_loop=271.1ms iters=3032 avg=89.41µs/iter
+[COV] assertions: 2 sites (assert=2, assume=0, cover=0) — 2220 passes, 0 fails
+[COV] coverage: 0 covergroup instances, 0 samples, 0 unique coverpoint values, 0 unique cross tuples
+[COV] wrote coverage DB to xezim_cov.json
+[PHASE] simulation: 271.6ms
+[PHASE] total: 325.4ms
+------------------------------
