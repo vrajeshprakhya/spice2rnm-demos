@@ -1,0 +1,1 @@
+equivalence            PASS  metric=phase_per_code  worst=1.832 ps at code 2  tolerance=6.251 ps
