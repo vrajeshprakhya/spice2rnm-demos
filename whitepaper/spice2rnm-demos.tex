@@ -196,9 +196,9 @@ four independent ways.
 Chirp equivalence           & $0.0290$ against a $0.15$ threshold \quad \pass \\
 PRBS (independent stimulus) & $0.0097$ normalised \quad \pass \\
 \midrule
-UVM-MS, DC section          & $51$ checks, $0$ failed \\
-UVM-MS, AC section          & $19$ checks, $0$ failed \\
-\quad worst magnitude       & $0.0390\unit{dB}$ of a $0.25\unit{dB}$ tolerance \\
+UVM-MS, DC section          & $49$ checks, $0$ failed \\
+UVM-MS, AC section          & $15$ checks, $0$ failed \\
+\quad worst magnitude       & $0.0674\unit{dB}$ of a $0.25\unit{dB}$ tolerance \\
 \quad worst phase           & $2.70^{\circ}$ of an $8.00^{\circ}$ tolerance \\
 \bottomrule
 \end{tabular}
@@ -235,9 +235,9 @@ points.
 \begin{tabular}{@{}lr@{}}
 \toprule
 Transient equivalence   & $0.0769$ against a $0.15$ threshold \quad \pass \\
-UVM-MS, DC section      & $51$ checks, $0$ failed \\
-UVM-MS, duty section    & $15$ checks, $0$ failed \\
-\quad worst duty error  & $0.314$ pp of a $0.500$ pp tolerance \\
+UVM-MS, DC section      & $46$ checks, $0$ failed \\
+UVM-MS, duty section    & $14$ checks, $0$ failed \\
+\quad worst duty error  & $0.313$ pp of a $0.500$ pp tolerance \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -437,8 +437,8 @@ requesting a check is not evidence the check happened.
 \toprule
 \textbf{Case study} & \textbf{Environment} & \textbf{Checks} & \textbf{Failed} \\
 \midrule
-Filter        & DC $+$ AC                  & $51 + 19$ & $0$ \\
-Duty corrector & DC $+$ duty               & $51 + 15$ & $0$ \\
+Filter        & DC $+$ AC                  & $49 + 15$ & $0$ \\
+Duty corrector & DC $+$ duty               & $46 + 14$ & $0$ \\
 Phase interpolator & phase per code        & $9$       & $0$ \\
 Phase-locked loop & co-simulation vs transistors & $5 + 4$   & $0$ \\
 \bottomrule
@@ -784,7 +784,7 @@ the scoreboard & \multicolumn{2}{l}{byte-identical} \\
 
 \noindent Conformance changes the boundary and nothing else --- and the
 published environment runs from where it sits, against the library beside
-it: $51$ DC and $19$ AC checks, $0$ failed, exactly the default
+it: $49$ DC and $15$ AC checks, $0$ failed, exactly the default
 environment's result.
 
 Note what the environment instantiates in that second column. When the
