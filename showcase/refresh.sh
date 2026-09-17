@@ -57,12 +57,18 @@ NGSPICE="${NGSPICE:-$HOME/ngspice-install/bin/ngspice}"
 # scratch directory and copying here afterwards would bake in a path
 # correct for a directory this case does not live in.
 if [ "${1:-}" != "--no-run" ]; then
+  # --sim went away with the second simulator: spice2rnm 01ea4a9 ("one
+  # simulator: xezim, and no Icarus anywhere") removed the flag, and this
+  # kept passing it. argparse rejects an unknown flag outright, so the full
+  # refresh has been failing here since -- while ./refresh.sh --no-run, which
+  # skips this block, kept working. A path exercised only by the shorter
+  # invocation is a path nobody runs until it matters.
   echo "generating the house-style case:"
   rm -rf "$HERE/lpf2_house"
   ( cd "$S2R" && python3 -m spice2rnm work/rc_lpf2.cir \
       --out-dir "$HERE/lpf2_house" \
       --input-node vin --output-node vout \
-      --ngspice-bin "$NGSPICE" --sim xezim \
+      --ngspice-bin "$NGSPICE" \
       --emit-uvm-ms --emit-assertions --style-from "$HERE/house_lib" \
       --model-ports house ) \
     | grep -E "house style|SUCCESS|FAILED" | sed 's/^/  /'
@@ -106,7 +112,14 @@ curate_pll() {  # src-dir, dest-name
   done
   # The composed analog top and the interfaces it instantiates: the thing
   # the RTL actually binds to, which no single block file is.
-  for f in "$src"/loop/analog/*.sv; do
+  #
+  # cosim/, not loop/. This function was written an hour before spice2rnm
+  # renamed that directory, and then silently curated six files instead of
+  # eleven -- the guard below only fires under three, so a case missing its
+  # composed top passed. Both spellings are accepted because a run made
+  # before the rename still has loop/, and a showcase that cannot curate
+  # last week's run is a worse answer than one that reads both.
+  for f in "$src"/cosim/analog/*.sv "$src"/loop/analog/*.sv; do
     [ -f "$f" ] || continue
     cp "$f" "$dst/"; n=$((n + 1))
   done
@@ -114,7 +127,16 @@ curate_pll() {  # src-dir, dest-name
     [ -f "$f" ] || continue
     cp "$f" "$dst/"; n=$((n + 1))
   done
-  [ "$n" -ge 3 ] || { echo "curation for $2 found only $n file(s)"; exit 1; }
+  # A hierarchical case is its blocks AND the top that composes them, so
+  # name what must be there rather than counting to three. Three was
+  # curate()'s floor for a single-block case; here it passed a PLL missing
+  # every interface file, because the analog glob still said loop/ after
+  # spice2rnm renamed that directory to cosim/.
+  for want in netlist_top.sv result.json; do
+    [ -f "$dst/$want" ] || { echo "curation for $2 has no $want"; exit 1; }
+  done
+  [ "$n" -ge 8 ] || { echo "curation for $2 found only $n file(s); expected the"\
+                          " block models and the composed top"; exit 1; }
   echo "  $2: $n files"
 }
 
