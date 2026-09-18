@@ -1,5 +1,5 @@
-inv1                   PASS  metric=rms_voltage  rms=0.02572768128438504  max=0.9986888738543989  threshold=0.15
-inv2                   PASS  metric=rms_voltage  rms=0.02510217453057733  max=0.9990159961318152  threshold=0.15
+inv1                   PASS  metric=rms_voltage  rms=0.025740007696497213  max=0.9986800427766074  threshold=0.15
+inv2                   PASS  metric=rms_voltage  rms=0.02532827182172268  max=0.9990173447606663  threshold=0.15
 ro_vco                 PASS  metric=frequency_at_control  rms=None  max=None  threshold=None
 cpump                  PASS  metric=current_at_state_and_voltage  rms=None  max=None  threshold=None
 lpfilt                 PASS  metric=voltage_from_injected_current  rms=None  max=None  threshold=None

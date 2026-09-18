@@ -353,23 +353,23 @@ Per-block equivalence                & $5$ of $5$ pass \\
 \midrule
 Supply condition                     & $20\unit{mV}$ rms, declared in the deck \\
 System check vs transistors          & $4$ boundary signals, $0$ failed \\
-\quad \texttt{vout} (control voltage) & $4.15\unit{mV}$, bar $0.262$ \\
+\quad \texttt{vout} (control voltage) & $2.05\unit{mV}$, bar $0.177$ \\
 \quad \texttt{aout} (VCO output)      & $0.4\%$ of crossings, bar $2\%$ \\
-\quad \texttt{dra} (internal probe)   & $19.9\unit{mV}$ \\
+\quad \texttt{dra} (internal probe)   & $10.1\unit{mV}$ \\
 \midrule
 Both loops lock at                   & $400.00\unit{MHz}$ \\
 \quad settled control band           & $1.8468$--$1.8546\unit{V}$ vs \\
                                      & $1.8468$--$1.8499\unit{V}$ \\
 \midrule
-Model half vs transistor half        & $7.09\unit{s}$ vs $119.3\unit{s}$ \\
-\quad same testbench, same span       & $16.8\times$ \\
+Model half vs transistor half        & $7.00\unit{s}$ vs $116.6\unit{s}$ \\
+\quad same testbench, same span       & $16.7\times$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \noindent The control voltage is the number to read. It is where the loop
 stores its state, so a model that settles anywhere else disagrees here
-first --- and the two agree to $4.15\unit{mV}$ while reaching the same
+first --- and the two agree to $2.05\unit{mV}$ while reaching the same
 frequency, on a rail carrying $20\unit{mV}$ rms of noise the deck
 declares. That is looser than the figure this table carried while the
 rail was quiet, and the rail is the reason: a loop concentrates a supply
@@ -379,9 +379,9 @@ point of it.
 \textbf{That figure is one draw, and the bar beside it is not.} Both
 halves generate their own noise from the declared source, so a
 worst-window difference is a sample rather than a property of the model:
-three consecutive runs of this same deck gave $3.61$, $1.83$ and
-$4.15\unit{mV}$ here. What does not move is what the difference is judged
-against --- $0.262$ of \texttt{vout}'s own scale, of which $0.212$ is the
+four consecutive runs of this same deck gave $3.61$, $1.83$, $4.15$ and
+$2.05\unit{mV}$ here. What does not move is what the difference is judged
+against --- $0.177$ of \texttt{vout}'s own scale, of which $0.127$ is the
 allowance for exactly this sampling --- and that is the number the
 verdict is against and the record carries. A single
 agreement figure quoted without it says less than it appears to, in the
@@ -400,8 +400,18 @@ The netlist for this case says
 $100\unit{ps}$. A composition that reads that line and emits
 \texttt{assign dd\_v = 3.3;} has deleted a disturbance the design asked
 for, and every check downstream then agrees about a circuit nobody is
-shipping. The deletion is worth $12.22\unit{ps}$ rms of period jitter on
-this ring, which its supply moves at $450.6\unit{MHz/V}$.
+shipping. A transient of this deck puts that source at
+$12.31\unit{ps}$ rms of period jitter at the oscillator --- $\pm 5\%$ at
+the two hundred cycles it was measured over --- and a constant rail
+produces none of it.
+
+That figure is measured per design rather than quoted. It is reached by
+restoring the declared condition onto the block's own supply first:
+extraction rebuilds every rail as a plain DC source, so the fragment a
+block is characterised from does not carry the noise its design states,
+and the measurement would otherwise be of a quieter circuit than the one
+being modelled. The generated file says which source the number came
+from.
 
 So the declared source is carried into the composed model, sampled and
 held at the source's own interval. That reproduces the two properties
@@ -784,39 +794,48 @@ worse of the two paths.
 \hline
 \textbf{Path} & \textbf{Injected} & \textbf{Circuit} & \textbf{Model} & \textbf{Ratio}\\
 \hline
-either  & none (floor)      & $0.050\unit{ps}$  & $0.000\unit{ps}$  & not judged\\
+either  & none (floor)      & $0.054\unit{ps}$  & $0.000\unit{ps}$  & not judged\\
 \hline
-control & $5\unit{mV}$ rms  & $2.327\unit{ps}$  & $2.394\unit{ps}$  & $1.029$\\
-        & $20\unit{mV}$ rms & $8.952\unit{ps}$  & $9.169\unit{ps}$  & $1.024$\\
-        & $50\unit{mV}$ rms & $23.314\unit{ps}$ & $22.832\unit{ps}$ & $0.979$\\
+control & $5\unit{mV}$ rms  & $2.370\unit{ps}$  & $2.338\unit{ps}$  & $0.987$\\
+        & $20\unit{mV}$ rms & $10.799\unit{ps}$ & $10.212\unit{ps}$ & $0.946$\\
+        & $50\unit{mV}$ rms & $23.436\unit{ps}$ & $21.681\unit{ps}$ & $0.925$\\
 \hline
-supply  & $5\unit{mV}$ rms  & $2.861\unit{ps}$  & $2.842\unit{ps}$  & $0.993$\\
-        & $20\unit{mV}$ rms & $11.642\unit{ps}$ & $11.221\unit{ps}$ & $0.964$\\
-        & $50\unit{mV}$ rms & $28.287\unit{ps}$ & $28.876\unit{ps}$ & $1.021$\\
+supply  & $5\unit{mV}$ rms  & $2.797\unit{ps}$  & $2.506\unit{ps}$  & $0.896$\\
+        & $20\unit{mV}$ rms & $12.638\unit{ps}$ & $12.042\unit{ps}$ & $0.953$\\
+        & $50\unit{mV}$ rms & $28.845\unit{ps}$ & $27.986\unit{ps}$ & $0.970$\\
 \hline
 \end{tabular}
 \end{center}
 
+These ratios are a draw, like the boundary figures earlier. Each
+injection is a fresh realisation and an rms over two hundred cycles
+carries about $5\%$ on each side, so the same six points on the previous
+run read $1.029$, $1.024$, $0.979$ and $0.993$, $0.964$, $1.021$. That
+spread is why the bar is $0.25$ rather than something that looks
+stricter: a tolerance tighter than the measurement's own uncertainty
+fails correct models at a rate set by run length.
+
 The floor row is measured and deliberately not judged. With nothing
-injected the reference still reports about $50\unit{fs}$, which is how
+injected the reference still reports about $54\unit{fs}$, which is how
 precisely the edge-finder can locate a crossing rather than anything the
 circuit did. Asking the model to reproduce it would be asking it to
 reproduce an artefact. It is used instead as the floor every other
 amplitude has to clear before its result counts.
 
 The agreement is not a fit. Take the supply path, where the sensitivity
-is separately measured: $450.6\unit{MHz/V}$ on a $2.503\unit{ns}$ period
-predicts $14.12\unit{ps}$ of period jitter for $5\unit{mV}$ rms, if the
+is separately measured: $450.6\unit{MHz/V}$ on a $2.509\unit{ns}$ period
+predicts $14.18\unit{ps}$ of period jitter for $5\unit{mV}$ rms, if the
 disturbance held still across the cycle. The circuit gives
-$2.861\unit{ps}$ --- a ratio of $0.203$, against the
-$\sqrt{\tau/T} = \sqrt{100.1\unit{ps}/2503\unit{ps}} = 0.200$ that
+$2.797\unit{ps}$ --- a ratio of $0.197$, against the
+$\sqrt{\tau/T} = \sqrt{100.3\unit{ps}/2509\unit{ps}} = 0.200$ that
 averaging over the cycle predicts.
 
-It holds across the decade rather than at one point: $0.203$, $0.206$ and
-$0.200$ at the three judged amplitudes, where an oscillator that did not
-average its input would sit at $1$. Three points within $3\%$ of a
-parameter-free prediction, over a tenfold range of injected amplitude, is
-not something a fit produces by accident. The model reproduces it because
+It holds across the decade rather than at one point: $0.197$, $0.223$ and
+$0.203$ at the three judged amplitudes, where an oscillator that did not
+average its input would sit at $1$ --- five times higher. Three points
+within $12\%$ of a parameter-free prediction, over a tenfold range, and
+each carrying the same few per cent of sampling uncertainty as the
+ratios above. The model reproduces it because
 it integrates, and the version that samples does not.
 
 \textbf{And it decides for itself whether the check is worth running},
@@ -1080,7 +1099,7 @@ on trust that the feature requested was the feature exercised.
         given: injected in SPICE, replayed into the model, period jitter
         compared, on both the control and the supply. Section~%
         \ref{sec:jitter} gives the measurements --- six judged points over
-        a tenfold range, worst ratio $0.964$ against a $0.25$ tolerance,
+        a tenfold range, worst ratio $0.896$ against a $0.25$ tolerance,
         reached by the pipeline's own decision because the deck declares
         noise on a net the ring is wired to. This is a real check with a
         verdict, and it fails a model whose transfer is wrong.

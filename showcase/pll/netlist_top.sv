@@ -62,10 +62,10 @@ module analog_top #(
   // THE DECK'S DECLARED NOISE, carried rather than dropped.
   // A source written `DC 3.3 trnoise(...)` is a noisy rail, and
   // a composition that turns it into a constant has silently
-  // removed a disturbance the design asked for. On the
-  // reference PLL that source is worth 12.22 ps rms of period
-  // jitter at the oscillator, and a constant rail produces
-  // none of it.
+  // removed a disturbance the design asked for: every check
+  // downstream then agrees about a circuit nobody is shipping.
+  // A transient of THIS deck put that source at 12.31 ps rms of
+  // period jitter, and a constant rail produces none of it.
   //
   // SAMPLE-AND-HOLD at the source's own interval, which
   // reproduces its rms and its correlation time -- the two
