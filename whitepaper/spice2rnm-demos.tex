@@ -1148,6 +1148,19 @@ on trust that the feature requested was the feature exercised.
         rather than compared against a reference transient, since ngspice
         simulates no device noise in one.
 
+        \textbf{Driven blocks jitter differently, and the models say so.}
+        An oscillator measures each edge from its own last one, so its
+        phase random-walks and the error accumulates. A buffer or a lag
+        block measures its output from an \emph{input} event, so every
+        traversal draws independently and nothing accumulates. The
+        scheduled-lag models take a synchronous-jitter figure on that
+        basis, perturbing the input-to-output delay once per traversal.
+        It is supplied rather than measured --- a transient of a deck
+        declaring no noise has no delay variation in it to measure --- and
+        the generated file states that, along with the constant latency
+        the perturbation costs: a tap only looks backwards, so an edge can
+        be early only relative to a delay already present.
+
         Edge JITTER is measured where the reference has edges --- on the
         reference PLL's two clock-path buffers it is $3.98\unit{ps}$
         and $3.60\unit{ps}$, reported beside the skew because the
