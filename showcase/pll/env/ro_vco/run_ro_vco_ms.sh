@@ -6,7 +6,7 @@
 set -u
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 XEZIM=${XEZIM:-$HOME/xezim/target/release/xezim}
-UVM=${UVM_SRC:-$HOME/iverilog-unified/uvm-core/src}
+UVM=${UVM_SRC:-}
 UVM_MS=${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}
 MAX_TIME=${MAX_TIME:-50ms}
 # Wall-clock guard, seconds. A cap that fires truncates the run BEFORE the

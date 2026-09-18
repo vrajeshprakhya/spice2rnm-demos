@@ -18,6 +18,8 @@ set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 S2R="${S2R:-$HOME/spice2rnm}"
 COSIM="${COSIM:-$HOME/ams-cosim}"
+UVM_MS_LIB="${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}"
+UVM_SRC="${UVM_SRC:-$HOME/iverilog-unified/uvm-core/src}"
 NGSPICE="${NGSPICE:-$HOME/ngspice-install/bin/ngspice}"
 NGLIB="${NGLIB:-$HOME/ngspice-46-shared/src/.libs}"
 XEZIM="${XEZIM:-$HOME/xezim/target/release/xezim}"
@@ -95,10 +97,11 @@ say "  python3 -m spice2rnm \\"
 say "      $PLL/pll_analog.cir \\"
 say "      $PLL/pfd.sv $PLL/divn.sv $PLL/tb_pll.sv \\"
 say "      --hierarchical --emit-assertions --output-node vout \\"
-say "      --llm-block-function \\"
+say "      --llm-block-function --check-jitter-transfer \\"
+say "      --emit-uvm-ms --uvm-ms-lib $UVM_MS_LIB \\"
 say "      --out-dir $OUT"
 echo
-say "This takes about 15 minutes, most of it measuring the ring's tuning"
+say "This takes about 16 minutes, most of it measuring the ring's tuning"
 say "curve one point at a time. Demos 1-3 finish in under 16 minutes between"
 say "them; a loop costs more because the oscillator has to be timed, not"
 say "swept."
@@ -121,7 +124,8 @@ rm -rf "$OUT"
 python3 -m spice2rnm \
   "$PLL/pll_analog.cir" "$PLL/pfd.sv" "$PLL/divn.sv" "$PLL/tb_pll.sv" \
   --hierarchical --emit-assertions --output-node vout \
-  --llm-block-function \
+  --llm-block-function --check-jitter-transfer \
+  --emit-uvm-ms --uvm-ms-lib "$UVM_MS_LIB" \
   --out-dir "$OUT" \
   --ngspice-bin "$NGSPICE" --xezim-bin "$XEZIM" \
   --ngspice-lib "$NGLIB" --ams-bridge "$BRIDGE" \
@@ -203,7 +207,34 @@ for w in ws:
 PY
 beat
 
-hr "6. Checked as a system, against the transistors"
+hr "6. What a static score cannot see"
+say "Every score so far is STATIC: a value at an operating point. That is"
+say "blind to a real error. The oscillator model schedules its edges from"
+say "the control; one that samples the control once per half cycle and one"
+say "that integrates it over the cycle carry the SAME tuning curve, so the"
+say "tuning-curve check scores them identically -- it passes both. Fed the"
+say "same noisy control, the sampling one produces 28.6x the transistors\'"
+say "period jitter."
+echo
+say "So the disturbance is injected in SPICE, and the waveform ngspice"
+say "actually solved is replayed into the model sample for sample. Two"
+say "random sequences with the same sigma would give two different answers;"
+say "replaying the disturbance compares transfer instead of sample size."
+echo
+grep -aE "jitter transfer" "$OUT.log" | cut -c1-200 | fold -s -w 72 | sed "s/^/    /" | head -14
+echo
+say "Both of the model\'s inputs are exercised, not just the control: the"
+say "supply moves this ring by 450.6 MHz/V, comparable to the control and"
+say "opposite in sign."
+echo
+say "On THIS design the gate would decline -- the control moves 9.7 uV rms"
+say "per 2.5 ns period, worth 0.023 ps against a 0.052 ps measurement"
+say "floor, so the two model forms agree and a sweep would measure the"
+say "solver. --check-jitter-transfer overrides that, because a demo that"
+say "showed only the decline would never show the check."
+beat
+
+hr "7. Checked as a system, against the transistors"
 say "Per-block scores are evidence about each block alone. The loop asks a"
 say "different question, and the co-simulation answers it directly: the"
 say "design's own testbench, run twice, with only its DPI bridge functions"

@@ -19,8 +19,17 @@ module ro_vco_dms import ro_vco_ms_types_pkg::*; (
   real cont_r;
   assign cont_r = cont;
 
+  // The supply is held at the rail the tuning curve was measured at. It is
+  // a constant here and not a second interconnect port because this
+  // environment sweeps the CONTROL and checks the resulting rate; a supply
+  // sweep would need its own goldens from ngspice, which this run does not
+  // have. Stating it as a constant is the honest version of that: the
+  // environment covers one supply, and which one is written down.
+  real vdd_r = 3.3;
+
   ro_vco_rnm u_rnm (
     .cont (cont_r),
+    .vdd  (vdd_r),
     .clk  (clk)
   );
 

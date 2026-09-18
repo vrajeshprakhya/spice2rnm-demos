@@ -16,6 +16,22 @@ package ro_vco_ms_pkg;
 
   localparam int  NPT       = 16;      // table breakpoints
   localparam int  NHO       = 14;      // held-out midpoints
+
+  // THE BAND THE LOOP ACTUALLY USES, measured by the golden probe against
+  // the transistors -- not a range anyone chose. A tuning curve is swept
+  // wider than the design drives it, because a table that stopped at the
+  // band's edge would clamp there; but a verdict taken over the whole
+  // sweep fails a model for disagreeing where the loop never goes.
+  //
+  // The pipeline takes its verdict inside this band and REPORTS the wider
+  // figure. This environment did neither: it applied one flat tolerance
+  // everywhere and failed the reference ring at 2.7689 V by 4.986%, a
+  // point outside the band, on a model the pipeline's own report calls
+  // good. A generated environment that contradicts the report shipped
+  // beside it is worse than no environment.
+  localparam bit  HAS_BAND  = 1'b1;
+  localparam real BAND_LO   = 1.79719123;
+  localparam real BAND_HI   = 1.90338432;
   localparam real TOL_FRAC  = 0.02; // of period
   localparam int  MEAS_CYC  = 200;
 

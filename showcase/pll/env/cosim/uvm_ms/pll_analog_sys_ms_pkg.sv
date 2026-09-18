@@ -28,7 +28,7 @@ package pll_analog_sys_ms_pkg;
   `include "pll_analog_sys_ms_scoreboard.svh"
 
   //--------------------------------------------------------------------
-  class pll_analog_sys_monitor extends uvm_component;
+  class pll_analog_sys_monitor extends uvm_monitor;
     `uvm_component_utils(pll_analog_sys_monitor)
 
     pll_analog_sys_proxy bp;
@@ -70,19 +70,42 @@ package pll_analog_sys_ms_pkg;
   endclass : pll_analog_sys_monitor
 
   //--------------------------------------------------------------------
+  class pll_analog_sys_agent extends uvm_agent;
+    `uvm_component_utils(pll_analog_sys_agent)
+
+    pll_analog_sys_monitor mon;
+
+    function new(string name, uvm_component parent);
+      super.new(name, parent);
+    endfunction
+
+    function void build_phase(uvm_phase phase);
+      super.build_phase(phase);
+      // PASSIVE, and not by default: the design's testbench supplies the
+      // stimulus. An active agent would drive the system differently from
+      // the run its goldens came from.
+      if (!uvm_config_db #(uvm_active_passive_enum)::get(this, "", "is_active", is_active))
+        is_active = UVM_PASSIVE;
+      if (is_active == UVM_ACTIVE)
+        `uvm_fatal("SYS_AGENT",
+                   "this agent has no driver or sequencer, and cannot have one: the stimulus belongs to the design's own testbench, and driving it from here would make this run incomparable to the transistor run its goldens come from")
+      mon = pll_analog_sys_monitor::type_id::create("mon", this);
+    endfunction
+  endclass : pll_analog_sys_agent
+
   class pll_analog_sys_env extends uvm_env;
     `uvm_component_utils(pll_analog_sys_env)
-    pll_analog_sys_monitor    mon;
+    pll_analog_sys_agent      agent;
     pll_analog_sys_scoreboard sb;
     function new(string name, uvm_component parent);
       super.new(name, parent);
     endfunction
     function void build_phase(uvm_phase phase);
-      mon = pll_analog_sys_monitor::type_id::create("mon", this);
-      sb  = pll_analog_sys_scoreboard::type_id::create("sb", this);
+      agent = pll_analog_sys_agent::type_id::create("agent", this);
+      sb    = pll_analog_sys_scoreboard::type_id::create("sb", this);
     endfunction
     function void connect_phase(uvm_phase phase);
-      mon.ap.connect(sb.ap);
+      agent.mon.ap.connect(sb.ap);
     endfunction
   endclass : pll_analog_sys_env
 

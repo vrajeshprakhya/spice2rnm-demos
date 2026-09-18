@@ -41,7 +41,7 @@ module tb;
     // ==== spice2rnm loop harness (model): the bridge's DPI surface, rewritten. Nothing else in this file was changed. ====
   int __ams_fd;
   function automatic void __ams_log(input string kind, input string node, input real v);
-    if (__ams_fd == 0) __ams_fd = $fopen("/home/vraje/s2r_runs/pll_sys/cosim/model/boundary.log", "w");
+    if (__ams_fd == 0) __ams_fd = $fopen("boundary.log", "w");
     $fwrite(__ams_fd, "%s %0.15e %s %0.15e\n", kind, $realtime * 1e-12, node, v);
   endfunction
   final if (__ams_fd != 0) $fclose(__ams_fd);

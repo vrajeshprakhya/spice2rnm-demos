@@ -34,8 +34,23 @@
 // there, where a fitted polynomial would extrapolate to a frequency the
 // circuit cannot produce.
 //======================================================================
-module ro_vco_rnm (
+module ro_vco_rnm #(
+  // Measured, at the control voltage this block was characterized around.
+  parameter real VDD_NOM  = 3.3,   // volts
+  parameter real DFDV_SUP = 4.506302787e+08,  // Hz per volt of supply
+  // Sub-steps per half cycle. 16 tracks a fast-moving input; 1 restores
+  // the one-event-per-half-cycle scheduling, which is right when nothing
+  // on this block's inputs moves within a cycle.
+  parameter int  SUB = 16
+) (
   input  real  cont,
+  // THE SUPPLY IS AN INPUT, because the circuit's frequency depends on it
+  // about as strongly as on the control: measured at 450.6 MHz/V
+  // against roughly the same from the tuning port, and opposite in sign.
+  // A model without this pin is not a slightly simplified oscillator, it
+  // is one that cannot show what a supply droop does -- and on this ring
+  // 100 mV of droop is worth about 45.06 MHz.
+  input  real  vdd,
   output logic clk
 );
 
@@ -83,10 +98,25 @@ module ro_vco_rnm (
     return FO[N-1];
   endfunction
 
+  // An UNCONNECTED supply reads as 0.0, which would put the frequency
+  // somewhere the circuit cannot go. Treated as nominal and said out loud
+  // once: silently substituting would hide a mis-wired instance, and
+  // failing outright would break every composition written before this
+  // port existed.
+  bit vdd_warned = 1'b0;
+  function automatic real supply_eff(input real vs);
+    if (vs > 0.0) return vs;
+    if (!vdd_warned) begin
+      vdd_warned = 1'b1;
+      $display("[%m] vdd is unconnected or zero; using VDD_NOM=%0.4g V. Connect it to see supply sensitivity.", VDD_NOM);
+    end
+    return VDD_NOM;
+  endfunction
+
   // Half period in the module's time unit (1 fs).
-  function automatic real half_period_fs(input real v);
+  function automatic real half_period_fs(input real v, input real vs);
     real f;
-    f = freq_of(v);
+    f = freq_of(v) + DFDV_SUP * (supply_eff(vs) - VDD_NOM);
     // A zero delay here would spin the scheduler forever rather than model
     // a stopped oscillator, so floor it at the slowest tabulated rate.
     if (f <= 0.0) return 1.0e15 / (2.0 * 1.673948453e+07);
@@ -95,9 +125,47 @@ module ro_vco_rnm (
 
   initial clk = 1'b0;
 
-  always begin
-    #(half_period_fs(cont));
-    clk = ~clk;
+  // PHASE IS INTEGRATED, not sampled once per half cycle.
+  //
+  // Scheduling a whole half period from the input in effect at the instant
+  // the edge fires is exact for an input that moves slowly, and wrong for
+  // one that moves fast: an oscillator's phase is the integral of its
+  // instantaneous frequency, so a circuit AVERAGES a fast-moving control
+  // over the cycle and a single sample does not. Measured on the reference
+  // ring: the sampling form produced 3.37x the period jitter the
+  // transistors did for the same injected control noise, where
+  // sqrt(T_half/tau) = sqrt(1250ps/100ps) = 3.54 predicts 3.5. The
+  // integrating form reproduces it to within 8%.
+  //
+  // The crossing is INTERPOLATED inside the sub-step rather than rounded
+  // to it. Rounding put every edge on a sub-step grid and gave the model a
+  // 19.3 ps jitter floor with no noise present at all -- dt/sqrt(12), the
+  // rms of a uniform quantiser, which is the sub-step and not the circuit.
+  //
+  // COST, stated because it is the trade: SUB events per half cycle
+  // instead of one. Set SUB to 1 for the cheap scheduling where the inputs
+  // are known to move slowly.
+  real phase_clk;
+  real dt_fs, incr, frac;
+
+  initial begin
+    phase_clk = 0.0;
+    dt_fs = half_period_fs(cont, vdd) / SUB;
+    forever begin
+      incr = 2.0 * (1.0e15 / (2.0 * half_period_fs(cont, vdd)))
+             * (dt_fs * 1.0e-15);
+      if (phase_clk + incr >= 1.0) begin
+        frac = (1.0 - phase_clk) / incr;
+        #(dt_fs * frac);
+        clk = ~clk;
+        phase_clk = 0.0;
+        #(dt_fs * (1.0 - frac));
+        phase_clk = incr * (1.0 - frac);
+      end else begin
+        #(dt_fs);
+        phase_clk = phase_clk + incr;
+      end
+    end
   end
 
 

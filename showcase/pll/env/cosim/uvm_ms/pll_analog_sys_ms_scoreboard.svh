@@ -62,6 +62,25 @@ class pll_analog_sys_scoreboard extends uvm_scoreboard;
   localparam real SCALE_VPUPB = 3.300000;
 
   localparam int N_GOLD = 20;
+
+  // WHAT THIS SYSTEM HOLDS, found by scanning the transistor run rather
+  // than by being told what kind of circuit this is. Each row is a
+  // quantity that was already steady in the golden run, so the model's
+  // had better be steady at the same value. See system_invariants.py --
+  // and note that nothing here names a PLL, a DLL or anything else.
+  localparam int N_INV   = 2;
+  localparam int LATE_W  = 3;   // windows at the end that must agree
+  string inv_kind  [N_INV];
+  string inv_node  [N_INV];
+  real   inv_value [N_INV];
+  real   inv_tol   [N_INV];
+  string inv_units [N_INV];
+  // When the transistor run settled, and the band it settled into. A
+  // model that reaches the right value far too slowly passes every
+  // steady-state check ever written; this is the one that notices.
+  real   inv_tset  [N_INV];
+  real   inv_sbnd  [N_INV];
+  real   m_tout    [N_NODE];   // last instant this node was outside the band
   string g_node  [N_GOLD];
   int    g_win   [N_GOLD];
   real   g_mean  [N_GOLD];
@@ -181,6 +200,8 @@ class pll_analog_sys_scoreboard extends uvm_scoreboard;
     g_node[17] = "vpupb"; g_win[17] = 2; g_mean[17] = 3.29146405; g_rises[17] = 5;
     g_node[18] = "vpupb"; g_win[18] = 3; g_mean[18] = 3.28975685; g_rises[18] = 6;
     g_node[19] = "vpupb"; g_win[19] = 4; g_mean[19] = 3.27552604; g_rises[19] = 6;
+    inv_kind[ 0] = "constant_rate"; inv_node[ 0] = "aout"; inv_value[ 0] = 400581619; inv_tol[ 0] = 8011632.38; inv_units[ 0] = "Hz"; inv_tset[ 0] = -1; inv_sbnd[ 0] = 0;
+    inv_kind[ 1] = "settled_value"; inv_node[ 1] = "vout"; inv_value[ 1] = 1.84848113; inv_tol[ 1] = 0.00185309382; inv_units[ 1] = "V"; inv_tset[ 1] = 1.19995e-06; inv_sbnd[ 1] = 0.00185309382;
   endfunction
 
   function int win_of(real t_s);
@@ -239,6 +260,17 @@ class pll_analog_sys_scoreboard extends uvm_scoreboard;
       m_rises[k][w] += 1;
     m_last[k] = x.v;
     m_seen[k] = 1;
+    // Cheapest possible settling measurement: remember the last time the
+    // node sat outside the band it ends up holding. Everything after that
+    // instant is inside it, so that instant IS when it settled -- no
+    // search, no second pass over the trace.
+    for (int i = 0; i < N_INV; i++)
+      if (inv_node[i] == x.node && inv_kind[i] == "settled_value"
+          && inv_sbnd[i] > 0.0) begin
+        real dv = x.v - inv_value[i];
+        if (dv < 0.0) dv = -dv;
+        if (dv > inv_sbnd[i]) m_tout[k] = x.t_s;
+      end
   endfunction
 
   function void check_phase(uvm_phase phase);
@@ -246,6 +278,7 @@ class pll_analog_sys_scoreboard extends uvm_scoreboard;
   endfunction
 
   function void do_check();
+    check_invariants();
     // THE PIPELINE'S RULES, not a second opinion about what "agree" means.
     // cosim_checks.compare() decides per NODE, not per window: it walks the
     // windows accumulating the worst figures, SKIPS any window where either
@@ -347,6 +380,90 @@ class pll_analog_sys_scoreboard extends uvm_scoreboard;
         if (node_inconclusive) n_inconclusive++;
       end
     end
+  endfunction
+
+  // Each discovered invariant, checked against the model run. The
+  // quantities come from the same per-window tallies the boundary
+  // comparison uses, so an invariant cannot be scored on data the rest of
+  // the scoreboard did not see.
+  function void check_invariants();
+    for (int i = 0; i < N_INV; i++) begin
+      string node = inv_node[i];
+      int    k    = idx_of(node);
+      real   got, d;
+      int    n_tot;
+      int    r_tot;
+      if (k < 0) begin
+        `uvm_error("SYS_INV", $sformatf(
+          "invariant on '%s' cannot be checked: the monitor never saw that node",
+          node))
+        n_failed++; n_checks++;
+        continue;
+      end
+      n_tot = 0; r_tot = 0; got = 0.0;
+      for (int w = N_WIN - LATE_W; w < N_WIN; w++) begin
+        if (w < 0) continue;
+        n_tot += m_n[k][w];
+        r_tot += m_rises[k][w];
+        got   += m_sum[k][w];
+      end
+      if (n_tot == 0) begin
+        `uvm_error("SYS_INV", $sformatf(
+          "invariant on '%s' cannot be checked: no samples in the last %0d window(s)",
+          node, LATE_W))
+        n_failed++; n_checks++;
+        continue;
+      end
+      if (inv_kind[i] == "constant_rate")
+        got = real'(r_tot) / (LATE_W * SPAN);
+      else
+        got = got / real'(n_tot);
+
+      d = got - inv_value[i];
+      if (d < 0.0) d = -d;
+      n_checks++;
+      if (d > inv_tol[i]) begin
+        `uvm_error("SYS_INV", $sformatf(
+          "%s on %s FAIL: model %0.6g %s, transistors %0.6g %s (differ by %0.4g, tolerance %0.4g)",
+          inv_kind[i], node, got, inv_units[i], inv_value[i], inv_units[i],
+          d, inv_tol[i]))
+        n_failed++;
+      end else begin
+        `uvm_info("SYS_INV", $sformatf(
+          "%s on %s ok: model %0.6g %s, transistors %0.6g %s (differ by %0.4g, tolerance %0.4g)",
+          inv_kind[i], node, got, inv_units[i], inv_value[i], inv_units[i],
+          d, inv_tol[i]), UVM_LOW)
+      end
+
+      // HOW LONG IT TOOK. A model that reaches the right value far too
+      // slowly passes every steady-state check in this file; only this one
+      // notices. Judged generously -- within one window of the transistor
+      // run, or sooner -- because settling faster than the circuit is not
+      // a failure of agreement, it is a different kind of finding, and it
+      // is reported rather than passed over.
+      if (inv_kind[i] == "settled_value" && inv_tset[i] >= 0.0) begin
+        real t_model = m_tout[k];
+        n_checks++;
+        if (t_model > inv_tset[i] + SPAN) begin
+          `uvm_error("SYS_INV", $sformatf(
+            "%s settles LATE: model settled by %0.4g s, transistors by %0.4g s (later by %0.4g s, more than the %0.4g s window)",
+            node, t_model, inv_tset[i], t_model - inv_tset[i], SPAN))
+          n_failed++;
+        end else if (t_model + SPAN < inv_tset[i]) begin
+          `uvm_info("SYS_INV", $sformatf(
+            "%s settles EARLY: model by %0.4g s, transistors by %0.4g s. Not a failure, but the model is not reproducing the circuit's transient.",
+            node, t_model, inv_tset[i]), UVM_LOW)
+        end else begin
+          `uvm_info("SYS_INV", $sformatf(
+            "%s settling time ok: model by %0.4g s, transistors by %0.4g s (within one %0.4g s window)",
+            node, t_model, inv_tset[i], SPAN), UVM_LOW)
+        end
+      end
+    end
+    if (N_INV == 0)
+      `uvm_info("SYS_INV",
+                "the transistor run held no steady quantity at this boundary, so there is no system invariant to check",
+                UVM_LOW)
   endfunction
 
   function void report_phase(uvm_phase phase);

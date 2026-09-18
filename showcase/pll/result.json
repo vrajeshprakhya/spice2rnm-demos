@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-17T00:28:59.410657+00:00",
+    "timestamp_utc": "2026-09-18T03:55:16.636709+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -16,11 +16,12 @@
       "--output-node",
       "vout",
       "--llm-block-function",
+      "--check-jitter-transfer",
       "--emit-uvm-ms",
       "--uvm-ms-lib",
       "/home/vraje/uvm_ms_demo/ms",
       "--out-dir",
-      "/home/vraje/s2r_runs/pll_sys",
+      "/home/vraje/s2r_runs/demo4_pll",
       "--ngspice-bin",
       "/home/vraje/ngspice-install/bin/ngspice",
       "--xezim-bin",
@@ -106,11 +107,11 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 364
+              "chars": 395
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 1772
+              "chars": 1776
             }
           },
           "tf": {
@@ -154,11 +155,11 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 563
+              "chars": 275
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 1704
+              "chars": 1706
             }
           },
           "dc_fit": {
@@ -1110,100 +1111,80 @@
               317854010277.5848
             ]
           ],
-          "model_form": "wiener",
+          "model_form": "scheduled_lag",
           "band_hz": 23891732357.136116,
-          "uvm_ms_environment": "none",
+          "uvm_ms_environment": null,
           "dc_bias": 1.764242784,
-          "sv_path": "/home/vraje/s2r_runs/pll_sys/inv1/inv1_rnm.sv",
+          "sv_path": "/home/vraje/s2r_runs/demo4_pll/inv1/inv1_rnm.sv",
           "sv_text": {
             "__omitted__": "bulk field; written to its own file",
-            "chars": 26199
+            "chars": 30310
           },
           "equivalence": {
             "success": true,
             "checked": true,
-            "rms_error_norm": 0.11487483170031151,
-            "max_error_norm": 0.9750098783828931,
+            "rms_error_norm": 0.025392173419645128,
+            "max_error_norm": 0.998727655846881,
             "threshold": 0.15,
-            "timing": {
-              "threshold_v": 1.64591899035,
-              "ref_swing_v": 3.3845805393000004,
-              "ref_edges": 8,
-              "model_edges": 8,
-              "ref_near_rail_frac": 0.9278436845778087,
-              "model_edges_before_window": 1,
-              "model_first_edge_s": 4.877407406191712e-12,
-              "ref_duty": 0.5017548458977836,
-              "model_duty": 0.49899228673762774,
-              "duty_error_pp": -0.27625591601558863,
-              "duty_cycles_compared": 3,
-              "edge_skew_s": 3.676763960914005e-11,
-              "edge_jitter_s": 3.982442740378711e-12,
-              "edge_worst_s": 4.319619502447599e-11,
-              "edges_compared": 8,
-              "edges_unmatched": 0
-            },
+            "timing": null,
             "spice_t": {
               "kind": "array",
-              "len": 7170,
+              "len": 40322,
               "shape": [
-                7170
+                40322
               ],
               "n_nonfinite": 0,
               "min": 0.0,
-              "max": 1.00042e-08,
+              "max": 1.95994e-08,
               "first": 0.0,
-              "last": 1.00042e-08
+              "last": 1.95994e-08
             },
             "spice_out": {
               "kind": "array",
-              "len": 7170,
+              "len": 40322,
               "shape": [
-                7170
+                40322
               ],
               "n_nonfinite": 0,
-              "min": -0.0463712793,
-              "max": 3.33820926,
+              "min": -0.00171641406,
+              "max": 3.30248713,
               "first": 3.29999946,
-              "last": 3.29999946
+              "last": 3.29765837
             },
             "sv_t": {
               "kind": "array",
-              "len": 1024,
+              "len": 5760,
               "shape": [
-                1024
+                5760
               ],
               "n_nonfinite": 0,
               "min": 0.0,
-              "max": 1.0003917e-08,
+              "max": 1.9597877e-08,
               "first": 0.0,
-              "last": 1.0003917e-08
+              "last": 1.9597877e-08
             },
             "sv_out": {
               "kind": "array",
-              "len": 1024,
+              "len": 5760,
               "shape": [
-                1024
+                5760
               ],
               "n_nonfinite": 0,
               "min": 0.0,
               "max": 3.29999946,
               "first": 0.0,
-              "last": 3.29995234
+              "last": 3.29999946
             },
-            "metric": "timing",
-            "timing_threshold_pp": 0.5,
+            "metric": "rms_voltage",
+            "timing_threshold_pp": null,
             "norm_mode": "composite_excursion",
-            "norm_value": 3.3845805393000004,
-            "n_compared": 7165,
-            "stim_min": 0.0,
-            "stim_max": 3.528484,
-            "compare_csv_path": "/home/vraje/s2r_runs/pll_sys/inv1/equivalence/waveform_compare.csv",
+            "norm_value": 3.30420354406,
+            "n_compared": 40315,
+            "stim_min": -0.03195672839249634,
+            "stim_max": 3.554190429421952,
+            "compare_csv_path": "/home/vraje/s2r_runs/demo4_pll/inv1/equivalence/waveform_compare.csv",
             "vcd_path": null,
             "warnings": [
-              "stimulus: 3.998e+08 Hz clock at 50.0% duty across 0..3.528 V (4 cycles), in place of the chirp",
-              "waveform dump disabled for this clock run: at the model's 9.77e-12 s step a 1e-08 s window dumps every RK4 internal and reaches hundreds of MB. Pass dump_waveforms=True to force it.",
-              "verdict from TIMING: duty error 0.276 pp against 0.500 pp (rms voltage was 0.1149 against 0.1500, reported but not decisive)",
               "replaced value spec of input source 'VCTX_IN' with PWL stimulus"
             ],
             "errors": []
@@ -1215,14 +1196,7 @@
             "rise/fall SKEW 1.474e-11 s measured from the two full-swing traversals (the output falls in 3.038e-11 s and rises in 1.565e-11 s, each to its own 50% crossing): emitted as a direction-dependent output delay. Without it the model is symmetric about its threshold and returns exactly 50.000% duty for a 50% input, whatever the circuit does.",
             "rise/fall asymmetry 1.8642 measured from the two full-swing traversals (5.059e+10 rising vs 2.714e+10 falling, 1/t63): the scheduled rate is split by the direction the output travels, because a rate indexed by input alone is symmetric about the threshold and returns exactly 50.000% duty for a 50% input.",
             "LARGE-SIGNAL schedule measured at 33 of 33 operating points by stepping the input and timing the output: rate spans 1.705e+11 .. 3.853e+11 rad/s. Used in place of the AC pole schedule, which reports a stage's small-signal pole where its incremental gain has collapsed.",
-            "clock from MEASUREMENT not proposal: the golden run switches this block's input at 3.998e+08 Hz; the advisor proposed 1e+10 Hz. The measured rate is where the block works, so it is what the timing verdict uses",
-            "block function: buffer (clock stimulus, timing metric, none environment) -- This is a single CMOS inverter (mn1/mp1) with a sharp DC transfer curve (output pinned near rails for 62.1% of swept points, spanning nearly 0 to VCC), indicating it functions as a digital switching stage rather than a linear amplifier. Since its job is edge placement/switching, an rms voltage frequency-response comparison would be blind to the relevant behavior; instead a clock stimulus scored via timing (threshold crossings, duty cycle, period) is appropriate. The clock frequency 1e10 Hz is chosen within the allowed band (3.066e9-3.066e10 Hz), near the block's dominant pole range where its switching dynamics actually engage, while staying safely below the model's slew-rate-limited ceiling of 6.132e10 Hz.",
-            "re-emitted as wiener rather than scheduled_lag: the block's function is edge placement, and a scheduled form's rates come from a step measurement that describes slew rather than the response at the threshold crossing where duty is set",
-            "the re-emitted wiener form cannot carry the measured 1.474e-11 s rise/fall skew (no delay line in that generator), which is 0.589 pp of duty at the 3.998e+08 Hz clock -- expect at least that much duty error from the form itself",
-            "equivalence budget raised to 1800 s: an edge-placement form stepping at 4.98e-12 s, clocked at 3.998e+08 Hz, is roughly 2 thousand model steps",
-            "stimulus: 3.998e+08 Hz clock at 50.0% duty across 0..3.528 V (4 cycles), in place of the chirp",
-            "waveform dump disabled for this clock run: at the model's 9.77e-12 s step a 1e-08 s window dumps every RK4 internal and reaches hundreds of MB. Pass dump_waveforms=True to force it.",
-            "verdict from TIMING: duty error 0.276 pp against 0.500 pp (rms voltage was 0.1149 against 0.1500, reported but not decisive)",
+            "no Anthropic API key available (pass api_key= or set ANTHROPIC_API_KEY); keeping the chirp and the rms voltage metric",
             "replaced value spec of input source 'VCTX_IN' with PWL stimulus"
           ],
           "errors": []
@@ -1293,11 +1267,11 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 364
+              "chars": 395
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 1781
+              "chars": 1785
             }
           },
           "tf": {
@@ -1341,11 +1315,11 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 435
+              "chars": 371
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 1713
+              "chars": 1715
             }
           },
           "dc_fit": {
@@ -2295,100 +2269,80 @@
               260024118740.10934
             ]
           ],
-          "model_form": "wiener",
+          "model_form": "scheduled_lag",
           "band_hz": 20120576012.453384,
-          "uvm_ms_environment": "none",
+          "uvm_ms_environment": null,
           "dc_bias": 1.722517125,
-          "sv_path": "/home/vraje/s2r_runs/pll_sys/inv2/inv2_rnm.sv",
+          "sv_path": "/home/vraje/s2r_runs/demo4_pll/inv2/inv2_rnm.sv",
           "sv_text": {
             "__omitted__": "bulk field; written to its own file",
-            "chars": 26115
+            "chars": 30268
           },
           "equivalence": {
             "success": true,
             "checked": true,
-            "rms_error_norm": 0.13278279093074954,
-            "max_error_norm": 0.9766497578603519,
+            "rms_error_norm": 0.024542456112139448,
+            "max_error_norm": 0.9990789592044489,
             "threshold": 0.15,
-            "timing": {
-              "threshold_v": 1.64709790195,
-              "ref_swing_v": 3.3788975561,
-              "ref_edges": 8,
-              "model_edges": 8,
-              "ref_near_rail_frac": 0.9222609909281229,
-              "model_edges_before_window": 1,
-              "model_first_edge_s": 4.88289736784348e-12,
-              "ref_duty": 0.7031388444284984,
-              "model_duty": 0.7003031728776591,
-              "duty_error_pp": -0.28356715508393027,
-              "duty_cycles_compared": 3,
-              "edge_skew_s": 4.6685136142723274e-11,
-              "edge_jitter_s": 3.5982306553583165e-12,
-              "edge_worst_s": 5.13754347233659e-11,
-              "edges_compared": 8,
-              "edges_unmatched": 0
-            },
+            "timing": null,
             "spice_t": {
               "kind": "array",
-              "len": 7170,
+              "len": 40318,
               "shape": [
-                7170
+                40318
               ],
               "n_nonfinite": 0,
               "min": 0.0,
-              "max": 1.00085e-08,
+              "max": 2.38749e-08,
               "first": 0.0,
-              "last": 1.00085e-08
+              "last": 2.38749e-08
             },
             "spice_out": {
               "kind": "array",
-              "len": 7170,
+              "len": 40318,
               "shape": [
-                7170
+                40318
               ],
               "n_nonfinite": 0,
-              "min": -0.0423508761,
-              "max": 3.33654668,
+              "min": -0.00102625617,
+              "max": 3.30201546,
               "first": 3.29999948,
-              "last": 3.29999948
+              "last": 3.29810134
             },
             "sv_t": {
               "kind": "array",
-              "len": 1024,
+              "len": 5760,
               "shape": [
-                1024
+                5760
               ],
               "n_nonfinite": 0,
               "min": 0.0,
-              "max": 1.0008009e-08,
+              "max": 2.3876814e-08,
               "first": 0.0,
-              "last": 1.0008009e-08
+              "last": 2.3876814e-08
             },
             "sv_out": {
               "kind": "array",
-              "len": 1024,
+              "len": 5760,
               "shape": [
-                1024
+                5760
               ],
               "n_nonfinite": 0,
               "min": 0.0,
               "max": 3.29999948,
               "first": 0.0,
-              "last": 3.29999328
+              "last": 3.29999948
             },
-            "metric": "timing",
-            "timing_threshold_pp": 0.5,
+            "metric": "rms_voltage",
+            "timing_threshold_pp": null,
             "norm_mode": "composite_excursion",
-            "norm_value": 3.3788975561,
-            "n_compared": 7165,
-            "stim_min": 0.0,
-            "stim_max": 3.43642341,
-            "compare_csv_path": "/home/vraje/s2r_runs/pll_sys/inv2/equivalence/waveform_compare.csv",
+            "norm_value": 3.3030417161699996,
+            "n_compared": 40318,
+            "stim_min": -0.031208959743746233,
+            "stim_max": 3.4615380453104283,
+            "compare_csv_path": "/home/vraje/s2r_runs/demo4_pll/inv2/equivalence/waveform_compare.csv",
             "vcd_path": null,
             "warnings": [
-              "stimulus: 3.997e+08 Hz clock at 30.0% duty across 0..3.436 V (4 cycles), in place of the chirp",
-              "waveform dump disabled for this clock run: at the model's 9.77e-12 s step a 1.001e-08 s window dumps every RK4 internal and reaches hundreds of MB. Pass dump_waveforms=True to force it.",
-              "verdict from TIMING: duty error 0.284 pp against 0.500 pp (rms voltage was 0.1328 against 0.1500, reported but not decisive)",
               "replaced value spec of input source 'VCTX_IN' with PWL stimulus"
             ],
             "errors": []
@@ -2400,14 +2354,7 @@
             "rise/fall SKEW 1.681e-11 s measured from the two full-swing traversals (the output falls in 3.596e-11 s and rises in 1.915e-11 s, each to its own 50% crossing): emitted as a direction-dependent output delay. Without it the model is symmetric about its threshold and returns exactly 50.000% duty for a 50% input, whatever the circuit does.",
             "rise/fall asymmetry 1.8037 measured from the two full-swing traversals (4.138e+10 rising vs 2.294e+10 falling, 1/t63): the scheduled rate is split by the direction the output travels, because a rate indexed by input alone is symmetric about the threshold and returns exactly 50.000% duty for a 50% input.",
             "LARGE-SIGNAL schedule measured at 33 of 33 operating points by stepping the input and timing the output: rate spans 1.442e+11 .. 3.325e+11 rad/s. Used in place of the AC pole schedule, which reports a stage's small-signal pole where its incremental gain has collapsed.",
-            "clock from MEASUREMENT not proposal: the golden run switches this block's input at 3.997e+08 Hz; the advisor proposed 1e+10 Hz. The measured rate is where the block works, so it is what the timing verdict uses",
-            "block function: buffer (clock stimulus, timing metric, none environment) -- This is a single CMOS inverter stage (mn1/mp1, standard inv2 topology) whose DC transfer curve shows 60.8% of points saturated near the rails, i.e. it behaves as a switching digital element rather than a linear analog block. Since its function is edge placement/logic-level switching rather than shaping a frequency response, timing (threshold crossing, edge/duty behavior) is the meaningful metric, not rms voltage. A clock stimulus between the given bounds (chosen at 1e10 Hz, comfortably below the 2.646e10 Hz ceiling but well above the quiescent low end) exercises the inverter's switching dynamics, and a skewed duty cycle (0.3) checks that edge placement/propagation delays are modeled correctly.",
-            "re-emitted as wiener rather than scheduled_lag: the block's function is edge placement, and a scheduled form's rates come from a step measurement that describes slew rather than the response at the threshold crossing where duty is set",
-            "the re-emitted wiener form cannot carry the measured 1.681e-11 s rise/fall skew (no delay line in that generator), which is 0.672 pp of duty at the 3.997e+08 Hz clock -- expect at least that much duty error from the form itself",
-            "equivalence budget raised to 1800 s: an edge-placement form stepping at 6.11e-12 s, clocked at 3.997e+08 Hz, is roughly 2 thousand model steps",
-            "stimulus: 3.997e+08 Hz clock at 30.0% duty across 0..3.436 V (4 cycles), in place of the chirp",
-            "waveform dump disabled for this clock run: at the model's 9.77e-12 s step a 1.001e-08 s window dumps every RK4 internal and reaches hundreds of MB. Pass dump_waveforms=True to force it.",
-            "verdict from TIMING: duty error 0.284 pp against 0.500 pp (rms voltage was 0.1328 against 0.1500, reported but not decisive)",
+            "no Anthropic API key available (pass api_key= or set ANTHROPIC_API_KEY); keeping the chirp and the rms voltage metric",
             "replaced value spec of input source 'VCTX_IN' with PWL stimulus"
           ],
           "errors": []
@@ -2594,9 +2541,9 @@
       "ro_vco": {
         "success": true,
         "stage": "equivalence",
-        "netlist": "/home/vraje/s2r_runs/pll_sys/ro_vco/vco_char.cir",
+        "netlist": "/home/vraje/s2r_runs/demo4_pll/ro_vco/vco_char.cir",
         "module_name": "ro_vco_rnm",
-        "sv_path": "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_rnm.sv",
+        "sv_path": "/home/vraje/s2r_runs/demo4_pll/ro_vco/ro_vco_rnm.sv",
         "tuning": {
           "success": true,
           "control_source": "vctrl",
@@ -2684,248 +2631,443 @@
         },
         "holdout_pct": 4.9862798587916295,
         "holdout_ps": 1774.5080741033687,
+        "intrinsic_jitter": null,
+        "supply_sensitivity": {
+          "source": "VBIAS2",
+          "nominal_v": 3.3,
+          "dfdv_hz_per_v": 450630278.6736741,
+          "points": [
+            [
+              3.2009999999999996,
+              354199273.49740404
+            ],
+            [
+              3.3,
+              399441286.63990676
+            ],
+            [
+              3.399,
+              443424068.6747917
+            ]
+          ],
+          "control_v": 1.8502877728587253
+        },
+        "jitter_transfer": {
+          "ran": true,
+          "checked": true,
+          "success": true,
+          "why_run": "requested explicitly",
+          "why_not": null,
+          "paths": [
+            {
+              "path": "control",
+              "checked": true,
+              "success": true,
+              "source": "vctrl",
+              "replay_node": "cont",
+              "model_port": "cont",
+              "worst_ratio": 0.8983801180775829,
+              "worst_sigma_v": 0.005,
+              "tol_frac": 0.25,
+              "floor_spice_s": 4.9153150929825923e-14,
+              "floor_model_s": 4.048318933768793e-23,
+              "points": [
+                {
+                  "sigma_v": 0.0,
+                  "spice_rms_s": 4.9153150929825923e-14,
+                  "model_rms_s": 4.048318933768793e-23,
+                  "spice_cycles": 200,
+                  "model_cycles": 200,
+                  "ratio": null,
+                  "judged": false,
+                  "note": "floor, not judged: with nothing injected the reference still reports 0.04915 ps, which is the edge finder's threshold interpolation and not the circuit"
+                },
+                {
+                  "sigma_v": 0.005,
+                  "spice_rms_s": 2.442343308188692e-12,
+                  "model_rms_s": 2.1941526695965515e-12,
+                  "spice_cycles": 199,
+                  "model_cycles": 200,
+                  "ratio": 0.8983801180775829,
+                  "judged": true,
+                  "note": "model 2.194 ps against reference 2.442 ps over 199 cycles"
+                },
+                {
+                  "sigma_v": 0.02,
+                  "spice_rms_s": 9.92229805450097e-12,
+                  "model_rms_s": 9.925238674388659e-12,
+                  "spice_cycles": 200,
+                  "model_cycles": 200,
+                  "ratio": 1.0002963648009298,
+                  "judged": true,
+                  "note": "model 9.925 ps against reference 9.922 ps over 200 cycles"
+                },
+                {
+                  "sigma_v": 0.05,
+                  "spice_rms_s": 2.5692293857372068e-11,
+                  "model_rms_s": 2.540736543244758e-11,
+                  "spice_cycles": 200,
+                  "model_cycles": 200,
+                  "ratio": 0.988909965513152,
+                  "judged": true,
+                  "note": "model 25.41 ps against reference 25.69 ps over 200 cycles"
+                }
+              ],
+              "errors": []
+            },
+            {
+              "path": "supply",
+              "checked": true,
+              "success": true,
+              "source": "VBIAS2",
+              "replay_node": "dd",
+              "model_port": "vdd",
+              "worst_ratio": 0.9683963286849104,
+              "worst_sigma_v": 0.05,
+              "tol_frac": 0.25,
+              "floor_spice_s": 4.9153150929825923e-14,
+              "floor_model_s": 4.048318933768793e-23,
+              "points": [
+                {
+                  "sigma_v": 0.0,
+                  "spice_rms_s": 4.9153150929825923e-14,
+                  "model_rms_s": 4.048318933768793e-23,
+                  "spice_cycles": 200,
+                  "model_cycles": 200,
+                  "ratio": null,
+                  "judged": false,
+                  "note": "floor, not judged: with nothing injected the reference still reports 0.04915 ps, which is the edge finder's threshold interpolation and not the circuit"
+                },
+                {
+                  "sigma_v": 0.005,
+                  "spice_rms_s": 2.8678081948072572e-12,
+                  "model_rms_s": 2.8080831291110445e-12,
+                  "spice_cycles": 200,
+                  "model_cycles": 200,
+                  "ratio": 0.9791739678391473,
+                  "judged": true,
+                  "note": "model 2.808 ps against reference 2.868 ps over 200 cycles"
+                },
+                {
+                  "sigma_v": 0.02,
+                  "spice_rms_s": 1.1238027092563525e-11,
+                  "model_rms_s": 1.1248458074665266e-11,
+                  "spice_cycles": 200,
+                  "model_cycles": 200,
+                  "ratio": 1.0009281862390813,
+                  "judged": true,
+                  "note": "model 11.25 ps against reference 11.24 ps over 200 cycles"
+                },
+                {
+                  "sigma_v": 0.05,
+                  "spice_rms_s": 2.8770892450580905e-11,
+                  "model_rms_s": 2.7861626622130956e-11,
+                  "spice_cycles": 200,
+                  "model_cycles": 200,
+                  "ratio": 0.9683963286849104,
+                  "judged": true,
+                  "note": "model 27.86 ps against reference 28.77 ps over 200 cycles"
+                }
+              ],
+              "errors": []
+            }
+          ],
+          "source": "vctrl",
+          "worst_ratio": 0.8983801180775829,
+          "worst_sigma_v": 0.005,
+          "worst_path": "control",
+          "tol_frac": 0.25,
+          "points": [
+            {
+              "sigma_v": 0.0,
+              "spice_rms_s": 4.9153150929825923e-14,
+              "model_rms_s": 4.048318933768793e-23,
+              "spice_cycles": 200,
+              "model_cycles": 200,
+              "ratio": null,
+              "judged": false,
+              "note": "floor, not judged: with nothing injected the reference still reports 0.04915 ps, which is the edge finder's threshold interpolation and not the circuit"
+            },
+            {
+              "sigma_v": 0.005,
+              "spice_rms_s": 2.442343308188692e-12,
+              "model_rms_s": 2.1941526695965515e-12,
+              "spice_cycles": 199,
+              "model_cycles": 200,
+              "ratio": 0.8983801180775829,
+              "judged": true,
+              "note": "model 2.194 ps against reference 2.442 ps over 199 cycles"
+            },
+            {
+              "sigma_v": 0.02,
+              "spice_rms_s": 9.92229805450097e-12,
+              "model_rms_s": 9.925238674388659e-12,
+              "spice_cycles": 200,
+              "model_cycles": 200,
+              "ratio": 1.0002963648009298,
+              "judged": true,
+              "note": "model 9.925 ps against reference 9.922 ps over 200 cycles"
+            },
+            {
+              "sigma_v": 0.05,
+              "spice_rms_s": 2.5692293857372068e-11,
+              "model_rms_s": 2.540736543244758e-11,
+              "spice_cycles": 200,
+              "model_cycles": 200,
+              "ratio": 0.988909965513152,
+              "judged": true,
+              "note": "model 25.41 ps against reference 25.69 ps over 200 cycles"
+            }
+          ],
+          "errors": []
+        },
         "equivalence": {
           "success": true,
           "checked": true,
           "metric": "frequency_at_control",
           "threshold_pct": 2.0,
-          "worst_pct_breakpoint": 3.7971318207928865e-05,
-          "worst_pct_holdout": 4.986278114668889,
-          "worst_pct_holdout_band": 0.0020262684420139674,
-          "worst_ps_holdout": 1774.5074534081864,
+          "worst_pct_breakpoint": 0.0008107656705893706,
+          "worst_pct_holdout": 4.987048424274327,
+          "worst_pct_holdout_band": 0.0028356468304773265,
+          "worst_ps_holdout": 1774.7815897689843,
           "n_compared": 30,
           "points": [
             [
               0.49499999999999994,
               804472818.5576761,
-              804472869.2,
-              6.29509407306452e-06,
+              804479341.0,
+              0.0008107656705893706,
               false
             ],
             [
               0.78375,
               735322257.3620701,
-              735322232.9,
-              3.326714320646674e-06,
+              735327883.3,
+              0.0007650924244374374,
               false
             ],
             [
               1.0724999999999998,
               663445964.7009504,
-              663445858.2,
-              1.6052696548547473e-05,
+              663451074.1,
+              0.0007701244672126763,
               false
             ],
             [
               1.3612499999999998,
               580386264.1424712,
-              580386421.3,
-              2.707808504755619e-05,
+              580390751.5,
+              0.0007731614463533119,
               false
             ],
             [
               1.6499999999999997,
               477403257.34208715,
-              477403080.0,
-              3.714724402936455e-05,
+              477406987.6,
+              0.0007813580466613762,
               false
             ],
             [
               1.797191228664144,
               420357332.81420696,
-              420357404.7,
-              1.7101112588474928e-05,
+              420360629.5,
+              0.0007842517975571559,
               false
             ],
             [
               1.8237395007614345,
               410037666.66962415,
-              410037723.5,
-              1.3859792070493108e-05,
+              410040890.2,
+              0.0007861485166240792,
               false
             ],
             [
               1.8502877728587253,
               399750445.8920276,
-              399750555.7,
-              2.7469123136354856e-05,
+              399753575.1,
+              0.0007827842369212698,
               false
             ],
             [
               1.8768360449560157,
               389510486.49767756,
-              389510634.4,
-              3.7971318207928865e-05,
+              389513544.4,
+              0.0007850567371569403,
               false
             ],
             [
               1.9033843170533062,
               379329531.3251188,
-              379329572.9,
-              1.0960094911364409e-05,
+              379332519.1,
+              0.000787640060054856,
               false
             ],
             [
               1.9387499999999995,
               365868944.714722,
-              365868828.7,
-              3.170937584213482e-05,
+              365871825.2,
+              0.0007872935491750742,
               false
             ],
             [
               2.2274999999999996,
               257011965.20368367,
-              257011927.9,
-              1.4514378360846726e-05,
+              257014007.7,
+              0.0007947023333794475,
               false
             ],
             [
               2.51625,
               136625164.78720412,
-              136625161.8,
-              2.186423113757535e-06,
+              136626260.9,
+              0.0008022709460603467,
               false
             ],
             [
               2.6606249999999996,
               74162781.65424877,
-              74162783.75,
-              2.825879932011143e-06,
+              74163379.45,
+              0.0008060524691064978,
               false
             ],
             [
               2.7328124999999996,
               42408825.85566191,
-              42408824.63,
-              2.8901105249697593e-06,
+              42409168.51,
+              0.0008079723091230642,
               false
             ],
             [
               2.8049999999999997,
               16739484.530096145,
-              16739484.54,
-              5.9164629292727034e-08,
+              16739620.07,
+              0.000809695221785091,
               false
             ],
             [
               0.6393749999999999,
               769944705.2655075,
-              769897619.0,
-              0.006115912602588072,
+              769903404.2,
+              0.0053644477063175275,
               true
             ],
             [
               0.9281249999999999,
               700185016.6772195,
-              699383842.8,
-              0.1145542444921288,
+              699389468.0,
+              0.11374902162802952,
               true
             ],
             [
               1.2168749999999997,
               624034933.3000995,
-              621916073.7,
-              0.3406986392060224,
+              621920908.5,
+              0.33991859273524544,
               true
             ],
             [
               1.5056249999999998,
               531189810.5572494,
-              528894568.0,
-              0.43396977320617575,
+              528898871.7,
+              0.43315253252209873,
               true
             ],
             [
               1.7943749999999996,
               421453210.3536438,
-              421448704.6,
-              0.001069110806254637,
+              421452019.9,
+              0.00028246480917582407,
               true
             ],
             [
               1.8104653647127893,
               415194434.8978127,
-              415197559.3,
-              0.0007525097672902143,
+              415200951.1,
+              0.0015694092631601052,
               true
             ],
             [
               1.8370136368100798,
               404889012.6078955,
-              404894035.2,
-              0.0012404707572454497,
+              404897235.3,
+              0.0020308096444205817,
               true
             ],
             [
               1.8635619089073705,
               394623687.54871017,
-              394630499.6,
-              0.001726184695999461,
+              394633567.5,
+              0.00250357600151496,
               true
             ],
             [
               1.890110181004661,
               384412132.5204377,
-              384419921.9,
-              0.0020262684420139674,
+              384423033.4,
+              0.0028356468304773265,
               true
             ],
             [
               2.083125,
               311795454.9317373,
-              311440518.3,
-              0.11396610616843396,
+              311442917.0,
+              0.1131950391208614,
               true
             ],
             [
               2.3718749999999997,
               198927538.27812976,
-              196818546.3,
-              1.0715412839779477,
+              196820135.9,
+              1.0707249888296289,
               true
             ],
             [
               2.5884374999999995,
               105100554.61337389,
-              105394179.5,
-              0.27859687130644245,
+              105395037.1,
+              0.2794083049154322,
               true
             ],
             [
               2.6967187499999996,
               58246557.9833232,
-              58285580.93,
-              0.06695128718656487,
+              58286054.23,
+              0.06776277309995586,
               true
             ],
             [
               2.7689062499999997,
               28099505.049088717,
-              29574154.65,
-              4.986278114668889,
+              29574394.42,
+              4.987048424274327,
               true
             ]
           ],
           "warnings": [
-            "held-out frequency error is 0.002% inside the measured operating band 1.7972..1.9034 V (4 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.986% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed."
+            "held-out frequency error is 0.003% inside the measured operating band 1.7972..1.9034 V (4 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.987% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed."
           ],
           "errors": []
         },
         "uvm_ms_files": [
-          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_ms_types_pkg.sv",
-          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_dms.sv",
-          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_ms_pkg.sv",
-          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_ms_scoreboard.svh",
-          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_ms_tb.svh",
-          "/home/vraje/s2r_runs/pll_sys/ro_vco/ro_vco_ms_test.svh",
-          "/home/vraje/s2r_runs/pll_sys/ro_vco/top_ro_vco_ms.sv",
-          "/home/vraje/s2r_runs/pll_sys/ro_vco/run_ro_vco_ms.sh"
+          "/home/vraje/s2r_runs/demo4_pll/ro_vco/ro_vco_ms_types_pkg.sv",
+          "/home/vraje/s2r_runs/demo4_pll/ro_vco/ro_vco_dms.sv",
+          "/home/vraje/s2r_runs/demo4_pll/ro_vco/ro_vco_ms_pkg.sv",
+          "/home/vraje/s2r_runs/demo4_pll/ro_vco/ro_vco_ms_scoreboard.svh",
+          "/home/vraje/s2r_runs/demo4_pll/ro_vco/ro_vco_ms_tb.svh",
+          "/home/vraje/s2r_runs/demo4_pll/ro_vco/ro_vco_ms_test.svh",
+          "/home/vraje/s2r_runs/demo4_pll/ro_vco/top_ro_vco_ms.sv",
+          "/home/vraje/s2r_runs/demo4_pll/ro_vco/run_ro_vco_ms.sh"
         ],
         "warnings": [
           "refinement pass 1: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
           "refinement pass 1: the worst held-out error did not improve (3.286% -> 6.694%). Subdividing is not converging here, which is what a curve bending faster than the grid can follow looks like -- each new midpoint lands somewhere harder. More passes would not fix it; a different range or a different interpolant would.",
           "refinement pass 2: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
-          "held-out frequency error is 0.002% inside the measured operating band 1.7972..1.9034 V (4 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.986% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed."
+          "intrinsic jitter: no TRANSIENT noise to measure -- this deck declares no noise source, and ngspice simulates no device noise in a transient. That is not the same as the oscillator having none: its devices do, and measuring that needs the impulse sensitivity route rather than a transient. A model emitting no jitter matches what a transient of this deck shows, which is less than it matches the circuit.",
+          "supply sensitivity at 1.85 V control: 450.6 MHz/V from 'VBIAS2' (nominal 3.3 V, 3 points). For scale, 100 mV of droop is worth 45.06 MHz here -- a model without this input cannot show that at all.",
+          "held-out frequency error is 0.003% inside the measured operating band 1.7972..1.9034 V (4 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.987% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed.",
+          "jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.90 at 0.005 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.04915 ps.",
+          "jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 0.97 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.04915 ps.",
+          "jitter transfer: run because requested explicitly -- 2 path(s) exercised (control, supply)"
         ],
         "errors": []
       }
@@ -3001,7 +3143,7 @@
           "last": 300.0
         },
         "dc_gain_to_out": null,
-        "sv_path": "/home/vraje/s2r_runs/pll_sys/lpfilt/lpfilt_rc_rnm.sv",
+        "sv_path": "/home/vraje/s2r_runs/demo4_pll/lpfilt/lpfilt_rc_rnm.sv",
         "equivalence": {
           "success": true,
           "checked": true,
@@ -3014,7 +3156,7 @@
           "i_step_a": 0.004358878570676368,
           "t_end_s": 3.555960495039637e-06,
           "n_compared": 1000,
-          "compare_csv_path": "/home/vraje/s2r_runs/pll_sys/lpfilt/equivalence/rc_compare.csv",
+          "compare_csv_path": "/home/vraje/s2r_runs/demo4_pll/lpfilt/equivalence/rc_compare.csv",
           "warnings": [],
           "errors": []
         },
@@ -3028,9 +3170,9 @@
       "cpump": {
         "success": true,
         "stage": "equivalence",
-        "netlist": "/home/vraje/s2r_runs/pll_sys/cpump/cp_char.cir",
+        "netlist": "/home/vraje/s2r_runs/demo4_pll/cpump/cp_char.cir",
         "module_name": "cpump_cp_rnm",
-        "sv_path": "/home/vraje/s2r_runs/pll_sys/cpump/cpump_cp_rnm.sv",
+        "sv_path": "/home/vraje/s2r_runs/demo4_pll/cpump/cpump_cp_rnm.sv",
         "char": {
           "success": true,
           "controls": [
@@ -3331,8 +3473,8 @@
           "judged_on": "crossings",
           "ok": true,
           "inconclusive": false,
-          "worst_abs": 0.10917779013501838,
-          "worst_frac_of_scale": 0.03289506109463287,
+          "worst_abs": 0.11088527547478755,
+          "worst_frac_of_scale": 0.033409523188987725,
           "scale": 3.3189721040777074,
           "scale_is_floor": false
         },
@@ -3341,8 +3483,8 @@
           "judged_on": "mean",
           "ok": true,
           "inconclusive": false,
-          "worst_abs": 0.00022434730930909197,
-          "worst_frac_of_scale": 0.006053317610565132,
+          "worst_abs": 0.001068563981670989,
+          "worst_frac_of_scale": 0.028831891000541884,
           "scale": 0.0370618764357463,
           "scale_is_floor": true
         },
@@ -3351,8 +3493,8 @@
           "judged_on": "mean",
           "ok": true,
           "inconclusive": false,
-          "worst_abs": 0.0017071908949820198,
-          "worst_frac_of_scale": 0.0005173305742369758,
+          "worst_abs": 0.014226590791514393,
+          "worst_frac_of_scale": 0.004311088118640725,
           "scale": 3.3,
           "scale_is_floor": false
         },
@@ -3361,8 +3503,8 @@
           "judged_on": "mean",
           "ok": true,
           "inconclusive": false,
-          "worst_abs": 0.002276647119696218,
-          "worst_frac_of_scale": 0.0006898930665746115,
+          "worst_abs": 0.015932407966202877,
+          "worst_frac_of_scale": 0.004828002414000872,
           "scale": 3.3,
           "scale_is_floor": false
         }
@@ -3370,7 +3512,7 @@
       "probes": [
         {
           "node": "dra",
-          "worst_abs": 0.0011209418675239835
+          "worst_abs": 0.005425988530034065
         }
       ],
       "reason": null
@@ -3383,13 +3525,18 @@
       "block 'lpfilt' is not a transfer function: only resistors and capacitors (6), so its state space is exact and needs no fitting. Skipped by the hierarchical path; run the RC path, which extracts a state space from the topology rather than measuring it",
       "block 'lpfilt' (rc): no DC path to ground: a constant injected current ramps the output without settling. That is what a charge pump into a capacitive filter does, and it is why this is modelled as a state space rather than a DC gain",
       "block 'lpfilt' (rc): equivalence PASS -- the emitted model tracks SPICE to 0.019% of the output's own 1.353 V excursion (rms 0.008%), under a 0.004359 A step into 'dra' over 3.556e-06 s",
-      "block 'lpfilt': 3-state current-driven network (c1, int1, vout), current into 'dra' and voltage out of 'vout' by topology (no capacitance on 'dra') -- exact from the topology, nothing fitted -> /home/vraje/s2r_runs/pll_sys/lpfilt/lpfilt_rc_rnm.sv",
-      "block 'cpump': 4 control state(s) measured as I(V) onto 'dra', 0.549% held out -> /home/vraje/s2r_runs/pll_sys/cpump/cpump_cp_rnm.sv",
+      "block 'lpfilt': 3-state current-driven network (c1, int1, vout), current into 'dra' and voltage out of 'vout' by topology (no capacitance on 'dra') -- exact from the topology, nothing fitted -> /home/vraje/s2r_runs/demo4_pll/lpfilt/lpfilt_rc_rnm.sv",
+      "block 'cpump': 4 control state(s) measured as I(V) onto 'dra', 0.549% held out -> /home/vraje/s2r_runs/demo4_pll/cpump/cpump_cp_rnm.sv",
       "block 'ro_vco': control port 'cont' is net 'vout', which the golden co-simulation put in 1.8472..1.8534 V -- 0.3% of the 0.495..2.805 V being swept. Adding 5 measured points across 1.7972..1.9034 V (the band plus margin for acquisition); the full range is still swept, because the loop leaves the band on its way in and a table that stopped at the edge would clamp there.",
       "block 'ro_vco' (vco): refinement pass 1: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
       "block 'ro_vco' (vco): refinement pass 1: the worst held-out error did not improve (3.286% -> 6.694%). Subdividing is not converging here, which is what a curve bending faster than the grid can follow looks like -- each new midpoint lands somewhere harder. More passes would not fix it; a different range or a different interpolant would.",
       "block 'ro_vco' (vco): refinement pass 2: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
-      "block 'ro_vco' (vco): held-out frequency error is 0.002% inside the measured operating band 1.7972..1.9034 V (4 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.986% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed.",
+      "block 'ro_vco' (vco): intrinsic jitter: no TRANSIENT noise to measure -- this deck declares no noise source, and ngspice simulates no device noise in a transient. That is not the same as the oscillator having none: its devices do, and measuring that needs the impulse sensitivity route rather than a transient. A model emitting no jitter matches what a transient of this deck shows, which is less than it matches the circuit.",
+      "block 'ro_vco' (vco): supply sensitivity at 1.85 V control: 450.6 MHz/V from 'VBIAS2' (nominal 3.3 V, 3 points). For scale, 100 mV of droop is worth 45.06 MHz here -- a model without this input cannot show that at all.",
+      "block 'ro_vco' (vco): held-out frequency error is 0.003% inside the measured operating band 1.7972..1.9034 V (4 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.987% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed.",
+      "block 'ro_vco' (vco): jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.90 at 0.005 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.04915 ps.",
+      "block 'ro_vco' (vco): jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 0.97 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.04915 ps.",
+      "block 'ro_vco' (vco): jitter transfer: run because requested explicitly -- 2 path(s) exercised (control, supply)",
       "block 'ro_vco' characterized on the VCO path: 16-point tuning curve, 4.986% held-out error",
       "block 'inv1': input port 'in' is net 'xvco.outm1', which the golden co-simulation put in 0.2270..3.3002 V -- 93% of the 3.3 V rail. The comparison below is judged over the whole range, which is what this block uses.",
       "block 'inv1': cannot characterize in context: node 'outm1' is driven by nothing and has no measured operating point to drive it at; falling back to an isolated fragment (neighbour loading not represented)",

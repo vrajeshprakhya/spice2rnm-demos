@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-07T22:17:42.820815+00:00",
+    "timestamp_utc": "2026-09-18T03:20:47.371777+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -16,8 +16,6 @@
       "vout",
       "--ngspice-bin",
       "/home/vraje/ngspice-install/bin/ngspice",
-      "--sim",
-      "xezim",
       "--emit-uvm-ms",
       "--emit-wreal",
       "--emit-assertions"
@@ -25,8 +23,7 @@
     "cwd": "/home/vraje/spice2rnm",
     "netlist": "/home/vraje/spice2rnm/work/dcc.cir",
     "ngspice_bin": "/home/vraje/ngspice-install/bin/ngspice",
-    "iverilog_bin": "/home/vraje/xezim/target/release/xezim",
-    "vvp_bin": "/home/vraje/xezim/target/release/xezim"
+    "xezim_bin": "/home/vraje/xezim/target/release/xezim"
   },
   "result_type": "PipelineResult",
   "result": {

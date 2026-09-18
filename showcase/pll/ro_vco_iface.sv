@@ -22,8 +22,14 @@ module ro_vco #(
 
   ro_vco_rnm u_core (
     .cont (cont_v),
+    .vdd  (dd_v),
     .clk  (clk)
   );
 
-  assign aout_v = clk ? VDD : 0.0;
+  // The swing follows the supply this instance is actually given, not the
+  // nominal it was characterized at -- an output that is rail-to-rail at
+  // 3.3 V whatever the rail does cannot show a droop to anything
+  // downstream. VDD is the fallback for an unconnected or zero supply;
+  // the core prints the one-line warning for that case, off this same net.
+  assign aout_v = clk ? ((dd_v > 0.0) ? dd_v : VDD) : 0.0;
 endmodule : ro_vco

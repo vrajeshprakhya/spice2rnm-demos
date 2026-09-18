@@ -684,6 +684,76 @@ frequency.
 And a check that does not apply to a given run is reported as not
 applicable, with the reason why. It is never quietly counted as a pass.
 
+\subsection{One thing a score at an operating point cannot see}
+\label{sec:jitter}
+
+Every check described so far is \emph{static}: it compares a value at an
+operating point. That is the right shape for most of what a model claims,
+and it is blind to one error that matters.
+
+An oscillator model has to decide when to place its next edge. One way
+reads the control voltage at the instant the previous edge fired and
+schedules a whole half cycle from it. Another integrates the control
+across the cycle, which is what the circuit does. Both models carry the
+\emph{same} tuning curve, so a check that measures frequency at held
+control voltages scores them identically --- and it does: run against
+both, it passes both. Give them the same moving control and one produces
+$28.6\times$ the period jitter the transistors produce.
+
+So the tool checks the dynamic behaviour directly. A known disturbance is
+injected in SPICE at several amplitudes, and the disturbance
+\emph{ngspice actually solved} is replayed into the model sample for
+sample. That last part is the point: giving the model its own random
+noise of the same size would compare two random sequences, and agreement
+between those says more about how long the run was than about the model.
+Replaying the same waveform compares transfer.
+
+Both of the model's inputs are exercised, not just the obvious one. On the
+reference ring the supply moves the frequency by $450.6\unit{MHz/V}$,
+comparable to the control port and opposite in sign, so a model given no
+supply input cannot show what a droop does at all. The verdict is the
+worse of the two paths.
+
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\hline
+\textbf{Injected} & \textbf{Circuit} & \textbf{Model} & \textbf{Ratio}\\
+\hline
+none (floor)        & $0.049\unit{ps}$ & $0.000\unit{ps}$ & not judged\\
+$5\unit{mV}$ rms    & $2.45\unit{ps}$  & $2.49\unit{ps}$  & $1.02$\\
+$20\unit{mV}$ rms   & $10.74\unit{ps}$ & $10.27\unit{ps}$ & $0.96$\\
+$50\unit{mV}$ rms   & $23.90\unit{ps}$ & $23.72\unit{ps}$ & $0.99$\\
+\hline
+\end{tabular}
+\end{center}
+
+The floor row is measured and deliberately not judged. With nothing
+injected the reference still reports about $50\unit{fs}$, which is how
+precisely the edge-finder can locate a crossing rather than anything the
+circuit did. Asking the model to reproduce it would be asking it to
+reproduce an artefact. It is used instead as the floor every other
+amplitude has to clear before its result counts.
+
+The agreement is not a fit. A static sensitivity of $450.6\unit{MHz/V}$
+on a $2.5\unit{ns}$ period predicts $14.1\unit{ps}$ of period jitter for
+$5\unit{mV}$ rms if the disturbance held still across the cycle. The
+circuit gives $3.02\unit{ps}$, and the ratio $0.214$ is
+$\sqrt{100\unit{ps}/2500\unit{ps}}$: the oscillator averages its input
+over the cycle. The model reproduces that because it integrates, and the
+version that samples does not.
+
+\textbf{And it decides for itself whether the check is worth running.}
+The honest answer for most designs is no, and the tool says so with
+numbers rather than skipping in silence. On the reference PLL the control
+moves $9.7\unit{\textmu V}$ rms within one oscillator period --- worth
+$0.023\unit{ps}$ of movement against a $0.052\unit{ps}$ measurement floor.
+There the two model forms agree to less than the measurement can see, so a
+sweep would report the solver and not the circuit, and the run records
+that reasoning instead of a verdict. The check runs when the design's own
+closed-loop behaviour says it would measure something, when the netlist
+declares a noise source of its own, or when you ask for it.
+
 %======================================================================
 \section{Why a green testbench is worth believing}
 
@@ -899,15 +969,41 @@ on trust that the feature requested was the feature exercised.
         node. Hierarchical composition trades some accuracy for structure;
         the equivalence report states the composed figure separately from
         the per-block figures, so the trade is visible, not hidden.
-  \item \textbf{Noise and jitter are not verified}, and the reason is
-        worth stating rather than leaving to be discovered. A real number
-        model is deterministic, and the reference runs are SPICE
-        transients with no noise sources, so neither side of the
-        comparison carries noise: checking one against the other would
-        produce a confident zero that means nothing. Device and phase
-        noise need \texttt{.noise} or transient-noise analysis on the
-        reference side and a model built to carry a noise source, which
-        is a different kind of model from the one this tool emits.
+  \item \textbf{Jitter TRANSFER is verified; intrinsic device noise is
+        not.} The distinction matters, so both halves are stated.
+
+        What is checked is what the model does with a disturbance it is
+        given: injected in SPICE, replayed into the model, period jitter
+        compared, on both the control and the supply. Section~%
+        \ref{sec:jitter} gives the measurements. This is a real check
+        with a verdict, and it fails a model whose transfer is wrong.
+
+        What is \emph{not} checked is the oscillator's own noise. SPICE
+        simulates no device noise in a transient, so a plain transient
+        shows noise only where the netlist declares a source --- which
+        means a model emitting no intrinsic jitter matches what the
+        reference run shows while matching the circuit less well. Getting
+        at that needs the impulse sensitivity function, and the tool now
+        measures one: on the reference ring
+        $\Gamma_{\mathrm{rms}} = 4.33\times10^{12}\unit{rad/C}$, stable to
+        $1.7\%$ across a five-fold change in injected charge and linear to
+        $1\%$ at the phase where the oscillator is most sensitive.\footnote{%
+        The method is Hajimiri, Limotyrakis and Lee, \emph{Jitter and
+        Phase Noise in Ring Oscillators}, IEEE JSSC 34(6), June 1999:
+        inject a narrow current pulse at each point in the cycle and
+        measure the lasting phase shift. Two details decided whether it
+        worked here. The pulse must be applied differentially where the
+        circuit is differential --- into one node of a differential ring
+        it is mostly common mode, which the ring rejects by design, and
+        the measurement then reads its own floor no matter how large the
+        pulse. And linearity has to be judged at the phase of greatest
+        sensitivity, not a convenient one: the same charge that moves the
+        phase by $0.04\unit{ps}$ at an insensitive point moves it by
+        $52\unit{ps}$ at the peak.}
+        That number is the quantity which converts a device noise power
+        into a jitter. Turning it into a model that emits its own jitter
+        is not done, and until it is, intrinsic jitter is measured but not
+        modelled.
 
         Edge JITTER is measured where the reference has edges --- on the
         reference PLL's two clock-path buffers it is $3.98\unit{ps}$
@@ -922,7 +1018,9 @@ on trust that the feature requested was the feature exercised.
         model, and reporting it as jitter would be measuring the sampling
         grid.
 
-        This is where the published practice sits too. Analog Devices'
+        This is further than published practice goes on the validation
+        side, while the gap named above --- intrinsic noise in the model
+        --- is one the same practice also has. Analog Devices'
         production RNM suite for a GHz transceiver validates its PLL on
         lock time and frequency error --- the same quantities checked in
         Section~\ref{sec:equiv} --- and states that ``model validation

@@ -8,7 +8,7 @@
 set -u
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 XEZIM=${XEZIM:-$HOME/xezim/target/release/xezim}
-UVM=${UVM_SRC:-$HOME/iverilog-unified/uvm-core/src}
+UVM=${UVM_SRC:-}
 # The UVM-MS library (Accellera Annex A.1/A.2) is not vendored here.
 UVM_MS=${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}
 # A simulation-time ceiling, not a run length -- the run still ends at

@@ -21,6 +21,8 @@ class ro_vco_ms_scoreboard extends uvm_component;
 
   int  n_bp, n_bp_fail;
   int  n_ho, n_ho_fail;
+  int  n_ho_out;            // held-out points outside the measured band
+  real worst_out, worst_out_v;
   real worst_bp, worst_ho;
   real worst_ho_v;
 
@@ -44,13 +46,27 @@ class ro_vco_ms_scoreboard extends uvm_component;
     frac   = (got_t > want_t) ? (got_t - want_t) / want_t
                               : (want_t - got_t) / want_t;
     if (held_out) begin
+      bit in_band;
+      in_band = (!HAS_BAND) || (v >= BAND_LO && v <= BAND_HI);
       n_ho++;
-      if (frac > worst_ho) begin worst_ho = frac; worst_ho_v = v; end
-      if (frac > TOL_FRAC) begin
-        n_ho_fail++;
-        `uvm_error("VCO_CHECK",
-                   $sformatf("FAIL held-out %0.4f V: ngspice %0.6g Hz, model %0.6g Hz, %0.3f%% of period > tol %0.3f%%",
-                             v, want_f, got_f, frac*100.0, TOL_FRAC*100.0))
+      if (!in_band) begin
+        // Outside the band the loop drives. Reported, never failed -- the
+        // same position the pipeline takes, and for the same reason: this
+        // is a fact about how far the sweep went, not about the model.
+        n_ho_out++;
+        if (frac > worst_out) begin worst_out = frac; worst_out_v = v; end
+        `uvm_info("VCO_CHECK",
+                  $sformatf("outside the measured operating band %0.4f..%0.4f V: %0.4f V is %0.3f%% of period (ngspice %0.6g Hz, model %0.6g Hz). Reported, not failed.",
+                            BAND_LO, BAND_HI, v, frac*100.0, want_f, got_f),
+                  UVM_LOW)
+      end else begin
+        if (frac > worst_ho) begin worst_ho = frac; worst_ho_v = v; end
+        if (frac > TOL_FRAC) begin
+          n_ho_fail++;
+          `uvm_error("VCO_CHECK",
+                     $sformatf("FAIL held-out %0.4f V: ngspice %0.6g Hz, model %0.6g Hz, %0.3f%% of period > tol %0.3f%%",
+                               v, want_f, got_f, frac*100.0, TOL_FRAC*100.0))
+        end
       end
     end else begin
       n_bp++;
@@ -78,8 +94,20 @@ class ro_vco_ms_scoreboard extends uvm_component;
               $sformatf("vco breakpoint checks=%0d failed=%0d | worst %0.3f%% of period",
                         n_bp, n_bp_fail, worst_bp*100.0), UVM_LOW)
     `uvm_info("SB_SUMMARY",
-              $sformatf("vco held-out checks=%0d failed=%0d | worst %0.3f%% at %0.4f V (tol %0.3f%%)",
-                        n_ho, n_ho_fail, worst_ho*100.0, worst_ho_v, TOL_FRAC*100.0),
+              $sformatf("vco held-out checks=%0d failed=%0d | worst %0.3f%% at %0.4f V (tol %0.3f%%)%s",
+                        n_ho - n_ho_out, n_ho_fail, worst_ho*100.0, worst_ho_v,
+                        TOL_FRAC*100.0,
+                        HAS_BAND ? $sformatf(", judged inside the measured band %0.4f..%0.4f V",
+                                             BAND_LO, BAND_HI) : ""),
               UVM_LOW)
+    // The wider figure is printed rather than dropped: a reader should see
+    // where the curve was not followed, and that it was not judged there.
+    if (n_ho_out > 0)
+      `uvm_info("SB_SUMMARY",
+                $sformatf("vco outside the band: %0d point(s) reported, worst %0.3f%% at %0.4f V -- where the loop does not go",
+                          n_ho_out, worst_out*100.0, worst_out_v), UVM_LOW)
+    if (HAS_BAND && n_ho == n_ho_out && n_ho > 0)
+      `uvm_warning("SB_SUMMARY",
+                   "every held-out point fell outside the measured operating band, so nothing inside it was scored")
   endfunction
 endclass

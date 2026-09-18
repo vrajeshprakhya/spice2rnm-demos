@@ -2,48 +2,48 @@
 git 531e42a (2026-09-11T07:58:43-07:00)
 Max time: 50000000 ns
 ------------------------------
-VCOEQ 0.495000 8.044728692e+08
-VCOEQ 0.783750 7.353222329e+08
-VCOEQ 1.072500 6.634458582e+08
-VCOEQ 1.361250 5.803864213e+08
-VCOEQ 1.650000 4.774030800e+08
-VCOEQ 1.797191 4.203574047e+08
-VCOEQ 1.823740 4.100377235e+08
-VCOEQ 1.850288 3.997505557e+08
-VCOEQ 1.876836 3.895106344e+08
-VCOEQ 1.903384 3.793295729e+08
-VCOEQ 1.938750 3.658688287e+08
-VCOEQ 2.227500 2.570119279e+08
-VCOEQ 2.516250 1.366251618e+08
-VCOEQ 2.660625 7.416278375e+07
-VCOEQ 2.732812 4.240882463e+07
-VCOEQ 2.805000 1.673948454e+07
-VCOEQ 0.639375 7.698976190e+08
-VCOEQ 0.928125 6.993838428e+08
-VCOEQ 1.216875 6.219160737e+08
-VCOEQ 1.505625 5.288945680e+08
-VCOEQ 1.794375 4.214487046e+08
-VCOEQ 1.810465 4.151975593e+08
-VCOEQ 1.837014 4.048940352e+08
-VCOEQ 1.863562 3.946304996e+08
-VCOEQ 1.890110 3.844199219e+08
-VCOEQ 2.083125 3.114405183e+08
-VCOEQ 2.371875 1.968185463e+08
-VCOEQ 2.588437 1.053941795e+08
-VCOEQ 2.696719 5.828558093e+07
-VCOEQ 2.768906 2.957415465e+07
+VCOEQ 0.495000 8.044793410e+08
+VCOEQ 0.783750 7.353278833e+08
+VCOEQ 1.072500 6.634510741e+08
+VCOEQ 1.361250 5.803907515e+08
+VCOEQ 1.650000 4.774069876e+08
+VCOEQ 1.797191 4.203606295e+08
+VCOEQ 1.823740 4.100408902e+08
+VCOEQ 1.850288 3.997535751e+08
+VCOEQ 1.876836 3.895135444e+08
+VCOEQ 1.903384 3.793325191e+08
+VCOEQ 1.938750 3.658718252e+08
+VCOEQ 2.227500 2.570140077e+08
+VCOEQ 2.516250 1.366262609e+08
+VCOEQ 2.660625 7.416337945e+07
+VCOEQ 2.732812 4.240916851e+07
+VCOEQ 2.805000 1.673962007e+07
+VCOEQ 0.639375 7.699034042e+08
+VCOEQ 0.928125 6.993894680e+08
+VCOEQ 1.216875 6.219209085e+08
+VCOEQ 1.505625 5.288988717e+08
+VCOEQ 1.794375 4.214520199e+08
+VCOEQ 1.810465 4.152009511e+08
+VCOEQ 1.837014 4.048972353e+08
+VCOEQ 1.863562 3.946335675e+08
+VCOEQ 1.890110 3.844230334e+08
+VCOEQ 2.083125 3.114429170e+08
+VCOEQ 2.371875 1.968201359e+08
+VCOEQ 2.588437 1.053950371e+08
+VCOEQ 2.696719 5.828605423e+07
+VCOEQ 2.768906 2.957439442e+07
 VCOEQ-DONE
 ------------------------------
-Simulation finished at time 44132389490
+Simulation finished at time 44148177712
 ($finish called)
-[PHASE] compilation: 18.8ms
+[PHASE] compilation: 17.4ms
 [EVENT-EDGE] ARMED mode ON: 0 input signals, 0 fanout edges
 [EVENT-EDGE] measure (timestamp): 2 edge blocks, 0 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=0.00
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
 [PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
-[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=24297
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=2297339
 [PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
-[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=60 insns=60 ns_per_insn=0.0 fallbacks=60
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=60 insns=5682670 ns_per_insn=0.0 fallbacks=60
 [FUSE] array-read-NBA fusions (static sites): 0
 [FUSE] packed-loop NBA copies (static sites): 0
 [FUSE] packed blocking fills (dynamic executions): 0
@@ -51,17 +51,17 @@ Simulation finished at time 44132389490
 [FUSE] Move-into-assign forwards (static sites): 0
 [FUSE] provably-unsigned scrubs elided (static sites): 0
 [FUSE] AddC2 superinstructions (static sites): 0
-[PROF] fallback_reason                      Assertion: count=      60 total=     0.4ms avg=    6.5µs
-[PROF] settle_dc=0.0ms(12121) settle_ca=0.0ms(0) settle_ab=0.0ms(0)
+[PROF] fallback_reason                      Assertion: count=      60 total=     0.4ms avg=    6.4µs
+[PROF] settle_dc=0.0ms(0) settle_ca=0.0ms(0) settle_ab=0.0ms(0)
 [PROF] engine=event
 [PROF] clock_tree: roots=0 entries=0 eager_evals=0
-[PROF] settle_calls=12153 settle_iters=12121 max_iters=1 entry_evals=12121 unresolved_entries=0/1
-[PROF] settle_writes=12120 (100.0% of evals changed a signal, 1 quiet) dep_edges=0 (0.0 per write)
+[PROF] settle_calls=32 settle_iters=0 max_iters=0 entry_evals=0 unresolved_entries=0/0
+[PROF] settle_writes=0 (0.0% of evals changed a signal, 0 quiet) dep_edges=0 (0.0 per write)
 [PROF] two_state_evals=0 (0 entries lowered)
-[PROF] simulation_loop=896.9ms iters=12120 avg=74.00µs/iter
+[PROF] simulation_loop=76727.3ms iters=1148238 avg=66.82µs/iter
 [COV] assertions: 2 sites (assert=2, assume=0, cover=0) — 60 passes, 0 fails
 [COV] coverage: 0 covergroup instances, 0 samples, 0 unique coverpoint values, 0 unique cross tuples
 [COV] wrote coverage DB to xezim_cov.json
-[PHASE] simulation: 899.2ms
-[PHASE] total: 918.1ms
+[PHASE] simulation: 76728.4ms
+[PHASE] total: 76745.9ms
 ------------------------------

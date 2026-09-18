@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-07T22:14:36.207131+00:00",
+    "timestamp_utc": "2026-09-18T03:18:12.199150+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -16,8 +16,6 @@
       "vout",
       "--ngspice-bin",
       "/home/vraje/ngspice-install/bin/ngspice",
-      "--sim",
-      "xezim",
       "--emit-uvm-ms",
       "--emit-wreal",
       "--emit-assertions"
@@ -25,8 +23,7 @@
     "cwd": "/home/vraje/spice2rnm",
     "netlist": "/home/vraje/spice2rnm/work/rc_lpf2.cir",
     "ngspice_bin": "/home/vraje/ngspice-install/bin/ngspice",
-    "iverilog_bin": "/home/vraje/xezim/target/release/xezim",
-    "vvp_bin": "/home/vraje/xezim/target/release/xezim"
+    "xezim_bin": "/home/vraje/xezim/target/release/xezim"
   },
   "result_type": "PipelineResult",
   "result": {
@@ -211,7 +208,7 @@
       "stim_min": -0.017988476486080717,
       "stim_max": 1.8146546792023766,
       "compare_csv_path": "/home/vraje/s2r_runs/lpf2/equivalence/waveform_compare.csv",
-      "vcd_path": "/home/vraje/s2r_runs/lpf2/equivalence/tb_equiv.vcd",
+      "vcd_path": null,
       "warnings": [
         "replaced value spec of input source 'VIN' with PWL stimulus"
       ],

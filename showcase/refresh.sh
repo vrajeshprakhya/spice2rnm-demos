@@ -18,7 +18,26 @@ if [ "${1:-}" != "--no-run" ]; then
   ( cd "$DEMOS" && ./run_all.sh ) | tee /tmp/showcase_run_summary.txt
 else
   echo "curating from existing run directories (--no-run)"
-  : > /tmp/showcase_run_summary.txt
+  # KEEP a summary that still describes these run directories. Blanking it
+  # is why STAMP has carried a date with no run behind it: a curation that
+  # did not re-run everything published a stamp saying nothing about what
+  # produced the artifacts. Kept only when it is NEWER than the newest run
+  # directory it would be attached to, so a summary left over from an
+  # unrelated run is still discarded rather than misattributed.
+  newest=""
+  for d in "$RUNS"/lpf2 "$RUNS"/dcc2 "$RUNS"/demo3_pi "$RUNS"/demo4_pll; do
+    [ -d "$d" ] || continue
+    if [ -z "$newest" ] || [ "$d" -nt "$newest" ]; then newest="$d"; fi
+  done
+  if [ -s /tmp/showcase_run_summary.txt ] && [ -n "$newest" ] \
+     && [ /tmp/showcase_run_summary.txt -nt "$newest" ]; then
+    echo "  keeping the run summary: it is newer than every run directory "\
+         "being published, so it describes them"
+  else
+    echo "  no run summary newer than the run directories; STAMP will say "\
+         "so rather than carry one that describes a different run"
+    : > /tmp/showcase_run_summary.txt
+  fi
 fi
 
 # Deliverables and evidence only. The run directories also hold
@@ -274,7 +293,11 @@ curate_pll demo4_pll pll
 echo "curating equivalence evidence:"
 curate_equivalence "$HOME/s2r_runs/lpf2"     lpf2  equivalence
 curate_equivalence "$HOME/s2r_runs/dcc2"     dcc2  equivalence
-curate_equivalence "$HOME/s2r_runs/demo3_pi" pi    code_sweep
+# BOTH: the per-code sweep directories, and equivalence/, which is where
+# the phase check writes its comparison table. Naming only code_sweep
+# published a manifest and no evidence -- nothing under it is a log or a
+# table, because the check moved and this line did not follow it.
+curate_equivalence "$HOME/s2r_runs/demo3_pi" pi    code_sweep equivalence
 curate_equivalence "$HOME/s2r_runs/demo4_pll" pll \
     inv1/equivalence inv2/equivalence lpfilt/equivalence \
     ro_vco/_vco_equiv cpump/_cp_equiv cosim/model cosim/golden
