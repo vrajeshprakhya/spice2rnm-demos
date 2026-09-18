@@ -353,27 +353,39 @@ Per-block equivalence                & $5$ of $5$ pass \\
 \midrule
 Supply condition                     & $20\unit{mV}$ rms, declared in the deck \\
 System check vs transistors          & $4$ boundary signals, $0$ failed \\
-\quad \texttt{vout} (control voltage) & $3.61\unit{mV}$ \\
-\quad \texttt{aout} (VCO output)      & $0.4\%$ of threshold crossings \\
-\quad \texttt{dra} (internal probe)   & $17.7\unit{mV}$ \\
+\quad \texttt{vout} (control voltage) & $1.83\unit{mV}$, bar $0.174$ \\
+\quad \texttt{aout} (VCO output)      & $0.4\%$ of crossings, bar $2\%$ \\
+\quad \texttt{dra} (internal probe)   & $9.31\unit{mV}$ \\
 \midrule
 Both loops lock at                   & $400.00\unit{MHz}$ \\
 \quad settled control band           & $1.8468$--$1.8546\unit{V}$ vs \\
                                      & $1.8468$--$1.8499\unit{V}$ \\
 \midrule
-Model half vs transistor half        & $2.12\unit{s}$ vs $66.1\unit{s}$ \\
+Model half vs transistor half        & $6.10\unit{s}$ vs $101.3\unit{s}$ \\
+\quad same testbench, same span       & $16.6\times$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \noindent The control voltage is the number to read. It is where the loop
 stores its state, so a model that settles anywhere else disagrees here
-first --- and the two agree to $3.61\unit{mV}$ while reaching the same
+first --- and the two agree to $1.83\unit{mV}$ while reaching the same
 frequency, on a rail carrying $20\unit{mV}$ rms of noise the deck
 declares. That is looser than the figure this table carried while the
 rail was quiet, and the rail is the reason: a loop concentrates a supply
 disturbance onto precisely this node. Running the case that way is the
 point of it.
+
+\textbf{That figure is one draw, and the bar beside it is not.} Both
+halves generate their own noise from the declared source, so a
+worst-window difference is a sample rather than a property of the model:
+the run before this one gave $3.61\unit{mV}$ here and $17.7\unit{mV}$ on
+\texttt{dra}, about twice these. What does not move is what the
+difference is judged against --- $0.174$ of \texttt{vout}'s own scale,
+of which $0.124$ is the allowance for exactly this sampling --- and that
+is the number the verdict is against and the record carries. A single
+agreement figure quoted without it says less than it appears to, in the
+same way as a jitter ratio quoted without its correlation time.
 
 \subsection{The rail the deck declares is the rail the model sees}
 \label{sec:noise}

@@ -314,8 +314,8 @@ say "different question, and the co-simulation answers it directly: the"
 say "design's own testbench, run twice, with only its DPI bridge functions"
 say "rewritten. Thresholds, expressions and verdict are byte-identical."
 echo
-grep -aE '^  (partition|floor|golden|reference) |^      ams_(get|set) |^    dra ' "$OUT.log" \
-  | cut -c1-140 | sed 's/^/  /' | head -12
+grep -aE '^  (partition|floor|golden|reference) |^  wall clock: |^      ams_(get|set) |^    dra ' "$OUT.log" \
+  | cut -c1-140 | sed 's/^/  /' | head -13
 beat
 
 hr "Summary"
