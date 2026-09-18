@@ -740,8 +740,17 @@ schedules a whole half cycle from it. Another integrates the control
 across the cycle, which is what the circuit does. Both models carry the
 \emph{same} tuning curve, so a check that measures frequency at held
 control voltages scores them identically --- and it does: run against
-both, it passes both. Give them the same moving control and one produces
-$28.6\times$ the period jitter the transistors produce.
+both, it passes both. Give them the same moving control and they part: on
+the reference ring, fed a control with a $100\unit{ps}$ correlation time,
+the sampling form produced $3.37\times$ the period jitter the transistors
+did.
+
+How far apart they land is not a fixed property of the two forms. It is
+$\sqrt{T_{\mathrm{half}}/\tau}$ in the correlation time $\tau$ of the
+disturbance, which for $1.25\unit{ns}$ against $100\unit{ps}$ predicts
+$3.54$ --- the measurement above, to within $5\%$. A faster disturbance
+separates them further, so a ratio quoted without its $\tau$ says less
+than it appears to.
 
 So the tool checks the dynamic behaviour directly. A known disturbance is
 injected in SPICE at several amplitudes, and the disturbance
