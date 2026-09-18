@@ -26,7 +26,11 @@ XEZIM="${XEZIM:-$HOME/xezim/target/release/xezim}"
 BRIDGE="${BRIDGE:-$COSIM/ams_bridge.so}"
 OUT="$HOME/s2r_runs/demo4_pll"
 
-PLL="$COSIM/examples/pll"
+# The reference partition, with ONE line added: 20 mV rms of noise on
+# its supply. That is an operating condition rather than a change to
+# the design -- a rail on a real chip is not quiet -- and it is the
+# condition this ring is most sensitive to, at 450.6 MHz/V.
+PLL="$COSIM/examples/pll_noisy"
 NETLIST="$PLL/pll_analog.cir"
 
 hr()  { printf '\n\033[1m%s\033[0m\n%s\n' "$1" "$(printf '=%.0s' {1..72})"; }
@@ -97,7 +101,7 @@ say "  python3 -m spice2rnm \\"
 say "      $PLL/pll_analog.cir \\"
 say "      $PLL/pfd.sv $PLL/divn.sv $PLL/tb_pll.sv \\"
 say "      --hierarchical --emit-assertions --output-node vout \\"
-say "      --llm-block-function --check-jitter-transfer \\"
+say "      --llm-block-function \\"
 say "      --emit-uvm-ms --uvm-ms-lib $UVM_MS_LIB \\"
 say "      --out-dir $OUT"
 echo
@@ -124,7 +128,7 @@ rm -rf "$OUT"
 python3 -m spice2rnm \
   "$PLL/pll_analog.cir" "$PLL/pfd.sv" "$PLL/divn.sv" "$PLL/tb_pll.sv" \
   --hierarchical --emit-assertions --output-node vout \
-  --llm-block-function --check-jitter-transfer \
+  --llm-block-function \
   --emit-uvm-ms --uvm-ms-lib "$UVM_MS_LIB" \
   --out-dir "$OUT" \
   --ngspice-bin "$NGSPICE" --xezim-bin "$XEZIM" \
@@ -227,11 +231,12 @@ say "Both of the model\'s inputs are exercised, not just the control: the"
 say "supply moves this ring by 450.6 MHz/V, comparable to the control and"
 say "opposite in sign."
 echo
-say "On THIS design the gate would decline -- the control moves 9.7 uV rms"
-say "per 2.5 ns period, worth 0.023 ps against a 0.052 ps measurement"
-say "floor, so the two model forms agree and a sweep would measure the"
-say "solver. --check-jitter-transfer overrides that, because a demo that"
-say "showed only the decline would never show the check."
+say "And it DECIDES, rather than always running. On this design the gate"
+say "declines: the control moves 9.7 uV rms per 2.5 ns period, worth"
+say "0.023 ps against a 0.052 ps measurement floor, so the two model"
+say "forms agree to less than the measurement can see and a sweep would"
+say "report the solver. Where it has no closed-loop evidence at all it"
+say "runs instead -- an absent judgement is not a judgement to skip on."
 beat
 
 hr "7. Checked as a system, against the transistors"
