@@ -1093,7 +1093,8 @@ on trust that the feature requested was the feature exercised.
         the equivalence report states the composed figure separately from
         the per-block figures, so the trade is visible, not hidden.
   \item \textbf{Jitter TRANSFER is verified; intrinsic device noise is
-        not.} The distinction matters, so both halves are stated.
+        modelled and cannot be.} The distinction matters, so both halves
+        are stated.
 
         What is checked is what the model does with a disturbance it is
         given: injected in SPICE, replayed into the model, period jitter
@@ -1104,32 +1105,70 @@ on trust that the feature requested was the feature exercised.
         noise on a net the ring is wired to. This is a real check with a
         verdict, and it fails a model whose transfer is wrong.
 
-        What is \emph{not} checked is the oscillator's own noise. SPICE
+        What cannot be checked is the oscillator's own noise. SPICE
         simulates no device noise in a transient, so a plain transient
-        shows noise only where the netlist declares a source --- which
-        means a model emitting no intrinsic jitter matches what the
-        reference run shows while matching the circuit less well. Getting
-        at that needs the impulse sensitivity function, and the tool now
-        measures one: on the reference ring
-        $\Gamma_{\mathrm{rms}} = 4.33\times10^{12}\unit{rad/C}$, stable to
-        $1.7\%$ across a five-fold change in injected charge and linear to
-        $1\%$ at the phase where the oscillator is most sensitive.\footnote{%
-        The method is Hajimiri, Limotyrakis and Lee, \emph{Jitter and
-        Phase Noise in Ring Oscillators}, IEEE JSSC 34(6), June 1999:
-        inject a narrow current pulse at each point in the cycle and
-        measure the lasting phase shift. Two details decided whether it
-        worked here. The pulse must be applied differentially where the
-        circuit is differential --- into one node of a differential ring
-        it is mostly common mode, which the ring rejects by design, and
-        the measurement then reads its own floor no matter how large the
-        pulse. And linearity has to be judged at the phase of greatest
-        sensitivity, not a convenient one: the same charge that moves the
-        phase by $0.04\unit{ps}$ at an insensitive point moves it by
-        $52\unit{ps}$ at the peak.}
-        That number is the quantity which converts a device noise power
-        into a jitter. Turning it into a model that emits its own jitter
-        is not done, and until it is, intrinsic jitter is measured but not
-        modelled.
+        shows noise only where the netlist declares a source. That is not
+        a gap in the tool; it is a property of the reference, and it
+        means a model emitting intrinsic jitter would disagree with the
+        only thing available to judge it \emph{by being more right}.
+
+        The route to it is the impulse sensitivity function, and the
+        pipeline measures one: inject a narrow charge at each phase of the
+        cycle, measure the lasting phase shift, and $\Gamma(\phi)$ is the
+        sensitivity that results.\footnote{%
+        Hajimiri, Limotyrakis and Lee, \emph{Jitter and Phase Noise in
+        Ring Oscillators}, IEEE JSSC 34(6), June 1999. Three details
+        decided whether it worked here, and each returned a confident
+        wrong answer rather than an error. The pulse must be applied
+        DIFFERENTIALLY where the circuit is differential --- into one node
+        of a differential ring it is mostly common mode, which the ring
+        rejects by design, and the measurement then reads its own floor
+        however large the pulse. Linearity has to be judged at the phase
+        of GREATEST sensitivity, not a convenient one: the same charge
+        that moves the phase by $0.04\unit{ps}$ at an insensitive point
+        moves it by $52\unit{ps}$ at the peak. And the injection must name
+        the NET, not the stage's formal port: SPICE creates a node the
+        first time it is mentioned, so injecting into a subcircuit's own
+        port name builds two floating nodes and perturbs nothing --- with
+        no error, no warning, and a deck that simulates perfectly well.
+        What exposed the last one was a sweep of charge across a
+        thousandfold range that moved the measured shift not at all: a
+        coupling too weak to see still scales, and one that is absent does
+        not.}
+        On the reference ring $\Gamma_{\mathrm{rms}}$ is
+        $4.33\times10^{12}\unit{rad/C}$ by hand and
+        $4.04\times10^{12}$ from the automated sweep, agreeing to $7\%$,
+        with $\Gamma$ changing sign across the cycle as a ring's must ---
+        its mean is $12\%$ of its rms --- and halving when the injected
+        charge halves, to $0.502$.
+
+        $\Gamma_{\mathrm{rms}}$ times a device noise density is a jitter,
+        and the model has a parameter that emits it. On this ring the
+        figure is $0.236$ to $0.578\unit{ps}$ rms, or $-114.5$ to
+        $-106.7\unit{dBc/Hz}$ at $1\unit{MHz}$ --- a RANGE, because the
+        channel-noise factor $\gamma$ and the way per-node densities
+        combine across a differential ring are both ranges, and a
+        midpoint would present a factor of three as a number.
+
+        \textbf{It is off by default, and that is the honest setting.}
+        Against the $12.31\unit{ps}$ this deck's declared rail produces,
+        an independent contribution adds in quadrature and moves the
+        total by $0.02$ to $0.11\%$ --- under a measurement that carries
+        $5\%$. Turning it on would make the model disagree with the SPICE
+        reference in a direction nothing here can adjudicate. What is
+        verified has to be what ships, so the measurement is attached to
+        the model and the model is left at zero.
+
+        \textbf{And the tool decides whether measuring is worth the
+        runtime.} Sixteen transients are not free. Contributions add in
+        quadrature, so an intrinsic $\sigma_i$ shifts a declared
+        $\sigma_d$ by about $(\sigma_i/\sigma_d)^2/2$; reaching
+        $\sigma_d$'s own uncertainty $u$ therefore needs
+        $\sigma_i > \sqrt{2u}\,\sigma_d$. On this PLL that crossover is
+        $3.89\unit{ps}$, which is $1.6\times10^{-3}$ of the period and
+        beyond what a ring produces, so the route declines and reports
+        the arithmetic. Where no source is declared it always runs,
+        because there it is the only jitter figure that exists.
 
         Edge JITTER is measured where the reference has edges --- on the
         reference PLL's two clock-path buffers it is $3.98\unit{ps}$
