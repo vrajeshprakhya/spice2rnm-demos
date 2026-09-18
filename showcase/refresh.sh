@@ -6,13 +6,25 @@
 # this directory: run the demos, copy the deliverables, stamp the run.
 # Hand-editing anything here other than README.md defeats the point.
 #
-#   ./refresh.sh              run all three demos, then curate
+#   ./refresh.sh              run all four demos, then curate and stamp
 #   ./refresh.sh --no-run     curate from the existing run directories
 #                             (only for iterating on the curation itself)
+#   ./refresh.sh --only pll   curate ONE case and leave the other three
+#                             alone. Implies --no-run, and does not stamp:
+#                             the STAMP describes the whole showcase.
 set -eu
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEMOS="$(cd "$HERE/.." && pwd)"
 RUNS="$HOME/s2r_runs"
+
+# --only <name> curates a single case. It implies --no-run: rebuilding one
+# case from a run of all four would be the opposite of what was asked.
+ONLY=""
+if [ "${1:-}" = "--only" ]; then
+  ONLY="${2:-}"
+  [ -n "$ONLY" ] || { echo "--only needs a case name: lpf2, dcc2, pi or pll"; exit 1; }
+  set -- --no-run
+fi
 
 if [ "${1:-}" != "--no-run" ]; then
   ( cd "$DEMOS" && ./run_all.sh ) | tee /tmp/showcase_run_summary.txt
@@ -285,20 +297,25 @@ PY
   echo "  $name/equivalence: $n file(s) published, $(grep -c '^  ' "$man") trace(s) manifested"
 }
 
-curate lpf2      lpf2
-curate dcc2      dcc2
-curate demo3_pi  pi
-curate_pll demo4_pll pll
+# ONLY is set by --only <name>: curate that case and leave the rest of the
+# showcase untouched. Re-publishing one case should not mean re-publishing
+# three others from whatever run directories happen to be lying around.
+want() { [ -z "${ONLY:-}" ] || [ "${ONLY}" = "$1" ]; }
+
+want lpf2 && curate lpf2      lpf2
+want dcc2 && curate dcc2      dcc2
+want pi   && curate demo3_pi  pi
+want pll  && curate_pll demo4_pll pll
 
 echo "curating equivalence evidence:"
-curate_equivalence "$HOME/s2r_runs/lpf2"     lpf2  equivalence
-curate_equivalence "$HOME/s2r_runs/dcc2"     dcc2  equivalence
+want lpf2 && curate_equivalence "$HOME/s2r_runs/lpf2"     lpf2  equivalence
+want dcc2 && curate_equivalence "$HOME/s2r_runs/dcc2"     dcc2  equivalence
 # BOTH: the per-code sweep directories, and equivalence/, which is where
 # the phase check writes its comparison table. Naming only code_sweep
 # published a manifest and no evidence -- nothing under it is a log or a
 # table, because the check moved and this line did not follow it.
-curate_equivalence "$HOME/s2r_runs/demo3_pi" pi    code_sweep equivalence
-curate_equivalence "$HOME/s2r_runs/demo4_pll" pll \
+want pi && curate_equivalence "$HOME/s2r_runs/demo3_pi" pi    code_sweep equivalence
+want pll && curate_equivalence "$HOME/s2r_runs/demo4_pll" pll \
     inv1/equivalence inv2/equivalence lpfilt/equivalence \
     ro_vco/_vco_equiv cpump/_cp_equiv cosim/model cosim/golden
 
@@ -319,6 +336,17 @@ fi
 # produced it is weaker than it looks: the environments were once validated
 # on one xezim revision while the tree moved on to another, and nothing here
 # could have told you. Best effort -- a checkout may not be present.
+# A STAMP AFTER A PARTIAL REBUILD WOULD BE A LIE. It carries a date and a
+# run summary describing everything beside it; re-dating the whole
+# showcase because one case was re-curated is exactly the staleness this
+# file exists to prevent, only harder to notice.
+if [ -n "${ONLY:-}" ]; then
+  echo "not stamping: only '$ONLY' was re-curated, and STAMP describes the"
+  echo "  whole showcase. Run ./refresh.sh with no arguments to rebuild and"
+  echo "  stamp everything."
+  exit 0
+fi
+
 XEZIM_BIN="${XEZIM:-$HOME/xezim/target/release/xezim}"
 XEZIM_REPO="$(cd "$(dirname "$XEZIM_BIN")/../.." 2>/dev/null && pwd || true)"
 xz_rev() {

@@ -19,9 +19,9 @@
 // cycles of a transient whose timestep is a fixed fraction of that point's
 // own period, re-run at half that step to show the number stopped moving.
 // Held-out error on the 14 midpoints between them: 4.986% of period (1774.5 ps), worst at 2.7689 V.
-// In the MEASURED OPERATING BAND 1.7972..1.9034 V, taken from a golden
+// In the MEASURED OPERATING BAND 1.7947..1.9077 V, taken from a golden
 // co-simulation run before this model existed: 0.002% (0.1 ps) over 4
-// held-out point(s), worst at 1.8901 V.
+// held-out point(s), worst at 1.8936 V.
 // Measurement convergence: halving the timestep moved the
 // worst point by 0.015%. The held-out score above is
 // interpolation error ONLY -- it compares points measured one
@@ -37,11 +37,15 @@
 module ro_vco_rnm #(
   // Measured, at the control voltage this block was characterized around.
   parameter real VDD_NOM  = 3.3,   // volts
-  parameter real DFDV_SUP = 4.506302787e+08,  // Hz per volt of supply
+  parameter real DFDV_SUP = 4.506332609e+08,  // Hz per volt of supply
   // Sub-steps per half cycle. 16 tracks a fast-moving input; 1 restores
   // the one-event-per-half-cycle scheduling, which is right when nothing
   // on this block's inputs moves within a cycle.
-  parameter int  SUB = 16
+  parameter int  SUB = 16,
+  // RMS PERIOD JITTER, as a fraction of the period. Zero unless a
+  // measurement asked for it -- see the header note above the table.
+  parameter real JITTER_FRAC = 0.000000000e+00,
+  parameter int  JITTER_SEED = 1
 ) (
   input  real  cont,
   // THE SUPPLY IS AN INPUT, because the circuit's frequency depends on it
@@ -69,11 +73,11 @@ module ro_vco_rnm #(
       VC[2] = 1.072500; FO[2] = 6.634459647e+08;
       VC[3] = 1.361250; FO[3] = 5.803862641e+08;
       VC[4] = 1.650000; FO[4] = 4.774032573e+08;
-      VC[5] = 1.797191; FO[5] = 4.203573328e+08;
-      VC[6] = 1.823740; FO[6] = 4.100376667e+08;
-      VC[7] = 1.850288; FO[7] = 3.997504459e+08;
-      VC[8] = 1.876836; FO[8] = 3.895104865e+08;
-      VC[9] = 1.903384; FO[9] = 3.793295313e+08;
+      VC[5] = 1.794693; FO[5] = 4.213294943e+08;
+      VC[6] = 1.822955; FO[6] = 4.103423757e+08;
+      VC[7] = 1.851216; FO[7] = 3.993913862e+08;
+      VC[8] = 1.879478; FO[8] = 3.884945841e+08;
+      VC[9] = 1.907740; FO[9] = 3.776654770e+08;
       VC[10] = 1.938750; FO[10] = 3.658689447e+08;
       VC[11] = 2.227500; FO[11] = 2.570119652e+08;
       VC[12] = 2.516250; FO[12] = 1.366251648e+08;
@@ -113,6 +117,37 @@ module ro_vco_rnm #(
     return VDD_NOM;
   endfunction
 
+  // An explicit LCG rather than $urandom, so a run is reproducible from
+  // its seed on any simulator and two runs of the same model can be
+  // compared. Not a good generator; good enough for a perturbation whose
+  // only required property is its variance.
+  int unsigned __jrng = 1;
+  function automatic real __u01();
+    __jrng = __jrng * 32'd1664525 + 32'd1013904223;
+    return (real'(__jrng) + 0.5) / 4294967296.0;
+  endfunction
+  function automatic real __gauss();
+    real u1, u2;
+    u1 = __u01();
+    u2 = __u01();
+    return $sqrt(-2.0 * $ln(u1)) * $cos(6.283185307179586 * u2);
+  endfunction
+
+  // The next half cycle's phase target. One half cycle is a phase of 1,
+  // so crossing at 1+g lengthens that half cycle by the fraction g --
+  // which is how a DURATION is perturbed without ever asking the
+  // scheduler for a negative delay.
+  //
+  // Floored well above zero: a sigma large enough to drive the target
+  // negative would not model a noisy oscillator, it would spin the
+  // scheduler.
+  function automatic real __next_thr();
+    real g;
+    if (JITTER_FRAC <= 0.0) return 1.0;
+    g = 1.0 + 1.4142135623730951 * JITTER_FRAC * __gauss();
+    return (g < 0.2) ? 0.2 : g;
+  endfunction
+
   // Half period in the module's time unit (1 fs).
   function automatic real half_period_fs(input real v, input real vs);
     real f;
@@ -146,19 +181,25 @@ module ro_vco_rnm #(
   // instead of one. Set SUB to 1 for the cheap scheduling where the inputs
   // are known to move slowly.
   real phase_clk;
-  real dt_fs, incr, frac;
+  real dt_fs, incr, frac, thr;
 
   initial begin
     phase_clk = 0.0;
+    __jrng = JITTER_SEED;
+    thr = __next_thr();
     dt_fs = half_period_fs(cont, vdd) / SUB;
     forever begin
       incr = 2.0 * (1.0e15 / (2.0 * half_period_fs(cont, vdd)))
              * (dt_fs * 1.0e-15);
-      if (phase_clk + incr >= 1.0) begin
-        frac = (1.0 - phase_clk) / incr;
+      if (phase_clk + incr >= thr) begin
+        frac = (thr - phase_clk) / incr;
         #(dt_fs * frac);
         clk = ~clk;
         phase_clk = 0.0;
+        // Redrawn per half cycle, so the perturbations accumulate and the
+        // edge times random-walk -- which is what a free-running
+        // oscillator does.
+        thr = __next_thr();
         #(dt_fs * (1.0 - frac));
         phase_clk = incr * (1.0 - frac);
       end else begin

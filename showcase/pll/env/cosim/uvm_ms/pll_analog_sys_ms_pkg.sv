@@ -63,9 +63,33 @@ package pll_analog_sys_ms_pkg;
     endtask
 
     function void report_phase(uvm_phase phase);
+      string jr;
       if (n_seen == 0)
         `uvm_error("SYS_MON",
                    "the monitor saw no boundary traffic -- the proxy was reachable but nothing crossed")
+
+      // PERIOD JITTER AT THE BOUNDARY, measured by monitors compiled at
+      // 1 fs inside the bridge. Everything else in this environment runs
+      // on a picosecond grid, which cannot locate an edge to better than
+      // a picosecond -- and the figures worth having here are tenths of
+      // one.
+      //
+      // REPORTED, NOT JUDGED, and the reason is the design rather than a
+      // missing feature: a loop SUPPRESSES its oscillator's jitter inside
+      // the loop bandwidth, so the jitter seen here is not the jitter the
+      // block produces and the two are not expected to agree. That is the
+      // loop working. A pass/fail needs a bound somebody states; inventing
+      // one from a single design would be worse than showing the number.
+      // The bridge prints this from a `final` block as well, and that
+      // is the copy to rely on: the design's testbench calls $finish,
+      // which skips this phase entirely. This one appears only when the
+      // run ends some other way.
+      jr = bp.pull_jitter();
+      if (jr.len() > 0)
+        `uvm_info("SYS_JITTER",
+                  {"period jitter at the boundary, measured at 1 fs ",
+                   "(reported, not judged -- see the note in the bridge):\n",
+                   jr}, UVM_LOW)
     endfunction
   endclass : pll_analog_sys_monitor
 

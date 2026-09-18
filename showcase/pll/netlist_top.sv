@@ -34,9 +34,23 @@
 // characteristic at the voltage it sees, and the block that
 // owns the node solves V and i together from the sum.
 //====================================================================
-module analog_top (
+module analog_top #(
+  parameter real DD_NOM = 3.3,
+  // white rms, as the deck declares it
+  parameter real DD_NOISE_RMS = 0.02,
+  // and the interval it is redrawn over
+  parameter real DD_NOISE_DT_S = 1e-10,
+  // 1/f amplitude, rms
+  parameter real DD_FLICKER_RMS = 0.0,
+  // random-telegraph amplitude, and its two dwell means
+  parameter real DD_RTS_AMP = 0.0,
+  parameter real DD_RTS_CAPT_S = 1e-09,
+  parameter real DD_RTS_EMIT_S = 1e-09,
+  parameter int  DD_SEED = 1
+) (
   input  logic  pdn,
   input  logic  pupb,
+  input  real   dd_v_ext,
   output real   aout_v,
   output real   vout_v
 );
@@ -45,7 +59,51 @@ module analog_top (
   wreal aout_i, dd_i, dra_i, vout_i;   // currents sum across drivers
   wreal aout_g, dd_g, dra_g, vout_g;   // so do parallel conductances
 
-  assign dd_v = 3.3;   // the deck's own source
+  // THE DECK'S DECLARED NOISE, carried rather than dropped.
+  // A source written `DC 3.3 trnoise(...)` is a noisy rail, and
+  // a composition that turns it into a constant has silently
+  // removed a disturbance the design asked for. On the
+  // reference PLL that source is worth 12.22 ps rms of period
+  // jitter at the oscillator, and a constant rail produces
+  // none of it.
+  //
+  // SAMPLE-AND-HOLD at the source's own interval, which
+  // reproduces its rms and its correlation time -- the two
+  // properties that set how much jitter it causes. ngspice
+  // interpolates between its noise breakpoints and this does
+  // not, so the spectra agree at low frequency and part near
+  // 1/NT.
+  //
+  // The generator is an explicit LCG rather than $urandom so a
+  // run is reproducible from its seed on any simulator.
+  function automatic real __u01(ref int unsigned st);
+    st = st * 32'd1664525 + 32'd1013904223;
+    return (real'(st) + 0.5) / 4294967296.0;
+  endfunction
+  function automatic real __gauss(ref int unsigned st);
+    real u1, u2;
+    u1 = __u01(st);
+    u2 = __u01(st);
+    return $sqrt(-2.0 * $ln(u1)) * $cos(6.283185307179586 * u2);
+  endfunction
+  // An exponentially distributed dwell time, for the
+  // random-telegraph process: -mean * ln(u), u uniform.
+  function automatic real __expo(ref int unsigned st,
+                                input real mean_s);
+    return -mean_s * $ln(__u01(st));
+  endfunction
+
+  int unsigned dd_rng;
+  initial dd_rng = DD_SEED;
+  real dd_nw;   // white, sample-and-hold at the deck's NT
+  initial begin
+    dd_nw = 0.0;
+    forever begin
+      #(DD_NOISE_DT_S * 1.0e15);
+      dd_nw = DD_NOISE_RMS * __gauss(dd_rng);
+    end
+  end
+  assign dd_v = ((dd_v_ext > 0.0) ? dd_v_ext : DD_NOM) + dd_nw;   // the deck's own source, with its noise
 
   cpump u_xcp (
     .pupb(pupb),

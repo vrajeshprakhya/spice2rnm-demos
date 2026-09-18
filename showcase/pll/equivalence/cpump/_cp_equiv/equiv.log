@@ -52,7 +52,7 @@ CPEQ-DONE
 ------------------------------
 Simulation finished at time 46
 ($finish called)
-[PHASE] compilation: 9.5ms
+[PHASE] compilation: 18.7ms
 [EVENT-EDGE] ARMED mode ON: 0 input signals, 0 fanout edges
 [EVENT-EDGE] measure (timestamp): 0 edge blocks, 0 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=0.00
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
@@ -73,7 +73,7 @@ Simulation finished at time 46
 [PROF] settle_calls=194 settle_iters=194 max_iters=1 entry_evals=343 unresolved_entries=0/3
 [PROF] settle_writes=146 (42.6% of evals changed a signal, 197 quiet) dep_edges=51 (0.3 per write)
 [PROF] two_state_evals=0 (0 entries lowered)
-[PROF] simulation_loop=4.2ms iters=47 avg=90.16µs/iter
-[PHASE] simulation: 4.5ms
-[PHASE] total: 14.1ms
+[PROF] simulation_loop=4.0ms iters=47 avg=84.80µs/iter
+[PHASE] simulation: 4.3ms
+[PHASE] total: 23.1ms
 ------------------------------

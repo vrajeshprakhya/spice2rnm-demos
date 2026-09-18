@@ -28,6 +28,43 @@ module pll_analog_sys_bridge;
 
   analog_top core (.pdn(__ams_l_pdn), .pupb(__ams_l_pupb), .aout_v(__ams_n_aout_v), .vout_v(__ams_n_vout_v));
 
+  // PERIOD JITTER, measured at 1 fs. These monitors are compiled at a
+  // finer timescale than the rest of this environment on purpose: a
+  // crossing recorded on the picosecond grid everything else uses cannot
+  // be located to better than a picosecond, and the figures worth having
+  // here are tenths of one.
+  // aout is judged on crossings, so it has periods to measure.
+  pll_analog_sys_jitter #(.VTH(1.65)) jit_aout (.sig(__ams_n_aout_v));
+
+  // PRINTED FROM `final`, not from a UVM phase. The design's own
+  // testbench calls $finish, and $finish skips check_phase and
+  // report_phase -- which is why the scoreboard's verdict was moved into
+  // a final block with a static handle. The first version of this report
+  // sat in the monitor's report_phase and produced nothing at all: no
+  // error, no empty measurement, no mention of the monitor anywhere in
+  // the log.
+  final begin
+    if (jitter_report().len() > 0) begin
+      $display("[SYS_JITTER] period jitter at the boundary, measured at 1 fs");
+      $display("[SYS_JITTER]   reported, not judged: a loop suppresses its");
+      $display("[SYS_JITTER]   oscillator's jitter inside the loop bandwidth,");
+      $display("[SYS_JITTER]   so this is not the block's jitter and the two");
+      $display("[SYS_JITTER]   are not expected to agree.");
+      $write("%s", jitter_report());
+    end
+  end
+
+  // Built here rather than in the scoreboard because the monitors are
+  // here. A class reaching a module instance needs a hierarchical path,
+  // and a path stops matching the moment anything above it is renamed.
+  function automatic string jitter_report();
+    string out, l;
+    out = "";
+      $sformat(l, "aout: %0d periods, mean %0.6f ns, rms jitter %0.4f ps, pk-pk %0.4f ps", jit_aout.periods(), jit_aout.mean_period()*1.0e9, jit_aout.rms_jitter()*1.0e12, jit_aout.pk_pk()*1.0e12);
+      out = {out, l, "\n"};
+    return out;
+  endfunction
+
   // Every crossing, recorded as it happens. The monitor observes these.
   string   x_kind, x_node;
   real     x_v, x_t;
@@ -122,6 +159,9 @@ module pll_analog_sys_bridge;
     endfunction
     virtual function real pull_dra();
       return read_dra();
+    endfunction
+    virtual function string pull_jitter();
+      return jitter_report();
     endfunction
     virtual task wait_xact();
       @(x_seq);

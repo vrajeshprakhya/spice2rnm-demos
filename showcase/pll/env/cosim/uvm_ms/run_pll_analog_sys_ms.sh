@@ -36,7 +36,7 @@ done
 
 # The design's own RTL is not generated and is not published beside
 # this environment, so there is nothing here to make it relative to.
-RTL_DIR=${RTL_DIR:-$HOME/ams-cosim/examples/pll}
+RTL_DIR=${RTL_DIR:-$HOME/s2r_runs/demo4_pll_deck}
 RTL=()
 for f in pfd.sv divn.sv; do
   if [ ! -f "$RTL_DIR/$f" ]; then
@@ -52,6 +52,7 @@ exec "$XEZIM_BIN" --max-time 3us -DUVM_NO_DPI \
     "$UVM/uvm_pkg.sv" "$UVM_MS/uvm_ms_pkg.sv" \
     "${MODELS[@]}" "${RTL[@]}" \
     "$HERE/pll_analog_sys_proxy_pkg.sv" \
+    "$HERE/pll_analog_sys_jitter.sv" \
     "$HERE/pll_analog_sys_bridge.sv" \
     "$HERE/pll_analog_sys_ms_pkg.sv" \
     "$HERE/tb.sv" \

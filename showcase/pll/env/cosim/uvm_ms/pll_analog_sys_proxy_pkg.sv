@@ -25,6 +25,11 @@ package pll_analog_sys_proxy_pkg;
     pure virtual function real pull_node(input string node);
     pure virtual function real pull_dra();
 
+    // The period jitter the boundary actually shows, measured at 1 fs by
+    // monitors inside the bridge. A pull like any other, so the
+    // scoreboard needs no hierarchical path into the design.
+    pure virtual function string pull_jitter();
+
     // 4.2.1 "Monitor continuous signals". The monitor observes what
     // actually crosses the bridge, at the instants it crosses, rather
     // than sampling on a grid of its own choosing. That is not a style
