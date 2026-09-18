@@ -420,6 +420,17 @@ correlation time. The spectra agree at low frequency and part near
 $1/NT$, where ngspice interpolates between its noise breakpoints and the
 model does not.
 
+\textbf{All seven fields of a \texttt{trnoise} declaration are read}, not
+the white pair alone. Where a deck declares flicker, the composition
+carries it as a Voss--McCartney summation across the octaves the run
+spans; where it declares a random telegraph, as a two-state Markov
+process with exponentially distributed dwells, at the capture and
+emission times given. The Voss construction produces $\alpha = 1$, and
+the generated file records both that and the exponent the deck asked for
+rather than quietly substituting one for the other. This PLL declares the
+white pair alone, which is why every figure here is white --- 1/f is what
+dominates close-in phase noise, and a deck that states it gets it.
+
 Carrying it changes what a comparison means. Both halves now draw their
 own noise, so two runs of the same circuit differ by sampling error
 alone and a fixed tolerance would be measuring run length. Each node's
