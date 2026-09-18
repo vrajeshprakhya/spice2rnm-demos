@@ -26,11 +26,20 @@ XEZIM="${XEZIM:-$HOME/xezim/target/release/xezim}"
 BRIDGE="${BRIDGE:-$COSIM/ams_bridge.so}"
 OUT="$HOME/s2r_runs/demo4_pll"
 
-# The reference partition, with ONE line added: 20 mV rms of noise on
-# its supply. That is an operating condition rather than a change to
-# the design -- a rail on a real chip is not quiet -- and it is the
-# condition this ring is most sensitive to, at 450.6 MHz/V.
-PLL="$COSIM/examples/pll_noisy"
+# The published partition, exactly as the co-simulation repo ships it.
+PLL_SRC="$COSIM/examples/pll"
+
+# And the deck this demo actually runs: that one, with ONE line added --
+# 20 mV rms of noise on its supply. Written here rather than published
+# alongside, because a second near-identical netlist in the other repo
+# would be a copy to keep in step, and because the one line that differs
+# is worth seeing in the script that adds it.
+#
+# It is an operating condition rather than a change to the design. A rail
+# on a real chip is not quiet, and this ring is more sensitive to its
+# supply than to almost anything else: 450.6 MHz/V, comparable to its own
+# tuning port and opposite in sign.
+PLL="$HOME/s2r_runs/demo4_pll_deck"
 NETLIST="$PLL/pll_analog.cir"
 
 hr()  { printf '\n\033[1m%s\033[0m\n%s\n' "$1" "$(printf '=%.0s' {1..72})"; }
@@ -54,10 +63,10 @@ hr "0. What this one needs"
 say "Demos 1-3 take a netlist and nothing else. This one models the analog"
 say "half of a running co-simulation, so it needs the other half too."
 echo
-need "$NETLIST"                 "the PLL netlist"          "github.com/vrajeshprakhya/ams-cosim"
-need "$PLL/pfd.sv"              "phase detector RTL"       "same repo, examples/pll"
-need "$PLL/divn.sv"             "divider RTL"              "same repo, examples/pll"
-need "$PLL/tb_pll.sv"           "the co-simulation tb"     "same repo, examples/pll"
+need "$PLL_SRC/pll_analog.cir"  "the PLL netlist"          "github.com/vrajeshprakhya/ams-cosim"
+need "$PLL_SRC/pfd.sv"          "phase detector RTL"       "same repo, examples/pll"
+need "$PLL_SRC/divn.sv"         "divider RTL"              "same repo, examples/pll"
+need "$PLL_SRC/tb_pll.sv"       "the co-simulation tb"     "same repo, examples/pll"
 need "$BRIDGE"                  "the DPI bridge"           "build it: ams-cosim/build.sh"
 need "$NGLIB/libngspice.so"     "SHARED libngspice"        "ngspice --with-ngshared"
 need "$NGSPICE"                 "ngspice binary"           "a normal ngspice build"
@@ -68,6 +77,22 @@ if [ "$miss" = "1" ]; then
   say "of; demos 1-3 need none of them and still work."
   exit 1
 fi
+# --- the deck this demo runs -------------------------------------------------
+# ASSERTED, not assumed. A pattern that matched nothing would leave a quiet
+# deck behind while every line below still described a noisy one, and the
+# run would simply be the reference run wearing a different name.
+rm -rf "$PLL"; mkdir -p "$PLL"
+cp "$PLL_SRC/pfd.sv" "$PLL_SRC/divn.sv" "$PLL_SRC/tb_pll.sv" "$PLL/"
+sed 's/^vdd dd 0 dc {vcc}$/vdd dd 0 dc {vcc} trnoise(0.02 1e-10 0 0)/' \
+    "$PLL_SRC/pll_analog.cir" > "$NETLIST"
+if ! grep -q 'trnoise' "$NETLIST"; then
+  echo
+  say "The supply card in $PLL_SRC/pll_analog.cir is not the shape this demo"
+  say "expects, so the noise was not added and nothing was run. Looked for a"
+  say "line reading exactly: vdd dd 0 dc {vcc}"
+  exit 1
+fi
+
 cd "$S2R" || exit 1
 beat
 
