@@ -789,11 +789,14 @@ amplitude has to clear before its result counts.
 
 The agreement is not a fit. A static sensitivity of $450.6\unit{MHz/V}$
 on a $2.5\unit{ns}$ period predicts $14.1\unit{ps}$ of period jitter for
-$5\unit{mV}$ rms if the disturbance held still across the cycle. The
-circuit gives $3.02\unit{ps}$, and the ratio $0.214$ is
-$\sqrt{100\unit{ps}/2500\unit{ps}}$: the oscillator averages its input
-over the cycle. The model reproduces that because it integrates, and the
-version that samples does not.
+$5\unit{mV}$ rms, if the disturbance held still across the cycle. The
+circuit gives the $2.45\unit{ps}$ in the table above --- a ratio of
+$0.174$ against the $\sqrt{100\unit{ps}/2500\unit{ps}} = 0.200$ that
+averaging over the cycle predicts. It holds across the decade, not at one
+point: $0.174$, $0.191$ and $0.170$ at the three judged amplitudes, where
+an oscillator that did not average its input would sit at $1$. The model
+reproduces that because it integrates, and the version that samples does
+not.
 
 \textbf{And it decides for itself whether the check is worth running.}
 The honest answer for most designs is no, and the tool says so with
