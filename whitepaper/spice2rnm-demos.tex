@@ -387,6 +387,12 @@ verdict is against and the record carries. A single
 agreement figure quoted without it says less than it appears to, in the
 same way as a jitter ratio quoted without its correlation time.
 
+Each node also records which of its two metrics that bar governs. A node
+the digital side consumes through a threshold is judged on its crossings
+and not on its mean, so a record printing the mean beside the crossing
+bar reads as a pass against a bar it exceeded --- $0.030$ against
+$0.020$, where the number actually compared was $0.004$.
+
 \subsection{The rail the deck declares is the rail the model sees}
 \label{sec:noise}
 
@@ -440,12 +446,6 @@ declared amplitude --- what actually reaches a node is a property of the
 circuit. On \texttt{vout} that allowance is $0.127$ of the $0.177$ bar,
 and the record carries both, so a reader can see how much of the bar was
 earned and how much was allowed.
-
-Each node also records which of its two metrics that bar governs. A node
-the digital side consumes through a threshold is judged on its crossings
-and not on its mean, so a record printing the mean beside the crossing
-bar reads as a pass against a bar it exceeded --- $0.030$ against
-$0.020$, where the number actually compared was $0.004$.
 
 \subsection{Where the block works is measured, not assumed}
 
