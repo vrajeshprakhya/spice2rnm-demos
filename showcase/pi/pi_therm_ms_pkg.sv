@@ -12,7 +12,10 @@
 package pi_therm_ms_pkg;
 
   import uvm_pkg::*;
+  import uvm_ms_pkg::*;
   `include "uvm_macros.svh"
+
+  import pi_therm_proxy_pkg::*;
 
   localparam int  NCODE      = 9;
   localparam real PERIOD_S   = 2.000000000000e-09;
@@ -68,5 +71,116 @@ package pi_therm_ms_pkg;
       end
     endtask
   endclass
+
+  //--------------------------------------------------------------------
+  // Driver: apply the code, settle, and hold the sequence until the
+  // measurement is finished. The wait is the point -- without it the next
+  // code lands while the monitor is still averaging edges from this one.
+  //--------------------------------------------------------------------
+  class pi_therm_ms_driver extends uvm_driver #(pi_therm_code_item);
+    `uvm_component_utils(pi_therm_ms_driver)
+
+    pi_therm_proxy bridge_proxy;
+
+    function new(string name, uvm_component parent);
+      super.new(name, parent);
+    endfunction
+
+    virtual function void build_phase(uvm_phase phase);
+      super.build_phase(phase);
+      if (!uvm_config_db #(pi_therm_proxy)::get(this, "", "bridge_proxy",
+                                                bridge_proxy))
+        `uvm_fatal("NO_PROXY", "bridge_proxy not set for the driver")
+    endfunction
+
+    virtual task run_phase(uvm_phase phase);
+      pi_therm_code_item it;
+      forever begin
+        seq_item_port.get_next_item(it);
+        `uvm_info("pi_therm_ms_driver",
+                  $sformatf("code = %0d", it.code), UVM_MEDIUM)
+        bridge_proxy.push_code(it.code);
+        // Hold the sequence until the measurement is finished. Without
+        // this the next code lands while the core is still averaging
+        // edges from this one.
+        bridge_proxy.wait_measure_done();
+        seq_item_port.item_done();
+      end
+    endtask
+  endclass : pi_therm_ms_driver
+
+  //--------------------------------------------------------------------
+  // Monitor: measure where the edge landed, and publish it. Reaches the
+  // analog side only through the proxy, so it is unchanged whichever
+  // core sits behind the bridge.
+  //--------------------------------------------------------------------
+  class pi_therm_ms_monitor extends uvm_monitor;
+    `uvm_component_utils(pi_therm_ms_monitor)
+
+    pi_therm_proxy bridge_proxy;
+    uvm_analysis_port #(pi_therm_code_item) item_collected_port;
+
+    function new(string name, uvm_component parent);
+      super.new(name, parent);
+      item_collected_port = new("item_collected_port", this);
+    endfunction
+
+    virtual function void build_phase(uvm_phase phase);
+      super.build_phase(phase);
+      if (!uvm_config_db #(pi_therm_proxy)::get(this, "", "bridge_proxy",
+                                                bridge_proxy))
+        `uvm_fatal("NO_PROXY", "bridge_proxy not set for the monitor")
+    endfunction
+
+    virtual task run_phase(uvm_phase phase);
+      pi_therm_code_item it;
+      real ph;
+      int  c, n;
+      forever begin
+        bridge_proxy.wait_measure_done();
+        c  = bridge_proxy.get_code();
+        ph = bridge_proxy.get_phase();
+        n  = bridge_proxy.get_n_edges();
+        if (n > 0) begin
+          it = pi_therm_code_item::type_id::create("it");
+          it.code = c;
+          it.measured_phase = ph;
+          item_collected_port.write(it);
+        end
+        else
+          `uvm_error("PHASE_MEAS",
+                     $sformatf("code %0d produced no falling edges", c))
+      end
+    endtask
+  endclass : pi_therm_ms_monitor
+
+  //--------------------------------------------------------------------
+  // Agent: sequencer, driver and monitor, as in every other environment
+  // this tool emits.
+  //--------------------------------------------------------------------
+  class pi_therm_ms_agent extends uvm_agent;
+    `uvm_component_utils(pi_therm_ms_agent)
+
+    uvm_sequencer #(pi_therm_code_item) sequencer;
+    pi_therm_ms_driver                  driver;
+    pi_therm_ms_monitor                 monitor;
+
+    function new(string name, uvm_component parent);
+      super.new(name, parent);
+    endfunction
+
+    virtual function void build_phase(uvm_phase phase);
+      super.build_phase(phase);
+      sequencer = uvm_sequencer #(pi_therm_code_item)::type_id::create(
+                    "sequencer", this);
+      driver    = pi_therm_ms_driver::type_id::create("driver", this);
+      monitor   = pi_therm_ms_monitor::type_id::create("monitor", this);
+    endfunction
+
+    virtual function void connect_phase(uvm_phase phase);
+      super.connect_phase(phase);
+      driver.seq_item_port.connect(sequencer.seq_item_export);
+    endfunction
+  endclass : pi_therm_ms_agent
 
 endpackage : pi_therm_ms_pkg

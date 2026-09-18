@@ -4,13 +4,13 @@
 # Runs entirely on xezim: one invocation compiles and simulates UVM, the
 # IEEE 1800-2017 6.6.7 user-defined nettypes and interconnect (6.6.8) ports.
 #
-# Fewer files than the DC/AC environment: there is no MS bridge here,
-# because the stimulus is a free-running clock generated in top rather than
-# an analog level pushed from the driver. See uvm_ms_phase_codegen.py.
+# Same shape as the DC/AC environment -- proxy, bridge, agent -- with a
+# proxy API that pushes CODES rather than levels, because for this block
+# the analog input is a free-running clock and does not vary.
 set -u
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 XEZIM=${XEZIM:-$HOME/xezim/target/release/xezim}
-UVM=${UVM_SRC:-}
+UVM=${UVM_SRC:-$HOME/iverilog-unified/uvm-core/src}
 UVM_MS=${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}
 # A simulation-time ceiling, not a run length -- the run still ends at
 # $finish. Override with $MAX_TIME.
@@ -36,8 +36,11 @@ timeout "$WALL_TIMEOUT" "$XEZIM" --max-time "$MAX_TIME" -DUVM_NO_DPI \
     "$UVM/uvm_pkg.sv" \
     "$UVM_MS/uvm_ms_pkg.sv" \
     pi_therm_ms_types_pkg.sv \
+    pi_therm_proxy_pkg.sv \
     pi_therm_rnm.sv \
     pi_therm_dms.sv \
+    pi_therm_bridge_core.sv \
+    pi_therm_bridge.sv \
     pi_therm_ms_pkg.sv \
     top_pi_therm_ms.sv \
     +UVM_NO_RELNOTES "$@" \

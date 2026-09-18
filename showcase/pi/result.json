@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-18T03:33:58.397280+00:00",
+    "timestamp_utc": "2026-09-18T22:43:41.172117+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -19,6 +19,8 @@
       "--ngspice-bin",
       "/home/vraje/ngspice-install/bin/ngspice",
       "--emit-uvm-ms",
+      "--uvm-ms-lib",
+      "/home/vraje/uvm_ms_demo/ms",
       "--emit-wreal",
       "--emit-assertions"
     ],
@@ -95,7 +97,10 @@
     "sv_path": "/home/vraje/s2r_runs/demo3_pi/pi_therm_rnm.sv",
     "uvm_ms_files": [
       "/home/vraje/s2r_runs/demo3_pi/pi_therm_ms_types_pkg.sv",
+      "/home/vraje/s2r_runs/demo3_pi/pi_therm_proxy_pkg.sv",
       "/home/vraje/s2r_runs/demo3_pi/pi_therm_dms.sv",
+      "/home/vraje/s2r_runs/demo3_pi/pi_therm_bridge_core.sv",
+      "/home/vraje/s2r_runs/demo3_pi/pi_therm_bridge.sv",
       "/home/vraje/s2r_runs/demo3_pi/pi_therm_ms_pkg.sv",
       "/home/vraje/s2r_runs/demo3_pi/pi_therm_ms_scoreboard.svh",
       "/home/vraje/s2r_runs/demo3_pi/pi_therm_ms_tb.svh",

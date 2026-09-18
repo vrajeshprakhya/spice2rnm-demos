@@ -20,7 +20,9 @@ class pi_therm_ms_test extends uvm_test;
     pi_therm_code_seq seq;
     phase.raise_objection(this);
     seq = pi_therm_code_seq::type_id::create("seq");
-    seq.start(tb.sqr);
+    // The sequencer is the agent's, not the env's: this environment
+    // has the same shape as the DC/AC one now.
+    seq.start(tb.agent.sequencer);
     tb.sb.report_phase();
     phase.drop_objection(this);
   endtask

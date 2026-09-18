@@ -15,6 +15,14 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HARNESS="$HERE/harness"
 S2R="${S2R:-$HOME/spice2rnm}"
 NGSPICE="${NGSPICE:-$HOME/ngspice-install/bin/ngspice}"
+# The UVM and UVM-MS sources the generated environment compiles against.
+# Without these the run script fills in an empty path and exits before it
+# elaborates anything -- which is how act 5 came to print nothing at all.
+UVM_MS_LIB="${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}"
+UVM_SRC="${UVM_SRC:-$HOME/iverilog-unified/uvm-core/src}"
+# Exported, not passed: the tool has no --uvm-src flag, and the
+# generated run script reads this from the environment.
+export UVM_SRC
 OUT="$HOME/s2r_runs/demo3_pi"
 NETLIST="$S2R/work/pi_therm.cir"
 
@@ -73,13 +81,15 @@ say "Same tool, code-phase path: measure at every setting, generate the"
 say "model from the measurement, emit an environment that checks it."
 echo
 say "  python3 -m spice2rnm work/pi_therm.cir --output-node vout \\"
-say "      --code-map thermometer:8 --code-period 2e-9 --emit-uvm-ms"
+say "      --code-map thermometer:8 --code-period 2e-9 \\"
+say "      --emit-uvm-ms --uvm-ms-lib $UVM_MS_LIB"
 echo
 T0=$(date +%s)
 ( cd "$S2R" && python3 -m spice2rnm work/pi_therm.cir \
     --out-dir "$OUT" --output-node vout \
     --code-map thermometer:8 --code-period 2e-9 \
-    --ngspice-bin "$NGSPICE" --emit-uvm-ms --emit-wreal --emit-assertions 2>&1 ) \
+    --ngspice-bin "$NGSPICE" --emit-uvm-ms --uvm-ms-lib "$UVM_MS_LIB" \
+    --emit-wreal --emit-assertions 2>&1 ) \
   | grep -viE '^\s*$' | sed 's/^/    /'
 rc=${PIPESTATUS[0]}
 if [ "$rc" -ne 0 ]; then
@@ -104,8 +114,13 @@ say "Goldens are the ngspice edge measurements from the sweep above --"
 say "not points read back from the model's own delay table, which would"
 say "pass unconditionally."
 echo
+# ERROR AND ERROR: BOTH. The filter used to match COMPILE FAILED and the
+# two UVM counters, so a run script that exited with
+# "ERROR: /uvm_pkg.sv not found" printed NOTHING here and the act looked
+# like a clean pass with no output. A filter that can only show success
+# is not a filter.
 ( cd "$OUT" && timeout 3600 bash run_pi_therm_ms.sh 2>&1 \
-  | grep -E "SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED|=== " \
+  | grep -E "SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED|^ERROR|=== " \
   | sort -u | sed 's/^/    /' )
 echo
 say "A tenth of an LSB is the delay line's own quantisation floor, not a"
