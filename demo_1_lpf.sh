@@ -102,7 +102,7 @@ echo
     UVM_MS_LIB="$HOME/uvm_ms_demo/ms" \
     UVM_SRC="$HOME/iverilog-unified/uvm-core/src" \
     timeout 3600 bash run_rc_lpf2_ms.sh 2>&1 \
-    | grep -E "SB_SUMMARY|UVM_ERROR|UVM_FATAL|compiling|running|COMPILE FAILED" \
+    | grep -E "SB_SUMMARY|UVM_ERROR|UVM_FATAL|compiling|running|COMPILE FAILED|^ERROR" \
     | head -12 | sed 's/^/    /' )
 echo
 say "41 DC goldens and 10 AC goldens, plus a constrained-random tail, zero"

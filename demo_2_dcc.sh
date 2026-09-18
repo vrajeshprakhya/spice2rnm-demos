@@ -187,7 +187,7 @@ if [ -n "$MS_PID" ]; then
   say "(started right after act 2 and run alongside acts 4 and 5 -- the"
   say " same run, just not made to wait its turn)"
   echo
-  grep -E "SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED" "$MS_LOG" \
+  grep -E "SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED|^ERROR" "$MS_LOG" \
     | sed 's/^/    /'
 else
   say "no generated runner found -- was --emit-uvm-ms passed?"
