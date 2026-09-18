@@ -351,13 +351,15 @@ line against line.
 Blocks modelled, three routes        & $3$ composed, $2$ more emitted \\
 Per-block equivalence                & $5$ of $5$ pass \\
 \midrule
+Supply condition                     & $20\unit{mV}$ rms, declared in the deck \\
 System check vs transistors          & $4$ boundary signals, $0$ failed \\
-\quad \texttt{vout} (control voltage) & $0.224\unit{mV}$ \\
+\quad \texttt{vout} (control voltage) & $3.61\unit{mV}$ \\
 \quad \texttt{aout} (VCO output)      & $0.4\%$ of threshold crossings \\
-\quad \texttt{dra} (internal probe)   & $1.12\unit{mV}$ \\
+\quad \texttt{dra} (internal probe)   & $17.7\unit{mV}$ \\
 \midrule
 Both loops lock at                   & $400.00\unit{MHz}$ \\
-\quad lock points                    & $1.8502\unit{V}$ vs $1.8499\unit{V}$ \\
+\quad settled control band           & $1.8468$--$1.8546\unit{V}$ vs \\
+                                     & $1.8468$--$1.8499\unit{V}$ \\
 \midrule
 Model half vs transistor half        & $2.12\unit{s}$ vs $66.1\unit{s}$ \\
 \bottomrule
@@ -366,10 +368,51 @@ Model half vs transistor half        & $2.12\unit{s}$ vs $66.1\unit{s}$ \\
 
 \noindent The control voltage is the number to read. It is where the loop
 stores its state, so a model that settles anywhere else disagrees here
-first --- and the two agree to a quarter of a millivolt while reaching the
-same frequency. Run to $20\unit{\textmu s}$, where both halves settle
-rather than being caught mid-transient, the agreement improves to
-$0.135\unit{mV}$.
+first --- and the two agree to $3.61\unit{mV}$ while reaching the same
+frequency, on a rail carrying $20\unit{mV}$ rms of noise the deck
+declares. That is looser than the figure this table carried while the
+rail was quiet, and the rail is the reason: a loop concentrates a supply
+disturbance onto precisely this node. Running the case that way is the
+point of it.
+
+\subsection{The rail the deck declares is the rail the model sees}
+\label{sec:noise}
+
+The netlist for this case says
+
+\begin{center}
+\texttt{vdd dd 0 dc \{vcc\} trnoise(0.02 1e-10 0 0)}
+\end{center}
+
+\noindent --- a supply with $20\unit{mV}$ rms on it, redrawn every
+$100\unit{ps}$. A composition that reads that line and emits
+\texttt{assign dd\_v = 3.3;} has deleted a disturbance the design asked
+for, and every check downstream then agrees about a circuit nobody is
+shipping. The deletion is worth $12.22\unit{ps}$ rms of period jitter on
+this ring, which its supply moves at $450.6\unit{MHz/V}$.
+
+So the declared source is carried into the composed model, sampled and
+held at the source's own interval. That reproduces the two properties
+which decide how much jitter a source causes --- its rms and its
+correlation time. The spectra agree at low frequency and part near
+$1/NT$, where ngspice interpolates between its noise breakpoints and the
+model does not.
+
+Carrying it changes what a comparison means. Both halves now draw their
+own noise, so two runs of the same circuit differ by sampling error
+alone and a fixed tolerance would be measuring run length. Each node's
+bar is widened by three standard errors of the difference between two
+window means, taken from the reference's own spread rather than from the
+declared amplitude --- what actually reaches a node is a property of the
+circuit. On \texttt{vout} that allowance is $0.176$ of the $0.226$ bar,
+and the record carries both, so a reader can see how much of the bar was
+earned and how much was allowed.
+
+Each node also records which of its two metrics that bar governs. A node
+the digital side consumes through a threshold is judged on its crossings
+and not on its mean, so a record printing the mean beside the crossing
+bar reads as a pass against a bar it exceeded --- $0.030$ against
+$0.020$, where the number actually compared was $0.004$.
 
 \subsection{Where the block works is measured, not assumed}
 
@@ -746,13 +789,31 @@ version that samples does not.
 \textbf{And it decides for itself whether the check is worth running.}
 The honest answer for most designs is no, and the tool says so with
 numbers rather than skipping in silence. On the reference PLL the control
-moves $9.7\unit{\textmu V}$ rms within one oscillator period --- worth
-$0.023\unit{ps}$ of movement against a $0.052\unit{ps}$ measurement floor.
+moves $12.18\unit{\textmu V}$ rms within one $2.503\unit{ns}$ period ---
+worth $0.0288\unit{ps}$ of movement against a $0.0521\unit{ps}$
+measurement floor, which is $0.55\times$ what the reference can resolve.
 There the two model forms agree to less than the measurement can see, so a
 sweep would report the solver and not the circuit, and the run records
 that reasoning instead of a verdict. The check runs when the design's own
-closed-loop behaviour says it would measure something, when the netlist
-declares a noise source of its own, or when you ask for it.
+closed-loop behaviour says it would measure something, and when the deck
+handed to the block declares transient noise of its own. There is no flag
+to force it, because a request to run a check is not evidence that one is
+warranted; and where the tool has no closed-loop evidence either way it
+runs the check rather than skipping it. An absent judgement is not a
+judgement to skip on.
+
+\paragraph{Where the four rows above come from.} Not from this PLL, and
+saying so is cheaper than letting a reader find it. The gate declines
+here --- the figures just quoted are exactly why --- so the sweep was run
+by calling it directly rather than through the pipeline's own decision.
+Two consequences a reader is owed. The deck for this case \emph{does}
+declare $20\unit{mV}$ rms on its supply, and that condition reaches the
+composed model (Section~\ref{sec:noise}), but it does not reach this
+gate: each block is characterised from a standalone fragment carrying its
+own bias sources, not the top-level rail, so the declaration is invisible
+where the decision is made. And the sweep is reachable only as a library
+call, with no command-line flag behind it, so no run that produces the
+rest of this paper exercises it.
 
 %======================================================================
 \section{Why a green testbench is worth believing}
@@ -1010,13 +1071,21 @@ on trust that the feature requested was the feature exercised.
         and $3.60\unit{ps}$, reported beside the skew because the
         two fail differently --- but it is reported, not judged: there is
         no threshold, and inventing one from a single design would be
-        worse than showing the number. At system level it is not measured
-        at all, because the co-simulation boundary is sampled at
-        $100\unit{ps}$ and the composed model's output crosses
-        its threshold between samples, so a crossing can only be located
-        to the nearest tick. That is a property of the probe, not of the
-        model, and reporting it as jitter would be measuring the sampling
-        grid.
+        worse than showing the number. The system equivalence check does
+        not judge it either, for a reason about the probe rather than the
+        model: its boundary log is sampled at $100\unit{ps}$, the composed
+        model's output crosses its threshold between samples, and a
+        crossing can therefore be located only to the nearest tick ---
+        reporting that as jitter would be measuring the sampling grid.
+
+        The generated UVM-MS environment carries a monitor without that
+        limitation. It is event-driven on the signal rather than sampled
+        on a clock, and compiled at \texttt{1fs} while the rest of the
+        environment stays at \texttt{1ps}, which costs nothing anywhere
+        else because SystemVerilog scopes timescale per module. It is
+        emitted and published with the environment. The equivalence
+        evidence in this paper does not exercise it, so no system-level
+        jitter figure is quoted here.
 
         This is further than published practice goes on the validation
         side, while the gap named above --- intrinsic noise in the model

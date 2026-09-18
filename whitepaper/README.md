@@ -4,7 +4,7 @@
 automatic real-number-model and testbench generator: four worked case
 studies.
 
-**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (9
+**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (15
 pages). The PDF is regenerated from the `.tex` whenever it changes; if
 the two ever disagree, the `.tex` is the source of truth.
 
@@ -27,7 +27,7 @@ engine.
 Every figure in the paper is machine-produced by the tool itself — none
 are typed in by hand. Two places to verify that:
 
-- [`../run_all.sh`](../run_all.sh) runs all three demonstrations end to
+- [`../run_all.sh`](../run_all.sh) runs all four demonstrations end to
   end and prints the headline figures the paper quotes.
 - [`../showcase/`](../showcase/) holds the generated artifacts themselves
   — models, verification environments, and evidence files — with
