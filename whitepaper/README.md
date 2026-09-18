@@ -4,7 +4,7 @@
 automatic real-number-model and testbench generator: four worked case
 studies.
 
-**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (15
+**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (16
 pages). The PDF is regenerated from the `.tex` whenever it changes; if
 the two ever disagree, the `.tex` is the source of truth.
 

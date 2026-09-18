@@ -353,23 +353,23 @@ Per-block equivalence                & $5$ of $5$ pass \\
 \midrule
 Supply condition                     & $20\unit{mV}$ rms, declared in the deck \\
 System check vs transistors          & $4$ boundary signals, $0$ failed \\
-\quad \texttt{vout} (control voltage) & $1.83\unit{mV}$, bar $0.174$ \\
+\quad \texttt{vout} (control voltage) & $4.15\unit{mV}$, bar $0.262$ \\
 \quad \texttt{aout} (VCO output)      & $0.4\%$ of crossings, bar $2\%$ \\
-\quad \texttt{dra} (internal probe)   & $9.31\unit{mV}$ \\
+\quad \texttt{dra} (internal probe)   & $19.9\unit{mV}$ \\
 \midrule
 Both loops lock at                   & $400.00\unit{MHz}$ \\
 \quad settled control band           & $1.8468$--$1.8546\unit{V}$ vs \\
                                      & $1.8468$--$1.8499\unit{V}$ \\
 \midrule
-Model half vs transistor half        & $6.10\unit{s}$ vs $101.3\unit{s}$ \\
-\quad same testbench, same span       & $16.6\times$ \\
+Model half vs transistor half        & $7.09\unit{s}$ vs $119.3\unit{s}$ \\
+\quad same testbench, same span       & $16.8\times$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \noindent The control voltage is the number to read. It is where the loop
 stores its state, so a model that settles anywhere else disagrees here
-first --- and the two agree to $1.83\unit{mV}$ while reaching the same
+first --- and the two agree to $4.15\unit{mV}$ while reaching the same
 frequency, on a rail carrying $20\unit{mV}$ rms of noise the deck
 declares. That is looser than the figure this table carried while the
 rail was quiet, and the rail is the reason: a loop concentrates a supply
@@ -379,11 +379,11 @@ point of it.
 \textbf{That figure is one draw, and the bar beside it is not.} Both
 halves generate their own noise from the declared source, so a
 worst-window difference is a sample rather than a property of the model:
-the run before this one gave $3.61\unit{mV}$ here and $17.7\unit{mV}$ on
-\texttt{dra}, about twice these. What does not move is what the
-difference is judged against --- $0.174$ of \texttt{vout}'s own scale,
-of which $0.124$ is the allowance for exactly this sampling --- and that
-is the number the verdict is against and the record carries. A single
+three consecutive runs of this same deck gave $3.61$, $1.83$ and
+$4.15\unit{mV}$ here. What does not move is what the difference is judged
+against --- $0.262$ of \texttt{vout}'s own scale, of which $0.212$ is the
+allowance for exactly this sampling --- and that is the number the
+verdict is against and the record carries. A single
 agreement figure quoted without it says less than it appears to, in the
 same way as a jitter ratio quoted without its correlation time.
 
@@ -733,8 +733,8 @@ it checks against, and the pass/fail rules are byte-for-byte identical in
 both runs, and only the small piece of code joining the two halves is
 swapped. That makes the two runs directly comparable, signal by signal:
 $4$ signals crossing between the halves, $0$ failed, the control voltage
-agreeing to $0.224\unit{mV}$, and both versions locking to the same
-frequency.
+agreeing to $4.15\unit{mV}$ on a rail carrying $20\unit{mV}$ rms of
+declared noise, and both versions locking to the same frequency.
 
 And a check that does not apply to a given run is reported as not
 applicable, with the reason why. It is never quietly counted as a pass.
@@ -780,14 +780,19 @@ worse of the two paths.
 
 \begin{center}
 \small
-\begin{tabular}{lrrr}
+\begin{tabular}{llrrr}
 \hline
-\textbf{Injected} & \textbf{Circuit} & \textbf{Model} & \textbf{Ratio}\\
+\textbf{Path} & \textbf{Injected} & \textbf{Circuit} & \textbf{Model} & \textbf{Ratio}\\
 \hline
-none (floor)        & $0.049\unit{ps}$ & $0.000\unit{ps}$ & not judged\\
-$5\unit{mV}$ rms    & $2.45\unit{ps}$  & $2.49\unit{ps}$  & $1.02$\\
-$20\unit{mV}$ rms   & $10.74\unit{ps}$ & $10.27\unit{ps}$ & $0.96$\\
-$50\unit{mV}$ rms   & $23.90\unit{ps}$ & $23.72\unit{ps}$ & $0.99$\\
+either  & none (floor)      & $0.050\unit{ps}$  & $0.000\unit{ps}$  & not judged\\
+\hline
+control & $5\unit{mV}$ rms  & $2.327\unit{ps}$  & $2.394\unit{ps}$  & $1.029$\\
+        & $20\unit{mV}$ rms & $8.952\unit{ps}$  & $9.169\unit{ps}$  & $1.024$\\
+        & $50\unit{mV}$ rms & $23.314\unit{ps}$ & $22.832\unit{ps}$ & $0.979$\\
+\hline
+supply  & $5\unit{mV}$ rms  & $2.861\unit{ps}$  & $2.842\unit{ps}$  & $0.993$\\
+        & $20\unit{mV}$ rms & $11.642\unit{ps}$ & $11.221\unit{ps}$ & $0.964$\\
+        & $50\unit{mV}$ rms & $28.287\unit{ps}$ & $28.876\unit{ps}$ & $1.021$\\
 \hline
 \end{tabular}
 \end{center}
@@ -799,45 +804,59 @@ circuit did. Asking the model to reproduce it would be asking it to
 reproduce an artefact. It is used instead as the floor every other
 amplitude has to clear before its result counts.
 
-The agreement is not a fit. A static sensitivity of $450.6\unit{MHz/V}$
-on a $2.5\unit{ns}$ period predicts $14.1\unit{ps}$ of period jitter for
-$5\unit{mV}$ rms, if the disturbance held still across the cycle. The
-circuit gives the $2.45\unit{ps}$ in the table above --- a ratio of
-$0.174$ against the $\sqrt{100\unit{ps}/2500\unit{ps}} = 0.200$ that
-averaging over the cycle predicts. It holds across the decade, not at one
-point: $0.174$, $0.191$ and $0.170$ at the three judged amplitudes, where
-an oscillator that did not average its input would sit at $1$. The model
-reproduces that because it integrates, and the version that samples does
-not.
+The agreement is not a fit. Take the supply path, where the sensitivity
+is separately measured: $450.6\unit{MHz/V}$ on a $2.503\unit{ns}$ period
+predicts $14.12\unit{ps}$ of period jitter for $5\unit{mV}$ rms, if the
+disturbance held still across the cycle. The circuit gives
+$2.861\unit{ps}$ --- a ratio of $0.203$, against the
+$\sqrt{\tau/T} = \sqrt{100.1\unit{ps}/2503\unit{ps}} = 0.200$ that
+averaging over the cycle predicts.
 
-\textbf{And it decides for itself whether the check is worth running.}
-The honest answer for most designs is no, and the tool says so with
-numbers rather than skipping in silence. On the reference PLL the control
-moves $12.18\unit{\textmu V}$ rms within one $2.503\unit{ns}$ period ---
-worth $0.0288\unit{ps}$ of movement against a $0.0521\unit{ps}$
-measurement floor, which is $0.55\times$ what the reference can resolve.
-There the two model forms agree to less than the measurement can see, so a
-sweep would report the solver and not the circuit, and the run records
-that reasoning instead of a verdict. The check runs when the design's own
-closed-loop behaviour says it would measure something, and when the deck
-handed to the block declares transient noise of its own. There is no flag
-to force it, because a request to run a check is not evidence that one is
-warranted; and where the tool has no closed-loop evidence either way it
-runs the check rather than skipping it. An absent judgement is not a
-judgement to skip on.
+It holds across the decade rather than at one point: $0.203$, $0.206$ and
+$0.200$ at the three judged amplitudes, where an oscillator that did not
+average its input would sit at $1$. Three points within $3\%$ of a
+parameter-free prediction, over a tenfold range of injected amplitude, is
+not something a fit produces by accident. The model reproduces it because
+it integrates, and the version that samples does not.
 
-\paragraph{Where the four rows above come from.} Not from this PLL, and
-saying so is cheaper than letting a reader find it. The gate declines
-here --- the figures just quoted are exactly why --- so the sweep was run
-by calling it directly rather than through the pipeline's own decision.
-Two consequences a reader is owed. The deck for this case \emph{does}
-declare $20\unit{mV}$ rms on its supply, and that condition reaches the
-composed model (Section~\ref{sec:noise}), but it does not reach this
-gate: each block is characterised from a standalone fragment carrying its
-own bias sources, not the top-level rail, so the declaration is invisible
-where the decision is made. And the sweep is reachable only as a library
-call, with no command-line flag behind it, so no run that produces the
-rest of this paper exercises it.
+\textbf{And it decides for itself whether the check is worth running},
+because for most designs the honest answer is no and a quarter of an hour
+is a real cost. Two things can say yes.
+
+The first is the design's own closed-loop behaviour, measured: how far the
+control moves within one oscillator period, carried through the tuning
+curve's own slope into period movement, against what the reference
+measurement can resolve. On this PLL it says no, and says it with numbers
+--- on a run where it was the deciding voice, $12.18\unit{\textmu V}$ rms
+per $2.503\unit{ns}$ period, worth $0.0288\unit{ps}$ against a
+$0.0521\unit{ps}$ floor, $0.55\times$ what the reference can resolve. A
+loop filter holds its control still; that is what a loop filter is for.
+
+The second is the netlist, and it is what runs the sweep above: this deck
+declares $20\unit{mV}$ rms on the ring's supply, and a design that writes
+noise into its own deck is asking for noise to be simulated. That rule is
+matched on the NET rather than the source name, because block extraction
+rebuilds every supply as a plain DC source --- the fragment carries
+\texttt{VBIAS2 dd 0 DC 3.3} where the top level wrote
+\texttt{vdd dd 0 dc \{vcc\} trnoise(...)}. The net survives and the source
+name does not, so matched on the name the rule was unreachable on every
+hierarchical run: on every run, that is, which has a top-level deck to
+declare anything in.
+
+There is no flag to force it, because a request to run a check is not
+evidence that one is warranted; and where the tool has no closed-loop
+evidence either way it runs the check rather than skipping it. An absent
+judgement is not a judgement to skip on.
+
+\paragraph{What the sweep measures, and what it does not.} The ring in
+isolation, driven on its own characterisation fragment. That is the right
+scope for the question it answers --- does this model transfer a
+disturbance correctly --- and it is not the same question as what the
+loop does with one. Inside the loop the filter holds the control still,
+which is precisely why the closed-loop half of the gate declines; these
+numbers come from driving the block directly, where nothing is holding
+it. A reader should not read the supply column as a statement about this
+PLL's supply rejection. It is a statement about the model.
 
 %======================================================================
 \section{Why a green testbench is worth believing}
@@ -1060,8 +1079,11 @@ on trust that the feature requested was the feature exercised.
         What is checked is what the model does with a disturbance it is
         given: injected in SPICE, replayed into the model, period jitter
         compared, on both the control and the supply. Section~%
-        \ref{sec:jitter} gives the measurements. This is a real check
-        with a verdict, and it fails a model whose transfer is wrong.
+        \ref{sec:jitter} gives the measurements --- six judged points over
+        a tenfold range, worst ratio $0.964$ against a $0.25$ tolerance,
+        reached by the pipeline's own decision because the deck declares
+        noise on a net the ring is wired to. This is a real check with a
+        verdict, and it fails a model whose transfer is wrong.
 
         What is \emph{not} checked is the oscillator's own noise. SPICE
         simulates no device noise in a transient, so a plain transient
