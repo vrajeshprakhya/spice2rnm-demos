@@ -252,16 +252,54 @@ say "replaying the disturbance compares transfer instead of sample size."
 echo
 grep -aE "jitter transfer" "$OUT.log" | cut -c1-200 | fold -s -w 72 | sed "s/^/    /" | head -14
 echo
-say "Both of the model\'s inputs are exercised, not just the control: the"
-say "supply moves this ring by 450.6 MHz/V, comparable to the control and"
-say "opposite in sign."
-echo
-say "And it DECIDES, rather than always running. On this design the gate"
-say "declines: the control moves 9.7 uV rms per 2.5 ns period, worth"
-say "0.023 ps against a 0.052 ps measurement floor, so the two model"
-say "forms agree to less than the measurement can see and a sweep would"
-say "report the solver. Where it has no closed-loop evidence at all it"
-say "runs instead -- an absent judgement is not a judgement to skip on."
+# READ, NOT TYPED. This block used to quote a control movement and a
+# measurement floor as fixed text, two lines under the tool's own warning
+# carrying different values for the same quantities -- the typed ones had
+# been wrong for a while, because nothing made them move when the run did.
+python3 - "$OUT/result.json" <<'PY'
+import json, sys, textwrap
+
+r = json.load(open(sys.argv[1]))["result"]
+v = (r.get("vco_results") or {}).get("ro_vco") or {}
+
+
+def para(s):
+    print(textwrap.fill(s, 70, initial_indent="  ", subsequent_indent="  "))
+
+
+ss = v.get("supply_sensitivity") or {}
+dfdv = ss.get("dfdv_hz_per_v")
+if dfdv:
+    para("Both of the model's inputs are exercised, not just the control: "
+         "the supply moves this ring by %.1f MHz/V, comparable to the "
+         "control and opposite in sign." % (dfdv / 1e6))
+    print()
+
+# The decision itself is already on screen, printed by the tool. Saying
+# what it MEANS is narration; saying it again in different digits is a
+# second source for one number. And with no record there is no decision
+# to narrate -- falling through to "it declines" would state one the run
+# never made, which is this block's own bug one level up.
+jt = v.get("jitter_transfer")
+if jt is None:
+    pass
+elif jt.get("ran"):
+    para("And it DECIDES, rather than always running. Here it ran, for the "
+         "reason printed above.")
+    print()
+    para("Where it has no closed-loop evidence at all it runs anyway -- an "
+         "absent judgement is not a judgement to skip on.")
+else:
+    para("And it DECIDES, rather than always running. The line above is "
+         "that decision on this design: the control moves too little "
+         "within one oscillator period for sampling it once per half "
+         "cycle to differ measurably from integrating over it, so a sweep "
+         "would report the solver's edge interpolation rather than this "
+         "circuit.")
+    print()
+    para("Where it has no closed-loop evidence at all it runs instead -- an "
+         "absent judgement is not a judgement to skip on.")
+PY
 beat
 
 hr "7. Checked as a system, against the transistors"
