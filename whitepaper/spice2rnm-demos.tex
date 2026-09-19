@@ -1177,10 +1177,19 @@ on trust that the feature requested was the feature exercised.
         limitation. It is event-driven on the signal rather than sampled
         on a clock, and compiled at \texttt{1fs} while the rest of the
         environment stays at \texttt{1ps}, which costs nothing anywhere
-        else because SystemVerilog scopes timescale per module. It is
-        emitted and published with the environment. The equivalence
-        evidence in this paper does not exercise it, so no system-level
-        jitter figure is quoted here.
+        else because SystemVerilog scopes timescale per module. Running
+        that environment on the composed PLL gives $12.68\unit{ps}$ rms
+        of period jitter over $1151$ periods at the boundary, beside
+        $5$ system checks with none failed and one inconclusive, over
+        $116{,}012$ boundary crossings.
+
+        REPORTED, NOT JUDGED, and the reason is not modesty. A loop
+        suppresses its oscillator's jitter inside the loop bandwidth, so
+        a figure measured at the boundary is not the block's own jitter
+        and the two are not expected to agree. The $12.31\unit{ps}$ this
+        deck's declared rail is worth at \texttt{ro\_vco} is a different
+        measurement of a different quantity; that the two land within
+        $3\%$ is worth recording and is not evidence of either.
 
         This is further than published practice goes on the validation
         side, while the gap named above --- intrinsic noise in the model

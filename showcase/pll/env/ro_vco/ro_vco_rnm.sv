@@ -19,9 +19,9 @@
 // cycles of a transient whose timestep is a fixed fraction of that point's
 // own period, re-run at half that step to show the number stopped moving.
 // Held-out error on the 14 midpoints between them: 4.986% of period (1774.5 ps), worst at 2.7689 V.
-// In the MEASURED OPERATING BAND 1.7961..1.9066 V, taken from a golden
+// In the MEASURED OPERATING BAND 1.7965..1.9042 V, taken from a golden
 // co-simulation run before this model existed: 0.002% (0.1 ps) over 4
-// held-out point(s), worst at 1.8928 V.
+// held-out point(s), worst at 1.8907 V.
 // Measurement convergence: halving the timestep moved the
 // worst point by 0.015%. The held-out score above is
 // interpolation error ONLY -- it compares points measured one
@@ -37,7 +37,7 @@
 module ro_vco_rnm #(
   // Measured, at the control voltage this block was characterized around.
   parameter real VDD_NOM  = 3.3,   // volts
-  parameter real DFDV_SUP = 4.506339921e+08,  // Hz per volt of supply
+  parameter real DFDV_SUP = 4.506307262e+08,  // Hz per volt of supply
   // Sub-steps per half cycle. 16 tracks a fast-moving input; 1 restores
   // the one-event-per-half-cycle scheduling, which is right when nothing
   // on this block's inputs moves within a cycle.
@@ -45,6 +45,19 @@ module ro_vco_rnm #(
   // RMS PERIOD JITTER, as a fraction of the period. Zero unless a
   // measurement asked for it -- see the header note above the table.
   parameter real JITTER_FRAC = 0.000000000e+00,
+  // THE OSCILLATOR'S OWN JITTER, from its devices rather than from
+  // anything the deck declares, as a fraction of the period.
+  // Not measured on this design, so no figure is offered here rather than one from another.
+  //
+  // ZERO BY DEFAULT, and not as a matter of taste. Every check this
+  // model faces compares it against a SPICE transient, and ngspice puts
+  // no device noise into one -- so a model emitting this by default
+  // would be noisier than the only reference available to judge it, and
+  // would fail the jitter-transfer check for being more right than the
+  // reference can show. What is verified has to be what ships. Set it
+  // to the figure above for a system simulation that wants the real
+  // oscillator's phase noise.
+  parameter real INTRINSIC_JITTER_FRAC = 0.0,
   parameter int  JITTER_SEED = 1
 ) (
   input  real  cont,
@@ -73,11 +86,11 @@ module ro_vco_rnm #(
       VC[2] = 1.072500; FO[2] = 6.634459647e+08;
       VC[3] = 1.361250; FO[3] = 5.803862641e+08;
       VC[4] = 1.650000; FO[4] = 4.774032573e+08;
-      VC[5] = 1.796114; FO[5] = 4.207765347e+08;
-      VC[6] = 1.823730; FO[6] = 4.100412332e+08;
-      VC[7] = 1.851347; FO[7] = 3.993409698e+08;
-      VC[8] = 1.878963; FO[8] = 3.886924547e+08;
-      VC[9] = 1.906579; FO[9] = 3.781086163e+08;
+      VC[5] = 1.796463; FO[5] = 4.206408802e+08;
+      VC[6] = 1.823397; FO[6] = 4.101707694e+08;
+      VC[7] = 1.850331; FO[7] = 3.997336591e+08;
+      VC[8] = 1.877265; FO[8] = 3.893453932e+08;
+      VC[9] = 1.904199; FO[9] = 3.790179456e+08;
       VC[10] = 1.938750; FO[10] = 3.658689447e+08;
       VC[11] = 2.227500; FO[11] = 2.570119652e+08;
       VC[12] = 2.516250; FO[12] = 1.366251648e+08;
@@ -141,10 +154,19 @@ module ro_vco_rnm #(
   // Floored well above zero: a sigma large enough to drive the target
   // negative would not model a noisy oscillator, it would spin the
   // scheduler.
+  // IN QUADRATURE, because the two are independent: what the rail does
+  // and what the devices do have nothing to do with each other, so their
+  // rms values add as squares rather than directly.
+  function automatic real __jit_frac();
+    return $sqrt(JITTER_FRAC * JITTER_FRAC
+                 + INTRINSIC_JITTER_FRAC * INTRINSIC_JITTER_FRAC);
+  endfunction
+
   function automatic real __next_thr();
-    real g;
-    if (JITTER_FRAC <= 0.0) return 1.0;
-    g = 1.0 + 1.4142135623730951 * JITTER_FRAC * __gauss();
+    real g, sig;
+    sig = __jit_frac();
+    if (sig <= 0.0) return 1.0;
+    g = 1.0 + 1.4142135623730951 * sig * __gauss();
     return (g < 0.2) ? 0.2 : g;
   endfunction
 

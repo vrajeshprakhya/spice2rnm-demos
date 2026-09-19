@@ -23,7 +23,7 @@ module inv2_dms import inv2_ms_types_pkg::*; (
 );
 
   // Net -> variable, so the RNM's `input real` port can take it.
-  real in_r = 1.74093161;
+  real in_r = 1.739598;
   always @(ain) in_r = ain;
 
   // Variable -> net on the way back out.

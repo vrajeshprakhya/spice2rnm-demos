@@ -318,6 +318,30 @@ grep -aE '^  (partition|floor|golden|reference) |^  wall clock: |^      ams_(get
   | cut -c1-140 | sed 's/^/  /' | head -13
 beat
 
+hr "8. And the UVM-MS environment it emitted, running"
+say "The co-simulation above is the equivalence check. This is the"
+say "environment the tool generates for the same partition: a UVM-MS"
+say "agent driving the composed model through an MS bridge, with a"
+say "scoreboard and a period-jitter monitor compiled at 1 fs."
+echo
+SYS_MS="$OUT/cosim/uvm_ms/run_pll_analog_sys_ms.sh"
+if [ -f "$SYS_MS" ]; then
+  ( cd "$(dirname "$SYS_MS")" \
+    && UVM_MS_LIB="$UVM_MS_LIB" UVM_SRC="$UVM_SRC" \
+       timeout 1800 bash "$(basename "$SYS_MS")" 2>&1 \
+    | grep -aE "SB_SUMMARY|SYS_JITTER|rms jitter|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED|^ERROR" \
+    | cut -c1-200 | sed 's/^/    /' )
+else
+  say "no generated system runner at $SYS_MS -- was --emit-uvm-ms passed?"
+fi
+echo
+say "The jitter line is REPORTED, not judged. A loop suppresses its"
+say "oscillator's jitter inside the loop bandwidth, so the number at the"
+say "boundary is not the block's own and the two are not expected to"
+say "agree. It is here because a figure nothing measures is a figure"
+say "nobody can check."
+beat
+
 hr "Summary"
 # READ FROM THE RUN, NOT TYPED. The first version of this printed "5 of 5
 # pass" and "vout to 0.2 mV" as literals, carried over from an earlier run.

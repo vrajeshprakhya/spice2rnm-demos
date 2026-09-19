@@ -64,7 +64,7 @@ module analog_top #(
   // a composition that turns it into a constant has silently
   // removed a disturbance the design asked for: every check
   // downstream then agrees about a circuit nobody is shipping.
-  // A transient of THIS deck put that source at 12.31 ps rms of
+  // A transient of THIS deck put that source at 10.76 ps rms of
   // period jitter, and a constant rail produces none of it.
   //
   // SAMPLE-AND-HOLD at the source's own interval, which
