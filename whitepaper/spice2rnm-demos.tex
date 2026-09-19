@@ -567,7 +567,8 @@ spice2rnm-demos/
     lpf2/            the baseline case, 14 files + equivalence/:
       rc_lpf2_rnm.sv          the model, plain real ports
       rc_lpf2_rnm_wreal.sv    the same model, wreal ports
-      rc_lpf2_ms_types_pkg.sv the generated nettype
+      rc_lpf2_ms_types_pkg.sv nettype real rc_lpf2_wire,
+                              resolved by summing its drivers
       rc_lpf2_dms.sv          net <-> variable, interconnect ports
       rc_lpf2_bridge*.sv      MS bridge and its driving core
       rc_lpf2_proxy_pkg.sv    agent <-> bridge API
@@ -581,14 +582,16 @@ spice2rnm-demos/
     dcc2/            same shape, 15 files + equivalence/: no AC
                      section, adds duty goldens in dcc_ms_pkg.sv
                      and the run log pipeline.txt
-    pi/              same shape, 11 files + equivalence/:
-                     phase-per-code goldens, no DC or AC section
-    pll/             49 files + equivalence/: five block models, three
+    pi/              same shape, 14 files + equivalence/: an MS
+                     bridge, proxy and agent like the others, with
+                     phase-per-code goldens and no DC or AC section
+    pll/             50 files + equivalence/: five block models, three
                      interfaces, the composed analog top, the
                      node package, result.json, and env/ --
                      three per-block UVM-MS environments plus
                      the SYSTEM one, where the design's own RTL
-                     and every block's model elaborate together
+                     and every block's model elaborate together,
+                     carrying a period-jitter monitor at 1 fs
     house_lib/       4 files, NOT generated: ng_ams_pkg.sv
                      declaring nettype real ng_anet, and two
                      hand-written models using it
