@@ -1152,7 +1152,27 @@ on trust that the feature requested was the feature exercised.
         An oscillator measures each edge from its own last one, so its
         phase random-walks and the error accumulates. A buffer or a lag
         block measures its output from an \emph{input} event, so every
-        traversal draws independently and nothing accumulates. The
+        traversal draws independently and nothing accumulates.\footnote{%
+        The distinction, and the way each is implemented, are Kundert's:
+        \emph{Modeling and Simulation of Jitter in Phase-Locked Loops},
+        AACD 1997. He separates the non-accumulating jitter of driven
+        systems from the autonomous kind, whose phase difference is ``a
+        random walk that is not bounded''; takes $J = \sigma(T)$, the
+        standard deviation of one period, as the metric for both; models
+        driven jitter by ``randomly dithering the delay argument \ldots{}
+        on every output transition''; and scales the per-update dither by
+        $\sqrt{N}$ for $N$ updates per period, giving $1.414$ for the two
+        this model uses.
+
+        The emitted model was checked against all three. Asked for $1\%$
+        rms period jitter it produced $0.9998\%$; its scaling constant is
+        the $\sqrt{2}$ his listing specifies; and over $30{,}000$ cycles
+        the variance of the accumulated deviation grew linearly in cycle
+        count at $1.004 \pm 0.026$ of the $k J^2$ his random-walk
+        description requires. That check also found a defect: at one
+        sub-step per half cycle the scheduler cannot resolve a randomised
+        threshold, and the model now refuses that combination rather than
+        reporting $39.6\%$ jitter where $1\%$ was asked.} The
         scheduled-lag models take a synchronous-jitter figure on that
         basis, perturbing the input-to-output delay once per traversal.
         It is supplied rather than measured --- a transient of a deck
