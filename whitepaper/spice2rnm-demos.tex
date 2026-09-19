@@ -173,10 +173,10 @@ spice2rnm dcc.cir --input-node clk --output-node vout \
         instead of naming one, and scoreboard golden values are SPICE
         measurements of your circuit.
   \item \textbf{Equivalence evidence}: circuit and model driven with the
-        identical stimulus, compared in the domain that matters for the
-        block --- waveform error for signal-path blocks, edge placement for
-        clock-path blocks --- with the aligned traces archived so any
-        verdict can be re-derived from its own run directory.
+        identical stimulus, then compared in the domain that matters for
+        the block --- waveform error for signal-path blocks, edge
+        placement for clock-path blocks. The aligned traces are archived,
+        so any verdict can be re-derived from its own run directory.
 \end{itemize}
 
 \noindent An optional plain-language functional specification supplies what
@@ -338,9 +338,9 @@ quantity three times over.
 A score for each block on its own is evidence about that block on its own.
 A loop asks a different question: wired together, do these models behave
 like the circuit? The co-simulation answers it directly. The design's own
-testbench is run twice --- once where the analog half is the generated
-models, once where it is the real transistors through ngspice --- with
-only the small piece of code that connects the two halves swapped between
+testbench is run twice: once where the analog half is the generated
+models, once where it is the real transistors through ngspice. Only the
+small piece of code that connects the two halves is swapped between
 runs. The thresholds, the expressions and the pass/fail logic are
 byte-for-byte identical in both, so the two logs can be compared
 line against line.
@@ -407,9 +407,9 @@ $100\unit{ps}$. A composition that reads that line and emits
 \texttt{assign dd\_v = 3.3;} has deleted a disturbance the design asked
 for, and every check downstream then agrees about a circuit nobody is
 shipping. A transient of this deck puts that source at
-$10.91\unit{ps}$ rms of period jitter at the oscillator --- $\pm 5\%$ at
-the two hundred cycles it was measured over, and itself a draw --- and
-a constant rail produces none of it.
+$10.91\unit{ps}$ rms of period jitter at the oscillator, $\pm 5\%$ at the
+two hundred cycles it was measured over. That figure is itself a draw. A
+constant rail produces none of it.
 
 That figure is measured per design rather than quoted. Getting it
 needs one step first: the declared condition is restored onto the block's
@@ -526,22 +526,22 @@ generation, both simulators, and every generated environment --- run end
 to end in under $16$ minutes on a laptop. The PLL is a further
 $15$ minutes, most of it the ring oscillator's tuning curve.
 
-All four are one command, and \texttt{demo\_4\_pll.sh} runs this one. It
-differs from the others in what it needs rather than in how it is run:
-being the analog half of a co-simulation, it needs the other half --- the
-RTL, the DPI bridge, and a \emph{shared} libngspice, which is a different
-ngspice build from the binary the first three use. It checks for each of
-those before doing any work and names what is missing, so a machine without
-them gets a skip that says which piece and where it comes from, rather than
-a failure twelve minutes into a run. spice2rnm's outputs are
+All four are one command, and \texttt{demo\_4\_pll.sh} runs this one.
+It differs from the others in what it needs, not in how it is run. Being
+the analog half of a co-simulation, it needs the other half: the RTL, the
+DPI bridge, and a \emph{shared} libngspice --- a different ngspice build
+from the binary the first three use. It checks for each of those before
+doing any work and names what is missing. A machine without them gets a
+skip saying which piece and where it comes from, rather than a failure
+twelve minutes into a run. spice2rnm's outputs are
 simulator-agnostic: plain IEEE 1800 SystemVerilog, tied to no vendor. So
 that anyone can reproduce the results here, all of them were produced
 with open-source simulators --- \textbf{ngspice} for characterisation and
 the reference transients, \textbf{xezim} for both the transient
 equivalence co-simulation and the generated UVM-MS environments. No commercial licence was used anywhere in this
-document. The generated artifacts themselves --- the models, the
-complete environments, and the evidence files, exactly as the tool
-wrote them --- are published for inspection at
+document. The generated artifacts themselves are published for
+inspection: the models, the complete environments, and the evidence
+files, exactly as the tool wrote them. They are at
 
 \begin{center}
 \url{https://github.com/vrajeshprakhya/spice2rnm-demos}
@@ -864,8 +864,8 @@ loop filter holds its control still; that is what a loop filter is for.
 The second is the netlist, and it is what runs the sweep above: this deck
 declares $20\unit{mV}$ rms on the ring's supply, and a design that writes
 noise into its own deck is asking for noise to be simulated. That rule is
-matched on the NET rather than the source name, because block extraction
-rebuilds every supply as a plain DC source --- the fragment carries
+matched on the NET rather than the source name. Block extraction rebuilds
+every supply as a plain DC source: the fragment carries
 \texttt{VBIAS2 dd 0 DC 3.3} where the top level wrote
 \texttt{vdd dd 0 dc \{vcc\} trnoise(...)}. The net survives and the source
 name does not, so matched on the name the rule was unreachable on every
@@ -1075,10 +1075,10 @@ API key at all, every AI feature declines cleanly and the pipeline runs
 entirely on measurement.
 
 Which of those two happened is recorded in the run's own result, not only
-in its log. A verdict carries the metric it was reached by, so a report
-read months later distinguishes a check that ran from one that declined
-and fell back --- without which every green result would have to be taken
-on trust that the feature requested was the feature exercised.
+in its log. A verdict carries the metric it was reached by. A report
+read months later can then tell a check that ran from one that declined
+and fell back. Without that, every green result would have to be taken on
+trust that the feature requested was the feature exercised.
 
 %======================================================================
 \section{Scope and requirements}
@@ -1133,10 +1133,10 @@ on trust that the feature requested was the feature exercised.
         $0.04\unit{ps}$ where the ring barely responds moves it by
         $52\unit{ps}$ at the peak.}
         On the reference ring $\Gamma_{\mathrm{rms}}$ is
-        $4.04\times10^{12}\unit{rad/C}$ from the automated sweep against
-        $4.33\times10^{12}$ measured by hand --- agreeing to $7\%$, with
-        $\Gamma$ changing sign across the cycle as a ring's must and
-        halving when the injected charge halves.
+        $4.04\times10^{12}\unit{rad/C}$ from the automated sweep, against
+        $4.33\times10^{12}$ measured by hand: the two agree to $7\%$.
+        $\Gamma$ changes sign across the cycle as a ring's must, and
+        halves when the injected charge halves.
 
         $\Gamma_{\mathrm{rms}}$ times a device noise density is a jitter:
         $0.236$ to $0.578\unit{ps}$ rms here, or $-114.5$ to
