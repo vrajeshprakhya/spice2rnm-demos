@@ -153,22 +153,22 @@ spice2rnm dcc.cir --input-node clk --output-node vout \
         from your own library (Section~\ref{sec:style}) --- so the model
         presents the same ports as the models beside it.
 
-        The core is untouched in every case --- it is the file the
-        equivalence check ran against --- and a boundary costs nothing in
-        fidelity: driven with identical stimulus, boundary and bare core
-        agree exactly, worst difference $0$ over $120$ randomised samples
-        across all three case-study models, and again on a library's own
-        nettype. \texttt{wreal} is a simulator extension rather than
+        The core is untouched in every case: it is the file the
+        equivalence check ran against. A boundary costs nothing in
+        fidelity either. Driven with identical stimulus, boundary and
+        bare core agree exactly --- worst difference $0$ over $120$
+        randomised samples across all three case-study models, and again
+        on a library's own nettype. \texttt{wreal} is a simulator extension rather than
         IEEE 1800, so that boundary is a separate file the core does not
         depend on.
   \item \textbf{A UVM-MS verification environment} following the Accellera
         UVM-MS specification, built on IEEE 1800 --- not on Verilog-AMS.
         Analog values travel on \emph{user-defined nettypes} (IEEE
-        1800-2017 \S6.6.7) with a generated resolution function, so
-        multiple drivers on a net --- an offset source, a noise injector, a
-        second bridge --- combine in the net type rather than in hand-edited
-        testbench code; the default output contains no \texttt{wreal}
-        and needs no AMS licence to run. Bridge and wrapper ports are
+        1800-2017 \S6.6.7) with a generated resolution function. Multiple
+        drivers on a net then combine in the net type rather than in
+        hand-edited testbench code --- an offset source, a noise
+        injector, a second bridge. The default output contains no
+        \texttt{wreal} and needs no AMS licence to run. Bridge and wrapper ports are
         \texttt{interconnect} (\S6.6.8), inheriting the testbench's nettype
         instead of naming one, and scoreboard golden values are SPICE
         measurements of your circuit.
@@ -387,11 +387,11 @@ verdict is against and the record carries. A single
 agreement figure quoted without it says less than it appears to, in the
 same way as a jitter ratio quoted without its correlation time.
 
-Each node also records which of its two metrics that bar governs. A node
-the digital side consumes through a threshold is judged on its crossings
-and not on its mean, so a record printing the mean beside the crossing
-bar reads as a pass against a bar it exceeded --- $0.030$ against
-$0.020$, where the number actually compared was $0.004$.
+Each node also records which of its two metrics that bar governs. A
+node the digital side consumes through a threshold is judged on its
+crossings, not on its mean. Printing the mean beside the crossing bar
+would read as a pass against a bar it exceeded: $0.030$ against $0.020$,
+where the number actually compared was $0.004$.
 
 \subsection{The rail the deck declares is the rail the model sees}
 \label{sec:noise}
@@ -411,13 +411,13 @@ $10.91\unit{ps}$ rms of period jitter at the oscillator --- $\pm 5\%$ at
 the two hundred cycles it was measured over, and itself a draw --- and
 a constant rail produces none of it.
 
-That figure is measured per design rather than quoted. It is reached by
-restoring the declared condition onto the block's own supply first:
-extraction rebuilds every rail as a plain DC source, so the fragment a
-block is characterised from does not carry the noise its design states,
-and the measurement would otherwise be of a quieter circuit than the one
-being modelled. The generated file says which source the number came
-from.
+That figure is measured per design rather than quoted. Getting it
+needs one step first: the declared condition is restored onto the block's
+own supply. Extraction rebuilds every rail as a plain DC source, so the
+fragment a block is characterised from does not carry the noise its
+design states. Without that step the measurement would be of a quieter
+circuit than the one being modelled. The generated file says which source
+the number came from.
 
 So the declared source is carried into the composed model, sampled and
 held at the source's own interval. That reproduces the two properties
@@ -496,11 +496,11 @@ number it was in no position to know.
 \paragraph{The verdict names the metric it came from.}
 Asking for the classifier is not the same as getting it. Every duty
 figure above comes from a run with a key present and the classifier
-consulted. The same demonstration was then run deliberately \emph{without}
-one, to see what a reader would be shown if it declined: the chirp is
-kept, and these same two blocks pass an rms comparison at $0.025$ against
-a $0.15$ bar --- a green result from a measurement that cannot see the
-property in question. The two transcripts are otherwise alike, and the
+consulted. The same demonstration was then run deliberately
+\emph{without} one, to see what a reader would be shown if it declined.
+The chirp is kept, and these same two blocks pass an rms comparison at
+$0.025$ against a $0.15$ bar --- a green result from a measurement that
+cannot see the property in question. The two transcripts are otherwise alike, and the
 command line is identical, so the run records which figure each verdict
 was reached by and the demonstration reports it from that record. A flag
 requesting a check is not evidence the check happened.
@@ -533,13 +533,12 @@ RTL, the DPI bridge, and a \emph{shared} libngspice, which is a different
 ngspice build from the binary the first three use. It checks for each of
 those before doing any work and names what is missing, so a machine without
 them gets a skip that says which piece and where it comes from, rather than
-a failure twelve minutes into a run. spice2rnm's outputs are simulator-agnostic ---
-plain IEEE 1800 SystemVerilog, tied to no vendor --- and to keep every
-result in this paper reproducible by anyone, all of it was produced with
-universally available open-source simulators: \textbf{ngspice} for
-characterisation and the reference transients, and \textbf{xezim} for
-both the transient equivalence co-simulation and the generated UVM-MS
-environments. No commercial licence was used anywhere in this
+a failure twelve minutes into a run. spice2rnm's outputs are
+simulator-agnostic: plain IEEE 1800 SystemVerilog, tied to no vendor. So
+that anyone can reproduce the results here, all of them were produced
+with open-source simulators --- \textbf{ngspice} for characterisation and
+the reference transients, \textbf{xezim} for both the transient
+equivalence co-simulation and the generated UVM-MS environments. No commercial licence was used anywhere in this
 document. The generated artifacts themselves --- the models, the
 complete environments, and the evidence files, exactly as the tool
 wrote them --- are published for inspection at
@@ -619,11 +618,11 @@ Phase-locked loop & five routes, then & five block verdicts, and the \\
 \end{tabular}
 \end{center}
 
-\noindent Each folder carries \texttt{verdict.txt} --- lifted from that
-run's own \texttt{result.json} rather than retyped, so a number here
-cannot disagree with the run that produced it --- the simulator and SPICE
-logs saying what actually executed, and the comparison table where that
-table is one row per measured point. The phase interpolator's
+\noindent Each folder carries three things. \texttt{verdict.txt} is
+lifted from that run's own \texttt{result.json} rather than retyped, so a
+number here cannot disagree with the run that produced it. The simulator
+and SPICE logs say what actually executed. And the comparison table gives
+one row per measured point. The phase interpolator's
 \texttt{phase\_compare.csv} is nine rows, one per control code, with the
 measured delay, the model's delay and the error. The PLL's
 \texttt{rc\_compare.csv} is the loop filter's response to an injected
@@ -1153,45 +1152,46 @@ on trust that the feature requested was the feature exercised.
         phase random-walks and the error accumulates. A buffer or a lag
         block measures its output from an \emph{input} event, so every
         traversal draws independently and nothing accumulates.\footnote{%
-        The distinction, and the way each is implemented, are Kundert's:
+        The distinction and both implementations are Kundert's, in
         \emph{Modeling and Simulation of Jitter in Phase-Locked Loops},
-        AACD 1997. He separates the non-accumulating jitter of driven
-        systems from the autonomous kind, whose phase difference is ``a
-        random walk that is not bounded''; takes $J = \sigma(T)$, the
-        standard deviation of one period, as the metric for both; models
-        driven jitter by ``randomly dithering the delay argument \ldots{}
-        on every output transition''; and scales the per-update dither by
-        $\sqrt{N}$ for $N$ updates per period, giving $1.414$ for the two
-        this model uses.
+        AACD 1997. He makes four points this model follows. Driven
+        systems jitter without accumulating; autonomous ones have a phase
+        difference that is ``a random walk that is not bounded''. The
+        metric for both is $J = \sigma(T)$, the standard deviation of one
+        period. Driven jitter is modelled by ``randomly dithering the
+        delay argument \ldots{} on every output transition''. And the
+        per-update dither scales by $\sqrt{N}$ for $N$ updates per
+        period, which is $1.414$ for the two this model uses.
 
-        The emitted model was checked against all three. Asked for $1\%$
-        rms period jitter it produced $0.9998\%$; its scaling constant is
-        the $\sqrt{2}$ his listing specifies; and over $30{,}000$ cycles
-        the variance of the accumulated deviation grew linearly in cycle
-        count at $1.004 \pm 0.026$ of the $k J^2$ his random-walk
-        description requires. That check also found a defect: at one
-        sub-step per half cycle the scheduler cannot resolve a randomised
-        threshold, and the model now refuses that combination rather than
-        reporting $39.6\%$ jitter where $1\%$ was asked.} The
+        Each was checked. Asked for $1\%$ rms period jitter, the model
+        produced $0.9998\%$. Its scaling constant is the $\sqrt{2}$ his
+        listing specifies. And over $30{,}000$ cycles, the variance of
+        the accumulated deviation grew linearly in cycle count, at
+        $1.004 \pm 0.026$ of the $k J^2$ his random walk requires.
+
+        The check also found a defect. At one sub-step per half cycle the
+        scheduler cannot resolve a randomised threshold. The model now
+        refuses that combination, rather than reporting $39.6\%$ jitter
+        where $1\%$ was asked.} The
         scheduled-lag models take a synchronous-jitter figure on that
         basis, perturbing the input-to-output delay once per traversal.
-        It is supplied rather than measured --- a transient of a deck
-        declaring no noise has no delay variation in it to measure --- and
-        the generated file states that, along with the constant latency
-        the perturbation costs: a tap only looks backwards, so an edge can
-        be early only relative to a delay already present.
+        That figure is supplied, not measured: a transient of a deck
+        declaring no noise has no delay variation in it to measure. The
+        generated file says so. It also states the constant latency the
+        perturbation costs, because a tap only looks backwards, so an
+        edge can be early only relative to a delay already present.
 
-        Edge JITTER is measured where the reference has edges --- on the
-        reference PLL's two clock-path buffers it is $3.98\unit{ps}$
-        and $3.60\unit{ps}$, reported beside the skew because the
-        two fail differently --- but it is reported, not judged: there is
-        no threshold, and inventing one from a single design would be
+        Edge JITTER is measured where the reference has edges. On the
+        reference PLL's two clock-path buffers it is $3.98\unit{ps}$ and
+        $3.60\unit{ps}$, reported beside the skew because the two fail
+        differently. It is reported rather than judged: there is no
+        threshold for it, and inventing one from a single design would be
         worse than showing the number. The system equivalence check does
-        not judge it either, for a reason about the probe rather than the
-        model: its boundary log is sampled at $100\unit{ps}$, the composed
-        model's output crosses its threshold between samples, and a
-        crossing can therefore be located only to the nearest tick ---
-        reporting that as jitter would be measuring the sampling grid.
+        not judge it either, and the reason is the probe rather than
+        the model. Its boundary log is sampled at $100\unit{ps}$. The
+        composed model's output crosses its threshold between samples, so
+        a crossing can only be located to the nearest tick. Reporting
+        that as jitter would be measuring the sampling grid.
 
         The generated UVM-MS environment carries a monitor without that
         limitation. It is event-driven on the signal rather than sampled
@@ -1219,10 +1219,10 @@ on trust that the feature requested was the feature exercised.
         side, while the gap named above --- intrinsic noise in the model
         --- is one the same practice also has. Analog Devices'
         production RNM suite for a GHz transceiver validates its PLL on
-        lock time and frequency error --- the same quantities checked in
-        Section~\ref{sec:equiv} --- and states that ``model validation
+        lock time and frequency error, the same quantities checked in
+        Section~\ref{sec:equiv}. It states that ``model validation
         remains an area for improvement in the real number modeling
-        flow'', with frequency-domain performance named as future
+        flow'', and names frequency-domain performance as future
         work.\footnote{J.~Dudek, \emph{Real Number Modeling of RF
         Circuits}, DVCon. The paper notes that because RNMs exist to
         enable system-level testing, ``the requirements for model
