@@ -114,16 +114,40 @@ figs["pi"] = fig(
     "here: what the block does is place an edge, so that is what is "
     "plotted.")
 
-# ---- 4. PLL loop filter, driven by its charge pump ---------------------
-r = read_csv(RUNS / "demo4_pll/lpfilt/equivalence/rc_compare.csv",
-             ["time_s", "spice_out", "sv_out"])
-d = even(r, 200)
+# ---- 4. the PLL, at the co-simulation boundary -------------------------
+#
+# vout, not a block trace. Case study 4's claim is about the COMPOSED
+# system on the design's own testbench, and a loop filter answering a
+# current step answers a smaller question than the section asks.
+#
+# Eight samples, because that is how often the digital side reads this
+# node -- it is the only matched observation of vout the two runs share.
+# The others in the boundary log are either a clock (aout) or driven by
+# the digital side itself, where both runs agree by construction and a
+# plot would prove nothing.
+def boundary(path, net):
+    out = []
+    for ln in Path(path).read_text().splitlines():
+        f = ln.split()
+        if len(f) == 4 and f[2] == net:
+            out.append((float(f[1]), float(f[3])))
+    return out
+
+
+m = boundary(RUNS / "demo4_pll/cosim/model/boundary.log", "vout")
+g = boundary(RUNS / "demo4_pll/cosim/golden/boundary.log", "vout")
+worst = max(abs(a[1] - b[1]) for a, b in zip(m, g)) * 1e3
 figs["pll"] = fig(
-    two(coords(d, 0, 1, 1e6), coords(d, 0, 2, 1e6)),
+    "    \\addplot[black,mark=*,mark size=1.5pt] coordinates {%s};\n"
+    "    \\addplot[red,dashed,mark=o,mark size=2.4pt] coordinates {%s};"
+    % (" ".join("(%.4g,%.6g)" % (t * 1e6, v) for t, v in g),
+       " ".join("(%.4g,%.6g)" % (t * 1e6, v) for t, v in m)),
     "time (\\textmu s)", "control voltage (V)",
-    "The loop filter's response to a current step from the charge pump. "
-    "This is the node the loop stores its state on, so a model that "
-    "settles elsewhere disagrees here first.")
+    "The control voltage at the co-simulation boundary: the composed "
+    "models against the transistors, on the design's own testbench. The "
+    "two track each other to within %.1f\\,mV on a node the loop holds "
+    "near 1.85\\,V. Eight samples because that is how often the digital "
+    "side reads this node." % worst)
 
 s = TEX.read_text(encoding="utf-8")
 for name, body in figs.items():
