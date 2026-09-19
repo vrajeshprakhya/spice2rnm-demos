@@ -125,7 +125,7 @@ echo
 say "  python3 -m spice2rnm \\"
 say "      $PLL/pll_analog.cir \\"
 say "      $PLL/pfd.sv $PLL/divn.sv $PLL/tb_pll.sv \\"
-say "      --hierarchical --emit-assertions --output-node vout \\"
+say "      --hierarchical --emit-assertions \\"
 say "      --llm-block-function \\"
 say "      --emit-uvm-ms --uvm-ms-lib $UVM_MS_LIB \\"
 say "      --out-dir $OUT"
@@ -152,7 +152,7 @@ beat
 rm -rf "$OUT"
 python3 -m spice2rnm \
   "$PLL/pll_analog.cir" "$PLL/pfd.sv" "$PLL/divn.sv" "$PLL/tb_pll.sv" \
-  --hierarchical --emit-assertions --output-node vout \
+  --hierarchical --emit-assertions \
   --llm-block-function \
   --emit-uvm-ms --uvm-ms-lib "$UVM_MS_LIB" \
   --out-dir "$OUT" \

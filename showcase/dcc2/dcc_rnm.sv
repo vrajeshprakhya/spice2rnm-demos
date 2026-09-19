@@ -149,6 +149,7 @@ module dcc_rnm(input real in_val, output real out_val);
     dbuf[dhead] = y;
     dtap = dhead - (dir_up ? ND_RISE : ND_FALL);
     while (dtap < 0) dtap = dtap + NDEPTH;
+    while (dtap >= NDEPTH) dtap = dtap - NDEPTH;
     out_val = dbuf[dtap];
     dhead = (dhead + 1) % NDEPTH;
   end

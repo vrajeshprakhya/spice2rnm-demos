@@ -39,7 +39,6 @@ echo
 T0=$(date +%s)
 python3 -m spice2rnm "$NETLIST" \
   --out-dir "$OUT" \
-  --input-node vin --output-node vout \
   --ngspice-bin "$NGSPICE" \
   --emit-uvm-ms --emit-assertions 2>&1 | grep -viE '^\s*$' | sed 's/^/    /'
 rc=${PIPESTATUS[0]}

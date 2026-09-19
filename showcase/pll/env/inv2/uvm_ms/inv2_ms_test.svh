@@ -34,7 +34,7 @@ class inv2_ms_test extends uvm_test;
     rand_seq.start(tb.agent.sequencer);
 
     // Let the last push settle and be collected before the run ends.
-    #(5933286.5);
+    #(5935032.18);
 
     phase.drop_objection(this, "inv2 operating-point sweep");
   endtask

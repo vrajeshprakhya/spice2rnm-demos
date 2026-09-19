@@ -45,7 +45,6 @@ hr "2. Circuit -> model"
 T0=$(date +%s)
 python3 -m spice2rnm "$NETLIST" \
   --out-dir "$OUT" \
-  --input-node clk --output-node vout \
   --ngspice-bin "$NGSPICE" \
   --emit-uvm-ms --emit-assertions 2>&1 | tee "$OUT/pipeline.txt" \
   | grep -viE '^\s*$' | sed 's/^/    /'

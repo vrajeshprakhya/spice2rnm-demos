@@ -1,6 +1,6 @@
 # command : /home/vraje/ngspice-install/bin/ngspice -b /home/vraje/s2r_runs/dcc2/equivalence/spice_tran/transient.cir
-# started : 2026-09-18T03:19:53.638766+00:00
-# finished: 2026-09-18T03:19:54.477066+00:00
+# started : 2026-09-19T20:28:59.768047+00:00
+# finished: 2026-09-19T20:29:00.745458+00:00
 # exit    : 0
 
 --- stdout ---
@@ -32,9 +32,9 @@ vctrl#branch                                 0
 vb#branch                                    0
 vdd#branch                         -6.0313e-12
 
- Reference value :  1.79807e-07
- Reference value :  3.46275e-07
- Reference value :  4.69082e-07
+ Reference value :  1.55726e-07
+ Reference value :  2.98686e-07
+ Reference value :  4.26564e-07
 No. of Data Rows : 40311
 Note: Simulation executed from .control section
 

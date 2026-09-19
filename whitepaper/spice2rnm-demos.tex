@@ -135,9 +135,17 @@ with the circuit or with each other.
 \section{What you get from one command}
 
 \begin{lstlisting}
-spice2rnm dcc.cir --input-node clk --output-node vout \
-          --emit-uvm-ms --spec dcc_spec.md
+spice2rnm dcc.cir --emit-uvm-ms --spec dcc_spec.md
 \end{lstlisting}
+
+\noindent The ports are not named because the tool reads them. The input
+is the node driven by the one source carrying a transient function or an
+AC magnitude, where the deck's supplies carry a DC level and nothing
+else --- on this netlist, \texttt{clk}. The output is a guess from a
+node's name, because a netlist never says which node you care about, and
+the run reports it as a guess so a reader can see which it was. Four
+routes refuse to guess at all and ask to be told: the ones that measure a
+specific node's edge, frequency or current.
 
 \begin{itemize}[leftmargin=1.5em,itemsep=0.3em]
   \item \textbf{A SystemVerilog real-number model}, with the model

@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-19T19:39:41.274819+00:00",
+    "timestamp_utc": "2026-09-19T20:26:06.290770+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -10,10 +10,6 @@
       "/home/vraje/spice2rnm/work/rc_lpf2.cir",
       "--out-dir",
       "/home/vraje/s2r_runs/lpf2",
-      "--input-node",
-      "vin",
-      "--output-node",
-      "vout",
       "--ngspice-bin",
       "/home/vraje/ngspice-install/bin/ngspice",
       "--emit-uvm-ms",
@@ -214,6 +210,8 @@
       "errors": []
     },
     "warnings": [
+      "input node 'vin' taken from the netlist: it is the node the one source carrying a transient function or an AC magnitude drives, where this deck's supplies carry neither. Override with --input-node",
+      "output node 'vout' GUESSED FROM ITS NAME. A netlist does not say which node you care about, so this is a naming convention rather than a measurement -- name it with --output-node if it is wrong",
       "replaced value spec of input source 'VIN' with PWL stimulus"
     ],
     "errors": []

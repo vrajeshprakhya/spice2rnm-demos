@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-18T03:20:47.371777+00:00",
+    "timestamp_utc": "2026-09-19T20:30:02.279622+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -10,14 +10,9 @@
       "/home/vraje/spice2rnm/work/dcc.cir",
       "--out-dir",
       "/home/vraje/s2r_runs/dcc2",
-      "--input-node",
-      "clk",
-      "--output-node",
-      "vout",
       "--ngspice-bin",
       "/home/vraje/ngspice-install/bin/ngspice",
       "--emit-uvm-ms",
-      "--emit-wreal",
       "--emit-assertions"
     ],
     "cwd": "/home/vraje/spice2rnm",
@@ -277,7 +272,7 @@
     "sv_path": "/home/vraje/s2r_runs/dcc2/dcc_rnm.sv",
     "sv_text": {
       "__omitted__": "bulk field; written to its own file",
-      "chars": 7672
+      "chars": 7721
     },
     "equivalence": {
       "success": true,
@@ -349,6 +344,8 @@
       "errors": []
     },
     "warnings": [
+      "input node 'clk' taken from the netlist: it is the node the one source carrying a transient function or an AC magnitude drives, where this deck's supplies carry neither. Override with --input-node",
+      "output node 'vout' GUESSED FROM ITS NAME. A netlist does not say which node you care about, so this is a naming convention rather than a measurement -- name it with --output-node if it is wrong",
       "collapsed the fitted 3p2z to ONE POLE at 5.909e+07 Hz so the dynamics can be SCHEDULED: in band (<= 1.195e+08 Hz) it costs 0.0269 dB vs 0.0139 dB, and the poles it drops sit above anything the comparison can drive",
       "rise/fall SKEW 9.466e-11 s measured from the two full-swing traversals (the output falls in 2.394e-10 s and rises in 3.341e-10 s, each to its own 50% crossing): emitted as a direction-dependent output delay. Without it the model is symmetric about its threshold and returns exactly 50.000% duty for a 50% input, whatever the circuit does.",
       "rise/fall asymmetry 0.8005 measured from the two full-swing traversals (2.067e+09 rising vs 2.582e+09 falling, 1/t63): the scheduled rate is split by the direction the output travels, because a rate indexed by input alone is symmetric about the threshold and returns exactly 50.000% duty for a 50% input.",

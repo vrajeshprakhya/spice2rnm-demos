@@ -19,9 +19,9 @@
 // cycles of a transient whose timestep is a fixed fraction of that point's
 // own period, re-run at half that step to show the number stopped moving.
 // Held-out error on the 14 midpoints between them: 4.986% of period (1774.5 ps), worst at 2.7689 V.
-// In the MEASURED OPERATING BAND 1.7957..1.9063 V, taken from a golden
+// In the MEASURED OPERATING BAND 1.7961..1.9043 V, taken from a golden
 // co-simulation run before this model existed: 0.002% (0.1 ps) over 4
-// held-out point(s), worst at 1.8924 V.
+// held-out point(s), worst at 1.8907 V.
 // Measurement convergence: halving the timestep moved the
 // worst point by 0.015%. The held-out score above is
 // interpolation error ONLY -- it compares points measured one
@@ -37,7 +37,7 @@
 module ro_vco_rnm #(
   // Measured, at the control voltage this block was characterized around.
   parameter real VDD_NOM  = 3.3,   // volts
-  parameter real DFDV_SUP = 4.506328423e+08,  // Hz per volt of supply
+  parameter real DFDV_SUP = 4.506292052e+08,  // Hz per volt of supply
   // Sub-steps per half cycle. 16 tracks a fast-moving input; 1 restores
   // the one-event-per-half-cycle scheduling, which is right when nothing
   // on this block's inputs moves within a cycle.
@@ -86,11 +86,11 @@ module ro_vco_rnm #(
       VC[2] = 1.072500; FO[2] = 6.634459647e+08;
       VC[3] = 1.361250; FO[3] = 5.803862641e+08;
       VC[4] = 1.650000; FO[4] = 4.774032573e+08;
-      VC[5] = 1.795687; FO[5] = 4.209426309e+08;
-      VC[6] = 1.823333; FO[6] = 4.101955992e+08;
-      VC[7] = 1.850978; FO[7] = 3.994834121e+08;
-      VC[8] = 1.878624; FO[8] = 3.888228887e+08;
-      VC[9] = 1.906269; FO[9] = 3.782270359e+08;
+      VC[5] = 1.796073; FO[5] = 4.207923687e+08;
+      VC[6] = 1.823120; FO[6] = 4.102781270e+08;
+      VC[7] = 1.850167; FO[7] = 3.997971693e+08;
+      VC[8] = 1.877214; FO[8] = 3.893651801e+08;
+      VC[9] = 1.904261; FO[9] = 3.789945759e+08;
       VC[10] = 1.938750; FO[10] = 3.658689447e+08;
       VC[11] = 2.227500; FO[11] = 2.570119652e+08;
       VC[12] = 2.516250; FO[12] = 1.366251648e+08;
