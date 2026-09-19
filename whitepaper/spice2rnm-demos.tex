@@ -353,23 +353,23 @@ Per-block equivalence                & $5$ of $5$ pass \\
 \midrule
 Supply condition                     & $20\unit{mV}$ rms, declared in the deck \\
 System check vs transistors          & $4$ boundary signals, $0$ failed \\
-\quad \texttt{vout} (control voltage) & $2.05\unit{mV}$, bar $0.177$ \\
+\quad \texttt{vout} (control voltage) & $1.86\unit{mV}$, bar $0.190$ \\
 \quad \texttt{aout} (VCO output)      & $0.4\%$ of crossings, bar $2\%$ \\
-\quad \texttt{dra} (internal probe)   & $10.1\unit{mV}$ \\
+\quad \texttt{dra} (internal probe)   & $8.96\unit{mV}$ \\
 \midrule
 Both loops lock at                   & $400.00\unit{MHz}$ \\
 \quad settled control band           & $1.8468$--$1.8546\unit{V}$ vs \\
                                      & $1.8468$--$1.8499\unit{V}$ \\
 \midrule
-Model half vs transistor half        & $7.00\unit{s}$ vs $116.6\unit{s}$ \\
-\quad same testbench, same span       & $16.7\times$ \\
+Model half vs transistor half        & $6.37\unit{s}$ vs $111.1\unit{s}$ \\
+\quad same testbench, same span       & $17.4\times$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \noindent The control voltage is the number to read. It is where the loop
 stores its state, so a model that settles anywhere else disagrees here
-first --- and the two agree to $2.05\unit{mV}$ while reaching the same
+first --- and the two agree to $1.86\unit{mV}$ while reaching the same
 frequency, on a rail carrying $20\unit{mV}$ rms of noise the deck
 declares. That is looser than the figure this table carried while the
 rail was quiet, and the rail is the reason: a loop concentrates a supply
@@ -379,10 +379,10 @@ point of it.
 \textbf{That figure is one draw, and the bar beside it is not.} Both
 halves generate their own noise from the declared source, so a
 worst-window difference is a sample rather than a property of the model:
-four consecutive runs of this same deck gave $3.61$, $1.83$, $4.15$ and
-$2.05\unit{mV}$ here. What does not move is what the difference is judged
-against --- $0.177$ of \texttt{vout}'s own scale, of which $0.127$ is the
-allowance for exactly this sampling --- and that is the number the
+five consecutive runs of this same deck gave $3.61$, $1.83$, $4.15$,
+$2.05$ and $1.86\unit{mV}$ here. What does not move is what the
+difference is judged against --- $0.190$ of \texttt{vout}'s own scale, of
+which $0.140$ is the allowance for exactly this sampling --- and that is the number the
 verdict is against and the record carries. A single
 agreement figure quoted without it says less than it appears to, in the
 same way as a jitter ratio quoted without its correlation time.
@@ -407,9 +407,9 @@ $100\unit{ps}$. A composition that reads that line and emits
 \texttt{assign dd\_v = 3.3;} has deleted a disturbance the design asked
 for, and every check downstream then agrees about a circuit nobody is
 shipping. A transient of this deck puts that source at
-$12.31\unit{ps}$ rms of period jitter at the oscillator --- $\pm 5\%$ at
-the two hundred cycles it was measured over --- and a constant rail
-produces none of it.
+$10.91\unit{ps}$ rms of period jitter at the oscillator --- $\pm 5\%$ at
+the two hundred cycles it was measured over, and itself a draw --- and
+a constant rail produces none of it.
 
 That figure is measured per design rather than quoted. It is reached by
 restoring the declared condition onto the block's own supply first:
@@ -443,7 +443,7 @@ alone and a fixed tolerance would be measuring run length. Each node's
 bar is widened by three standard errors of the difference between two
 window means, taken from the reference's own spread rather than from the
 declared amplitude --- what actually reaches a node is a property of the
-circuit. On \texttt{vout} that allowance is $0.127$ of the $0.177$ bar,
+circuit. On \texttt{vout} that allowance is $0.140$ of the $0.190$ bar,
 and the record carries both, so a reader can see how much of the bar was
 earned and how much was allowed.
 
@@ -805,15 +805,15 @@ worse of the two paths.
 \hline
 \textbf{Path} & \textbf{Injected} & \textbf{Circuit} & \textbf{Model} & \textbf{Ratio}\\
 \hline
-either  & none (floor)      & $0.054\unit{ps}$  & $0.000\unit{ps}$  & not judged\\
+either  & none (floor)      & $0.051\unit{ps}$  & $0.000\unit{ps}$  & not judged\\
 \hline
-control & $5\unit{mV}$ rms  & $2.370\unit{ps}$  & $2.338\unit{ps}$  & $0.987$\\
-        & $20\unit{mV}$ rms & $10.799\unit{ps}$ & $10.212\unit{ps}$ & $0.946$\\
-        & $50\unit{mV}$ rms & $23.436\unit{ps}$ & $21.681\unit{ps}$ & $0.925$\\
+control & $5\unit{mV}$ rms  & $2.396\unit{ps}$  & $2.352\unit{ps}$  & $0.981$\\
+        & $20\unit{mV}$ rms & $8.743\unit{ps}$  & $8.690\unit{ps}$  & $0.994$\\
+        & $50\unit{mV}$ rms & $26.719\unit{ps}$ & $25.618\unit{ps}$ & $0.959$\\
 \hline
-supply  & $5\unit{mV}$ rms  & $2.797\unit{ps}$  & $2.506\unit{ps}$  & $0.896$\\
-        & $20\unit{mV}$ rms & $12.638\unit{ps}$ & $12.042\unit{ps}$ & $0.953$\\
-        & $50\unit{mV}$ rms & $28.845\unit{ps}$ & $27.986\unit{ps}$ & $0.970$\\
+supply  & $5\unit{mV}$ rms  & $2.808\unit{ps}$  & $2.640\unit{ps}$  & $0.940$\\
+        & $20\unit{mV}$ rms & $11.617\unit{ps}$ & $12.139\unit{ps}$ & $1.045$\\
+        & $50\unit{mV}$ rms & $28.422\unit{ps}$ & $27.656\unit{ps}$ & $0.973$\\
 \hline
 \end{tabular}
 \end{center}
@@ -821,7 +821,7 @@ supply  & $5\unit{mV}$ rms  & $2.797\unit{ps}$  & $2.506\unit{ps}$  & $0.896$\\
 These ratios are a draw, like the boundary figures earlier. Each
 injection is a fresh realisation and an rms over two hundred cycles
 carries about $5\%$ on each side, so the same six points on the previous
-run read $1.029$, $1.024$, $0.979$ and $0.993$, $0.964$, $1.021$. That
+run read $0.987$, $0.946$, $0.925$ and $0.896$, $0.953$, $0.970$. That
 spread is why the bar is $0.25$ rather than something that looks
 stricter: a tolerance tighter than the measurement's own uncertainty
 fails correct models at a rate set by run length.
@@ -1111,7 +1111,7 @@ on trust that the feature requested was the feature exercised.
         given: injected in SPICE, replayed into the model, period jitter
         compared, on both the control and the supply. Section~%
         \ref{sec:jitter} gives the measurements --- six judged points over
-        a tenfold range, worst ratio $0.896$ against a $0.25$ tolerance,
+        a tenfold range, worst ratio $0.940$ against a $0.25$ tolerance,
         reached by the pipeline's own decision because the deck declares
         noise on a net the ring is wired to. This is a real check with a
         verdict, and it fails a model whose transfer is wrong.
@@ -1178,18 +1178,22 @@ on trust that the feature requested was the feature exercised.
         on a clock, and compiled at \texttt{1fs} while the rest of the
         environment stays at \texttt{1ps}, which costs nothing anywhere
         else because SystemVerilog scopes timescale per module. Running
-        that environment on the composed PLL gives $12.68\unit{ps}$ rms
-        of period jitter over $1151$ periods at the boundary, beside
-        $5$ system checks with none failed and one inconclusive, over
-        $116{,}012$ boundary crossings.
+        that environment on the composed PLL gives $12.70\unit{ps}$ rms
+        of period jitter over $1151$ periods at the boundary, with none
+        of its system checks failed and one inconclusive, over
+        $116{,}012$ boundary crossings. The number of checks is not
+        quoted because it is not fixed: one of them exists only where the
+        transistor reference settled measurably, which under a noisy rail
+        it may or may not do.
 
         REPORTED, NOT JUDGED, and the reason is not modesty. A loop
         suppresses its oscillator's jitter inside the loop bandwidth, so
         a figure measured at the boundary is not the block's own jitter
-        and the two are not expected to agree. The $12.31\unit{ps}$ this
+        and the two are not expected to agree. The $10.91\unit{ps}$ this
         deck's declared rail is worth at \texttt{ro\_vco} is a different
-        measurement of a different quantity; that the two land within
-        $3\%$ is worth recording and is not evidence of either.
+        measurement of a different quantity. On this run they differ by
+        $16\%$; on the one before, by $3\%$. Both are draws, and neither
+        is evidence about the other.
 
         This is further than published practice goes on the validation
         side, while the gap named above --- intrinsic noise in the model
