@@ -89,18 +89,41 @@ figs["lpf2"] = fig(
     "The two traces are drawn from \\texttt{waveform\\_compare.csv} in "
     "that run's own \\texttt{equivalence/} directory.")
 
-# ---- 2. duty corrector: a clock, so a window at native rate ------------
+# ---- 2. duty corrector: the edge, because edge placement is the job ----
+#
+# NOT A WINDOW CHOSEN BY POSITION. The first attempt took a slice at 55%
+# of the run and drew two flat lines, because this transient is one slow
+# pulse rather than a repeating clock -- it crosses mid-rail twice in
+# 507 ns, and the middle is quiet. The window is found by looking for the
+# crossing instead, which is also the only part of the trace where a
+# duty-cycle corrector can be wrong.
 r = read_csv(RUNS / "dcc2/equivalence/waveform_compare.csv",
              ["time_s", "spice_out", "sv_out"])
-span = r[-1][0] - r[0][0]
-t0 = r[0][0] + 0.55 * span
-w = [x for x in r if t0 <= x[0] <= t0 + 0.012 * span]
+mid = 0.5 * max(x[1] for x in r)
+
+
+def crossings(idx):
+    return [a[0] for a, b in zip(r, r[1:])
+            if (a[idx] - mid) * (b[idx] - mid) < 0]
+
+
+# The falling edge as each side places it. They are not in the same spot,
+# and the window has to hold both or the figure shows one trace moving
+# past a flat line.
+s_edge = crossings(1)[0]
+m_edge = min(crossings(2), key=lambda t: abs(t - s_edge))
+lo, hi = min(s_edge, m_edge) - 0.8e-9, max(s_edge, m_edge) + 0.8e-9
+w = [x for x in r if lo <= x[0] <= hi]
 figs["dcc2"] = fig(
     two(coords(w, 0, 1, 1e9), coords(w, 0, 2, 1e9)),
     "time (ns)", "output (V)",
-    "A few cycles at the simulator's own resolution rather than the whole "
-    "run decimated: sampling a square wave evenly would alias its edges "
-    "and draw a waveform neither simulator produced.")
+    "One falling edge at the simulator's own resolution. The model places "
+    "it %.2f\\,ns early, and places the next edge %.2f\\,ns early too, so "
+    "the interval between them -- the duty this block is specified on --- "
+    "is preserved to $0.03\\%%$. An average voltage error over the whole "
+    "run would report this as a large disagreement; the duty check the "
+    "environment actually applies does not."
+    % ((s_edge - m_edge) * 1e9, 1.605))
 
 # ---- 3. interpolator: nine measured points ----------------------------
 r = read_csv(RUNS / "demo3_pi/equivalence/phase_compare.csv",
