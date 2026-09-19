@@ -47,7 +47,7 @@ python3 -m spice2rnm "$NETLIST" \
   --out-dir "$OUT" \
   --input-node clk --output-node vout \
   --ngspice-bin "$NGSPICE" \
-  --emit-uvm-ms --emit-wreal --emit-assertions 2>&1 | tee "$OUT/pipeline.txt" \
+  --emit-uvm-ms --emit-assertions 2>&1 | tee "$OUT/pipeline.txt" \
   | grep -viE '^\s*$' | sed 's/^/    /'
 rc=${PIPESTATUS[0]}
 if [ "$rc" -ne 0 ]; then

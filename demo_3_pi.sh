@@ -89,7 +89,7 @@ T0=$(date +%s)
     --out-dir "$OUT" --output-node vout \
     --code-map thermometer:8 --code-period 2e-9 \
     --ngspice-bin "$NGSPICE" --emit-uvm-ms --uvm-ms-lib "$UVM_MS_LIB" \
-    --emit-wreal --emit-assertions 2>&1 ) \
+    --emit-assertions 2>&1 ) \
   | grep -viE '^\s*$' | sed 's/^/    /'
 rc=${PIPESTATUS[0]}
 if [ "$rc" -ne 0 ]; then
