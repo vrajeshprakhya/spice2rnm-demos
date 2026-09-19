@@ -4,7 +4,7 @@
 automatic real-number-model and testbench generator: four worked case
 studies.
 
-**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (17
+**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (18
 pages). The PDF is regenerated from the `.tex` whenever it changes; if
 the two ever disagree, the `.tex` is the source of truth.
 
@@ -16,8 +16,8 @@ pdflatex spice2rnm-demos.tex     # again, for the table of contents
 ```
 
 Standard classes and packages only (`article`, `booktabs`, `listings`,
-`xcolor`, `fancyhdr`, `hyperref`, `draftwatermark`), so a stock TeX Live
-or MiKTeX builds it
+`xcolor`, `fancyhdr`, `hyperref`, `draftwatermark`, `pgfplots`), so a
+stock TeX Live or MiKTeX builds it
 with nothing extra to install — or drop the single `.tex` file into
 [Overleaf](https://www.overleaf.com) and compile with the default pdfLaTeX
 engine.
