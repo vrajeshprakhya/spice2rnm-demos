@@ -383,9 +383,9 @@ five consecutive runs of this same deck gave $3.61$, $1.83$, $4.15$,
 $2.05$ and $1.86\unit{mV}$ here. What does not move is what the
 difference is judged against --- $0.190$ of \texttt{vout}'s own scale, of
 which $0.140$ is the allowance for exactly this sampling --- and that is the number the
-verdict is against and the record carries. A single
-agreement figure quoted without it says less than it appears to, in the
-same way as a jitter ratio quoted without its correlation time.
+verdict is against and the record carries. An agreement figure quoted
+without its bar tells you less than it seems to, in the same way as a
+jitter ratio quoted without its correlation time.
 
 Each node also records which of its two metrics that bar governs. A
 node the digital side consumes through a threshold is judged on its
@@ -456,7 +456,7 @@ error at the single worst instant is $99.9\%$ of the full voltage swing.
 Those are not in conflict: if the model's edge lands slightly late, then
 for that brief moment the model sits at one supply rail while the real
 circuit sits at the other. Averaged over time it vanishes. For a clock
-buffer it is the entire point. The pipeline
+buffer, that moment is the behaviour being verified. The pipeline
 classifies them from the measured DC curve --- $62\%$ and $61\%$ of
 swept points within $5\%$ of a rail is a switching characteristic, not a
 smooth response --- and scores them on duty cycle instead.
@@ -502,8 +502,8 @@ The chirp is kept, and these same two blocks pass an rms comparison at
 $0.025$ against a $0.15$ bar --- a green result from a measurement that
 cannot see the property in question. The two transcripts are otherwise alike, and the
 command line is identical, so the run records which figure each verdict
-was reached by and the demonstration reports it from that record. A flag
-requesting a check is not evidence the check happened.
+was reached by, and the demonstration reports it from that record.
+Asking for a check on the command line does not show that it ran.
 
 %======================================================================
 \section{Results at a glance}
@@ -639,9 +639,9 @@ four cases, in a repository whose history is permanent, for files
 it, so a reader sees what exists and what it weighs without every future
 clone carrying it. What is published comes to $232\unit{kB}$.
 
-The distinction is the point, and it is a size rather than a filename:
-a comparison table small enough to read is evidence, and one large enough
-to be a waveform is a trace. The routes differ in which they produce --- a
+The distinction is drawn by size rather than by filename. A
+comparison table small enough to read is evidence; one large enough to be
+a waveform is a trace. The routes differ in which they produce --- a
 network compared point by point writes a table, a waveform compared
 sample by sample writes a trace --- so the rule has to be about the file,
 not about what it is called.
@@ -832,8 +832,8 @@ circuit did. Asking the model to reproduce it would be asking it to
 reproduce an artefact. It is used instead as the floor every other
 amplitude has to clear before its result counts.
 
-The agreement is not a fit. Take the supply path, where the sensitivity
-is separately measured: $450.6\unit{MHz/V}$ on a $2.509\unit{ns}$ period
+That agreement was not obtained by fitting anything. Take the supply
+path, where the sensitivity is separately measured: $450.6\unit{MHz/V}$ on a $2.509\unit{ns}$ period
 predicts $14.18\unit{ps}$ of period jitter for $5\unit{mV}$ rms, if the
 disturbance held still across the cycle. The circuit gives
 $2.797\unit{ps}$ --- a ratio of $0.197$, against the
@@ -873,9 +873,10 @@ hierarchical run: on every run, that is, which has a top-level deck to
 declare anything in.
 
 There is no flag to force it, because a request to run a check is not
-evidence that one is warranted; and where the tool has no closed-loop
-evidence either way it runs the check rather than skipping it. An absent
-judgement is not a judgement to skip on.
+evidence that one is warranted. And where the tool has no closed-loop
+evidence either way, it runs the check rather than skipping it: having no
+opinion about whether a check is needed is not the same as deciding it is
+not.
 
 \paragraph{What the sweep measures, and what it does not.} The ring in
 isolation, driven on its own characterisation fragment. That is the right
@@ -1206,7 +1207,8 @@ trust that the feature requested was the feature exercised.
         transistor reference settled measurably, which under a noisy rail
         it may or may not do.
 
-        REPORTED, NOT JUDGED, and the reason is not modesty. A loop
+        REPORTED, NOT JUDGED, and for a specific reason rather than
+        caution. A loop
         suppresses its oscillator's jitter inside the loop bandwidth, so
         a figure measured at the boundary is not the block's own jitter
         and the two are not expected to agree. The $10.91\unit{ps}$ this
