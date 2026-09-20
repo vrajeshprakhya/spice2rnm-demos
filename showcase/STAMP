@@ -1,43 +1,12 @@
-Generated: 2026-09-18T05:52:59Z
-spice2rnm: 3881f95
-demos:     56070c4
+Generated: 2026-09-20T18:56:59Z
+spice2rnm: a676738
+demos:     291e676
 xezim:     531e42a
 xezim-core: 482f03f
 
 Run summary:
-    demo_1_lpf.sh     105 s   exit 0
-    demo_2_dcc.sh     846 s   exit 0
-    demo_3_pi.sh       25 s   exit 0
-    demo_4_pll.sh    1278 s   exit 0
-    TOTAL            2254 s
-  
-    demo 1  LPF
-      chirp          rms_error_norm=0.029008790476737805
-      PRBS           rms 0.0097 normalized
-      DC             dc checks=49 failed=0
-      AC             ac checks=15 failed=0
-  
-    demo 2  DCC
-      transient      rms_error_norm=0.07687720775304299
-      duty null      50% duty null at vctrl = 1.1477 V
-      DC             dc checks=46 failed=0
-      AC             ac checks=0 (no AC golden
-      duty           duty checks=14 failed=0 | worst 0.313 pp
-  
-    demo 3  PI
-      settings       measured 9 of 9 settings
-      traversal      traversal -500.1 ps, LSB -62.51 ps, monotonic
-      phase          9 phase checks, 0 failed, worst 3.3 ps
-      DNL            DNL worst         : -100.5 ps  (-1.61 LSB)
-  
-    demo 4  PLL
-      equivalence    equivalence  : 5 pass, 0 fail
-      floor          floor        : PASS
-      system         system       : PASS -- 4 boundary signal(s), 0 failed
-      vout           vout worst |diff| 0.001069 V
-      lock           locked within 0.00% of 400.00 MHz
-  
-    problems
-      none
-  
-    logs: /tmp/spice2rnm_demos
+  NONE RECORDED. These artifacts were curated from existing run
+  directories (--no-run), so no single run_all.sh summary
+  describes all four. The tool revisions above are what
+  generated them; per-case verdicts are in each result.json
+  and each equivalence/ directory.
