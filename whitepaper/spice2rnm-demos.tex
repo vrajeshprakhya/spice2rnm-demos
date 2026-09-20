@@ -458,23 +458,23 @@ Per-block equivalence                & $5$ of $5$ pass \\
 \midrule
 Supply condition                     & $20\unit{mV}$ rms, declared in the deck \\
 System check vs transistors          & $4$ boundary signals, $0$ failed \\
-\quad \texttt{vout} (control voltage) & $1.86\unit{mV}$, bar $0.190$ \\
+\quad \texttt{vout} (control voltage) & $4.62\unit{mV}$, $12.4\%$ of its bar \\
 \quad \texttt{aout} (VCO output)      & $0.4\%$ of crossings, bar $2\%$ \\
-\quad \texttt{dra} (internal probe)   & $8.96\unit{mV}$ \\
+\quad \texttt{dra} (internal probe)   & $20.3\unit{mV}$, $0.9\%$ of its range \\
 \midrule
 Both loops lock at                   & $400.00\unit{MHz}$ \\
-\quad settled control band           & $1.8468$--$1.8546\unit{V}$ vs \\
-                                     & $1.8468$--$1.8499\unit{V}$ \\
+\quad control band, transistors      & $1.8449$--$1.8568\unit{V}$ \\
+\quad control band, models           & $1.8483$--$1.8522\unit{V}$ \\
 \midrule
-Model half vs transistor half        & $6.37\unit{s}$ vs $111.1\unit{s}$ \\
-\quad same testbench, same span       & $17.4\times$ \\
+Model half vs transistor half        & $6.36\unit{s}$ vs $105.3\unit{s}$ \\
+\quad same testbench, same span       & $17\times$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \noindent The control voltage is the number to read. It is where the loop
 stores its state, so a model that settles anywhere else disagrees here
-first --- and the two agree to $1.86\unit{mV}$ while reaching the same
+first --- and the two agree to $4.62\unit{mV}$ while reaching the same
 frequency, on a rail carrying $20\unit{mV}$ rms of noise the deck
 declares. That is looser than the figure this table carried while the
 rail was quiet, and the rail is the reason: a loop concentrates a supply
@@ -507,9 +507,13 @@ worst-window difference is a sample rather than a property of the model:
 seven consecutive runs of this same deck gave $3.61$, $1.83$, $4.15$,
 $2.05$, $1.86$, $1.72$ and $4.62\unit{mV}$ here --- the last two from a
 pair run back to back with nothing changed between them. What does not move is what the
-difference is judged against --- $0.190$ of \texttt{vout}'s own scale, of
-which $0.140$ is the allowance for exactly this sampling --- and that is the number the
-verdict is against and the record carries. An agreement figure quoted
+difference is judged against --- $0.265$ of \texttt{vout}'s own scale, of
+which $0.215$ is the allowance for exactly this sampling --- and that is
+the number the verdict is against and the record carries. The draw above
+normalises to $0.124$ against it. That scale is itself a floor, $2\%$ of
+the node's magnitude, because the golden moved only $11.8\unit{mV}$
+across the window and scoring against so small a range would read noise
+as error. An agreement figure quoted
 without its bar tells you less than it seems to, in the same way as a
 jitter ratio quoted without its correlation time.
 
@@ -569,7 +573,7 @@ alone and a fixed tolerance would be measuring run length. Each node's
 bar is widened by three standard errors of the difference between two
 window means, taken from the reference's own spread rather than from the
 declared amplitude --- what actually reaches a node is a property of the
-circuit. On \texttt{vout} that allowance is $0.140$ of the $0.190$ bar,
+circuit. On \texttt{vout} that allowance is $0.215$ of the $0.265$ bar,
 and the record carries both, so a reader can see how much of the bar was
 earned and how much was allowed.
 
