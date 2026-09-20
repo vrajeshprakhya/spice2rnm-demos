@@ -316,17 +316,32 @@ one does not.
 \section{Case study 2 --- Duty-cycle corrector}
 \label{sec:dcc}
 
-A duty-cycle corrector built around a comparator. Measuring how fast it
-responds gives two different answers. A small-signal AC fit puts its pole
-at $3.7\times10^{8}\unit{rad/s}$; driving the input and timing the output
-puts the rate between $1.3\times10^{10}$ and $5.1\times10^{10}
-\unit{rad/s}$ --- $35$ to $137$ times faster, and still moving by a factor
-of $3.9$ across the input range. The AC figure is a true fact about an
-internal node that the buffered output does not obey, so a model built on
-it runs one to two orders of magnitude slow. A model with one fixed
-response cannot follow the variation either, and the standard AC-based way
-of checking such a model does not catch the error. That combination is why
-blocks like this tend to have the hand-written models people trust least.
+A clock is meant to be high for half of each cycle. When it is not, a
+duty-cycle corrector fixes it. This one is built around a comparator.
+
+Ask how fast the block responds and you get two answers. Nudge the input
+a little and watch the output move, and the answer is
+$3.7\times10^{8}\unit{rad/s}$. Swing the input hard and time the output
+with a stopwatch, and it is between $1.3\times10^{10}$ and
+$5.1\times10^{10}\unit{rad/s}$ --- $35$ to $137$ times faster.
+
+The slow answer is not wrong. It measures a delicate node inside the
+comparator, and sensitive things are sluggish. But the output does not
+come from that node. It comes from a buffer that slams between the rails
+and does not wait. So the slow number is true about something the output
+ignores, and a model built on it runs tens to hundreds of times too slow.
+
+The faster answer is not a single number either. It moves by a factor of
+$3.9$ across the input range, so a model with one fixed speed cannot
+follow it.
+
+Then the trap. The usual way to check a model like this compares its AC
+response against the circuit's. Both are measured by nudging, so both
+report the slow node, and the two agree. The check passes on a model that
+is a hundred times too slow, and it has said nothing about the error.
+
+That is why blocks like this tend to have the hand-written models people
+trust least.
 
 \subsection{A model that follows the circuit's dynamics}
 
