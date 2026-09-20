@@ -141,11 +141,17 @@ spice2rnm dcc.cir --emit-uvm-ms --spec dcc_spec.md
 \noindent The ports are not named because the tool reads them. The input
 is the node driven by the one source carrying a transient function or an
 AC magnitude, where the deck's supplies carry a DC level and nothing
-else --- on this netlist, \texttt{clk}. The output is a guess from a
-node's name, because a netlist never says which node you care about, and
-the run reports it as a guess so a reader can see which it was. Four
-routes refuse to guess at all and ask to be told: the ones that measure a
-specific node's edge, frequency or current.
+else --- on this netlist, \texttt{clk}.
+
+The output is a different kind of question. How a circuit is wired does
+not say which node you care about. What does say it is the deck's own
+\texttt{.save}, \texttt{.print} or \texttt{.probe}: that is the author
+naming the signal the netlist exists to show, and where a deck carries
+one the tool takes the output from it. Where a deck carries none, as
+this one does, the output is a guess from a node's name. The run says
+which of the two it used, so a reader can tell a declaration from a
+guess. Four routes decline to guess at all and ask to be told --- the
+ones measuring a particular node's edge, frequency or current.
 
 \begin{itemize}[leftmargin=1.5em,itemsep=0.3em]
   \item \textbf{A SystemVerilog real-number model}, with the model
