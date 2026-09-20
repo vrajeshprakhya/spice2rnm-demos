@@ -71,6 +71,54 @@ def fig(body, xlabel, ylabel, caption):
             xlabel, ylabel, body, caption))
 
 
+def read_pwl(path):
+    """The stimulus, from the deck that was actually run.
+
+    waveform_compare.csv carries only the two outputs, so the input has
+    to come from the transient deck -- the same explicit PWL point list
+    both simulators were driven with, which is the point of emitting it
+    as a list rather than a function.
+    """
+    txt = Path(path).read_text()
+    i = txt.upper().find("PWL(")
+    j = txt.find(")", i)
+    v = [float(x) for x in txt[i + 4:j].split()]
+    return list(zip(v[0::2], v[1::2]))
+
+
+def window(rows, lo, hi, n, xi=0):
+    """Rows inside [lo, hi], thinned to about n of them.
+
+    Thinned AFTER windowing, not before: the whole point of a native
+    -resolution window is that the stride is chosen against what is in
+    the window, not against the length of the run.
+    """
+    w = [r for r in rows if lo <= r[xi] <= hi]
+    return even(w, n)
+
+
+def panel(body, xlabel, ylabel, title):
+    return (
+        "\\begin{tikzpicture}\n"
+        "  \\begin{axis}[width=0.47\\linewidth,height=4.3cm,\n"
+        "    title={\\footnotesize %s}, title style={yshift=-0.4em},\n"
+        "    xlabel={%s}, ylabel={%s},\n"
+        "    label style={font=\\small}, tick label style={font=\\scriptsize},\n"
+        "    scaled x ticks=false, x tick label style={/pgf/number format/fixed},\n"
+        "    grid=both, grid style={line width=0.1pt,draw=gray!18},\n"
+        "    every axis plot/.append style={line width=0.7pt}]\n"
+        "%s\n"
+        "  \\end{axis}\n"
+        "\\end{tikzpicture}" % (title, xlabel, ylabel, body))
+
+
+def three(stim, spice, model):
+    return ("    \\addplot[gray!55] coordinates {%s};\n"
+            "    \\addplot[black] coordinates {%s};\n"
+            "    \\addplot[red,dashed] coordinates {%s};"
+            % (stim, spice, model))
+
+
 def two(a, b):
     return ("    \\addplot[black] coordinates {%s};\n"
             "    \\addplot[red,dashed] coordinates {%s};" % (a, b))
@@ -78,16 +126,51 @@ def two(a, b):
 
 figs = {}
 
-# ---- 1. two-pole filter: smooth, so even sampling is honest ------------
+# ---- 1. two-pole filter: show the filtering, not just the agreement ----
+#
+# The output alone is a smooth bump. It proves the model matches the
+# transistors and shows nothing about what the block does, because what
+# a low-pass does to a chirp is remove the part you would have to draw
+# the INPUT to see. So both windows carry the stimulus too.
+#
+# Native resolution inside each window. Even sampling across the whole
+# run is honest for the output -- checked: consecutive samples at the
+# fast end decline smoothly, no ripple, because the filter took the high
+# frequencies out -- but it is NOT honest for the input, which still
+# carries them.
 r = read_csv(RUNS / "lpf2/equivalence/waveform_compare.csv",
              ["time_s", "spice_out", "sv_out"])
-d = even(r, 200)
-figs["lpf2"] = fig(
-    two(coords(d, 0, 1, 1e6), coords(d, 0, 2, 1e6)),
-    "time (\\textmu s)", "output (V)",
-    "The model against the transistors over the whole transient. "
-    "The two traces are drawn from \\texttt{waveform\\_compare.csv} in "
-    "that run's own \\texttt{equivalence/} directory.")
+stim = read_pwl(RUNS / "lpf2/equivalence/spice_tran/transient.cir")
+
+panels = []
+for lo, hi, title in (
+        (1.45e-6, 1.55e-6, "early in the sweep ($\\approx$0.6\\,MHz)"),
+        # NOT the far end of the sweep. There the output is 50 dB down
+        # and the model's small absolute error is three times what is
+        # left of the signal, so the picture would say the model is
+        # wrong where it is only irrelevant. Measured across candidate
+        # windows, this is the widest attenuation that still has the
+        # model tracking to 1% of the local swing.
+        (7.35e-6, 7.45e-6, "late in the sweep ($\\approx$56\\,MHz)")):
+    o = window(r, lo, hi, 150)
+    i = window(stim, lo, hi, 150)
+    panels.append(panel(
+        three(coords(i, 0, 1, 1e6), coords(o, 0, 1, 1e6), coords(o, 0, 2, 1e6)),
+        "time (\\textmu s)", "V", title))
+
+figs["lpf2"] = (
+    "\\begin{center}\n" + "\\hfill".join(panels) + "\n\\end{center}\n"
+    "\\vspace{-0.4em}\n"
+    "\\noindent{\\footnotesize Grey is the stimulus, black the transistors, "
+    "red dashed the generated model --- two moments of the same chirp, at "
+    "the simulator's own resolution. Early, the output follows the input. "
+    "Late, the input still swings and the output barely moves: that is the "
+    "filter. Measured over $100\\,$ns windows the output-to-input swing "
+    "ratio is $0.99$ in the first window and $0.50$ in the second, "
+    "and the model "
+    "tracks the transistors through both. Drawn from "
+    "\\texttt{waveform\\_compare.csv} and the PWL stimulus in that run's "
+    "own \\texttt{equivalence/} directory.}\\vspace{0.6em}\n")
 
 # ---- 2. duty corrector: the edge, because edge placement is the job ----
 #
@@ -166,11 +249,17 @@ figs["pll"] = fig(
     % (" ".join("(%.4g,%.6g)" % (t * 1e6, v) for t, v in g),
        " ".join("(%.4g,%.6g)" % (t * 1e6, v) for t, v in m)),
     "time (\\textmu s)", "control voltage (V)",
+    # NO WORST-DIFFERENCE HERE. It is a draw -- see the paragraph below
+    # the table, which lists seven of them -- and a caption quoting its
+    # own sample contradicted the table the moment either was
+    # regenerated. The number belongs in one place, next to the
+    # explanation of what it is.
     "The control voltage at the co-simulation boundary: the composed "
-    "models against the transistors, on the design's own testbench. The "
-    "two track each other to within %.1f\\,mV on a node the loop holds "
-    "near 1.85\\,V. Eight samples because that is how often the digital "
-    "side reads this node." % worst)
+    "models against the transistors, on the design's own testbench, on a "
+    "node the loop holds near 1.85\\,V. Both settle to the same place "
+    "and hold it. Eight samples because that is how often the digital "
+    "side reads this node; how closely they agree at any one instant is "
+    "a draw, and the table's bar is what the verdict is taken against.")
 
 s = TEX.read_text(encoding="utf-8")
 for name, body in figs.items():
