@@ -160,35 +160,48 @@ ones measuring a particular node's edge, frequency or current.
         level, where any fixed-response model is wrong across most of its
         range.
 
-        It presents \texttt{wreal} ports by default, so it wires
-        straight into an RNM library like the models beside it. That
-        boundary is a module around a computing core, and the core is
-        emitted with plain \texttt{real} ports. A \texttt{real} port is a
-        \emph{variable}: it depends on no package, no nettype declaration
-        and no simulator extension, so the core compiles standalone
-        anywhere. A flow without \texttt{wreal} support instantiates it
-        directly. The boundary can instead be a user-defined nettype from
-        your own library (Section~\ref{sec:style}), or omitted with
-        \texttt{-{}-model-ports real}.
+        The model presents \texttt{wreal} ports, so it wires straight
+        into an RNM library like the models beside it --- and it is the
+        model itself that does, not a wrapper around it.
 
-        The core is untouched in every case: it is the file the
-        equivalence check ran against. A boundary costs nothing in
-        fidelity either. Driven with identical stimulus, boundary and
-        bare core agree exactly --- worst difference $0$ over $120$
-        randomised samples across all three case-study models, and again
-        on a library's own nettype. \texttt{wreal} is a simulator extension rather than
-        IEEE 1800, so that boundary is a separate file the core does not
-        depend on.
+        That distinction is functional, not stylistic. A \texttt{real}
+        port is a \emph{variable}, and a variable takes exactly one
+        driver: nothing can share the node and no bridge can attach
+        without a converting module in between. A \texttt{wreal} port is
+        a \emph{net}, so drivers combine on it --- an offset source, a
+        noise injector, a second bridge --- and the model drops into a
+        library with nothing standing between it and the nets it is
+        wired to.
+
+        It costs one thing, and the cost is real: \texttt{wreal} is
+        Verilog-AMS vocabulary rather than IEEE 1800, so the model
+        compiles where the simulator provides it, and everything
+        instantiating the model inherits that. For a flow without it,
+        \texttt{-{}-model-ports real} emits the same model with variable
+        ports, depending on no package, no nettype and no extension.
+        \texttt{-{}-model-ports house} gives it your own library's
+        nettype instead (Section~\ref{sec:style}).
+
+        The computation is identical in every case --- only the
+        declaration of the ports differs, and a net cannot be assigned
+        procedurally, so a net-typed model drives its output through one
+        continuous assignment. Measured rather than asserted: the filter
+        scores \texttt{rms\_error\_norm} $0.029008790476737805$ against
+        SPICE with either discipline, the same to every digit.
   \item \textbf{A UVM-MS verification environment} following the Accellera
         UVM-MS specification, built on IEEE 1800 --- not on Verilog-AMS.
         Analog values travel on \emph{user-defined nettypes} (IEEE
         1800-2017 \S6.6.7) with a generated resolution function. Multiple
         drivers on a net then combine in the net type rather than in
         hand-edited testbench code --- an offset source, a noise
-        injector, a second bridge. \texttt{wreal} is a simulator
-        extension rather than IEEE 1800, so the generated UVM-MS
-        environment drives the core rather than the \texttt{wreal}
-        boundary, and needs no AMS licence to run. Bridge and wrapper ports are
+        injector, a second bridge. The environment instantiates
+        the model itself rather than a copy of it behind a wrapper, so
+        what the checks cover is what ships. Its own structure is IEEE
+        1800 throughout --- the nettype, the resolution function, the
+        \texttt{interconnect} ports --- but the model it drives carries
+        \texttt{wreal}, so running it needs a simulator providing that;
+        \texttt{-{}-model-ports real} removes the dependence for a flow
+        without it. Bridge and wrapper ports are
         \texttt{interconnect} (\S6.6.8), inheriting the testbench's nettype
         instead of naming one, and scoreboard golden values are SPICE
         measurements of your circuit.
@@ -1091,8 +1104,8 @@ Point \texttt{-{}-style-from} at the library and the output conforms: the
 environment's analog nets use \emph{their} nettype, its files import
 \emph{their} package, no types package of the tool's own is emitted, and
 the generated run script compiles their package file. A library whose
-models use \texttt{wreal} ports gets the wreal wrapper without being
-asked. Their timescale is reported but deliberately not adopted ---
+models use \texttt{wreal} ports gets a model with wreal ports without
+being asked. Their timescale is reported but deliberately not adopted ---
 generated delays are computed femtosecond values, and timescale is per
 compilation unit, so the directives interoperate unchanged.
 
@@ -1159,7 +1172,8 @@ model is delivered behind a port boundary, the generated testbench drives
 file joins the compile list --- so what the evidence covers is what
 ships, not a component of it. Measured separately, a library resolving its net by
 averaging rather than summing conforms and passes the same way, and a
-library using \texttt{wreal} ports gets the wreal wrapper instead.
+library using \texttt{wreal} ports gets wreal ports on the model
+instead.
 Without \texttt{-{}-style-from}, or against a directory with nothing
 recognisable in it, nothing changes --- and the run says so.
 
@@ -1192,8 +1206,9 @@ trust that the feature requested was the feature exercised.
         optional plain-language functional specification; optionally an
         existing RNM library to take conventions from.
   \item \textbf{Outputs}: SystemVerilog real-number models, with the
-        port discipline of your choice --- plain \texttt{real} (portable
-        anywhere), \texttt{wreal}, or your library's own nettype; UVM-MS 1.0
+        port discipline of your choice --- \texttt{wreal} by default,
+        plain \texttt{real} where a flow has no wreal support, or your
+        library's own nettype; UVM-MS 1.0
         environments; equivalence reports with archived waveforms.
   \item \textbf{Toolchain}: a SPICE simulator for characterisation,
         and a digital simulator capable of running real number models ---
