@@ -316,12 +316,17 @@ one does not.
 \section{Case study 2 --- Duty-cycle corrector}
 \label{sec:dcc}
 
-A duty-cycle corrector built around a comparator. How fast it responds is
-not fixed: it changes by a factor of $613{,}666$ depending on the input
-level. A model with one fixed response cannot represent that at all, and
-the standard AC-based way of checking such a model does not work either.
-That combination is why blocks like this tend to have the hand-written
-models people trust least.
+A duty-cycle corrector built around a comparator. Measuring how fast it
+responds gives two different answers. A small-signal AC fit puts its pole
+at $3.7\times10^{8}\unit{rad/s}$; driving the input and timing the output
+puts the rate between $1.3\times10^{10}$ and $5.1\times10^{10}
+\unit{rad/s}$ --- $35$ to $137$ times faster, and still moving by a factor
+of $3.9$ across the input range. The AC figure is a true fact about an
+internal node that the buffered output does not obey, so a model built on
+it runs one to two orders of magnitude slow. A model with one fixed
+response cannot follow the variation either, and the standard AC-based way
+of checking such a model does not catch the error. That combination is why
+blocks like this tend to have the hand-written models people trust least.
 
 \subsection{A model that follows the circuit's dynamics}
 

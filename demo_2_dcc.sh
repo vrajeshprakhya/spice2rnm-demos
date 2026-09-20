@@ -2,7 +2,8 @@
 # DEMO 2 of 3 -- Duty-cycle corrector: a block that defeats fixed-response
 # modelling, and how the tool handles it.
 #
-# A comparator's dominant pole moves 613,666x across its input range, so any
+# A comparator's measured rate moves 3.9x across its input range, and the
+# AC fit misses the rate entirely by 35x to 137x, so any
 # model with one fixed frequency response is wrong across most of that range.
 # The tool detects the level dependence, measures the large-signal dynamics
 # directly, and builds a model scheduled against that measurement -- ending
@@ -105,17 +106,30 @@ hr "3a. Dynamics measured where the output actually obeys them"
 say "The dynamics of this block are measured two independent ways, and the"
 say "difference between them is why generated models here can be trusted:"
 say ""
-say "    small-signal AC sweep    1.2 .. 3.7e8 rad/s     613,666x"
-say "    large-signal stepping    1.3e10 .. 5.1e10       3.9x"
+# READ from result.json. This used to assert "1.2 .. 3.7e8 rad/s,
+# 613,666x", which is not what those endpoints divide to and is not a
+# number this run ever produced.
+python3 - "$OUT/result.json" <<'POLES'
+import json, math, sys
+r = json.load(open(sys.argv[1]))["result"]
+ac = r["tf"]["poles_hz"][0] * 2.0 * math.pi
+sch = [p[1] for p in r["pole_schedule"]]
+lo, hi = min(sch), max(sch)
+print("    small-signal AC fit      %-28s one pole" % ("%.3g rad/s" % ac))
+print("    large-signal stepping    %-28s %.1fx across the range"
+      % ("%.3g .. %.3g rad/s" % (lo, hi), hi / lo))
+print("    the output's own rate is %.0fx to %.0fx faster than the AC fit"
+      % (lo / ac, hi / ac))
+POLES
 say ""
-say "Both are real measurements of this circuit. The AC number is the"
-say "comparator's pole at its high-gain null -- a true fact about an"
-say "INTERNAL node that the buffered output does not obey. The step"
-say "measurement drives the input and times the output itself: 33 of 33"
-say "operating points, and the rate the model actually has to integrate."
+say "Both are real measurements of this circuit. The AC fit describes an"
+say "INTERNAL node at its high-gain null -- a true fact that the buffered"
+say "output does not obey. The step measurement drives the input and times"
+say "the output itself, at 33 of 33 operating points: the rate the model"
+say "actually has to integrate."
 say ""
-say "The model is scheduled from the measurement the output obeys. A model"
-say "scheduled from the other one would crawl with a 0.83 s time constant"
+say "The model is scheduled from the measurement the output obeys. Built on"
+say "the other one it would run one to two orders of magnitude too slow,"
 say "exactly where the circuit is pinned at a rail."
 beat
 
@@ -223,8 +237,14 @@ beat
 
 hr "Summary"
 say "fit quality       : AC 0.027 dB (one pole), DC residual 0.000586"
+PR=$(python3 - "$OUT/result.json" <<'PR'
+import json, sys
+s = [p[1] for p in json.load(open(sys.argv[1]))["result"]["pole_schedule"]]
+print("%.1fx over %d operating points" % (max(s) / min(s), len(s)))
+PR
+)
 say "structure         : level-scheduled dynamics, selected automatically"
-say "                    from the measured 613,666x pole movement"
+say "                    from the measured ${PR:-pole movement}"
 say "transient         : 0.0769 vs 0.15 threshold   PASS"
 say "dynamics          : scheduled from a large-signal step measurement at"
 say "                    33 operating points -- the rate the output obeys"
