@@ -22,17 +22,10 @@ module rc_lpf2_dms import rc_lpf2_ms_types_pkg::*; (
   output interconnect aout
 );
 
-  // Net -> variable, so the RNM's `input real` port can take it.
-  real in_r = 0.9;
-  always @(ain) in_r = ain;
-
-  // Variable -> net on the way back out.
-  real out_r;
-  assign aout = out_r;
-
-  rc_lpf2_rnm u_rnm (
-    .in_val (in_r),
-    .out_val (out_r)
-  );
+  // The core's own ports are net-typed, so these interconnect
+  // ports connect straight through. Nothing to convert to a
+  // variable and back: the discipline lives in the model, and
+  // what the environment drives IS the deliverable.
+  rc_lpf2_rnm u_rnm (.in_val(ain), .out_val(aout));
 
 endmodule : rc_lpf2_dms

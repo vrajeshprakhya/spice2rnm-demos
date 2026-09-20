@@ -24,6 +24,17 @@ UVM_SRC="${UVM_SRC:-$HOME/iverilog-unified/uvm-core/src}"
 # generated run script reads this from the environment.
 export UVM_SRC
 OUT="$HOME/s2r_runs/demo3_pi"
+# START FROM EMPTY. A previous run's files linger otherwise, and the day
+# the tool stops emitting one of them, refresh.sh publishes the stale
+# copy beside today's model -- which is exactly the drift this showcase
+# exists to argue against. Guarded to this run directory: OUT is a
+# variable a reader may edit, and an unguarded rm -rf on one is not
+# something to publish.
+case "$OUT" in
+  "$HOME"/s2r_runs/?*) rm -rf "$OUT" ;;
+  *) echo "refusing to clean unexpected OUT: $OUT" >&2; exit 1 ;;
+esac
+mkdir -p "$OUT"
 NETLIST="$S2R/work/pi_therm.cir"
 
 hr()  { printf '\n\033[1m%s\033[0m\n%s\n' "$1" "$(printf '=%.0s' {1..72})"; }
@@ -119,9 +130,12 @@ echo
 # "ERROR: /uvm_pkg.sv not found" printed NOTHING here and the act looked
 # like a clean pass with no output. A filter that can only show success
 # is not a filter.
-( cd "$OUT" && timeout 3600 bash run_pi_therm_ms.sh 2>&1 \
-  | grep -E "SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED|^ERROR|=== " \
-  | sort -u | sed 's/^/    /' )
+# Kept, so the summary below can read what this act printed rather
+# than carry its own copy of the numbers.
+MS_LOG="$OUT/uvm_ms_run.log"
+( cd "$OUT" && timeout 3600 bash run_pi_therm_ms.sh > "$MS_LOG" 2>&1 )
+grep -E "SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED|^ERROR|=== " \
+  "$MS_LOG" | sort -u | sed 's/^/    /' 
 echo
 say "A tenth of an LSB is the delay line's own quantisation floor, not a"
 say "tolerance chosen to fit the answer: the model sizes its time step at"
@@ -158,8 +172,11 @@ say "DNL / INL    : -1.61 / -1.59 LSB"
 say ""
 say "one command  : netlist -> measured model -> running testbench"
 say "model        : code-selected delay line, 9 codes"
-say "UVM-MS       : 9 phase checks, 0 failed, worst 3.3 ps against a 6.3 ps"
-say "               tolerance (a tenth of an LSB)"
+PH_N=$(grep -oE 'phase checks=[0-9]+' "$MS_LOG" 2>/dev/null | tail -1 | cut -d= -f2)
+PH_F=$(grep -oE 'phase checks=[0-9]+ failed=[0-9]+' "$MS_LOG" 2>/dev/null | tail -1 | sed 's/.*failed=//')
+PH_W=$(grep -oE 'worst [0-9.]+ ps \(tol [0-9.]+ ps\)' "$MS_LOG" 2>/dev/null | tail -1)
+say "UVM-MS       : ${PH_N:-?} phase checks, ${PH_F:-?} failed, ${PH_W:-worst not parsed}"
+say "               -- a tenth of an LSB"
 say ""
 say "Scope, precisely: this path enumerates a finite set of discrete"
 say "settings -- which is what makes it tractable, since thermometer coding"

@@ -51,10 +51,10 @@ module lpfilt_rc_rnm #(
   parameter real DT    = 1e-10,     // integration step, seconds
   parameter real VINIT = 0   // initial state voltage
 ) (
-  input  real i_in,      // current INTO dra, amps
-  input  real g_in,      // that driver's output conductance, siemens
-  output real v_inject,  // that node's voltage, fed back to the driver
-  output real v_out      // vout
+  input  wreal i_in,      // current INTO dra, amps
+  input  wreal g_in,      // that driver's output conductance, siemens
+  output wreal v_inject,  // that node's voltage, fed back to the driver
+  output wreal v_out      // vout
 );
 
   // capacitor node voltages

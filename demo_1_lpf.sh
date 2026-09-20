@@ -14,6 +14,17 @@ S2R="${S2R:-$HOME/spice2rnm}"
 NGSPICE="${NGSPICE:-$HOME/ngspice-install/bin/ngspice}"
 XEZIM="${XEZIM:-$HOME/xezim/target/release/xezim}"
 OUT="$HOME/s2r_runs/lpf2"          # prbs_vcd.py reads the model from here
+# START FROM EMPTY. A previous run's files linger otherwise, and the day
+# the tool stops emitting one of them, refresh.sh publishes the stale
+# copy beside today's model -- which is exactly the drift this showcase
+# exists to argue against. Guarded to this run directory: OUT is a
+# variable a reader may edit, and an unguarded rm -rf on one is not
+# something to publish.
+case "$OUT" in
+  "$HOME"/s2r_runs/?*) rm -rf "$OUT" ;;
+  *) echo "refusing to clean unexpected OUT: $OUT" >&2; exit 1 ;;
+esac
+mkdir -p "$OUT"
 NETLIST="$S2R/work/rc_lpf2.cir"
 
 hr()  { printf '\n\033[1m%s\033[0m\n%s\n' "$1" "$(printf '=%.0s' {1..72})"; }

@@ -366,6 +366,15 @@ core_rev() {
   echo "xezim-core: $(core_rev)"
   echo
   echo "Run summary:"
-  sed 's/^/  /' /tmp/showcase_run_summary.txt
+  if [ -s /tmp/showcase_run_summary.txt ]; then
+    sed 's/^/  /' /tmp/showcase_run_summary.txt
+  else
+    # An empty section reads as a truncated file. Say which it is.
+    echo "  NONE RECORDED. These artifacts were curated from existing run"
+    echo "  directories (--no-run), so no single run_all.sh summary"
+    echo "  describes all four. The tool revisions above are what"
+    echo "  generated them; per-case verdicts are in each result.json"
+    echo "  and each equivalence/ directory."
+  fi
 } > "$HERE/STAMP"
 echo "stamped: $HERE/STAMP"

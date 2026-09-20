@@ -18,6 +18,17 @@ S2R="${S2R:-$HOME/spice2rnm}"
 NGSPICE="${NGSPICE:-$HOME/ngspice-install/bin/ngspice}"
 XEZIM="${XEZIM:-$HOME/xezim/target/release/xezim}"
 OUT="$HOME/s2r_runs/dcc2"          # dcc_vcd.py reads the model from here
+# START FROM EMPTY. A previous run's files linger otherwise, and the day
+# the tool stops emitting one of them, refresh.sh publishes the stale
+# copy beside today's model -- which is exactly the drift this showcase
+# exists to argue against. Guarded to this run directory: OUT is a
+# variable a reader may edit, and an unguarded rm -rf on one is not
+# something to publish.
+case "$OUT" in
+  "$HOME"/s2r_runs/?*) rm -rf "$OUT" ;;
+  *) echo "refusing to clean unexpected OUT: $OUT" >&2; exit 1 ;;
+esac
+mkdir -p "$OUT"
 NETLIST="$S2R/work/dcc.cir"
 
 hr()  { printf '\n\033[1m%s\033[0m\n%s\n' "$1" "$(printf '=%.0s' {1..72})"; }
@@ -219,7 +230,14 @@ say "dynamics          : scheduled from a large-signal step measurement at"
 say "                    33 operating points -- the rate the output obeys"
 say "50% duty null     : vctrl = 1.1477 V"
 say "correction range  : 51.5 percentage points of duty"
-say "UVM-MS            : 51 DC checks + 15 duty checks, 0 failed"
+# READ, not remembered. This said 51 and 15 while the scoreboard in
+# the same run reported 46 and 14.
+DC_N=$(grep -oE 'dc checks=[0-9]+' "$MS_LOG" 2>/dev/null | tail -1 | cut -d= -f2)
+DC_F=$(grep -oE 'dc checks=[0-9]+ failed=[0-9]+' "$MS_LOG" 2>/dev/null | tail -1 | sed 's/.*failed=//')
+DT_N=$(grep -oE 'duty checks=[0-9]+' "$MS_LOG" 2>/dev/null | tail -1 | cut -d= -f2)
+DT_F=$(grep -oE 'duty checks=[0-9]+ failed=[0-9]+' "$MS_LOG" 2>/dev/null | tail -1 | sed 's/.*failed=//')
+say "UVM-MS            : ${DC_N:-?} DC checks + ${DT_N:-?} duty checks, \
+$(( ${DC_F:-0} + ${DT_F:-0} )) failed"
 say "                    worst duty error 0.314 pp against 0.500 pp"
 say "                    AC omitted -- it cannot pass here (act 6)"
 say "rise/fall skew    : the circuit falls in 239 ps and rises in 334 ps."

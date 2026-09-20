@@ -12,7 +12,13 @@
 // 50% crossings. Without it this model is symmetric about
 // its own threshold and returns exactly 50.000% duty.
 
-module dcc_rnm(input real in_val, output real out_val);
+module dcc_rnm(input wreal in_val, output wreal out_val);
+
+  // A net cannot be assigned procedurally, so the body computes into
+  // this variable and one continuous assignment drives the port --
+  // the net/variable step the separate boundary file used to perform.
+  real out_val__d;
+  assign out_val = out_val__d;
 
   localparam int  NW = 33;
   localparam real TSTEP = 1755.39; // femtoseconds, for #(...) only
@@ -150,7 +156,7 @@ module dcc_rnm(input real in_val, output real out_val);
     dtap = dhead - (dir_up ? ND_RISE : ND_FALL);
     while (dtap < 0) dtap = dtap + NDEPTH;
     while (dtap >= NDEPTH) dtap = dtap - NDEPTH;
-    out_val = dbuf[dtap];
+    out_val__d = dbuf[dtap];
     dhead = (dhead + 1) % NDEPTH;
   end
 

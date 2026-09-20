@@ -25,6 +25,17 @@ NGLIB="${NGLIB:-$HOME/ngspice-46-shared/src/.libs}"
 XEZIM="${XEZIM:-$HOME/xezim/target/release/xezim}"
 BRIDGE="${BRIDGE:-$COSIM/ams_bridge.so}"
 OUT="$HOME/s2r_runs/demo4_pll"
+# START FROM EMPTY. A previous run's files linger otherwise, and the day
+# the tool stops emitting one of them, refresh.sh publishes the stale
+# copy beside today's model -- which is exactly the drift this showcase
+# exists to argue against. Guarded to this run directory: OUT is a
+# variable a reader may edit, and an unguarded rm -rf on one is not
+# something to publish.
+case "$OUT" in
+  "$HOME"/s2r_runs/?*) rm -rf "$OUT" ;;
+  *) echo "refusing to clean unexpected OUT: $OUT" >&2; exit 1 ;;
+esac
+mkdir -p "$OUT"
 
 # The published partition, exactly as the co-simulation repo ships it.
 PLL_SRC="$COSIM/examples/pll"

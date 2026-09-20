@@ -52,7 +52,7 @@ CPEQ-DONE
 ------------------------------
 Simulation finished at time 46
 ($finish called)
-[PHASE] compilation: 14.7ms
+[PHASE] compilation: 14.0ms
 [EVENT-EDGE] ARMED mode ON: 0 input signals, 0 fanout edges
 [EVENT-EDGE] measure (timestamp): 0 edge blocks, 0 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=0.00
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
@@ -67,13 +67,13 @@ Simulation finished at time 46
 [FUSE] Move-into-assign forwards (static sites): 0
 [FUSE] provably-unsigned scrubs elided (static sites): 4
 [FUSE] AddC2 superinstructions (static sites): 0
-[PROF] settle_dc=0.0ms(47) settle_ca=0.0ms(0) settle_ab=0.0ms(296)
+[PROF] settle_dc=0.0ms(93) settle_ca=0.0ms(0) settle_ab=0.0ms(296)
 [PROF] engine=event
 [PROF] clock_tree: roots=0 entries=0 eager_evals=0
-[PROF] settle_calls=194 settle_iters=194 max_iters=1 entry_evals=343 unresolved_entries=0/3
-[PROF] settle_writes=146 (42.6% of evals changed a signal, 197 quiet) dep_edges=51 (0.3 per write)
+[PROF] settle_calls=194 settle_iters=194 max_iters=1 entry_evals=389 unresolved_entries=0/4
+[PROF] settle_writes=191 (49.1% of evals changed a signal, 198 quiet) dep_edges=100 (0.5 per write)
 [PROF] two_state_evals=0 (0 entries lowered)
-[PROF] simulation_loop=4.2ms iters=47 avg=88.78µs/iter
-[PHASE] simulation: 4.5ms
-[PHASE] total: 19.4ms
+[PROF] simulation_loop=4.4ms iters=47 avg=92.69µs/iter
+[PHASE] simulation: 4.6ms
+[PHASE] total: 18.8ms
 ------------------------------

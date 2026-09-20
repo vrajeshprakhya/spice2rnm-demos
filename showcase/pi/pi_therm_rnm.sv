@@ -17,7 +17,13 @@
 //      7      450.26       12.36      10
 //      8      437.90        0.00       0
 
-module pi_therm_rnm(input real in_val, input int code, output real out_val);
+module pi_therm_rnm(input wreal in_val, input int code, output wreal out_val);
+
+  // A net cannot be assigned procedurally, so the body computes into
+  // this variable and one continuous assignment drives the port --
+  // the net/variable step the separate boundary file used to perform.
+  real out_val__d;
+  assign out_val = out_val__d;
 
   localparam int  NC = 9;
   localparam int  NH = 406;
@@ -51,7 +57,7 @@ module pi_therm_rnm(input real in_val, input int code, output real out_val);
     dly = DLY[c];
     rd = wp - dly;
     if (rd < 0) rd = rd + NH;
-    out_val = hist[rd];
+    out_val__d = hist[rd];
     wp = (wp + 1) % NH;
   end
 

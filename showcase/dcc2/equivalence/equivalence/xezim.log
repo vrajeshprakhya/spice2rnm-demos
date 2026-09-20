@@ -1,6 +1,6 @@
 # command : /home/vraje/xezim/target/release/xezim /home/vraje/s2r_runs/dcc2/dcc_rnm.sv /home/vraje/s2r_runs/dcc2/equivalence/tb_equiv.sv
-# started : 2026-09-19T20:30:02.120140+00:00
-# finished: 2026-09-19T20:30:02.120160+00:00
+# started : 2026-09-20T18:31:06.321313+00:00
+# finished: 2026-09-20T18:31:06.321331+00:00
 # exit    : 0
 
 --- stdout ---
@@ -13,7 +13,7 @@ Simulation finished at time 507717408
 ($finish called)
 
 --- stderr ---
-[PHASE] compilation: 598.3ms
+[PHASE] compilation: 568.7ms
 [EVENT-EDGE] ARMED mode ON: 0 input signals, 0 fanout edges
 [EVENT-EDGE] measure (timestamp): 2 edge blocks, 0 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=0.00
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
@@ -30,17 +30,17 @@ Note: $dumpvars ignored — this run has no waveform support. Re-run with `--wav
 [FUSE] Move-into-assign forwards (static sites): 0
 [FUSE] provably-unsigned scrubs elided (static sites): 0
 [FUSE] AddC2 superinstructions (static sites): 0
-[PROF] fallback_reason                      Assertion: count=   11087 total=    38.0ms avg=    3.4µs
+[PROF] fallback_reason                      Assertion: count=   11087 total=    39.5ms avg=    3.6µs
 [PROF] settle_dc=0.0ms(5330) settle_ca=0.0ms(0) settle_ab=0.0ms(36295)
 [PROF] engine=event
 [PROF] clock_tree: roots=0 entries=0 eager_evals=0
 [PROF] settle_calls=46955 settle_iters=41625 max_iters=1 entry_evals=41625 unresolved_entries=0/2
 [PROF] settle_writes=41527 (99.8% of evals changed a signal, 98 quiet) dep_edges=5329 (0.1 per write)
 [PROF] two_state_evals=0 (0 entries lowered)
-[PROF] simulation_loop=60485.2ms iters=335334 avg=180.37µs/iter
+[PROF] simulation_loop=68308.3ms iters=335334 avg=203.70µs/iter
 [COV] assertions: 2 sites (assert=2, assume=0, cover=0) — 11086 passes, 0 fails
 [COV] coverage: 0 covergroup instances, 0 samples, 0 unique coverpoint values, 0 unique cross tuples
 [COV] wrote coverage DB to xezim_cov.json
-[PHASE] simulation: 60485.5ms
-[PHASE] total: 61083.9ms
+[PHASE] simulation: 68308.6ms
+[PHASE] total: 68877.3ms
 ------------------------------

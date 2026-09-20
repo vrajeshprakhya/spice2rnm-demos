@@ -34,10 +34,15 @@
 //======================================================================
 module cpump_cp_rnm (
   input  logic [1:0] ctl,   // bit0=vcpc0, bit1=vcpc1
-  input  real                  vout,  // voltage on the driven node
-  output real                  iout,  // amps INTO that node
-  output real                  gout   // -diout/dvout there, siemens
+  input  wreal                  vout,  // voltage on the driven node
+  output wreal                  iout,  // amps INTO that node
+  output wreal                  gout   // -diout/dvout there, siemens
 );
+  // always_comb assigns a variable and these ports are nets, so
+  // the value is computed into one and the port driven from it.
+  real iout__d, gout__d;
+  assign iout = iout__d;
+  assign gout = gout__d;
 
   localparam int NST = 4;   // 2**2 states
   localparam int NPT = 12;   // points per characteristic
@@ -144,8 +149,8 @@ module cpump_cp_rnm (
     return 0.0;
   endfunction
 
-  always_comb iout = iv_of(int'(ctl), vout);
-  always_comb gout = gv_of(int'(ctl), vout);
+  always_comb iout__d = iv_of(int'(ctl), vout);
+  always_comb gout__d = gv_of(int'(ctl), vout);
 
 
 `ifndef SPICE2RNM_NO_ASSERT

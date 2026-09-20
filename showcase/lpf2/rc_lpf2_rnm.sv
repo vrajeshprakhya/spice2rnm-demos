@@ -5,7 +5,13 @@
 // poles (Hz): [3823382.3097665044, 26205852.219306976]
 // fit quality: rms_error_db=1.417e-08  max_error_db=5.81e-08
 
-module rc_lpf2_rnm(input real in_val, output real out_val);
+module rc_lpf2_rnm(input wreal in_val, output wreal out_val);
+
+  // A net cannot be assigned procedurally, so the body computes into
+  // this variable and one continuous assignment drives the port --
+  // the net/variable step the separate boundary file used to perform.
+  real out_val__d;
+  assign out_val = out_val__d;
 
   localparam real WP_0 = 24023019.55;
   localparam real WZ_0 = 0.0;
@@ -110,7 +116,7 @@ module rc_lpf2_rnm(input real in_val, output real out_val);
     dynamic_out = OVERALL_MULT * (sec_out1_1);
     static_out = static_curve(in_val);
     final_out = static_out + (dynamic_out - GAIN_DC*u_dev);
-    out_val = final_out;
+    out_val__d = final_out;
   end
 
 `ifndef SPICE2RNM_NO_ASSERT
