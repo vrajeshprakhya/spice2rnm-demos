@@ -220,8 +220,21 @@ criteria (Section~\ref{sec:spec}).
 \section{Case study 1 --- Two-pole filter}
 
 A two-pole RC low-pass filter --- the ordinary case, a block that takes a
-signal in and shapes it on the way out. The generated model is checked
-four independent ways.
+signal in and shapes it on the way out. This is the whole input:
+
+\begin{lstlisting}
+2-pole passive RC low-pass filter -- fast-running RNM test case
+VIN vin 0 DC 0.9 AC 1
+R1  vin  mid  1k
+C1  mid  0    15.9p
+R2  mid  vout 1k
+C2  vout 0    15.9p
+.end
+\end{lstlisting}
+
+\noindent Nothing else: no directives naming the ports, no hint about
+what the block is for, no declared corner frequency. The generated model
+is checked four independent ways.
 
 \begin{center}
 \begin{tabular}{@{}lr@{}}
@@ -467,8 +480,35 @@ different operating point. So a model that looks perfectly reasonable on
 its own can still settle the loop somewhere the real circuit never goes.
 
 It is also three different characterisation problems in one netlist, and
-no single method covers them. The pipeline classifies each block from its
-topology and routes it accordingly:
+no single method covers them. The deck's own \texttt{.subckt}
+boundaries are the blocks:
+
+\begin{lstlisting}
+.subckt ro_vco aout cont dd
+  ...                        (supplies, and the wires closing the ring)
+  xinv1  dd ss sub well cont inm1  inp1  outm1 outp1 gaincell
+  ...                                    (7 ring stages)
+  xinv11 dd 0  sub well outm1 outm2 inv1
+  xinv12 dd 0  sub well outm2 aout  inv2
+.ends ro_vco
+
+xcp  pupb pdn dra dd  cpump
+xlf  dra vout         lpfilt
+xvco aout vout dd     ro_vco
+\end{lstlisting}
+
+\noindent Three \texttt{x} cards at the top level, so three models are
+composed into the runnable whole. \texttt{inv1} and \texttt{inv2} are
+instantiated one level down, inside \texttt{ro\_vco}: they get their own
+models and their own verdicts --- which is why the score below is five of
+five and not three of three --- but they are not wired into the composed
+top, because the \texttt{ro\_vco} model was measured with them in it
+already. \texttt{gaincell} gets no model at all: two inputs and two
+outputs, so no route that fits one input to one output can characterise
+it, and it does not need one.
+
+The pipeline classifies each remaining block from its topology and routes
+it accordingly:
 
 \begin{center}
 \begin{tabular}{@{}lll@{}}
