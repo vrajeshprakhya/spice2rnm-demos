@@ -1,0 +1,46 @@
+{
+  "_comment": "What --emit-rtl-loop takes. It states TOPOLOGY and INTENT, and nothing electrical. Which RTL port lands on which net is not recoverable from the models, and on this circuit a name is actively misleading: in the original ngspice example `d_R` is the DIVIDED clock, the opposite of what it reads like. What is NOT stated is the sense of either pump gate -- whether pdn asserts high or low, and pupb high or low -- because that follows from the measured tuning slope and the measured per-state currents, and a pump wired from its name has shipped upside down before.",
+
+  "name": "pll_rtl_loop",
+
+  "ref_clk": { "signal": "ref_clk", "hz": 10e6 },
+
+  "rtl": [
+    {
+      "file": "pfd.sv",
+      "module": "pfd",
+      "instance": "u_pfd",
+      "connect": {
+        "ref_clk": "ref_clk",
+        "div_clk": "div_clk",
+        "up": "up",
+        "dn": "dn"
+      }
+    },
+    {
+      "file": "divn.sv",
+      "module": "divn",
+      "instance": "u_div",
+      "params": { "N": 40 },
+      "connect": {
+        "clk_in": "vco_clk",
+        "clk_out": "div_clk"
+      }
+    }
+  ],
+
+  "square": { "vco_clk": "aout" },
+
+  "drive": {
+    "pdn":  { "from": "up", "intent": "faster" },
+    "pupb": { "from": "dn", "intent": "slower" }
+  },
+
+  "lock": {
+    "signal": "div_clk",
+    "expect_hz": 10e6,
+    "settle_s": 20e-6,
+    "window_s": 5e-6,
+    "tol_frac": 0.02
+  }
+}
