@@ -27,6 +27,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 S2R="${S2R:-$HOME/spice2rnm}"
 COSIM="${COSIM:-$HOME/ams-cosim}"
 NGSPICE="${NGSPICE:-$HOME/ngspice-install/bin/ngspice}"
+UVM_MS_LIB="${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}"
 XEZIM="${XEZIM:-$HOME/xezim/target/release/xezim}"
 OUT="$HOME/s2r_runs/demo4b_pll"
 # START FROM EMPTY, for the reason demos 1-4 do: a previous run's files
@@ -160,6 +161,7 @@ say "      --spec $SPEC \\"
 say "      --band vout=1.75:1.95 \\"
 say "      --band xvco.outm1=0:3.3 --band xvco.outm2=0:3.3 \\"
 say "      --band xvco.sub=0:0 --band xvco.well=3.3:3.3 \\"
+say "      --emit-uvm-ms --uvm-ms-lib $UVM_MS_LIB \\"
 say "      --emit-rtl-loop $OUT/rtl_loop \\"
 say "      --rtl-loop-spec $LOOPSPEC --run-rtl-loop \\"
 say "      --out-dir $OUT"
@@ -190,6 +192,7 @@ else
     --band vout=1.75:1.95 \
     --band xvco.outm1=0:3.3 --band xvco.outm2=0:3.3 \
     --band xvco.sub=0:0 --band xvco.well=3.3:3.3 \
+    --emit-uvm-ms --uvm-ms-lib "$UVM_MS_LIB" \
     --emit-rtl-loop "$OUT/rtl_loop" \
     --rtl-loop-spec "$LOOPSPEC" --run-rtl-loop \
     --out-dir "$OUT" \
@@ -275,7 +278,28 @@ grep -aE "wrapper equivalence|structural wrapper|cosim system" "$OUT.log" \
   | sed 's/^[0-9TZ:.-]* *//' | cut -c1-150 | sed 's/^/    /' | head -5
 beat
 
-hr "6. Closing the loop, with no SPICE in it"
+hr "6. The environments it generates, and the one it will not"
+say "Three of the five blocks get a full UVM-MS environment -- agent,"
+say "sequencer, scoreboard, the lot -- and nothing about that needed the"
+say "co-simulation either:"
+echo
+grep -aE "^  [a-z0-9_]+ +[0-9]+ files in " "$OUT.log" | sed 's/^/  /'
+echo
+say "The other two are refused, with what writing one would take:"
+echo
+grep -aE "^  [a-z0-9_]+ +not generated -- " "$OUT.log" \
+  | fold -s -w 70 | sed 's/^/    /'
+echo
+say "And there is NO system environment in this flow. In demo 4 its"
+say "goldens are the per-window statistics of the TRANSISTOR run, reduced"
+say "by the same functions the co-simulation's own verdict uses. Here"
+say "there is no transistor run, so there is nothing for it to carry --"
+say "and an environment scoring the models against the models would be"
+say "the model marking its own work. What replaces it is the next act:"
+say "the loop itself, required to reach a frequency it does not set."
+beat
+
+hr "7. Closing the loop, with no SPICE in it"
 say "Per-block models are evidence about each block alone. The loop asks a"
 say "different question, and answering it here needs no co-simulation at"
 say "all: the composed models are pure SystemVerilog, and so is the RTL."
@@ -307,7 +331,7 @@ say "not a distinction a port name survives, and a charge pump wired from"
 say "its names has shipped upside down before."
 beat
 
-hr "7. And the loop, running"
+hr "8. And the loop, running"
 say "One simulator. No bridge, no shared libngspice, no SPICE process."
 echo
 grep -aE "^  \[rtl-loop\]" "$OUT.log" | sed 's/^/  /'
@@ -344,6 +368,10 @@ say "co-simulation : none, at any stage"
 say "pipeline exit : $rc${blockfail:+  (block(s) reporting failure: $blockfail)}"
 say "models        : $models emitted"
 say "bands         : $declared message(s) name a DECLARED band as declared"
+envs=$(grep -acE "^  [a-z0-9_]+ +[0-9]+ files in " "$OUT.log")
+noenv=$(grep -acE "^  [a-z0-9_]+ +not generated -- " "$OUT.log")
+say "environments  : $envs generated, $noenv refused with a reason,"
+say "                0 system -- it would need the transistor run"
 say "loop wiring   : $derived gate sense(s) derived from measurement"
 say "loop          : ${verdict:-?}"
 [ -n "$rate" ] && say "                $rate"
