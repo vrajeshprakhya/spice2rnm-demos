@@ -2,9 +2,10 @@
 
 `spice2rnm-demos.tex` — the whitepaper for spice2rnm, Veylon Systems'
 automatic real-number-model and testbench generator: four worked case
-studies.
+studies, the last of them run twice --- once against a co-simulation,
+once with none at all.
 
-**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (18
+**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (22
 pages). The PDF is regenerated from the `.tex` whenever it changes; if
 the two ever disagree, the `.tex` is the source of truth.
 
@@ -27,8 +28,12 @@ engine.
 Every figure in the paper is machine-produced by the tool itself — none
 are typed in by hand. Two places to verify that:
 
-- [`../run_all.sh`](../run_all.sh) runs all four demonstrations end to
+- [`../run_all.sh`](../run_all.sh) runs the four demonstrations end to
   end and prints the headline figures the paper quotes.
+- [`../demo_4b_pll_nocosim.sh`](../demo_4b_pll_nocosim.sh) is the source
+  of the no-co-simulation figures in case study 4. It is **not** in
+  `run_all.sh` --- it costs about as long again as demo 4 --- so it is
+  run on its own.
 - [`../showcase/`](../showcase/) holds the generated artifacts themselves
   — models, verification environments, and evidence files — with
   [`STAMP`](../showcase/STAMP) recording when they were generated, by

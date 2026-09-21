@@ -710,6 +710,7 @@ and the record carries both, so a reader can see how much of the bar was
 earned and how much was allowed.
 
 \subsection{Where the block works is measured, not assumed}
+\label{sec:whereitworks}
 
 The two output-buffer inverters sit in the clock path. Their job is to
 place edges in time, and an average voltage error is close to blind to
@@ -767,6 +768,113 @@ command line is identical, so the run records which figure each verdict
 was reached by, and the demonstration reports it from that record.
 Asking for a check on the command line does not show that it ran.
 
+
+\subsection{The same loop, with no co-simulation to probe it}
+\label{sec:nocosim}
+
+Everything above this point in this case study needs a co-simulation to
+already exist. The golden probe runs the design's own testbench against
+the transistors; the system check runs that testbench twice. Both need a
+testbench spanning the two halves, a DPI bridge, and a shared
+\texttt{libngspice} for it to load.
+
+Most designs have none of those. What they have is an analog netlist,
+some RTL, a specification in English, and nothing wiring the three
+together. The same PLL was run that way, and two things break.
+
+\paragraph{The operating band has nothing to measure it.} Where a block
+works is a property of the closed loop, and with the loop open there is
+no loop to measure. Worse, two of the ring's internal nets are driven by
+nothing at all and have no operating point either. So the band is
+\emph{declared}, from the table a designer writes anyway --- control
+voltage $1.75$--$1.95\unit{V}$, supply $3.3\unit{V}$, buffers
+full-swing between the rails, substrate and well tied:
+
+\begin{lstlisting}
+--band vout=1.75:1.95          the control window, from the table
+--band xvco.outm1=0:3.3        rail to rail, inside the ring
+--band xvco.sub=0:0            substrate tie
+\end{lstlisting}
+
+\noindent A declared band is not a measured one, and the run never
+reports it as one. Every message that uses a declared band says so in
+those words --- \texttt{a spec DECLARES as 0.0000..3.3000 V, not
+measured} --- and the blocks the open loop cannot reach say that too,
+rather than quietly characterising something else.
+
+\paragraph{Per-block models are still not a system.} That question does
+not go away with the co-simulation, so the loop is closed afterwards in
+\emph{pure SystemVerilog}: the composed models, the design's own
+\texttt{pfd.sv} and \texttt{divn.sv} instantiated unchanged, one
+simulator. No DPI import, no bridge, no SPICE process anywhere in it.
+
+What has to be stated is the \emph{topology} --- which RTL port lands on
+which net --- because connectivity is not recoverable from a model, and
+on this circuit a name is actively misleading: in the reference
+example's own RTL, \texttt{d\_R} is the \emph{divided} clock, the
+opposite of what it reads like, and a loop wired from that name is
+inverted.
+
+What is \emph{not} stated is the sense of either pump gate. That follows
+from two things characterisation has already measured --- the sign of the
+tuning curve and the direction of the current each control state drives
+--- and the generated file carries the numbers it came from:
+
+\begin{lstlisting}
+pdn <- up, active HIGH (derived)
+  ro_vco measured at 15 control points, 0.495 to 2.805 V, over which
+    its frequency FALLS 804.5 -> 16.74 MHz: Kvco is NEGATIVE
+  lpfilt: current into dra reaches vout through a state space whose
+    input vector is non-negative throughout, so positive current
+    RAISES it
+  with pupb quiescent, pdn at 1 drives -0.00447 A into dra and at 0
+    drives -1.961e-09 A, both at 1.849 V -- so it is active HIGH
+\end{lstlisting}
+
+\noindent \texttt{pupb} comes out active \emph{low} and \texttt{pdn}
+active \emph{high} on the same pump. That is not a distinction a port
+name survives, and a charge pump wired from its names has shipped upside
+down before.
+
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Co-simulation, at any stage             & none \\
+Models emitted, four routes             & $5$ \\
+Operating bands                         & $5$ declared, $0$ measured \\
+Per-block equivalence                   & $5$ of $5$ pass \\
+\midrule
+Loop closed in                          & SystemVerilog only \\
+Gate senses derived from measurement    & $2$ of $2$ \\
+Divider output vs the reference it follows & $10.000040$ vs $10.000000\unit{MHz}$ \\
+\quad against a $2\%$ bar                & $+0.0004\%$, locked \\
+Control voltage across the window        & $1.8490$--$1.8507\unit{V}$ \\
+\quad drift end to end                   & $-0.16\unit{mV}$ \\
+\midrule
+Characterisation                        & $24$ min \\
+Closing the loop and running it         & $42.7\unit{s}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{What this result does not carry.} Two things, and neither is
+small.
+
+There are no transistors in this loop, so nothing here is evidence about
+the circuit. A loop that settles somewhere plausible and wrong still
+settles, and only the co-simulation above can catch that. The verdict
+covers this loop, at this reference, from the initial condition the deck
+states.
+
+And the $5$ of $5$ is not the same $5$ of $5$ as the co-simulated run's.
+The duty metric that makes a clock buffer's verdict mean anything needs
+a clock \emph{rate}, and the probe is what measures it. With no probe
+there is no rate, so \texttt{inv1} and \texttt{inv2} fall back to the
+average-voltage comparison --- $0.021$ and $0.026$ against a $0.15$ bar,
+green, and blind to edge placement for exactly the reason
+Section~\ref{sec:whereitworks} gives. The two runs agree on the
+count and differ on what the count is worth.
+
 %======================================================================
 \section{Results at a glance}
 
@@ -779,6 +887,7 @@ Filter        & DC $+$ AC                  & $49 + 15$ & $0$ \\
 Duty corrector & DC $+$ duty               & $46 + 14$ & $0$ \\
 Phase interpolator & phase per code        & $9$       & $0$ \\
 Phase-locked loop & co-simulation vs transistors & $5 + 4$   & $0$ \\
+\quad the same loop, no co-simulation & pure-SV loop, declared bands & $5 + 1$ & $0$ \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -786,9 +895,17 @@ Phase-locked loop & co-simulation vs transistors & $5 + 4$   & $0$ \\
 \noindent The first three case studies --- characterisation, model
 generation, both simulators, and every generated environment --- run end
 to end in under $16$ minutes on a laptop. The PLL is a further
-$15$ minutes, most of it the ring oscillator's tuning curve.
+$15$ minutes, most of it the ring oscillator's tuning curve. The
+no-co-simulation variant costs the same kind of time and for the same
+reason --- $24$ minutes on the run these figures come from, and it moves
+between runs because the oscillator's refinement passes do --- of which
+closing the loop and running it is $42.7$ seconds. Its extra check is
+the loop reaching the frequency the reference and the divider imply, and
+its $5$ per-block passes are worth less than the row above them, for the
+reason given in Section~\ref{sec:nocosim}.
 
-All four are one command, and \texttt{demo\_4\_pll.sh} runs this one.
+Each is one command. \texttt{demo\_4\_pll.sh} runs the co-simulated PLL
+and \texttt{demo\_4b\_pll\_nocosim.sh} the row beneath it.
 It differs from the others in what it needs, not in how it is run. Being
 the analog half of a co-simulation, it needs the other half: the RTL, the
 DPI bridge, and a \emph{shared} libngspice --- a different ngspice build
@@ -1012,7 +1129,8 @@ full transistor circuit driven the same way.
 
 The second applies when what you hand the tool is a co-simulation --- a
 design whose analog half already talks to a digital half --- and it is the
-one case study 4 reports. Here the design's own testbench is run twice.
+one case study 4 reports first. Here the design's own testbench is run
+twice.
 Once, the analog half is the generated models. Once, it is the real
 transistors. Everything else is left alone: the digital logic, the limits
 it checks against, and the pass/fail rules are byte-for-byte identical in
@@ -1021,6 +1139,16 @@ swapped. That makes the two runs directly comparable, signal by signal:
 $4$ signals crossing between the halves, $0$ failed, the control voltage
 agreeing to $4.15\unit{mV}$ on a rail carrying $20\unit{mV}$ rms of
 declared noise, and both versions locking to the same frequency.
+
+The third is for the case that has no co-simulation to hand, which is
+most of them: an analog netlist, some RTL, and nothing joining them. The
+models are composed and the customer's own RTL is wired around them in
+SystemVerilog alone --- no bridge, no SPICE in the loop --- and the
+question asked is whether the assembled thing does what it is for.
+Section~\ref{sec:nocosim} runs the same PLL that way and it locks to
+$+0.0004\%$ of its reference. That is a weaker claim than the second
+check makes, deliberately: there are no transistors in it to disagree
+with.
 
 And a check that does not apply to a given run is reported as not
 applicable, with the reason why. It is never quietly counted as a pass.
