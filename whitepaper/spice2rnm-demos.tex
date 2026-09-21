@@ -443,12 +443,29 @@ UVM-MS phase section     & $9$ checks, $0$ failed \\
 \end{tabular}
 \end{center}
 
-\noindent Two terms from that table: one LSB is one step of the control
-code, and DNL is how much the steps vary in size from one another. The
-tolerance here is a tenth of an LSB, the finest the model can resolve ---
+\noindent Two terms from that table. \textbf{One LSB} is one step of the
+control code --- the nine codes span $500.1\unit{ps}$ in eight steps, so
+a step is worth $62.51\unit{ps}$, and that is the natural unit for
+everything else here. \textbf{DNL} is how wrong each individual step is
+against that average.
+
+This dial is lumpy. Differencing the measured edge positions gives eight
+steps of $-17$, $-30$, $-48$, $-163$, $-153$, $-48$, $-28$ and
+$-12\unit{ps}$, where every one of them should be $-62.5$. The worst is
+that fourth step: it moves $163\unit{ps}$ for one click of the code,
+$100.5\unit{ps}$ more than it should, which is the $-1.61$ LSB in the
+table. A block like this usually sits in a loop that nudges a sampling
+clock one code at a time to stay centred in a data eye, and such a loop
+assumes a click is worth about one LSB. Here one click moves
+$12\unit{ps}$ and another moves $163\unit{ps}$, so the loop's gain varies
+by more than $13\times$ depending where it starts.
+
+The tolerance is a tenth of an LSB, the finest the model can resolve ---
 tight enough to catch a real error, loose enough never to trip on
-rounding. The DNL figure is the circuit's own imperfection, reported as
-measured. The model's job is to reproduce it, and it does.
+rounding. All of that lumpiness is the circuit's own imperfection,
+reported as measured. The model's job is to reproduce it, and it does:
+a model that drew an evenly spaced line would look tidier and would be
+hiding a real defect from whoever verified against it.
 
 % <<TRACE:pi>>
 \begin{center}
