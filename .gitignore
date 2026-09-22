@@ -11,3 +11,7 @@ __pycache__/
 # here for them. Without this the folder publishes a manifest of evidence
 # and none of the evidence.
 !showcase/*/equivalence/**/*.log
+
+# Simulator coverage written by running a published environment. A
+# reader who runs one should not then see their tree as dirty.
+xezim_cov.json

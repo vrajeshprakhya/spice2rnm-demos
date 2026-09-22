@@ -28,6 +28,7 @@ S2R="${S2R:-$HOME/spice2rnm}"
 COSIM="${COSIM:-$HOME/ams-cosim}"
 NGSPICE="${NGSPICE:-$HOME/ngspice-install/bin/ngspice}"
 UVM_MS_LIB="${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}"
+UVM_SRC="${UVM_SRC:-$HOME/iverilog-unified/uvm-core/src}"
 XEZIM="${XEZIM:-$HOME/xezim/target/release/xezim}"
 OUT="$HOME/s2r_runs/demo4b_pll"
 # START FROM EMPTY, for the reason demos 1-4 do: a previous run's files
@@ -75,6 +76,7 @@ need "$HERE/harness/pll_spec.md"   "the specification, in English" "this repo, h
 need "$HERE/harness/pll_loop.json" "how the loop is wired"         "this repo, harness/"
 need "$NGSPICE"                 "ngspice binary"           "a normal ngspice build"
 need "$XEZIM"                   "the SV simulator"         "xezim, release build"
+need "$UVM_MS_LIB"             "the Accellera UVM-MS library" "for act 7 only; the rest runs without it"
 if [ "$miss" = "1" ]; then
   echo; say "Nothing was run."
   exit 1
@@ -299,7 +301,40 @@ say "the model marking its own work. What replaces it is the next act:"
 say "the loop itself, required to reach a frequency it does not set."
 beat
 
-hr "7. Closing the loop, with no SPICE in it"
+hr "7. And those environments, running"
+say "Generating a file is not the same as the file working. Each of the"
+say "three is elaborated, compiled against the Accellera library and run,"
+say "and what its scoreboard concluded is printed here."
+echo
+if [ ! -d "$UVM_MS_LIB" ]; then
+  say "NOT RUN: the Accellera UVM-MS library is not at $UVM_MS_LIB."
+  say "The environments above were still generated; this act is the only"
+  say "part of this demo that needs the library."
+else
+  n_env=0
+  for scr in $(find "$OUT" -name 'run_*_ms.sh' | sort); do
+    d="$(dirname "$scr")"
+    blk="$(basename "$scr" .sh)"; blk="${blk#run_}"; blk="${blk%_ms}"
+    t0=$(date +%s)
+    ( cd "$d" && UVM_MS_LIB="$UVM_MS_LIB" UVM_SRC="$UVM_SRC" \
+        timeout 1800 bash "$(basename "$scr")" > "$d/_ms_run.log" 2>&1 )
+    rc=$?
+    el=$(( $(date +%s) - t0 ))
+    n_env=$(( n_env + 1 ))
+    printf '    %-8s exit %d, %ds\n' "$blk" "$rc" "$el"
+    grep -aE 'SB_SUMMARY|UVM_ERROR :|UVM_FATAL :|COMPILE FAILED' \
+      "$d/_ms_run.log" | sed 's/.*\[SB_SUMMARY\] //; s/^UVM_INFO.*//' \
+      | grep -avE '^[[:space:]]*[0-9]*$' | cut -c1-150 | sed 's/^/      /'
+    echo
+  done
+  say "$n_env environment(s) run. Their scoreboards are generated too, so"
+  say "a green one is only worth what the checks behind it measure --"
+  say "which is why each line above says how many checks it ran and what"
+  say "the worst of them was."
+fi
+beat
+
+hr "8. Closing the loop, with no SPICE in it"
 say "Per-block models are evidence about each block alone. The loop asks a"
 say "different question, and answering it here needs no co-simulation at"
 say "all: the composed models are pure SystemVerilog, and so is the RTL."
@@ -331,7 +366,7 @@ say "not a distinction a port name survives, and a charge pump wired from"
 say "its names has shipped upside down before."
 beat
 
-hr "8. And the loop, running"
+hr "9. And the loop, running"
 say "One simulator. No bridge, no shared libngspice, no SPICE process."
 echo
 grep -aE "^  \[rtl-loop\]" "$OUT.log" | sed 's/^/  /'
@@ -372,6 +407,9 @@ envs=$(grep -acE "^  [a-z0-9_]+ +[0-9]+ files in " "$OUT.log")
 noenv=$(grep -acE "^  [a-z0-9_]+ +not generated -- " "$OUT.log")
 say "environments  : $envs generated, $noenv refused with a reason,"
 say "                0 system -- it would need the transistor run"
+ran=$(find "$OUT" -name "_ms_run.log" 2>/dev/null | wc -l)
+sbfail=$(grep -ah "SB_SUMMARY" $(find "$OUT" -name "_ms_run.log" 2>/dev/null) 2>/dev/null | grep -aoE "failed=[1-9][0-9]*" | wc -l)
+say "                $ran run, $sbfail scoreboard(s) reporting a failure"
 say "loop wiring   : $derived gate sense(s) derived from measurement"
 say "loop          : ${verdict:-?}"
 [ -n "$rate" ] && say "                $rate"

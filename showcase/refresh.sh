@@ -127,6 +127,27 @@ fi
 # exits 1 on a missing run directory, which would mean nobody without that
 # co-simulation could refresh this showcase at all. So a missing PLL run is
 # reported and skipped.
+# A block environment's run script names its model as ../<name>.sv,
+# which is where the model sits in the RUN tree. A curated copy puts
+# every model at the case root instead, so the published environment
+# fails on its first file -- while working perfectly in the tree it
+# was generated in, which is the worst shape such a defect takes.
+# Placing a copy where the script looks costs a few kilobytes and is
+# the difference between a directory that runs and one that lists.
+#
+# ro_vco needs none of this: its model and its environment share a
+# directory in the run, so they are curated together. Nor does the
+# co-simulation environment, which finds its sources on a search path.
+place_block_models() {  # dest-case-dir, block...
+  local dst=$1 blk; shift
+  for blk in "$@"; do
+    [ -d "$dst/env/$blk/uvm_ms" ] || continue
+    [ -f "$dst/${blk}_rnm.sv" ] || continue
+    cp "$dst/${blk}_rnm.sv" "$dst/env/$blk/"
+  done
+  return 0
+}
+
 curate_pll() {  # src-dir, dest-name
   local src="$RUNS/$1" dst="$HERE/$2"
   if [ ! -d "$src" ]; then
@@ -179,6 +200,7 @@ curate_pll() {  # src-dir, dest-name
   for want in netlist_top.sv result.json; do
     [ -f "$dst/$want" ] || { echo "curation for $2 has no $want"; exit 1; }
   done
+  place_block_models "$dst" inv1 inv2
   [ -d "$dst/env/cosim/uvm_ms" ] || {
     echo "curation for $2 has no SYSTEM environment (env/cosim/uvm_ms) --" \
          "the composed case's whole point is that the RTL and the models" \
@@ -243,17 +265,7 @@ curate_nocosim() {  # src-dir, dest-name
       cp "$f" "$dst/env/$envdir/"; n=$((n + 1))
     done
   done
-  # Each block environment's run script names its model as ../<name>.sv,
-  # which is where the model sits in the RUN tree. A curated copy puts
-  # every model at the case root instead, so the published environment
-  # would fail on its first file. Placing a copy where the script looks
-  # costs a few kilobytes and is the difference between a directory that
-  # runs and a directory that lists.
-  for envdir in inv1 inv2; do
-    [ -d "$dst/env/$envdir/uvm_ms" ] || continue
-    [ -f "$dst/${envdir}_rnm.sv" ] || continue
-    cp "$dst/${envdir}_rnm.sv" "$dst/env/$envdir/"; n=$((n + 1))
-  done
+  place_block_models "$dst" inv1 inv2
 
   # The customer's RTL and the two specifications, because the loop
   # environment compiles the first and is judged against the second.
