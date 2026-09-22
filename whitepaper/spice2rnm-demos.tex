@@ -1226,7 +1226,14 @@ Phase-locked loop & five routes, then & five block verdicts, and the \\
 \end{tabular}
 \end{center}
 
-\noindent Each folder carries three things. \texttt{verdict.txt} is
+\noindent Start with two files. \texttt{equivalence/verdict.txt} is the
+summary of the check performed and what it concluded, one line per
+route: the metric, the worst point, the bar, and the verdict. The case's
+\texttt{result.json} beside it is the full record that line was taken
+from --- what was driven, what was compared, over how many points, and
+every warning raised on the way.
+
+Each folder carries three things. \texttt{verdict.txt} is
 lifted from that run's own \texttt{result.json} rather than retyped, so a
 number here cannot disagree with the run that produced it. The simulator
 and SPICE logs say what actually executed. And the comparison table gives

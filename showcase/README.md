@@ -136,10 +136,13 @@ where it was verified" — and they are silent on every run in this
 directory, which is the only way a check stays switched on. Remove them
 with `+define+SPICE2RNM_NO_ASSERT`.
 
-**The evidence.** Each case's `result.json` and `pipeline.txt` are the
-tool's own record of the run: the fit, the equivalence verdict, and every
-warning it raised on the way — including the measurements behind choices
-like omitting the AC section.
+**The evidence.** For a summary of the equivalence check performed and
+what it concluded, read `equivalence/verdict.txt` — one line per route:
+metric, worst point, bar, verdict — and then `result.json`, the full
+record that line was taken from. Each case's `result.json` and
+`pipeline.txt` are the tool's own record of the run: the fit, the
+equivalence verdict, and every warning it raised on the way — including
+the measurements behind choices like omitting the AC section.
 
 ## If you already have an RNM library
 
