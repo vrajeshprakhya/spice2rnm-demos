@@ -814,24 +814,56 @@ full-swing between the rails, substrate and well tied:
 --band xvco.sub=0:0            substrate tie
 \end{lstlisting}
 
-\textbf{And a person read that table, not the tool.} The
-demonstration hands the specification to the tool as well --- it accepts
-one, and Section~\ref{sec:spec} shows it extracting operating ranges and
-tolerances from a plain-language document on another circuit. In the run
-these figures come from there was no API key present, so the reader
-declined rather than guessing, and said so:
+\textbf{And the tool reads that specification.} The
+demonstration hands it the document along with the netlist and the RTL.
+What it took from this one, in the run these figures come from:
 
 \begin{lstlisting}
-spec: no Anthropic API key available; the spec cannot be read
-      and every choice stays as it was
+read as: Block is described as a PLL with ro_vco (VCO), used to
+  build a vco environment; kind=oscillator. Output freq 400MHz
+  stated as "Multiplies a 10 MHz reference up to 400 MHz" and
+  table gives Output=400 MHz max clock. Lock requirement: "hold
+  400 MHz to within 2%, measured after settling"
 \end{lstlisting}
 
-\noindent The five bands above were therefore read off the
-specification's table by eye and typed on the command line. Every number
-still traces to the document, and nothing here was automated that the
-paper elsewhere claims is. The phrase the run prints --- \texttt{a spec
-DECLARES} --- is the band mechanism describing a figure a person
-supplied, not the reader describing one it extracted.
+\noindent Those are the same facts the command line states, arrived at
+independently, and Section~\ref{sec:spec} describes the rule that
+governs them: every extracted fact is checked against what the circuit
+was measured to do, and the measurement wins. Here nothing disagreed.
+
+\textbf{More useful is what it refused to let pass.} The document names
+$20\unit{mV}$ rms of supply noise as a condition the part must work
+under. The reader placed that correctly --- an operating condition
+belongs in the stimulus, not in the model --- and then reported that the
+generated environment does not drive it:
+
+\begin{lstlisting}
+spec: the document states 20 mV rms of supply noise as a condition
+  to work under. That is a property of this block's environment, so
+  it belongs in the stimulus rather than in the model
+NOTE: the supply-noise condition is not driven by the generated
+  environment yet; the composition carries only the noise the
+  netlist itself declares
+\end{lstlisting}
+
+\noindent A requirement it cannot yet meet is reported rather than
+dropped. That is the behaviour worth having from a language model in a
+verification flow: not a proposal, a gap it can name.
+
+\textbf{What it did not do is supply the five bands.} Those are still
+typed on the command line, read off the specification's table by a
+person. The phrase the run prints for them --- \texttt{a spec DECLARES}
+--- is the band mechanism describing a human-supplied figure, not the
+reader describing one it extracted.
+
+\textbf{And this passage costs the document something.} Every other
+figure here regenerates identically from its run. The text above does
+not: a language model produces different words each time, and the
+paragraph quotes words. What is stable is what surrounds it --- the
+bands, the measurements, the verdicts --- all of which were byte-for-byte
+identical between this run and the one before it, when the reader
+declined for want of a key. The model changed what was \emph{read}, not
+what was measured.
 
 \noindent A declared band is not a measured one, and the run never
 reports it as one. Every message that uses a declared band says so in
