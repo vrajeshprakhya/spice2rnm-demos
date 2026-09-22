@@ -750,27 +750,40 @@ point of it.
 \noindent{\footnotesize The control voltage at the co-simulation boundary: the composed models against the transistors, on the design's own testbench, on a node the loop holds near 1.85\,V. Both settle to the same place and hold it. Eight samples because that is how often the digital side reads this node; how closely they agree at any one instant is a draw, and the table's bar is what the verdict is taken against.}\vspace{0.6em}
 % <<END TRACE:pll>>
 
-\textbf{That figure is one draw, and the bar beside it is not.} Both
-halves generate their own noise from the declared source, so a
-worst-window difference is a sample rather than a property of the model:
-seven consecutive runs of this same deck gave $3.61$, $1.83$, $4.15$,
-$2.05$, $1.86$, $1.72$ and $4.62\unit{mV}$ here --- the last two from a
-pair run back to back with nothing changed between them. What does not move is what the
-difference is judged against --- $0.265$ of \texttt{vout}'s own scale, of
-which $0.215$ is the allowance for exactly this sampling --- and that is
-the number the verdict is against and the record carries. The draw above
-normalises to $0.124$ against it. That scale is itself a floor, $2\%$ of
-the node's magnitude, because the golden moved only $11.8\unit{mV}$
-across the window and scoring against so small a range would read noise
-as error. An agreement figure quoted
-without its bar tells you less than it seems to, in the same way as a
-jitter ratio quoted without its correlation time.
+\textbf{That figure is one draw. The bar beside it is not.}
 
-Each node also records which of its two metrics that bar governs. A
-node the digital side consumes through a threshold is judged on its
-crossings, not on its mean. Printing the mean beside the crossing bar
-would read as a pass against a bar it exceeded: $0.030$ against $0.020$,
-where the number actually compared was $0.004$.
+Both runs make their own noise from the source the deck declares, so
+neither ever sees the same noise twice. The worst-window difference
+therefore changes every time. Seven consecutive runs of this same deck
+gave $3.61$, $1.83$, $4.15$, $2.05$, $1.86$, $1.72$ and
+$4.62\unit{mV}$, and the last two were a pair run back to back with
+nothing changed between them. So that figure is a sample of a
+distribution, not a property of the model.
+
+What does not change from run to run is what the difference is compared
+against. That bar is $0.265$ of \texttt{vout}'s own scale, and $0.215$
+of it exists to absorb exactly this variation. The $4.62\unit{mV}$ above
+comes to $0.124$ against it --- comfortably inside. That is the number
+the verdict is taken on, and the number the record keeps.
+
+The scale has a floor of its own: $2\%$ of the node's magnitude. Without
+one the comparison would be unfair here, because the transistor run's
+\texttt{vout} moved only $11.8\unit{mV}$ across the window, and judging
+a difference against so small a range would report ordinary noise as
+error.
+
+The general point is worth stating plainly. An agreement figure quoted
+without its bar tells you less than it appears to --- in the same way a
+jitter ratio means little without the correlation time it was measured
+at.
+
+\medskip
+\noindent Each node also records which metric its bar applies to. Some
+of them the digital side reads through a threshold, where what matters
+is when the signal crosses and not what it averages; those are judged on
+their crossings. Printing the average next to a crossing bar would put a
+pass beside two numbers that contradict it --- $0.030$ against a
+$0.020$ bar --- when the figure actually compared was $0.004$.
 
 \subsection{The rail the deck declares is the rail the model sees}
 \label{sec:noise}
