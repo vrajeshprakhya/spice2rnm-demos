@@ -1,10 +1,19 @@
-Generated: 2026-09-20T18:56:59Z
-spice2rnm: a676738
-demos:     291e676
-xezim:     531e42a
+Last curated: 2026-09-22T22:39:18Z  (pll_nocosim)
+Whole showcase: 2026-09-20T18:56:59Z  (last full refresh)
+spice2rnm:  9021b8e
+demos:      bf110c2
+xezim:      531e42a
 xezim-core: 482f03f
 
-Run summary:
+Cases: when each was curated, at which revisions, from which run
+  lpf2         2026-09-20T18:56:59Z  spice2rnm a676738  demos 291e676  xezim 531e42a  xezim-core 482f03f  (carried from the whole-showcase stamp)
+  dcc2         2026-09-20T18:56:59Z  spice2rnm a676738  demos 291e676  xezim 531e42a  xezim-core 482f03f  (carried from the whole-showcase stamp)
+  pi           2026-09-20T18:56:59Z  spice2rnm a676738  demos 291e676  xezim 531e42a  xezim-core 482f03f  (carried from the whole-showcase stamp)
+  pll          2026-09-20T18:56:59Z  spice2rnm a676738  demos 291e676  xezim 531e42a  xezim-core 482f03f  (carried from the whole-showcase stamp)
+  pll_nocosim  2026-09-22T22:39:18Z  spice2rnm 9021b8e  demos bf110c2  xezim 531e42a  xezim-core 482f03f  run demo4b_pll finished 2026-09-22T22:28Z
+  lpf2_house   2026-09-20T18:56:59Z  spice2rnm a676738  demos 291e676  xezim 531e42a  xezim-core 482f03f  (carried from the whole-showcase stamp)
+
+Run summary (from the last full refresh, 2026-09-20T18:56:59Z):
   NONE RECORDED. These artifacts were curated from existing run
   directories (--no-run), so no single run_all.sh summary
   describes all four. The tool revisions above are what

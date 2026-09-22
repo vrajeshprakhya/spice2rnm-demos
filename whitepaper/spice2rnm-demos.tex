@@ -820,11 +820,11 @@ demonstration hands it the document along with the netlist and the RTL.
 What it took from this one, in the run these figures come from:
 
 \begin{lstlisting}
-read as: Block is described as a PLL with ro_vco (VCO), used to
-  build a vco environment; kind=oscillator. Output freq 400MHz
-  stated as "Multiplies a 10 MHz reference up to 400 MHz" and
-  table gives Output=400 MHz max clock. Lock requirement: "hold
-  400 MHz to within 2%, measured after settling"
+read as: Document describes a 400 MHz ring-oscillator PLL:
+  kind=oscillator (ro_vco is the fitted block, negative tuning
+  slope). Environment: metric is timing since "hold 400 MHz to
+  within 2%" and "control voltage is the number to read" -- this
+  is a VCO-style behavioral model closed with digital RTL, so [...]
 \end{lstlisting}
 
 \noindent Those are the same facts the command line states, arrived at
@@ -862,9 +862,9 @@ figure here regenerates identically from its run. The text above does
 not: a language model produces different words each time, and the
 paragraph quotes words. What is stable is what surrounds it --- the
 bands, the measurements, the verdicts --- all of which were byte-for-byte
-identical between this run and the one before it, when the reader
-declined for want of a key. The model changed what was \emph{read}, not
-what was measured.
+identical between this run, the one before it with a different reading,
+and the one before that, when the reader declined for want of a key. The
+model changed what was \emph{read}, not what was measured.
 
 \noindent A declared band is not a measured one, and the run never
 reports it as one. Every message that uses a declared band says so in
@@ -925,8 +925,8 @@ Environments generated                  & $3$ per block, $1$ over the loop \\
 \quad blocks refused, with a reason      & $2$ \\
 \quad run, and reporting                 & $4$ of $4$ \\
 \midrule
-Characterisation                        & $24$ min \\
-Closing the loop and running it         & $42.7\unit{s}$ \\
+Characterisation                        & $16$ min \\
+Closing the loop and running it         & $34.6\unit{s}$ \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -1044,10 +1044,10 @@ scoreboard reported:
 \toprule
 \textbf{Environment} & \textbf{what its scoreboard concluded} & \textbf{time} \\
 \midrule
-\texttt{inv1}   & $54$ DC checks, $0$ failed, worst $0.001\unit{mV}$ of a $6.6\unit{mV}$ bar & $8\unit{s}$ \\
-\texttt{inv2}   & $54$ DC checks, $0$ failed & $115\unit{s}$ \\
-\texttt{ro\_vco} & $15$ breakpoint $+$ $5$ held-out, $0$ failed, worst $0.024\%$ & $145\unit{s}$ \\
-the loop        & $12$ checks over $3$ windows, $0$ failed & $287\unit{s}$ \\
+\texttt{inv1}   & $54$ DC checks, $0$ failed, worst $0.001\unit{mV}$ of a $6.6\unit{mV}$ bar & $5\unit{s}$ \\
+\texttt{inv2}   & $54$ DC checks, $0$ failed & $111\unit{s}$ \\
+\texttt{ro\_vco} & $15$ breakpoint $+$ $5$ held-out, $0$ failed, worst $0.024\%$ & $194\unit{s}$ \\
+the loop        & $12$ checks over $3$ windows, $0$ failed & $322\unit{s}$ \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -1098,9 +1098,9 @@ generation, both simulators, and every generated environment --- run end
 to end in under $16$ minutes on a laptop. The PLL is a further
 $15$ minutes, most of it the ring oscillator's tuning curve. The
 no-co-simulation variant costs the same kind of time and for the same
-reason --- $24$ minutes on the run these figures come from, and it moves
+reason --- $16$ minutes on the run these figures come from, and it moves
 between runs because the oscillator's refinement passes do --- of which
-closing the loop and running it is $42.7$ seconds. Its extra twelve are
+closing the loop and running it is $34.6$ seconds. Its extra twelve are
 the loop environment's, over three windows: rate and control window from
 the specification, agreement with the measured tuning curve and
 finiteness from this run's own measurements. Its $5$ per-block passes
