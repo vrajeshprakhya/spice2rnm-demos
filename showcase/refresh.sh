@@ -211,6 +211,68 @@ echo "curating:"
 # the RC network, under 1 KB for the phase sweep).
 COMPARE_MAX_BYTES=262144
 
+# The no-co-simulation PLL. Same circuit as curate_pll's, run the other
+# way: bands declared from the specification instead of probed, the loop
+# closed in pure SystemVerilog, and a UVM-MS environment over the whole
+# loop rather than over a co-simulation boundary.
+#
+# Its environment needs the composed models AND the RTL to compile, so
+# both are published beside it. An environment that cannot be run is a
+# listing, not an artifact.
+curate_nocosim() {  # src-dir, dest-name
+  local src="$RUNS/$1" dst="$HERE/$2" n=0 f envdir
+  [ -d "$src" ] || { echo "  $2: no run at $src -- skipped"; return 0; }
+  rm -rf "$dst"; mkdir -p "$dst"
+
+  # The models, and the top that composes them.
+  for f in "$src"/*/*_rnm.sv "$src"/rtl_loop/analog/*.sv "$src"/result.json; do
+    [ -f "$f" ] || continue
+    cp "$f" "$dst/"; n=$((n + 1))
+  done
+  # The loop harness: one SystemVerilog file and the script that runs it.
+  for f in "$src"/rtl_loop/loop/*; do
+    [ -f "$f" ] || continue
+    mkdir -p "$dst/loop"; cp "$f" "$dst/loop/"; n=$((n + 1))
+  done
+  # Every generated environment: three per block, one over the loop.
+  for envdir in inv1/uvm_ms inv2/uvm_ms ro_vco rtl_loop/uvm_ms; do
+    [ -d "$src/$envdir" ] || continue
+    for f in "$src/$envdir"/*.sv "$src/$envdir"/*.svh "$src/$envdir"/*.sh; do
+      [ -f "$f" ] || continue
+      mkdir -p "$dst/env/$envdir"
+      cp "$f" "$dst/env/$envdir/"; n=$((n + 1))
+    done
+  done
+  # Each block environment's run script names its model as ../<name>.sv,
+  # which is where the model sits in the RUN tree. A curated copy puts
+  # every model at the case root instead, so the published environment
+  # would fail on its first file. Placing a copy where the script looks
+  # costs a few kilobytes and is the difference between a directory that
+  # runs and a directory that lists.
+  for envdir in inv1 inv2; do
+    [ -d "$dst/env/$envdir/uvm_ms" ] || continue
+    [ -f "$dst/${envdir}_rnm.sv" ] || continue
+    cp "$dst/${envdir}_rnm.sv" "$dst/env/$envdir/"; n=$((n + 1))
+  done
+
+  # The customer's RTL and the two specifications, because the loop
+  # environment compiles the first and is judged against the second.
+  for f in "$RUNS/${1}_deck"/pfd.sv "$RUNS/${1}_deck"/divn.sv \
+           "$RUNS/${1}_deck"/pll_spec.md "$RUNS/${1}_deck"/pll_loop.json; do
+    [ -f "$f" ] || continue
+    mkdir -p "$dst/rtl"; cp "$f" "$dst/rtl/"; n=$((n + 1))
+  done
+
+  # Named, not counted: the environment is the point of this case.
+  [ -d "$dst/env/rtl_loop/uvm_ms" ] || {
+    echo "curation for $2 has no LOOP environment (env/rtl_loop/uvm_ms) --" \
+         "that is what distinguishes this case from the co-simulated one"; exit 1; }
+  for want in netlist_top.sv result.json; do
+    [ -f "$dst/$want" ] || { echo "curation for $2 has no $want"; exit 1; }
+  done
+  echo "  $2: $n files"
+}
+
 curate_equivalence() {  # run-dir, dest-name, [subdir ...]
   local src="$1" name="$2"; shift 2
   local dst="$HERE/$name/equivalence"
@@ -306,6 +368,7 @@ want lpf2 && curate lpf2      lpf2
 want dcc2 && curate dcc2      dcc2
 want pi   && curate demo3_pi  pi
 want pll  && curate_pll demo4_pll pll
+want pll_nocosim && curate_nocosim demo4b_pll pll_nocosim
 
 echo "curating equivalence evidence:"
 want lpf2 && curate_equivalence "$HOME/s2r_runs/lpf2"     lpf2  equivalence

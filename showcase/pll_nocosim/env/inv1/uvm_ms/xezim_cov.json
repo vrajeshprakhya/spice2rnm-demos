@@ -1,0 +1,12 @@
+{
+  "sim_time": 52736020,
+  "assertion_sites": 2,
+  "assertion_pass_total": 13568,
+  "assertion_fail_total": 0,
+  "assertions": [
+    {"span_start": 22198, "kind": "assert", "pass": 55, "fail": 0},
+    {"span_start": 22742, "kind": "assert", "pass": 13513, "fail": 0}
+  ],
+  "covergroups": [
+  ]
+}
