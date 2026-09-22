@@ -851,11 +851,83 @@ Divider output vs the reference it follows & $10.000040$ vs $10.000000\unit{MHz}
 Control voltage across the window        & $1.8490$--$1.8507\unit{V}$ \\
 \quad drift end to end                   & $-0.16\unit{mV}$ \\
 \midrule
+Environments generated                  & $3$ per block, $1$ over the loop \\
+\quad blocks refused, with a reason      & $2$ \\
+\midrule
 Characterisation                        & $24$ min \\
 Closing the loop and running it         & $42.7\unit{s}$ \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+
+\paragraph{And a UVM-MS environment over the whole loop.} The loop above
+is a plain testbench: it drives a reference and checks a rate. What the
+same run also emits is a full environment around it --- sequence,
+sequencer, driver, monitor, agent, scoreboard, and an MS proxy split
+into an abstract half the components talk to and a concrete half in the
+top level, so neither driver nor monitor holds a hierarchical path into
+the design.
+
+It is the only environment this tool generates with every one of those.
+The co-simulated system environment of
+Section~\ref{sec:equiv} has a monitor, an agent and a scoreboard and no
+driver, because the testbench it wraps brings its own stimulus. Here
+there is no such testbench: the stimulus is the reference clock and this
+environment generates it, so there is something for a sequence and a
+driver to do. What they do with it is step the reference by $0.5\%$ and
+back, which is why the run below has three windows rather than one
+settled snapshot --- a model frozen at its initial condition would
+produce that snapshot too.
+
+\textbf{Its goldens come from two places, and every line of its report
+says which.} Two are the specification's: reach the reference within
+tolerance, keep the control voltage inside the stated window. Two are
+this run's own measurements, and the second of those is the one worth
+having. The oscillator's tuning curve was measured point by point in
+ngspice before any of this existed; inverting it at the frequency the
+loop is asked for names the control voltage that frequency lives at.
+
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Window} & \textbf{divider output} & \textbf{control voltage} \\
+\midrule
+nominal, $10.000000\unit{MHz}$  & $10.000040$ & $1.8490$--$1.8507\unit{V}$ \\
+stepped, $10.050000\unit{MHz}$  & $10.049121$ & $1.8437$--$1.8459\unit{V}$ \\
+returned, $10.000000\unit{MHz}$ & $9.999296$  & $1.8493$--$1.8508\unit{V}$ \\
+\midrule
+rate, against a $2\%$ bar        & \multicolumn{2}{r}{$3$ checks, $0$ failed, worst $+0.0087\%$ \quad[SPEC]} \\
+control window, $1.75$--$1.95\unit{V}$ & \multicolumn{2}{r}{$3$ checks, $0$ failed \quad[SPEC]} \\
+against the measured curve       & \multicolumn{2}{r}{$3$ checks, $0$ failed, worst $0.90\unit{mV}$ \quad[MEASURED]} \\
+boundary finite                  & \multicolumn{2}{r}{$3$ checks, $0$ failed \quad[MEASURED]} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The stepped window is the one to read. The reference went
+\emph{up} and the control voltage went \emph{down}, which is what a
+negative $K_\mathrm{vco}$ requires, and it went down by the amount the
+measured curve predicts. That curve puts $400\unit{MHz}$ at
+$1.8496\unit{V}$ from its $15$ points, with $\pm2\%$ spanning
+$1.8291$--$1.8705\unit{V}$; the loop settles $0.90\unit{mV}$ from the
+prediction inside a window $41.5\unit{mV}$ wide.
+
+\textbf{That check can fail, which is the only reason to report it.} A
+loop can reach the right rate at the wrong control voltage --- through a
+mis-signed pump, a mis-fitted slope, a divider ratio the reference
+happens to absorb --- and counting edges cannot see it. Shifting the
+measured table by $100\unit{mV}$ turns exactly those three checks red,
+worst $100.18\unit{mV}$, while the two specification checks stay green.
+A specification-only environment would have passed the same run.
+
+Three per-block environments are emitted beside it, for the two clock
+buffers and the oscillator, and two blocks are refused with the reason
+written out: the charge pump's verdict is a current per control state
+and the filter's a voltage from an injected current, and every generated
+section scores a voltage against a stimulus. All four environments are
+published, and all four were run from the published copy rather than
+from the run directory.
 
 \paragraph{What this result does not carry.} Two things, and neither is
 small.
@@ -887,7 +959,7 @@ Filter        & DC $+$ AC                  & $49 + 15$ & $0$ \\
 Duty corrector & DC $+$ duty               & $46 + 14$ & $0$ \\
 Phase interpolator & phase per code        & $9$       & $0$ \\
 Phase-locked loop & co-simulation vs transistors & $5 + 4$   & $0$ \\
-\quad the same loop, no co-simulation & pure-SV loop, declared bands & $5 + 1$ & $0$ \\
+\quad the same loop, no co-simulation & UVM-MS loop env, declared bands & $5 + 12$ & $0$ \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -899,10 +971,12 @@ $15$ minutes, most of it the ring oscillator's tuning curve. The
 no-co-simulation variant costs the same kind of time and for the same
 reason --- $24$ minutes on the run these figures come from, and it moves
 between runs because the oscillator's refinement passes do --- of which
-closing the loop and running it is $42.7$ seconds. Its extra check is
-the loop reaching the frequency the reference and the divider imply, and
-its $5$ per-block passes are worth less than the row above them, for the
-reason given in Section~\ref{sec:nocosim}.
+closing the loop and running it is $42.7$ seconds. Its extra twelve are
+the loop environment's, over three windows: rate and control window from
+the specification, agreement with the measured tuning curve and
+finiteness from this run's own measurements. Its $5$ per-block passes
+are worth less than the row above them, for the reason given in
+Section~\ref{sec:nocosim}.
 
 Each is one command. \texttt{demo\_4\_pll.sh} runs the co-simulated PLL
 and \texttt{demo\_4b\_pll\_nocosim.sh} the row beneath it.
@@ -1144,11 +1218,16 @@ The third is for the case that has no co-simulation to hand, which is
 most of them: an analog netlist, some RTL, and nothing joining them. The
 models are composed and the customer's own RTL is wired around them in
 SystemVerilog alone --- no bridge, no SPICE in the loop --- and the
-question asked is whether the assembled thing does what it is for.
+question asked is whether the assembled thing does what it is for. A
+full UVM-MS environment drives it, and judges it against the
+specification \emph{and} against what this run measured: the
+oscillator's own tuning curve says which control voltage the target
+frequency lives at, so a loop reaching the right rate by the wrong route
+is caught rather than counted as a pass.
 Section~\ref{sec:nocosim} runs the same PLL that way and it locks to
-$+0.0004\%$ of its reference. That is a weaker claim than the second
-check makes, deliberately: there are no transistors in it to disagree
-with.
+$+0.0004\%$ of its reference, $0.90\unit{mV}$ from where the measurement
+puts it. That is still a weaker claim than the second check makes,
+deliberately: there are no transistors in it to disagree with.
 
 And a check that does not apply to a given run is reported as not
 applicable, with the reason why. It is never quietly counted as a pass.
