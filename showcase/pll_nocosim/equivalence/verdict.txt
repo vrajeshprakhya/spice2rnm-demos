@@ -1,0 +1,5 @@
+inv1                   PASS  metric=rms_voltage  rms=0.02077986604353465  max=0.9985323399100561  threshold=0.15
+inv2                   PASS  metric=rms_voltage  rms=0.02588957822076849  max=0.9990090974358179  threshold=0.15
+ro_vco                 PASS  metric=frequency_at_control  worst_in_band=0.02365%  threshold=2.0%  (whole range 4.987%, reported not judged)
+cpump                  PASS  metric=current_at_state_and_voltage  worst=0.5487%  threshold=2.0%  at state 00
+lpfilt                 PASS  metric=voltage_from_injected_current  worst=0.01896%  threshold=2.0%

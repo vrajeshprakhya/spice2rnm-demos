@@ -330,8 +330,15 @@ curate_equivalence() {  # run-dir, dest-name, [subdir ...]
   # The verdict itself, lifted from the run's own result.json rather than
   # retyped: a number in this directory that disagrees with the run that
   # produced it would be worse than no number.
-  if [ -f "$src/result.json" ]; then
-    python3 - "$src/result.json" > "$dst/verdict.txt" 2>/dev/null <<'PY'
+  # The CURATED result.json where there is one. It and the run's are the
+  # same file when a case is curated end to end, and they diverge the
+  # moment one is re-curated against a different run -- at which point a
+  # verdict taken from the run would describe numbers appearing nowhere
+  # else in the directory holding it.
+  local rj="$HERE/$name/result.json"
+  [ -f "$rj" ] || rj="$src/result.json"
+  if [ -f "$rj" ]; then
+    python3 - "$rj" > "$dst/verdict.txt" 2>/dev/null <<'PY'
 import json, sys
 r = json.load(open(sys.argv[1]))["result"]
 def eq(e, label):
@@ -351,10 +358,42 @@ def eq(e, label):
         print("%-22s %s  metric=%s  worst=%.4g ps at code %s  tolerance=%.4g ps"
               % (label, verdict, metric, e["worst_error_s"] * 1e12,
                  e.get("worst_code"), (e.get("tolerance_s") or 0.0) * 1e12))
-    else:
+    elif e.get("rms_error_norm") is not None:
         print("%-22s %s  metric=%s  rms=%s  max=%s  threshold=%s"
               % (label, verdict, metric, e.get("rms_error_norm"),
                  e.get("max_error_norm"), e.get("threshold")))
+    else:
+        # Every other route scores a PERCENTAGE against its own bar. Read
+        # whichever worst it recorded rather than adding a branch per
+        # route: the held-out figure first where there is one, because a
+        # table is exact at its own breakpoints and the held-out points
+        # are the ones it never saw.
+        # The JUDGED figure first. An oscillator records three held-out
+        # numbers and the gate takes the one measured inside the band the
+        # loop actually uses; printing the widest instead put a 4.987%
+        # beside a 2% threshold and a PASS, which reads as a
+        # contradiction even though all three numbers are right.
+        worst = next((k for k in ("worst_pct_holdout_band",
+                                  "worst_pct_holdout", "worst_pct",
+                                  "rms_pct") if e.get(k) is not None), None)
+        if worst is None:
+            print("%-22s %s  metric=%s  (no figure recorded)"
+                  % (label, verdict, metric))
+        else:
+            extra = ""
+            # Reported, not judged: the model IS this wrong somewhere,
+            # outside where the loop goes, and that is worth saying.
+            if worst == "worst_pct_holdout_band" and \
+                    e.get("worst_pct_holdout") is not None:
+                extra = ("  (whole range %.4g%%, reported not judged)"
+                         % e["worst_pct_holdout"])
+            if e.get("worst_state") is not None:
+                extra = "  at state %s" % e["worst_state"]
+            print("%-22s %s  metric=%s  %s=%.4g%%  threshold=%s%%%s"
+                  % (label, verdict, metric,
+                     worst.replace("worst_pct_holdout_band", "worst_in_band")
+                          .replace("_pct", ""),
+                     e[worst], e.get("threshold_pct"), extra))
 eq(r.get("equivalence"), "equivalence")
 for row in r.get("block_results") or []:
     eq(((row.get("pipeline_result") or {}).get("equivalence")), row["block"]["name"])
@@ -393,6 +432,12 @@ want pi && curate_equivalence "$HOME/s2r_runs/demo3_pi" pi    code_sweep equival
 want pll && curate_equivalence "$HOME/s2r_runs/demo4_pll" pll \
     inv1/equivalence inv2/equivalence lpfilt/equivalence \
     ro_vco/_vco_equiv cpump/_cp_equiv cosim/model cosim/golden
+# The same five, minus the two a co-simulation would have produced:
+# cosim/model and cosim/golden are the design's own testbench run twice,
+# and this flow never runs it once.
+want pll_nocosim && curate_equivalence "$HOME/s2r_runs/demo4b_pll" pll_nocosim \
+    inv1/equivalence inv2/equivalence lpfilt/equivalence \
+    ro_vco/_vco_equiv cpump/_cp_equiv
 
 # No generated file may point back at this machine or at product source
 # files the customer does not have. This gate exists because both have
