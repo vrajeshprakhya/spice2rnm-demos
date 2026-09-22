@@ -853,6 +853,7 @@ Control voltage across the window        & $1.8490$--$1.8507\unit{V}$ \\
 \midrule
 Environments generated                  & $3$ per block, $1$ over the loop \\
 \quad blocks refused, with a reason      & $2$ \\
+\quad run, and reporting                 & $4$ of $4$ \\
 \midrule
 Characterisation                        & $24$ min \\
 Closing the loop and running it         & $42.7\unit{s}$ \\
@@ -925,9 +926,32 @@ Three per-block environments are emitted beside it, for the two clock
 buffers and the oscillator, and two blocks are refused with the reason
 written out: the charge pump's verdict is a current per control state
 and the filter's a voltage from an injected current, and every generated
-section scores a voltage against a stimulus. All four environments are
-published, and all four were run from the published copy rather than
-from the run directory.
+section scores a voltage against a stimulus.
+
+\textbf{All four are then run, which is a different claim from all four
+being generated.} A file count says a generator produced something; it
+says nothing about whether what it produced elaborates, compiles against
+the Accellera library, or scores anything. Each is executed and its
+scoreboard reported:
+
+\begin{center}
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{Environment} & \textbf{what its scoreboard concluded} & \textbf{time} \\
+\midrule
+\texttt{inv1}   & $54$ DC checks, $0$ failed, worst $0.001\unit{mV}$ of a $6.6\unit{mV}$ bar & $8\unit{s}$ \\
+\texttt{inv2}   & $54$ DC checks, $0$ failed & $115\unit{s}$ \\
+\texttt{ro\_vco} & $15$ breakpoint $+$ $5$ held-out, $0$ failed, worst $0.024\%$ & $145\unit{s}$ \\
+the loop        & $12$ checks over $3$ windows, $0$ failed & $287\unit{s}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The two inverter figures are the weakest of these and the
+paragraph after next says why. All four environments are published, and
+all four were run from the published copy rather than from the run
+directory --- which is how a missing model file was caught, since the
+published copy puts models where the generated script was not looking.
 
 \paragraph{What this result does not carry.} Two things, and neither is
 small.

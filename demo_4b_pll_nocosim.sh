@@ -302,15 +302,20 @@ say "the loop itself, required to reach a frequency it does not set."
 beat
 
 hr "7. And those environments, running"
-say "Generating a file is not the same as the file working. Each of the"
-say "three is elaborated, compiled against the Accellera library and run,"
-say "and what its scoreboard concluded is printed here."
+say "Generating a file is not the same as the file working. Each one is"
+say "elaborated, compiled against the Accellera library and run, and what"
+say "its scoreboard concluded is printed here."
 echo
 if [ ! -d "$UVM_MS_LIB" ]; then
   say "NOT RUN: the Accellera UVM-MS library is not at $UVM_MS_LIB."
   say "The environments above were still generated; this act is the only"
   say "part of this demo that needs the library."
 else
+  # What the RUN said it emitted, so this act can tell whether it found
+  # all of them. It could not before: the loop environment's script was
+  # named out of the run_*_ms.sh family and was skipped in silence.
+  n_said=$(( $(grep -acE "^  [a-z0-9_]+ +[0-9]+ files in " "$OUT.log") \
+           + $(grep -acE "^  uvm-ms \(loop\): [0-9]+ files in " "$OUT.log") ))
   n_env=0
   for scr in $(find "$OUT" -name 'run_*_ms.sh' | sort); do
     d="$(dirname "$scr")"
@@ -327,7 +332,19 @@ else
       | grep -avE '^[[:space:]]*[0-9]*$' | cut -c1-150 | sed 's/^/      /'
     echo
   done
-  say "$n_env environment(s) run. Their scoreboards are generated too, so"
+  if [ "$n_env" -lt "$n_said" ]; then
+    say "MISMATCH: the run emitted $n_said environment(s) and this act found"
+    say "$n_env. The difference is an environment nothing here executed, so"
+    say "its files are evidence that a generator ran and nothing more."
+    echo
+  elif [ "$n_env" -gt "$n_said" ] && [ "$REUSE" = "1" ]; then
+    say "Found $n_env environment(s) where the log mentions $n_said. That is"
+    say "DEMO_REUSE: the log belongs to whatever run is on disk, and this"
+    say "one predates a generator whose output is still here."
+    echo
+  fi
+  say "$n_env environment(s) run, of $n_said the run reports emitting."
+  say "Their scoreboards are generated too, so"
   say "a green one is only worth what the checks behind it measure --"
   say "which is why each line above says how many checks it ran and what"
   say "the worst of them was."
