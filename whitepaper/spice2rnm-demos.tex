@@ -98,9 +98,10 @@ block gets checked depends on what that block is for --- a filter as a
 frequency response, a duty-cycle corrector by where its edges land, a
 phase interpolator by how far it moves the clock at each setting.
 
-This paper walks through four circuits, getting harder as it goes. Every
-number in it was produced by the shipped tool, in about half an hour on a
-laptop.
+This paper walks through four circuits, getting harder as it goes, and
+runs the last of them twice --- once against a co-simulation, once with
+none at all. Every number in it was produced by the shipped tool, in
+under an hour on a laptop.
 \end{abstract}
 
 \vspace{0.2em}
@@ -939,8 +940,8 @@ into an abstract half the components talk to and a concrete half in the
 top level, so neither driver nor monitor holds a hierarchical path into
 the design.
 
-It is the only environment this tool generates with every one of those,
-and the reason is the stimulus:
+It is the only \emph{system} environment this tool generates with every
+one of those, and the reason is the stimulus:
 
 \begin{center}
 \begin{tabular}{@{}lccccccl@{}}
@@ -977,8 +978,11 @@ test hold none --- zero references to either signal, against eight in
 port without restructuring anything, and \emph{one} implementation of
 ``time a clock'' now serves this environment and the loop one, where
 before there were two spellings of the same arithmetic in the same
-tool. What they do with it is step the reference by $0.5\%$ and
-back, which is why the run below has three windows rather than one
+tool.
+
+What the loop environment's sequence and driver do with that timing is
+step the reference by $0.5\%$ and back, which is why the run below has
+three windows rather than one
 settled snapshot --- a model frozen at its initial condition would
 produce that snapshot too.
 
@@ -1135,7 +1139,8 @@ spice2rnm-demos/
                      whatever a run left behind
   demo_1_lpf.sh  demo_2_dcc.sh  demo_3_pi.sh
   demo_4_pll.sh  demo_4b_pll_nocosim.sh  run_all.sh
-                     the five case studies, runnable end to end
+                     the five case studies, each one command;
+                     run_all.sh chains the first four
   harness/           10 files: 8 measurement scripts the demos
                      call, plus the PLL's specification in English
                      and the JSON stating how its loop is wired
@@ -1180,11 +1185,10 @@ spice2rnm-demos/
                      circuit with no co-simulation anywhere:
       11 at the top  the same models, interfaces and composed top
       env/inv1/  12  env/inv2/ 12, env/ro_vco/ 10 -- as above
-      env/rtl_loop/ 7 the LOOP environment. The only one generated
-                     with every component including the stimulus
-                     half, because it owns its stimulus: proxy
-                     package, package, scoreboard, env, test, top,
-                     run script
+      env/rtl_loop/ 7 the LOOP environment. The only SYSTEM
+                     environment generated with the stimulus half,
+                     because it owns its stimulus: proxy package,
+                     package, scoreboard, env, test, top, run script
       loop/       2  the plain harness it replaces: one SystemVerilog
                      file and the script that runs it
       rtl/        4  the customer's pfd.sv and divn.sv, the English
@@ -1347,7 +1351,7 @@ that floor, instead of being taken as a clean win.
 
 The table above scores blocks one at a time. Putting blocks together asks
 a further question, because errors that are small individually need not
-stay small once everything is wired up. Two levels of check answer it.
+stay small once everything is wired up. Three levels of check answer it.
 
 The first needs nothing but the netlist. The assembled model is driven at
 the outside edge of the design, and its output is compared against the
@@ -1967,7 +1971,7 @@ held out:
 \begin{tabular}{@{}llrrl@{}}
 \toprule
 \textbf{state} & \textbf{(\texttt{pdn},\texttt{pupb})}
-  & \textbf{$i$ at $1.85\unit{V}$} & \textbf{at $3.3\unit{V}$}
+  & \textbf{$i$ at $1.80\unit{V}$} & \textbf{at $3.3\unit{V}$}
   & \textbf{what it is} \\
 \midrule
 $00$ & $(0,0)$ & $+7.239\unit{mA}$ & $\approx 0$          & sources: charges the filter \\
@@ -1995,8 +1999,9 @@ conducting at once.
 
 Those four rows are load-bearing twice more in this document. The loop
 harness of Section~\ref{sec:nocosim} derives each gate's active level
-from them: with \texttt{pupb} quiescent, \texttt{pdn} at $1$ reaches
-state $11$ and sinks $4.441\unit{mA}$, so it is active high; with
+from them, read at the $1.849\unit{V}$ the loop sits at rather than at
+a table row: with \texttt{pupb} quiescent, \texttt{pdn} at $1$ reaches
+state $11$ and sinks $4.47\unit{mA}$, so it is active high; with
 \texttt{pdn} quiescent, \texttt{pupb} at $0$ reaches $00$ and sources
 $7.103\unit{mA}$, so it is active low. And the equivalence verdict names
 the state its worst error came from --- $0.5487\%$ against a $2\%$ bar,
@@ -2066,7 +2071,7 @@ is a state space rather than a DC gain.
 \noindent{\footnotesize \textcopyright{} 2026 Veylon Systems.
 spice2rnm is a Veylon Systems product. Every figure in this document was
 produced by the shipped tool from its bundled demonstration circuits, most
-recently on 2026-09-16. The demonstration suite at
+recently on 2026-09-22. The demonstration suite at
 \url{https://github.com/vrajeshprakhya/spice2rnm-demos} regenerates them
 in one command.}
 
