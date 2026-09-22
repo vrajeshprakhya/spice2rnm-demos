@@ -587,6 +587,53 @@ It is the same table Section~\ref{sec:nocosim} reads backwards: at
 $400\unit{MHz}$ it says $1.8496\unit{V}$, and that is the control
 voltage the assembled loop is then required to settle at.
 
+\noindent \textbf{And a ``control state'' is one combination of the
+digital gates driving a block.} The pump has two of them, \texttt{pdn}
+and \texttt{pupb}, and they are driven \emph{independently}, so it has
+four states rather than one control axis --- and one measured $I(V)$
+table for each, $12$ points from $0$ to $3.3\unit{V}$ with $11$ more
+held out:
+
+\begin{center}
+\begin{tabular}{@{}llrrl@{}}
+\toprule
+\textbf{state} & \textbf{(\texttt{pdn},\texttt{pupb})}
+  & \textbf{$i$ at $1.85\unit{V}$} & \textbf{at $3.3\unit{V}$}
+  & \textbf{what it is} \\
+\midrule
+$00$ & $(0,0)$ & $+7.239\unit{mA}$ & $\approx 0$          & sources: charges the filter \\
+$01$ & $(0,1)$ & $-1.9\unit{nA}$   & $-4.0\unit{nA}$      & high-Z: off \\
+$10$ & $(1,0)$ & $+2.798\unit{mA}$ & $-5.078\unit{mA}$    & both on, fighting \\
+$11$ & $(1,1)$ & $-4.441\unit{mA}$ & $-5.078\unit{mA}$    & sinks: discharges it \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent \textbf{Why a table per state and not one fitted curve.} The
+gates are digital: each is on or off, so the block has no continuous
+control axis to fit against. It has a small finite set of modes, and
+within a mode its behaviour depends on the output voltage alone --- how
+much current it can push into a node depends on what voltage is already
+there. That is what $I(V)$ means here, and why there are four of them.
+
+It is also why the default route cannot express it, which the pipeline
+says from the topology rather than from the block's name. An inverter
+ties its two gates together, so one input drives both and there is a
+single axis to fit. Here the two are separate digital signals, which
+makes $01$ and $10$ reachable --- states an inverter does not have. $01$
+is the quiescent one, drawing nanoamps, and $10$ is both devices
+conducting at once.
+
+Those four rows are load-bearing twice more in this document. The loop
+harness of Section~\ref{sec:nocosim} derives each gate's active level
+from them: with \texttt{pupb} quiescent, \texttt{pdn} at $1$ reaches
+state $11$ and sinks $4.441\unit{mA}$, so it is active high; with
+\texttt{pdn} quiescent, \texttt{pupb} at $0$ reaches $00$ and sources
+$7.103\unit{mA}$, so it is active low. And the equivalence verdict names
+the state its worst error came from --- $0.5487\%$ against a $2\%$ bar,
+at state $00$ --- because an average across four modes would hide which
+mode is the weak one.
+
 \subsection{Checked as a system, against the transistors}
 
 A score for each block on its own is evidence about that block on its own.
