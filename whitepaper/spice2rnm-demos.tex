@@ -634,6 +634,59 @@ the state its worst error came from --- $0.5487\%$ against a $2\%$ bar,
 at state $00$ --- because an average across four modes would hide which
 mode is the weak one.
 
+\noindent \textbf{And the filter's ``state space'' is the thing that
+lets its route measure nothing at all.} A state space is the ordinary
+way of writing a linear dynamic system --- a few variables whose
+\emph{rates of change} depend on their present values and on the input:
+$\dot{x} = Ax + Bu$, $y = Mx + Nu$. For an RC network the states are the
+capacitor voltages and nothing else. The deck says:
+
+\begin{lstlisting}
+.subckt lpfilt dra vout
+R1 dra  int1 300        C1 c1   0  10n
+R2 int1 c1   200        C2 int1 0   5n
+R3 int1 vout 50         C3 vout 0  0.5n
+.ends
+\end{lstlisting}
+
+\noindent Three capacitors, so three states: \texttt{c1},
+\texttt{int1}, \texttt{vout}. The input is the current the pump injects
+into \texttt{dra}; the output is \texttt{vout}. ``Exact and needs no
+fitting'' then means every coefficient in the emitted model is a product
+of two numbers from those six lines:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{emitted coefficient} & \textbf{is} & \textbf{which is} \\
+\midrule
+$500{,}000$      & $1/(R_2C_1) = 1/(200\times10\unit{n})$  & the \texttt{c1} pole \\
+$40{,}000{,}000$ & $1/(R_3C_3) = 1/(50\times0.5\unit{n})$  & the \texttt{vout} pole \\
+$1{,}000{,}000$  & $1/(R_2C_2) = 1/(200\times5\unit{n})$   & \texttt{c1} into \texttt{int1} \\
+$4{,}000{,}000$  & $1/(R_3C_2) = 1/(50\times5\unit{n})$    & \texttt{vout} into \texttt{int1} \\
+$200{,}000{,}000$& $1/C_2 = 1/5\unit{n}$                   & the injected current \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Not one of those came from a simulation. Compare the inverter
+in the same netlist, where the tool ran SPICE $33$ times, fitted a
+curve, and reports an rms fit error: here there is nothing to fit and
+nothing to be wrong about, because Kirchhoff's laws and the netlist
+determine the answer completely. What the equivalence check can still
+catch is a code-generation error --- the emitted file disagreeing with
+the matrices it was built from --- and that is what its $0.019\%$
+measures.
+
+Two details of the emitted file follow from the same reasoning.
+\texttt{dra} is \emph{not} a state, because it carries no capacitance:
+its voltage is whatever the resistors and the driven current imply at
+that instant, so it is solved algebraically each step together with the
+pump driving it. And the filter has no DC path to ground, so a constant
+injected current ramps the output forever without settling --- which is
+exactly what a charge pump into a capacitive filter does, and why this
+is a state space rather than a DC gain.
+
 \subsection{Checked as a system, against the transistors}
 
 A score for each block on its own is evidence about that block on its own.
