@@ -939,13 +939,35 @@ into an abstract half the components talk to and a concrete half in the
 top level, so neither driver nor monitor holds a hierarchical path into
 the design.
 
-It is the only environment this tool generates with every one of those.
-The co-simulated system environment of
-Section~\ref{sec:equiv} has a monitor, an agent and a scoreboard and no
-driver, because the testbench it wraps brings its own stimulus. Here
-there is no such testbench: the stimulus is the reference clock and this
-environment generates it, so there is something for a sequence and a
-driver to do. What they do with it is step the reference by $0.5\%$ and
+It is the only environment this tool generates with every one of those,
+and the reason is the stimulus:
+
+\begin{center}
+\begin{tabular}{@{}lccccccl@{}}
+\toprule
+\textbf{environment} & \textbf{seq} & \textbf{drv} & \textbf{sqr}
+  & \textbf{mon} & \textbf{agt} & \textbf{prx} & \textbf{scoreboard} \\
+\midrule
+block, transfer function & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & \texttt{uvm\_scoreboard} \\
+block, oscillator        & $\bullet$ & $\bullet$ & $\bullet$ & ---       & ---       & ---       & \texttt{uvm\_component} \\
+system, co-simulated     & ---       & ---       & ---       & $\bullet$ & $\bullet$ & $\bullet$ & \texttt{uvm\_scoreboard} \\
+system, no co-simulation & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & \texttt{uvm\_scoreboard} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The co-simulated system environment has the observing half and
+none of the driving half, because the testbench it wraps brings its own
+stimulus --- there is nothing for a sequence to ask for. Here there is no
+such testbench: the stimulus is the reference clock and this environment
+generates it, so a sequence, a sequencer and a driver have work to do.
+
+The oscillator's block environment is short for a different reason, and
+deliberately: a per-block environment for an oscillator is evidence
+about that oscillator alone, and it already produces the figure that
+matters out of sample --- $0.024\%$ held out against a $2\%$ bar. An
+agent and an analysis port around that would add topology, not
+evidence. What they do with it is step the reference by $0.5\%$ and
 back, which is why the run below has three windows rather than one
 settled snapshot --- a model frozen at its initial condition would
 produce that snapshot too.
