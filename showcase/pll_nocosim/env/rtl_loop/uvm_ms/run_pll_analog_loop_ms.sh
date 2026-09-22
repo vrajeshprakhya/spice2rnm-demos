@@ -65,8 +65,8 @@ timeout "$WALL_TIMEOUT" "$XEZIM" --max-time "$MAX_TIME" -DUVM_NO_DPI \
     "$UVM/uvm_pkg.sv" \
     "$UVM_MS/uvm_ms_pkg.sv" \
     $ANALOG $RTL \
-    pll_analog_sysms_proxy_pkg.sv \
-    pll_analog_sysms_pkg.sv \
-    top_pll_analog_sysms.sv \
+    pll_analog_loop_ms_proxy_pkg.sv \
+    pll_analog_loop_ms_pkg.sv \
+    top_pll_analog_loop_ms.sv \
     +UVM_NO_RELNOTES "$@" \
   2>&1 | grep -v 'compile-progress\|degraded to null\|not representable\|dpiexport'
