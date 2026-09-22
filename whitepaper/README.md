@@ -36,8 +36,8 @@ are typed in by hand. Two places to verify that:
   run on its own.
 - [`../showcase/`](../showcase/) holds the generated artifacts themselves
   — models, verification environments, and evidence files — with
-  [`STAMP`](../showcase/STAMP) recording when they were generated, by
-  which tool version, and with what results.
+  [`STAMP`](../showcase/STAMP) recording, per case, when it was
+  curated, from which run, and by which tool and simulator revisions.
 
 If a number in the paper and a number from a fresh run ever disagree, the
 paper is the stale one: the figures are regenerated, never edited.

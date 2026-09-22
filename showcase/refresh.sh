@@ -9,9 +9,11 @@
 #   ./refresh.sh              run all four demos, then curate and stamp
 #   ./refresh.sh --no-run     curate from the existing run directories
 #                             (only for iterating on the curation itself)
-#   ./refresh.sh --only pll   curate ONE case and leave the other three
-#                             alone. Implies --no-run, and does not stamp:
-#                             the STAMP describes the whole showcase.
+#   ./refresh.sh --only pll   curate ONE case (lpf2, dcc2, pi, pll,
+#                             pll_nocosim) and leave the others alone.
+#                             Implies --no-run. STAMP is per case: this
+#                             rewrites that case's line and carries the
+#                             others forward unchanged.
 set -eu
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEMOS="$(cd "$HERE/.." && pwd)"
@@ -22,7 +24,7 @@ RUNS="$HOME/s2r_runs"
 ONLY=""
 if [ "${1:-}" = "--only" ]; then
   ONLY="${2:-}"
-  [ -n "$ONLY" ] || { echo "--only needs a case name: lpf2, dcc2, pi or pll"; exit 1; }
+  [ -n "$ONLY" ] || { echo "--only needs a case name: lpf2, dcc2, pi, pll or pll_nocosim"; exit 1; }
   set -- --no-run
 fi
 
@@ -443,7 +445,7 @@ want pll_nocosim && curate_equivalence "$HOME/s2r_runs/demo4b_pll" pll_nocosim \
 # files the customer does not have. This gate exists because both have
 # happened; the generators were fixed, and this keeps them fixed.
 leaks=$(grep -rln "/home/$(id -un)" "$HERE"/lpf2 "$HERE"/dcc2 "$HERE"/pi \
-          "$HERE"/lpf2_house "$HERE"/pll \
+          "$HERE"/lpf2_house "$HERE"/pll "$HERE"/pll_nocosim \
           --include='*.sv' --include='*.svh' --include='*.sh' 2>/dev/null || true)
 if [ -n "$leaks" ]; then
   echo "REFUSING to stamp: local paths leaked into generated files:"
@@ -456,15 +458,17 @@ fi
 # produced it is weaker than it looks: the environments were once validated
 # on one xezim revision while the tree moved on to another, and nothing here
 # could have told you. Best effort -- a checkout may not be present.
-# A STAMP AFTER A PARTIAL REBUILD WOULD BE A LIE. It carries a date and a
-# run summary describing everything beside it; re-dating the whole
-# showcase because one case was re-curated is exactly the staleness this
-# file exists to prevent, only harder to notice.
+# A WHOLE-SHOWCASE DATE AFTER A PARTIAL REBUILD WOULD BE A LIE, and so
+# would leaving the old one standing: after --only, the revisions at the
+# top no longer describe the case that was just re-curated. So the stamp
+# is per case. Each line says when that case was curated, from which run
+# directory (and when that run finished), and at which tool and simulator
+# revisions. A full refresh rewrites every line; --only rewrites one and
+# carries the rest forward exactly as they were.
 if [ -n "${ONLY:-}" ]; then
-  echo "not stamping: only '$ONLY' was re-curated, and STAMP describes the"
-  echo "  whole showcase. Run ./refresh.sh with no arguments to rebuild and"
-  echo "  stamp everything."
-  exit 0
+  CURATED="$ONLY"
+else
+  CURATED="lpf2 dcc2 pi pll pll_nocosim lpf2_house"
 fi
 
 XEZIM_BIN="${XEZIM:-$HOME/xezim/target/release/xezim}"
@@ -478,23 +482,89 @@ core_rev() {
   echo "unknown"
 }
 
-{
-  echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  echo "spice2rnm: $(git -C "$HOME/spice2rnm" rev-parse --short HEAD)"
-  echo "demos:     $(git -C "$DEMOS" rev-parse --short HEAD)"
-  echo "xezim:     $(xz_rev)"
-  echo "xezim-core: $(core_rev)"
-  echo
-  echo "Run summary:"
-  if [ -s /tmp/showcase_run_summary.txt ]; then
-    sed 's/^/  /' /tmp/showcase_run_summary.txt
-  else
-    # An empty section reads as a truncated file. Say which it is.
-    echo "  NONE RECORDED. These artifacts were curated from existing run"
-    echo "  directories (--no-run), so no single run_all.sh summary"
-    echo "  describes all four. The tool revisions above are what"
-    echo "  generated them; per-case verdicts are in each result.json"
-    echo "  and each equivalence/ directory."
-  fi
-} > "$HERE/STAMP"
-echo "stamped: $HERE/STAMP"
+NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+REVS="spice2rnm $(git -C "$HOME/spice2rnm" rev-parse --short HEAD)  demos $(git -C "$DEMOS" rev-parse --short HEAD)  xezim $(xz_rev)  xezim-core $(core_rev)"
+python3 - "$HERE/STAMP" "$NOW" "$REVS" "$CURATED" "$RUNS" \
+          "$([ -n "${ONLY:-}" ] && echo partial || echo full)" \
+          /tmp/showcase_run_summary.txt <<'PY'
+import os, re, sys, time
+path, now, revs, curated, runs, mode, summary = sys.argv[1:8]
+curated = curated.split()
+ORDER = ["lpf2", "dcc2", "pi", "pll", "pll_nocosim", "lpf2_house"]
+RUN_OF = {"lpf2": "lpf2", "dcc2": "dcc2", "pi": "demo3_pi", "pll": "demo4_pll",
+          "pll_nocosim": "demo4b_pll", "lpf2_house": "lpf2"}
+
+# What the previous stamp said, line by line per case, and its run summary.
+prev_lines, prev_summary, prev_whole, prev_top = {}, [], None, []
+if os.path.exists(path):
+    text = open(path).read().splitlines()
+    sect = "top"
+    for ln in text:
+        if ln.startswith("Cases:"):
+            sect = "cases"; continue
+        if ln.startswith("Run summary"):
+            sect = "summary"; continue
+        if sect == "top":
+            prev_top.append(ln)
+            m = re.match(r"(Whole showcase|Generated): (\S+)", ln)
+            if m: prev_whole = m.group(2)
+        elif sect == "cases":
+            m = re.match(r"  (\S+)\s+(.*)$", ln)
+            if m: prev_lines[m.group(1)] = m.group(2)
+        elif sect == "summary":
+            prev_summary.append(ln)
+
+def run_finished(case):
+    rj = os.path.join(runs, RUN_OF[case], "result.json")
+    if not os.path.exists(rj):
+        return "run %s (no result.json)" % RUN_OF[case]
+    t = time.strftime("%Y-%m-%dT%H:%MZ", time.gmtime(os.path.getmtime(rj)))
+    return "run %s finished %s" % (RUN_OF[case], t)
+
+# The old whole-showcase stamp is all a never-restamped case has; carry
+# it and say so, rather than invent a per-case date it never had.
+legacy = None
+if prev_whole and not prev_lines:
+    old_revs = "  ".join(re.sub(r"\s+", " ", l.replace(":", "")) for l in prev_top
+                         if re.match(r"(spice2rnm|demos|xezim|xezim-core):", l))
+    legacy = "%s  %s  (carried from the whole-showcase stamp)" % (prev_whole, old_revs)
+
+lines = {}
+for case in ORDER:
+    if case in curated:
+        lines[case] = "%s  %s  %s" % (now, revs, run_finished(case))
+    elif case in prev_lines:
+        lines[case] = prev_lines[case]
+    elif legacy:
+        lines[case] = legacy
+    else:
+        lines[case] = "never stamped"
+
+whole = now if mode == "full" else (prev_whole or "never")
+out = []
+out.append("Last curated: %s  (%s)" % (now, ", ".join(curated) if mode == "partial" else "every case"))
+out.append("Whole showcase: %s  (last full refresh)" % whole)
+for part in revs.split("  "):
+    k, v = part.split(" ", 1)
+    out.append("%-11s %s" % (k + ":", v))
+out.append("")
+out.append("Cases: when each was curated, at which revisions, from which run")
+w = max(len(c) for c in ORDER)
+for case in ORDER:
+    out.append("  %-*s  %s" % (w, case, lines[case]))
+out.append("")
+if mode == "full":
+    out.append("Run summary:")
+    if os.path.getsize(summary) if os.path.exists(summary) else 0:
+        out.extend("  " + l for l in open(summary).read().splitlines())
+    else:
+        out.append("  NONE RECORDED. These artifacts were curated from existing run")
+        out.append("  directories (--no-run), so no single run_all.sh summary")
+        out.append("  describes them. Per-case verdicts are in each result.json")
+        out.append("  and each equivalence/ directory.")
+else:
+    out.append("Run summary (from the last full refresh, %s):" % whole)
+    out.extend(prev_summary or ["  NONE RECORDED."])
+open(path, "w").write("\n".join(out) + "\n")
+PY
+echo "stamped: $HERE/STAMP ($CURATED)"
