@@ -134,6 +134,22 @@ package ro_vco_ms_pkg;
   // Breakpoints first, then the held-out points. Order is not important to
   // the check -- the model has no memory between control settings -- but a
   // monotonic walk keeps the log readable next to the tuning curve.
+  // What the monitor publishes: one timed point, reduced. Separate
+  // from the request because a request is what was asked for and this
+  // is what happened, and a scoreboard should be reading the second.
+  class ro_vco_vco_result extends uvm_sequence_item;
+    real control_v;
+    real golden_f;
+    real measured_f;
+    bit  held_out;
+
+    `uvm_object_utils(ro_vco_vco_result)
+
+    function new(string name = "ro_vco_vco_result");
+      super.new(name);
+    endfunction
+  endclass : ro_vco_vco_result
+
   class ro_vco_vco_seq extends uvm_sequence #(ro_vco_vco_item);
     `uvm_object_utils(ro_vco_vco_seq)
     function new(string name = "ro_vco_vco_seq");

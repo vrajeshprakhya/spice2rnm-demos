@@ -18,6 +18,7 @@ module top;
   `include "uvm_ms_includes.svh"
 
   import ro_vco_ms_types_pkg::*;
+  import ro_vco_ms_proxy_pkg::*;
   import ro_vco_ms_pkg::*;
 
   //--- the control net, and the clock under test ----------------------
@@ -31,15 +32,66 @@ module top;
     .clk  (clk_sig)
   );
 
+  //--- the CONCRETE half of the MS proxy -------------------------------
+  //
+  // The timing lives here and only here. A class method calling a
+  // module-scope task does not have the reach a class reading its
+  // enclosing module's signals has, and getting that wrong produces a
+  // run with zero checks that looks clean -- so the measurement stays
+  // in this scope. What changed is that nothing ABOVE it needs to be
+  // here too: the driver and the monitor talk to the abstract half.
+  event point_done;
+
+  class ro_vco_ms_proxy_impl extends ro_vco_ms_proxy;
+    real res_v, res_f, res_golden;
+    bit  res_held_out;
+
+    function new(string name = "proxy");
+      super.new(name);
+    endfunction
+
+    task run_point(input real v, input real golden, input bit held_out);
+      real t0, t1;
+      int  n;
+      res_v = v; res_golden = golden; res_held_out = held_out;
+      cont_r = v;
+      @(posedge clk_sig);
+      @(posedge clk_sig);
+      t0 = $realtime;
+      n  = 0;
+      while (n < MEAS_CYC) begin
+        @(posedge clk_sig);
+        n++;
+      end
+      t1 = $realtime;
+      // $realtime is in this module's time unit (1 fs).
+      res_f = (t1 > t0) ? (real'(MEAS_CYC) * 1.0e15 / (t1 - t0)) : 0.0;
+      -> point_done;
+    endtask
+
+    task wait_point_done();
+      @(point_done);
+    endtask
+
+    function real pull_control();  pull_control  = res_v;        endfunction
+    function real pull_freq();     pull_freq     = res_f;        endfunction
+    function real pull_golden();   pull_golden   = res_golden;   endfunction
+    function bit  pull_held_out(); pull_held_out = res_held_out; endfunction
+  endclass : ro_vco_ms_proxy_impl
+
+  ro_vco_ms_proxy_impl proxy_h;
+
   //--- test ------------------------------------------------------------
   `include "ro_vco_ms_scoreboard.svh"
-  `include "ro_vco_ms_tb.svh"
+  `include "ro_vco_ms_env.svh"
   `include "ro_vco_ms_test.svh"
 
   initial begin
     `uvm_ms_info("TOP_MS",
                  "UVM-MS VCO testbench for ro_vco_rnm: goldens are ngspice frequency measurements",
                  UVM_LOW)
+    proxy_h = new("proxy");
+    uvm_config_db #(ro_vco_ms_proxy)::set(null, "*", "proxy", proxy_h);
     run_test("ro_vco_ms_test");
   end
 

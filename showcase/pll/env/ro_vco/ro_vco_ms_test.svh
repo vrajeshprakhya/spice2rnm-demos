@@ -20,7 +20,7 @@ class ro_vco_ms_test extends uvm_test;
     ro_vco_vco_seq seq;
     phase.raise_objection(this);
     seq = ro_vco_vco_seq::type_id::create("seq");
-    seq.start(tb.sqr);
+    seq.start(tb.agent.sqr);
     tb.sb.report_vco();
     phase.drop_objection(this);
   endtask
