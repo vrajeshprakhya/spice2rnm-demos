@@ -1134,9 +1134,11 @@ spice2rnm-demos/
   .gitignore         run scratch; the showcase is curated, not
                      whatever a run left behind
   demo_1_lpf.sh  demo_2_dcc.sh  demo_3_pi.sh
-  demo_4_pll.sh  run_all.sh
-                     the four case studies, runnable end to end
-  harness/           8 measurement scripts the demos call
+  demo_4_pll.sh  demo_4b_pll_nocosim.sh  run_all.sh
+                     the five case studies, runnable end to end
+  harness/           10 files: 8 measurement scripts the demos
+                     call, plus the PLL's specification in English
+                     and the JSON stating how its loop is wired
   showcase/          the generated artifacts, byte-for-byte
     lpf2/            the baseline case, 13 files + equivalence/:
       rc_lpf2_rnm.sv          the model, wreal ports
@@ -1145,7 +1147,8 @@ spice2rnm-demos/
       rc_lpf2_dms.sv          interconnect ports, straight through
       rc_lpf2_bridge*.sv      MS bridge and its driving core
       rc_lpf2_proxy_pkg.sv    agent <-> bridge API
-      rc_lpf2_ms_pkg.sv       agent, and the SPICE goldens
+      rc_lpf2_ms_pkg.sv       item, sequence, driver, monitor,
+                              agent, and the SPICE goldens
       rc_lpf2_ms_scoreboard.svh  the checks and tolerances
       rc_lpf2_ms_tb/test.svh  environment and test
       top_rc_lpf2_ms.sv       nets, DUT, bridge, test
@@ -1158,13 +1161,34 @@ spice2rnm-demos/
     pi/              same shape, 13 files + equivalence/: an MS
                      bridge, proxy and agent like the others, with
                      phase-per-code goldens and no DC or AC section
-    pll/             50 files + equivalence/: five block models, three
-                     interfaces, the composed analog top, the
-                     node package, result.json, and env/ --
-                     three per-block UVM-MS environments plus
-                     the SYSTEM one, where the design's own RTL
+    pll/             53 files + 9 under equivalence/. Case study 4,
+                     checked against the transistors:
+      11 at the top  five block models, three interfaces, the
+                     composed analog top, the node package,
+                     result.json
+      env/inv1/  12  and env/inv2/ 12 -- a full UVM-MS environment
+      env/inv2/  12  each: item, sequence, sequencer, driver,
+                     monitor, agent, scoreboard, env, test, MS
+                     proxy and bridge
+      env/ro_vco/ 10 the oscillator's, same components, goldens a
+                     measured tuning curve rather than a DC sweep
+      env/cosim/  8  the SYSTEM environment: the design's own RTL
                      and every block's model elaborate together,
+                     goldens the transistor run's own statistics,
                      carrying a period-jitter monitor at 1 fs
+    pll_nocosim/     58 files + 9 under equivalence/. The same
+                     circuit with no co-simulation anywhere:
+      11 at the top  the same models, interfaces and composed top
+      env/inv1/  12  env/inv2/ 12, env/ro_vco/ 10 -- as above
+      env/rtl_loop/ 7 the LOOP environment. The only one generated
+                     with every component including the stimulus
+                     half, because it owns its stimulus: proxy
+                     package, package, scoreboard, env, test, top,
+                     run script
+      loop/       2  the plain harness it replaces: one SystemVerilog
+                     file and the script that runs it
+      rtl/        4  the customer's pfd.sv and divn.sv, the English
+                     specification, and the loop's topology in JSON
     house_lib/       4 files, NOT generated: ng_ams_pkg.sv
                      declaring nettype real ng_anet, and two
                      hand-written models using it
@@ -1214,12 +1238,14 @@ per measured point, so the filter's aligned comparison is
 $18.6\unit{MB}$ and its generated testbench $18\unit{MB}$; the duty
 corrector's is $2.8\unit{MB}$. The PLL is the weight: its golden
 co-simulation raw file alone is $202.8\unit{MB}$, two thirds of
-everything the four cases produce. Close to $297\unit{MB}$ across
+everything the five cases produce. Close to $296\unit{MB}$ across
 them, in a repository whose history is permanent, for files
 \texttt{refresh.sh} regenerates in half an hour. Every one is named in
 \texttt{MANIFEST.txt} with its exact size and the command that recreates
 it, so a reader sees what exists and what it weighs without every future
-clone carrying it. What is published comes to $840\unit{kB}$.
+clone carrying it. What is published comes to $1.4\unit{MB}$, of
+which the no-co-simulation PLL is $546\unit{kB}$: four environments,
+the loop harness, the customer's RTL and both specifications.
 
 The distinction is drawn by size rather than by filename. A
 comparison table small enough to read is evidence; one large enough to be
