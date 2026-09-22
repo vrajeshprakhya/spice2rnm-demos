@@ -552,6 +552,41 @@ it accordingly:
 conventional flow that fitted one to each would be fitting the wrong
 quantity three times over.
 
+\noindent \textbf{``Tuning curve'' is not a description of that model ---
+it is the model.} What the oscillator route measures is a table, one row
+per control voltage, each row a separate transistor-level transient in
+which the control is held and the resulting oscillation is timed:
+
+\begin{center}
+\begin{tabular}{@{}rr@{}}
+\toprule
+\texttt{cont} (V) & frequency (MHz) \\
+\midrule
+$0.495$ & $804.47$ \\
+$\vdots$ & $\vdots$ \\
+$1.750$ & $438.73$ \\
+$1.850$ & $399.86$ \\
+$\vdots$ & $\vdots$ \\
+$2.805$ & $16.74$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The generated model looks its frequency up in that table and
+interpolates between rows. That is also why its checks come in three
+kinds rather than one. At the table's own $15$ rows the model is exact
+by construction, so agreement there ($0.001\%$) shows the table was
+transcribed and nothing more. At $5$ control voltages \emph{deliberately
+withheld} from it, the model must interpolate and is compared against
+fresh SPICE measurements --- $0.024\%$, and the only one of the three
+that is evidence about accuracy. At $9$ voltages far outside where the
+closed loop operates it reaches $4.987\%$, which is reported and not
+failed, because the loop never goes there.
+
+It is the same table Section~\ref{sec:nocosim} reads backwards: at
+$400\unit{MHz}$ it says $1.8496\unit{V}$, and that is the control
+voltage the assembled loop is then required to settle at.
+
 \subsection{Checked as a system, against the transistors}
 
 A score for each block on its own is evidence about that block on its own.
@@ -1179,6 +1214,47 @@ is passive R/C    & the output's response to   & the error, against how \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\paragraph{Why an oscillator is scored on a rate.} The first row of that
+table is the ordinary case: two output waveforms, lined up in time and
+subtracted. The fourth row cannot work that way, and the reason is worth
+a paragraph because it is the whole justification for the route.
+
+Suppose the model and the transistors run at \emph{exactly} the same
+frequency --- a perfect model. They start aligned. Nothing locks their
+phase together, so a difference of one part in $10^5$ slides them a full
+cycle apart within a millisecond, and from then on the model sits at one
+supply rail at the instants the circuit sits at the other. Subtract
+those two waveforms and you get full-swing error everywhere. The perfect
+model scores as entirely wrong.
+
+That is not hypothetical, and a milder version of it is visible
+elsewhere in this document: the two clock buffers in case study 4 report
+a worst instantaneous error of $99.9\%$ of full swing, from an edge
+landing slightly late. For a buffer that is a brief moment each cycle.
+For an oscillator it is the permanent steady state.
+
+So no waveform is subtracted. The control voltage is set, the circuit is
+run in SPICE and the cycles counted, the model is run at the same
+control and its cycles counted, and the two frequencies are compared:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+set \texttt{cont} to        & $1.9000\unit{V}$ \\
+SPICE: count cycles, divide & $f_\mathrm{spice}$ \\
+model: same control, count  & $f_\mathrm{model}$ \\
+score                       & $|f_\mathrm{model}-f_\mathrm{spice}| / f_\mathrm{spice} = 0.024\%$ \\
+against                     & a $2\%$ bar \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Phase is ignored deliberately. The model does not claim to
+reproduce it --- it emits an ideal square wave, and the real ring's
+finite edges were already accounted for when its frequency was measured
+by FFT.
+
 
 \noindent Every verdict records which of these rows it came from. Months
 later, a reader can still tell which number actually decided the result
