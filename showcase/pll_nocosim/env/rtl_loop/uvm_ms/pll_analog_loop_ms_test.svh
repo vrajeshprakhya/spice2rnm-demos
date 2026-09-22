@@ -18,12 +18,12 @@ class pll_analog_loop_ms_test extends uvm_test;
   task run_phase(uvm_phase phase);
     pll_analog_loop_ms_seq seq;
     phase.raise_objection(this, "pll_analog loop, locked and followed");
+    // The last window's result is published one delta after the sequence
+    // returns; a drain time on the phase lets it land before the report
+    // phase summarises, which is what the drain time is for.
+    phase.phase_done.set_drain_time(this, 1);
     seq = pll_analog_loop_ms_seq::type_id::create("seq");
     seq.start(env.agent.sequencer);
-    // One delta past the last window so the monitor publishes it before
-    // the objection drops. Without this the final result is written
-    // after the report phase has already summarised.
-    #1;
     phase.drop_objection(this, "pll_analog loop, locked and followed");
   endtask
 endclass : pll_analog_loop_ms_test

@@ -171,6 +171,13 @@ class pll_analog_loop_ms_scoreboard extends uvm_scoreboard;
   endfunction
 
   function void report_phase(uvm_phase phase);
+    // A run in which nothing reached this scoreboard is not a pass. The
+    // ways to get here -- a config_db key that did not match, a monitor
+    // that never published -- all leave the simulator exiting 0 with a
+    // clean log, and that is the one failure a summary must not hide.
+    if (rate_checks == 0)
+      `uvm_error("SB_SUMMARY",
+        "no loop checks ran -- the monitor never reached the scoreboard")
     `uvm_info("SB_SUMMARY", $sformatf(
       "rate checks=%0d failed=%0d | worst %+0.4f%% against %0.3f%% [SPEC]",
       rate_checks, rate_fail, worst_rate_pct, TOL_FRAC * 100.0), UVM_LOW)

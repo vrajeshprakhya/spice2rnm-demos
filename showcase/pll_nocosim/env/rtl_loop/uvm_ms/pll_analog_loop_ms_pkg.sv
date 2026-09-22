@@ -30,10 +30,13 @@ package pll_analog_loop_ms_pkg;
   localparam real BAND_LO     = 1.75;
   localparam real BAND_HI     = 1.95;
 
+  // No `rand` on these: IEEE 1800-2017 18.4 restricts rand to integral
+  // types, and the sequence sets every field explicitly -- the three
+  // windows are a designed step, not a draw.
   class pll_analog_loop_ms_item extends uvm_sequence_item;
-    rand real   ref_hz;
-    rand real   settle_s;
-    rand real   window_s;
+    real        ref_hz;
+    real        settle_s;
+    real        window_s;
     string      label = "nominal";
 
     `uvm_object_utils_begin(pll_analog_loop_ms_item)
