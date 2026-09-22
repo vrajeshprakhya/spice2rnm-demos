@@ -814,6 +814,25 @@ full-swing between the rails, substrate and well tied:
 --band xvco.sub=0:0            substrate tie
 \end{lstlisting}
 
+\textbf{And a person read that table, not the tool.} The
+demonstration hands the specification to the tool as well --- it accepts
+one, and Section~\ref{sec:spec} shows it extracting operating ranges and
+tolerances from a plain-language document on another circuit. In the run
+these figures come from there was no API key present, so the reader
+declined rather than guessing, and said so:
+
+\begin{lstlisting}
+spec: no Anthropic API key available; the spec cannot be read
+      and every choice stays as it was
+\end{lstlisting}
+
+\noindent The five bands above were therefore read off the
+specification's table by eye and typed on the command line. Every number
+still traces to the document, and nothing here was automated that the
+paper elsewhere claims is. The phrase the run prints --- \texttt{a spec
+DECLARES} --- is the band mechanism describing a figure a person
+supplied, not the reader describing one it extracted.
+
 \noindent A declared band is not a measured one, and the run never
 reports it as one. Every message that uses a declared band says so in
 those words --- \texttt{a spec DECLARES as 0.0000..3.3000 V, not
