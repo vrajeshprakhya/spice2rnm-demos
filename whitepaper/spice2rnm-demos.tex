@@ -131,7 +131,7 @@ about an hour in total on a laptop, on open-source simulators:
 \textbf{Circuit} & \textbf{Judged on} & \textbf{Worst, against its bar} & \textbf{Environment} \\
 \midrule
 two-pole filter       & waveform, unseen input   & $0.0097$ vs $0.15$          & $64$ checks, $0$ failed \\
-duty-cycle corrector  & where its edges land     & $0.313$ vs $0.5\unit{pp}$   & $60$ checks, $0$ failed \\
+duty-cycle corrector  & where its edges land     & $0.428$ vs $1.0\unit{pp}$   & $60$ checks, $0$ failed \\
 phase interpolator    & edge position per code   & $1.83$ vs $6.25\unit{ps}$   & $9$ checks, $0$ failed \\
 PLL, co-simulated     & system vs transistors    & $4.62\unit{mV}$, $12\%$ of bar & $5$ blocks, $0$ failed \\
 PLL, no co-simulation & loop closed in SV alone  & locked, $+0.0004\%$         & $12$ checks, $0$ failed \\
@@ -433,7 +433,7 @@ points.
 Transient equivalence   & $0.0769$ against a $0.15$ threshold \quad \pass \\
 UVM-MS, DC section      & $46$ checks, $0$ failed \\
 UVM-MS, duty section    & $14$ checks, $0$ failed \\
-\quad worst duty error  & $0.313$ pp of a $0.500$ pp tolerance \\
+\quad worst duty error  & $0.428$ pp of the specification's $1.0$ pp \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -449,11 +449,12 @@ $55\unit{dB}$, despite being demonstrably accurate. The failure tells you
 nothing about the model and everything about using the wrong check.
 
 So the environment checks what a duty-cycle corrector is actually for. The
-tool drives the real circuit with clocks at several rates and several input
-duties, records what duty comes back out of SPICE each time, and holds the
-model to those recorded answers. The table spans $20$ percentage points of
-measured behaviour --- wide enough that a model ignoring its input could
-not fake its way through.
+tool drives the real circuit with clocks at two rates and three input
+duties --- the rates and the $35$--$65\%$ range its specification states
+(Section~\ref{sec:spec}) --- records what duty comes back out of SPICE
+each time, and holds the model to those recorded answers. The table spans
+$30$ percentage points of measured output duty --- wide enough that a
+model ignoring its input could not fake its way through.
 
 % <<TRACE:dcc2>>
 \begin{center}
@@ -1205,9 +1206,12 @@ spice2rnm-demos/
   netlists/          the four SPICE inputs, exactly as the demos
                      run them: rc_lpf2, dcc, pi_therm, and the PLL
                      deck with the supply-noise card it runs under
-  harness/           10 files: 8 measurement scripts the demos
-                     call, plus the PLL's specification in English
-                     and the JSON stating how its loop is wired
+  specs/             the three specifications in English: the
+                     filter's, the duty-cycle corrector's (demo 2
+                     reads it) and the PLL's (demo 4b reads it)
+  harness/           9 files: 8 measurement scripts the demos
+                     call, plus the JSON stating how the PLL's
+                     loop is wired
   showcase/          the generated artifacts, byte-for-byte
     lpf2/            the baseline case, 13 files + equivalence/:
       rc_lpf2_rnm.sv          the model, wreal ports
@@ -1652,10 +1656,11 @@ block function                 & which environment is generated \\
 \end{tabular}
 \end{center}
 
-\noindent On the duty-cycle corrector, the specification-driven run checks
-$35$--$65\%$ input duty at the specified clock rates against the
-specification's own $1.0$ pp requirement: $15$ checks, $0$ failed, worst
-$0.428$ pp. \pass
+\noindent Case study 2 is run this way, reading
+\texttt{specs/dcc\_spec.md} from the repository: its duty environment
+checks $35$--$65\%$ input duty at the specified clock rates against the
+specification's own $1.0$ pp requirement --- $14$ checks, $0$ failed,
+worst $0.428$ pp. \pass
 
 \textbf{The specification is cross-checked, never trusted.} Every
 extracted fact is validated against what the circuit was actually measured

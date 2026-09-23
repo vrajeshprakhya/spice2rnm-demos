@@ -58,6 +58,7 @@ T0=$(date +%s)
 python3 -m spice2rnm "$NETLIST" \
   --out-dir "$OUT" \
   --ngspice-bin "$NGSPICE" \
+  --spec "$HERE/specs/dcc_spec.md" \
   --emit-uvm-ms --emit-assertions 2>&1 | tee "$OUT/pipeline.txt" \
   | grep -viE '^\s*$' | sed 's/^/    /'
 rc=${PIPESTATUS[0]}

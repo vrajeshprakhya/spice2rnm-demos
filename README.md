@@ -86,8 +86,11 @@ harness/
   demo_dcc.py    threshold sweep -> the corrector's actuator characteristic
   dcc_vcd.py     clock in / clock out, SPICE and model on one set of axes
   demo_pi.py     per-code phase measurement across the interpolator
-  pll_spec.md    the PLL's specification, in English -- demo 4b's third input
   pll_loop.json  how demo 4b's loop is wired: topology only, no electrical sense
+specs/
+  rc_lpf2_spec.md  the filter's specification, in English
+  dcc_spec.md      the duty-cycle corrector's -- demo 2 reads it
+  pll_spec.md      the PLL's -- demo 4b's third input
 ```
 
 The harness scripts write under `~/s2r_runs/` and are called by the demos

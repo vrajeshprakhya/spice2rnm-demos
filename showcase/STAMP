@@ -1,13 +1,13 @@
-Last curated: 2026-09-23T01:29:17Z  (pll_nocosim)
+Last curated: 2026-09-23T05:15:30Z  (dcc2)
 Whole showcase: 2026-09-20T18:56:59Z  (last full refresh)
 spice2rnm:  fd247d3
-demos:      96d4d6d
+demos:      c32c4ad
 xezim:      531e42a
 xezim-core: 482f03f
 
 Cases: when each was curated, at which revisions, from which run
   lpf2         2026-09-20T18:56:59Z  spice2rnm a676738  demos 291e676  xezim 531e42a  xezim-core 482f03f  (carried from the whole-showcase stamp)
-  dcc2         2026-09-20T18:56:59Z  spice2rnm a676738  demos 291e676  xezim 531e42a  xezim-core 482f03f  (carried from the whole-showcase stamp)
+  dcc2         2026-09-23T05:15:30Z  spice2rnm fd247d3  demos c32c4ad  xezim 531e42a  xezim-core 482f03f  run dcc2 finished 2026-09-23T05:06Z
   pi           2026-09-20T18:56:59Z  spice2rnm a676738  demos 291e676  xezim 531e42a  xezim-core 482f03f  (carried from the whole-showcase stamp)
   pll          2026-09-20T18:56:59Z  spice2rnm a676738  demos 291e676  xezim 531e42a  xezim-core 482f03f  (carried from the whole-showcase stamp)
   pll_nocosim  2026-09-23T01:29:17Z  spice2rnm fd247d3  demos 96d4d6d  xezim 531e42a  xezim-core 482f03f  run demo4b_pll finished 2026-09-23T01:17Z

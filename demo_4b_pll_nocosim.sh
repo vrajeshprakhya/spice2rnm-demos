@@ -72,7 +72,7 @@ echo
 need "$HERE/netlists/pll_analog.cir" "the analog netlist"  "this repo, netlists/"
 need "$PLL_SRC/pfd.sv"          "phase detector RTL"       "same repo, examples/pll"
 need "$PLL_SRC/divn.sv"         "divider RTL"              "same repo, examples/pll"
-need "$HERE/harness/pll_spec.md"   "the specification, in English" "this repo, harness/"
+need "$HERE/specs/pll_spec.md"     "the specification, in English" "this repo, specs/"
 need "$HERE/harness/pll_loop.json" "how the loop is wired"         "this repo, harness/"
 need "$NGSPICE"                 "ngspice binary"           "a normal ngspice build"
 need "$XEZIM"                   "the SV simulator"         "xezim, release build"
@@ -102,7 +102,7 @@ beat
 [ "$REUSE" = "1" ] || rm -rf "$PLL"
 mkdir -p "$PLL"
 cp "$PLL_SRC/pfd.sv" "$PLL_SRC/divn.sv" "$PLL/"
-cp "$HERE/harness/pll_spec.md"   "$SPEC"
+cp "$HERE/specs/pll_spec.md"     "$SPEC"
 cp "$HERE/harness/pll_loop.json" "$LOOPSPEC"
 cp "$HERE/netlists/pll_analog.cir" "$NETLIST"
 if ! grep -q '^vdd dd 0 dc {vcc} trnoise(0.02 1e-10 0 0)$' "$NETLIST"; then

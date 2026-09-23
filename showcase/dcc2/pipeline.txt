@@ -1,4 +1,4 @@
-netlist: /home/vraje/spice2rnm/work/dcc.cir
+netlist: /home/vraje/spice2rnm-demos/netlists/dcc.cir
 toolchain: ngspice=/home/vraje/ngspice-install/bin/ngspice  xezim=/home/vraje/xezim/target/release/xezim
 stage reached: equivalence
 input_node: clk  output_node: vout
@@ -16,13 +16,32 @@ warning: rise/fall SKEW 9.466e-11 s measured from the two full-swing traversals 
 warning: rise/fall asymmetry 0.8005 measured from the two full-swing traversals (2.067e+09 rising vs 2.582e+09 falling, 1/t63): the scheduled rate is split by the direction the output travels, because a rate indexed by input alone is symmetric about the threshold and returns exactly 50.000% duty for a 50% input.
 warning: LARGE-SIGNAL schedule measured at 33 of 33 operating points by stepping the input and timing the output: rate spans 1.299e+10 .. 5.097e+10 rad/s. Used in place of the AC pole schedule, which reports a stage's small-signal pole where its incremental gain has collapsed.
 warning: replaced value spec of input source 'VCLK' with PWL stimulus
+  spec: the phase environment needs a discrete control setting to sweep and this block has 0, so it was refused. A spec that rules out small-signal verification is saying NOT dc_ac, which is not the same as saying phase.
+  SPEC CONFLICT: the spec says this block operates up to 4e+08 Hz, but the fitted model is only valid below 1.195e+08 Hz -- 3.3x lower. The duty check is held at the band: a model checked above the range it was fitted over fails for reasons that are nothing to do with the model. Either the spec's range is outside what this characterization covers, or the characterization needs to be run wider.
+  spec assertions: the document states no operating limit narrower than the characterized range; nothing to add beyond the measured checks
+  spec: accepted kind, metric, clock_max_hz, clock_min_hz, input_duty_min, input_duty_max, duty_tolerance_pp, swing_lo, swing_hi
+  read as: Document titles the block "DCC — Duty Cycle Corrector"; "Clock
+    frequency | 50 | 200 | 400 | MHz" gives min 50e6 and max 400e6; "Input
+    duty cycle | 35 | 50 | 65 | %" gives 0.35–0.65; "output duty cycle shall
+    track the input duty cycle to within 1 percentage point"; "Input and
+    output swing rail to rail, 0 V to VDD" with typical VDD 1.80 V; "What
+    matters is where the edges land, not the waveform shape" and "No AC
+    specification ... Do not verify against a small-signal frequency
+    response" imply timing metric and a phase/duty-style (non dc_ac)
+    environment.
+  spec: duty check clocked at 5e+07, 1.195e+08 Hz
 generated UVM-MS testbench: 11 files in /home/vraje/s2r_runs/dcc2
   run it: /home/vraje/s2r_runs/dcc2/run_dcc_ms.sh
   UVM-MS library expected at: /home/vraje/uvm_ms_demo/ms
-  duty goldens: the circuit carries a -73.7 ps rise/fall skew, measured as the output duty moving with clock rate at a fixed input duty. That is 0.218 pp at 2.954e+07 Hz and scales in proportion to the clock. The generated model forms are symmetric -- a symmetric static curve driving a symmetric lag returns exactly 50.000% for a 50% input -- so this skew is a floor on the duty error that no amount of fitting removes.
-  duty goldens: 6 point(s) measured in ngspice, 1.477e+07..2.954e+07 Hz, input duty 40%..60%, output duty 39.74%..59.85%
+  spec: the phase environment needs a discrete control setting to sweep and this block has 0, so it was refused. A spec that rules out small-signal verification is saying NOT dc_ac, which is not the same as saying phase.
+  spec conflict: the spec says this block operates up to 4e+08 Hz, but the fitted model is only valid below 1.195e+08 Hz -- 3.3x lower. The duty check is held at the band: a model checked above the range it was fitted over fails for reasons that are nothing to do with the model. Either the spec's range is outside what this characterization covers, or the characterization needs to be run wider.
+  spec assertions: the document states no operating limit narrower than the characterized range; nothing to add beyond the measured checks
+  spec: accepted kind, metric, clock_max_hz, clock_min_hz, input_duty_min, input_duty_max, duty_tolerance_pp, swing_lo, swing_hi
+  duty goldens: clocked at 5e+07, 1.195e+08 Hz, from the spec's stated operating range rather than from the fitted poles
+  duty goldens: the circuit carries a -104.2 ps rise/fall skew, measured as the output duty moving with clock rate at a fixed input duty. That is 1.246 pp at 1.195e+08 Hz and scales in proportion to the clock. The generated model forms are symmetric -- a symmetric static curve driving a symmetric lag returns exactly 50.000% for a 50% input -- so this skew is a floor on the duty error that no amount of fitting removes.
+  duty goldens: 6 point(s) measured in ngspice, 5e+07..1.195e+08 Hz, input duty 35%..65%, output duty 33.86%..64.59%
   ac check: omitted: this model's small-signal gain at the bias is the static curve's local slope rather than H(0), so an ngspice .ac sweep is not a valid golden for it. The DC operating points are, and the large-signal behaviour is what the transient equivalence check covers.
-  duty check: 6 point(s), 1.477e+07..2.954e+07 Hz, input duty 40%..60%; golden output duty spans 20.108 pp, tolerance 0.500 pp
+  duty check: 6 point(s), 5e+07..1.195e+08 Hz, input duty 35%..65%; golden output duty spans 30.725 pp, tolerance 1.000 pp
 run log: /home/vraje/s2r_runs/dcc2/run.log
 result json: /home/vraje/s2r_runs/dcc2/result.json
 SUCCESS
