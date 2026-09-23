@@ -104,7 +104,66 @@ none at all. Every number in it was produced by the shipped tool, in
 under an hour on a laptop.
 \end{abstract}
 
-\vspace{0.2em}
+\newpage
+\section*{On one page}
+
+\noindent\textbf{What you hand it.} A SPICE netlist --- flat, or with
+subcircuits --- and optionally a plain-language specification and an
+existing model library to take conventions from. No port annotations, no
+model template, no testbench.
+
+\medskip
+\noindent\textbf{What you get back, from one command.} A SystemVerilog
+real-number model with the structure chosen from the measured circuit; a
+UVM-MS environment that exercises it, with every expected value a SPICE
+measurement of your circuit; and the equivalence evidence --- the circuit
+and the model driven identically, compared in the domain that matters for
+that block, traces archived.
+
+\medskip
+\noindent\textbf{What it produced on five circuits}, each one command,
+under an hour in total on a laptop, on open-source simulators:
+
+\begin{center}
+\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Circuit} & \textbf{Judged on} & \textbf{Worst, against its bar} & \textbf{Environment} \\
+\midrule
+two-pole filter       & waveform, unseen input   & $0.0097$ vs $0.15$          & $64$ checks, $0$ failed \\
+duty-cycle corrector  & where its edges land     & $0.313$ vs $0.5\unit{pp}$   & $60$ checks, $0$ failed \\
+phase interpolator    & edge position per code   & $1.83$ vs $6.25\unit{ps}$   & $9$ checks, $0$ failed \\
+PLL, co-simulated     & system vs transistors    & $4.62\unit{mV}$, $12\%$ of bar & $5$ blocks, $0$ failed \\
+PLL, no co-simulation & loop closed in SV alone  & locked, $+0.0004\%$         & $12$ checks, $0$ failed \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\noindent\textbf{Why a green result here is worth believing.} Three
+rules, kept throughout.
+\begin{itemize}[leftmargin=1.5em,itemsep=0.2em]
+  \item The right answers come from SPICE, never from the model. A test
+        cannot pass by agreeing with itself.
+  \item Every environment is proven able to fail. The tool breaks the
+        model on purpose and confirms the test goes red, and measures how
+        small a break it still catches.
+  \item Each block is scored on its own job --- a filter on its response,
+        a clock buffer on its edges, an oscillator on its rate --- and a
+        check that does not apply is reported as not applicable, never
+        counted as a pass.
+\end{itemize}
+
+\medskip
+\noindent\textbf{Where the evidence is.} Every model, environment and
+verdict in this document is published exactly as the tool wrote it, at
+\url{https://github.com/vrajeshprakhya/spice2rnm-demos}, and regenerates
+from one command. The outputs are plain IEEE 1800 SystemVerilog and
+carry no vendor dependence; they ran here on ngspice and on the
+open-source simulator xezim, and will run on the simulators your flow
+already uses.
+
+\newpage
 \tableofcontents
 \vspace{0.2em}
 
@@ -963,22 +1022,14 @@ stimulus --- there is nothing for a sequence to ask for. Here there is no
 such testbench: the stimulus is the reference clock and this environment
 generates it, so a sequence, a sequencer and a driver have work to do.
 
-The oscillator's block environment used to be short --- a driver that
-also measured, calling the scoreboard by method, with no monitor, agent
-or proxy. It was rebuilt on this pattern, and the rebuild is worth a
-sentence because it did not change a single number: the same $15$
-breakpoint and $5$ held-out checks, the same worst $0.024\%$, the same
-nine out-of-band points reported and not judged.
-
-What it changed is what can be done to it. The timing now lives in the
-proxy's concrete half in \texttt{top}, which is the only scope that can
-see the design's signals; the driver, monitor, agent, scoreboard and
-test hold none --- zero references to either signal, against eight in
+The oscillator's block environment is built on the same pattern, and
+the pattern is what makes it extensible. The timing lives in the proxy's
+concrete half in \texttt{top}, which is the only scope that can see the
+design's signals; the driver, monitor, agent, scoreboard and test hold
+none --- zero references to either signal, against eight in
 \texttt{top}. A second observer can subscribe to the monitor's analysis
 port without restructuring anything, and \emph{one} implementation of
-``time a clock'' now serves this environment and the loop one, where
-before there were two spellings of the same arithmetic in the same
-tool.
+``time a clock'' serves this environment and the loop one.
 
 What the loop environment's sequence and driver do with that timing is
 step the reference by $0.5\%$ and back, which is why the run below has
@@ -1055,8 +1106,7 @@ the loop        & $12$ checks over $3$ windows, $0$ failed & $322\unit{s}$ \\
 \noindent The two inverter figures are the weakest of these and the
 paragraph after next says why. All four environments are published, and
 all four were run from the published copy rather than from the run
-directory --- which is how a missing model file was caught, since the
-published copy puts models where the generated script was not looking.
+directory, so what is published is what ran.
 
 \paragraph{What this result does not carry.} Two things, and neither is
 small.
@@ -1107,9 +1157,10 @@ finiteness from this run's own measurements. Its $5$ per-block passes
 are worth less than the row above them, for the reason given in
 Section~\ref{sec:nocosim}.
 
-Each is one command. \texttt{demo\_4\_pll.sh} runs the co-simulated PLL
-and \texttt{demo\_4b\_pll\_nocosim.sh} the row beneath it.
-It differs from the others in what it needs, not in how it is run. Being
+Each is one command: \texttt{demo\_4\_pll.sh} for the co-simulated PLL,
+\texttt{demo\_4b\_pll\_\allowbreak nocosim.sh} for the row beneath it.
+The co-simulated one differs from the others in what it needs, not in how
+it is run. Being
 the analog half of a co-simulation, it needs the other half: the RTL, the
 DPI bridge, and a \emph{shared} libngspice --- a different ngspice build
 from the binary the first three use. It checks for each of those before
@@ -1119,8 +1170,11 @@ twelve minutes into a run. spice2rnm's outputs are
 simulator-agnostic: plain IEEE 1800 SystemVerilog, tied to no vendor. So
 that anyone can reproduce the results here, all of them were produced
 with open-source simulators --- \textbf{ngspice} for characterisation and
-the reference transients, \textbf{xezim} for both the transient
-equivalence co-simulation and the generated UVM-MS environments. No commercial licence was used anywhere in this
+the reference transients, \textbf{xezim} --- an open-source IEEE 1800
+simulator that runs the Accellera UVM
+library\footnote{\url{https://github.com/vrajeshprakhya/xezim}} --- for
+both the transient equivalence co-simulation and the generated UVM-MS
+environments. No commercial licence was used anywhere in this
 document. The generated artifacts themselves are published for
 inspection: the models, the complete environments, and the evidence
 files, exactly as the tool wrote them. They are at
@@ -1501,13 +1555,11 @@ loop filter holds its control still; that is what a loop filter is for.
 The second is the netlist, and it is what runs the sweep above: this deck
 declares $20\unit{mV}$ rms on the ring's supply, and a design that writes
 noise into its own deck is asking for noise to be simulated. That rule is
-matched on the NET rather than the source name. Block extraction rebuilds
-every supply as a plain DC source: the fragment carries
+matched on the net rather than the source name, because block extraction
+rebuilds every supply as a plain DC source: the fragment carries
 \texttt{VBIAS2 dd 0 DC 3.3} where the top level wrote
-\texttt{vdd dd 0 dc \{vcc\} trnoise(...)}. The net survives and the source
-name does not, so matched on the name the rule was unreachable on every
-hierarchical run: on every run, that is, which has a top-level deck to
-declare anything in.
+\texttt{vdd dd 0 dc \{vcc\} trnoise(...)}. The net survives extraction
+and the source name does not.
 
 There is no flag to force it, because a request to run a check is not
 evidence that one is warranted. And where the tool has no closed-loop
@@ -1809,10 +1861,10 @@ trust that the feature requested was the feature exercised.
         the accumulated deviation grew linearly in cycle count, at
         $1.004 \pm 0.026$ of the $k J^2$ his random walk requires.
 
-        The check also found a defect. At one sub-step per half cycle the
-        scheduler cannot resolve a randomised threshold. The model now
-        refuses that combination, rather than reporting $39.6\%$ jitter
-        where $1\%$ was asked.} The
+        One combination is refused: at one sub-step per half cycle the
+        scheduler cannot resolve a randomised threshold, and the model
+        declines it rather than report $39.6\%$ jitter where $1\%$ was
+        asked.} The
         scheduled-lag models take a synchronous-jitter figure on that
         basis, perturbing the input-to-output delay once per traversal.
         That figure is supplied, not measured: a transient of a deck
@@ -1864,8 +1916,9 @@ trust that the feature requested was the feature exercised.
         Section~\ref{sec:equiv}. It states that ``model validation
         remains an area for improvement in the real number modeling
         flow'', and names frequency-domain performance as future
-        work.\footnote{J.~Dudek, \emph{Real Number Modeling of RF
-        Circuits}, DVCon. The paper notes that because RNMs exist to
+        work.\footnote{J.~Dudek, J.~Nekl and K.~O'Donoghue (Analog Devices),
+        \emph{Real Number Modeling of RF Circuits}, DVCon proceedings,
+        \url{https://dvcon-proceedings.org/wp-content/uploads/real-number-modeling-of-rf-circuits.pdf}. The paper notes that because RNMs exist to
         enable system-level testing, ``the requirements for model
         validation are greatly relaxed in this environment''.}
 \end{itemize}
