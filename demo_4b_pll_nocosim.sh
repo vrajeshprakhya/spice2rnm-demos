@@ -69,7 +69,7 @@ need() {  # need <path> <what it is> <where it comes from>
 hr "0. What this one needs, and what it does not"
 say "Three inputs, and they are not connected to each other."
 echo
-need "$PLL_SRC/pll_analog.cir"  "the analog netlist"       "github.com/vrajeshprakhya/ams-cosim"
+need "$HERE/netlists/pll_analog.cir" "the analog netlist"  "this repo, netlists/"
 need "$PLL_SRC/pfd.sv"          "phase detector RTL"       "same repo, examples/pll"
 need "$PLL_SRC/divn.sv"         "divider RTL"              "same repo, examples/pll"
 need "$HERE/harness/pll_spec.md"   "the specification, in English" "this repo, harness/"
@@ -93,23 +93,23 @@ say "ngspice on the analog alone, and xezim on SystemVerilog alone, and"
 say "the two never talk to each other."
 beat
 
-# The deck this demo runs: the published one with ONE line added, 20 mV
-# rms on its supply. Same operating condition as demo 4, added here rather
-# than published as a second netlist to keep in step. ASSERTED, not
-# assumed -- a pattern that matched nothing would leave a quiet deck
-# behind while every line below still described a noisy one.
+# The deck this demo runs is published in netlists/: the ams-cosim
+# example with ONE line added, 20 mV rms on its supply, the operating
+# condition the specification states. Demo 4 and demo 4b run the same
+# file. ASSERTED, not assumed -- a deck without that card would leave a
+# quiet circuit behind while every line below still described a noisy
+# one.
 [ "$REUSE" = "1" ] || rm -rf "$PLL"
 mkdir -p "$PLL"
 cp "$PLL_SRC/pfd.sv" "$PLL_SRC/divn.sv" "$PLL/"
 cp "$HERE/harness/pll_spec.md"   "$SPEC"
 cp "$HERE/harness/pll_loop.json" "$LOOPSPEC"
-sed 's/^vdd dd 0 dc {vcc}$/vdd dd 0 dc {vcc} trnoise(0.02 1e-10 0 0)/' \
-    "$PLL_SRC/pll_analog.cir" > "$NETLIST"
-if ! grep -q 'trnoise' "$NETLIST"; then
+cp "$HERE/netlists/pll_analog.cir" "$NETLIST"
+if ! grep -q '^vdd dd 0 dc {vcc} trnoise(0.02 1e-10 0 0)$' "$NETLIST"; then
   echo
-  say "The supply card in $PLL_SRC/pll_analog.cir is not the shape this demo"
-  say "expects, so the noise was not added and nothing was run. Looked for a"
-  say "line reading exactly: vdd dd 0 dc {vcc}"
+  say "netlists/pll_analog.cir does not carry the supply-noise card this demo"
+  say "runs under, so nothing was run. Expected a line reading exactly:"
+  say "  vdd dd 0 dc {vcc} trnoise(0.02 1e-10 0 0)"
   exit 1
 fi
 

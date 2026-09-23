@@ -1,0 +1,59 @@
+Duty-cycle corrector -- clock in, clock out, with the correction knob exposed
+* dcc_core.cir modelled the loop's ERROR AMPLIFIER: a DC level in, a control
+* voltage out. It fitted degenerately (a zero at 4.3e30 Hz, 1.42 dB error)
+* because an 86x stage sitting at a high-gain null is not what a 3-pole
+* rational fit is good at, and it had no edges anyway.
+*
+* This is the part of a DCC that a duty measurement can actually see: the
+* SLICER, whose threshold is the correction actuator. A clock arriving with
+* skewed duty is compared against `vctrl`; moving vctrl moves the slicing
+* point up or down the clock's finite edges, which trades high time against
+* low time. Sweep vctrl and you get the corrector's actuator characteristic,
+* and somewhere on it the output duty crosses 50% -- that is the point the
+* real loop would servo to.
+*
+*   clk   -> input clock (deliberately 60% duty)
+*   vctrl -> threshold / correction control
+*   vout  -> corrected clock
+*
+* The input clock has slow 400 ps edges on a 2 ns period. That is on purpose:
+* the threshold can only trade duty across an edge that takes time. On an
+* ideal square wave no threshold would change anything.
+*
+* Single-input by construction (vctrl is a DC source), so spice2rnm can
+* still characterise clk -> vout and generate an RNM to compare against.
+*
+* PDK-free: generic LEVEL=3 cards, stock ngspice.
+*
+VDD   vdd   0 DC 1.8
+VB    vb    0 DC 0.70
+VCTRL vctrl 0 DC 0.90
+* DC+AC, not PULSE, so spice2rnm can characterise clk -> vout and generate
+* an RNM: the .ac sweep needs a small-signal source to linearise about, and
+* a PULSE card gives it nothing to sweep. The demos substitute their own
+* clock waveform for the transient runs, exactly as the pipeline's own
+* equivalence check does (it replaces the source's value spec with PWL).
+*
+* AC 0.01, not 1: this is a comparator, so its small-signal gain at the
+* threshold is large and a 1 V perturbation would measure clipping rather
+* than fit quality.
+VCLK  clk   0 DC 0.90 AC 0.01
+
+* --- comparator: clock against the threshold control
+MT  tail vb    0    0   NCH W=40u L=0.5u
+M1  n1   clk   tail 0   NCH W=20u L=0.5u
+M2  n2   vctrl tail 0   NCH W=20u L=0.5u
+M3  n1   n1    vdd  vdd PCH W=40u L=0.5u
+M4  n2   n1    vdd  vdd PCH W=40u L=0.5u
+C1  n2 0 20f
+
+* --- output buffer, to give a clean full-swing edge to measure
+M5  vout n2 0   0   NCH W=10u L=0.5u
+M6  vout n2 vdd vdd PCH W=20u L=0.5u
+CL  vout 0 30f
+
+.model NCH NMOS(LEVEL=3 VTO=0.45 KP=300u GAMMA=0.4 PHI=0.7 LAMBDA=0.02
++ TOX=9n NSUB=1e17 CGSO=0.3n CGDO=0.3n CJ=0.5m CJSW=0.2n)
+.model PCH PMOS(LEVEL=3 VTO=-0.45 KP=120u GAMMA=0.4 PHI=0.7 LAMBDA=0.03
++ TOX=9n NSUB=1e17 CGSO=0.3n CGDO=0.3n CJ=0.5m CJSW=0.2n)
+.end

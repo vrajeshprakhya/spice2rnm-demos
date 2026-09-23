@@ -280,7 +280,8 @@ criteria (Section~\ref{sec:spec}).
 \section{Case study 1 --- Two-pole filter}
 
 A two-pole RC low-pass filter --- the ordinary case, a block that takes a
-signal in and shapes it on the way out. This is the whole input:
+signal in and shapes it on the way out. This is the whole input, its
+comment lines aside:
 
 \begin{lstlisting}
 2-pole passive RC low-pass filter -- fast-running RNM test case
@@ -1201,6 +1202,9 @@ spice2rnm-demos/
   demo_4_pll.sh  demo_4b_pll_nocosim.sh  run_all.sh
                      the five case studies, each one command;
                      run_all.sh chains the first four
+  netlists/          the four SPICE inputs, exactly as the demos
+                     run them: rc_lpf2, dcc, pi_therm, and the PLL
+                     deck with the supply-noise card it runs under
   harness/           10 files: 8 measurement scripts the demos
                      call, plus the PLL's specification in English
                      and the JSON stating how its loop is wired

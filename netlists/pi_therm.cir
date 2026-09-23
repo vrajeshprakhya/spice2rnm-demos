@@ -1,0 +1,117 @@
+Thermometer-coded phase interpolator -- 8 unit cells per phase
+* The analog-controlled version (phase_interp.cir) could not be linearised:
+* a source-coupled pair's current split turns over in tens of millivolts, so
+* the interpolation collapsed into a 2-code transition -- DNL -3.56 LSB after
+* degeneration and slowed edges. That is not a tuning problem. A control
+* voltage steering a differential pair is the wrong mechanism.
+*
+* Real interpolators are thermometer-coded: N identical UNIT CELLS per phase,
+* each a small differential pair with its own switchable tail. Code k turns
+* on k cells driven by phase I and N-k cells driven by phase Q. Every code
+* adds exactly one unit of current to one side and removes one from the
+* other, so linearity comes from the cells MATCHING each other rather than
+* from any device staying in a linear region. Total tail current is constant
+* at N units, which is what keeps the summed node's amplitude fixed while its
+* crossing moves -- the defining property of a PI.
+*
+*   VCI0..VCI7 / VCQ0..VCQ7 -> per-cell enables (VB_ON = on, 0 = off)
+*   vout                    -> summing node
+*
+* Clock edges are 700 ps against a 500 ps I/Q separation, so both phases are
+* mid-transition at once and there is something to blend. That was measured:
+* with 150 ps edges only one phase ramps at a time and the output jumps from
+* I-timing to Q-timing regardless of how the current is split.
+*
+* PDK-free: generic LEVEL=3 cards, stock ngspice.
+*
+VDD vdd 0 DC 1.8
+
+* --- differential clocks, I and Q a quarter period apart, edges overlapping
+VCLKI  clk_i  0 PULSE(0.7 1.1 0    700p 700p 300p 2n)
+VCLKIB clk_ib 0 PULSE(1.1 0.7 0    700p 700p 300p 2n)
+VCLKQ  clk_q  0 PULSE(0.7 1.1 500p 700p 700p 300p 2n)
+VCLKQB clk_qb 0 PULSE(1.1 0.7 500p 700p 700p 300p 2n)
+
+* --- per-cell enables. The demo rewrites these: code k sets the first k
+*     I-cells and the last 8-k Q-cells on, so exactly 8 cells conduct at
+*     every code.
+VCI0 ci0 0 DC 0.68
+VCI1 ci1 0 DC 0.68
+VCI2 ci2 0 DC 0.68
+VCI3 ci3 0 DC 0.68
+VCI4 ci4 0 DC 0.0
+VCI5 ci5 0 DC 0.0
+VCI6 ci6 0 DC 0.0
+VCI7 ci7 0 DC 0.0
+VCQ0 cq0 0 DC 0.0
+VCQ1 cq1 0 DC 0.0
+VCQ2 cq2 0 DC 0.0
+VCQ3 cq3 0 DC 0.0
+VCQ4 cq4 0 DC 0.68
+VCQ5 cq5 0 DC 0.68
+VCQ6 cq6 0 DC 0.68
+VCQ7 cq7 0 DC 0.68
+
+* --- I-bank unit cells
+MTI0 ti0 ci0 0 0 NCH W=8u L=0.5u
+MI0A vout clk_i ti0 0 NCH W=8u L=0.5u
+MI0B vx   clk_ib ti0 0 NCH W=8u L=0.5u
+MTI1 ti1 ci1 0 0 NCH W=8u L=0.5u
+MI1A vout clk_i ti1 0 NCH W=8u L=0.5u
+MI1B vx   clk_ib ti1 0 NCH W=8u L=0.5u
+MTI2 ti2 ci2 0 0 NCH W=8u L=0.5u
+MI2A vout clk_i ti2 0 NCH W=8u L=0.5u
+MI2B vx   clk_ib ti2 0 NCH W=8u L=0.5u
+MTI3 ti3 ci3 0 0 NCH W=8u L=0.5u
+MI3A vout clk_i ti3 0 NCH W=8u L=0.5u
+MI3B vx   clk_ib ti3 0 NCH W=8u L=0.5u
+MTI4 ti4 ci4 0 0 NCH W=8u L=0.5u
+MI4A vout clk_i ti4 0 NCH W=8u L=0.5u
+MI4B vx   clk_ib ti4 0 NCH W=8u L=0.5u
+MTI5 ti5 ci5 0 0 NCH W=8u L=0.5u
+MI5A vout clk_i ti5 0 NCH W=8u L=0.5u
+MI5B vx   clk_ib ti5 0 NCH W=8u L=0.5u
+MTI6 ti6 ci6 0 0 NCH W=8u L=0.5u
+MI6A vout clk_i ti6 0 NCH W=8u L=0.5u
+MI6B vx   clk_ib ti6 0 NCH W=8u L=0.5u
+MTI7 ti7 ci7 0 0 NCH W=8u L=0.5u
+MI7A vout clk_i ti7 0 NCH W=8u L=0.5u
+MI7B vx   clk_ib ti7 0 NCH W=8u L=0.5u
+
+* --- Q-bank unit cells, summing onto the SAME node
+MTQ0 tq0 cq0 0 0 NCH W=8u L=0.5u
+MQ0A vout clk_q tq0 0 NCH W=8u L=0.5u
+MQ0B vx   clk_qb tq0 0 NCH W=8u L=0.5u
+MTQ1 tq1 cq1 0 0 NCH W=8u L=0.5u
+MQ1A vout clk_q tq1 0 NCH W=8u L=0.5u
+MQ1B vx   clk_qb tq1 0 NCH W=8u L=0.5u
+MTQ2 tq2 cq2 0 0 NCH W=8u L=0.5u
+MQ2A vout clk_q tq2 0 NCH W=8u L=0.5u
+MQ2B vx   clk_qb tq2 0 NCH W=8u L=0.5u
+MTQ3 tq3 cq3 0 0 NCH W=8u L=0.5u
+MQ3A vout clk_q tq3 0 NCH W=8u L=0.5u
+MQ3B vx   clk_qb tq3 0 NCH W=8u L=0.5u
+MTQ4 tq4 cq4 0 0 NCH W=8u L=0.5u
+MQ4A vout clk_q tq4 0 NCH W=8u L=0.5u
+MQ4B vx   clk_qb tq4 0 NCH W=8u L=0.5u
+MTQ5 tq5 cq5 0 0 NCH W=8u L=0.5u
+MQ5A vout clk_q tq5 0 NCH W=8u L=0.5u
+MQ5B vx   clk_qb tq5 0 NCH W=8u L=0.5u
+MTQ6 tq6 cq6 0 0 NCH W=8u L=0.5u
+MQ6A vout clk_q tq6 0 NCH W=8u L=0.5u
+MQ6B vx   clk_qb tq6 0 NCH W=8u L=0.5u
+MTQ7 tq7 cq7 0 0 NCH W=8u L=0.5u
+MQ7A vout clk_q tq7 0 NCH W=8u L=0.5u
+MQ7B vx   clk_qb tq7 0 NCH W=8u L=0.5u
+
+* --- summing-node loads
+RL1 vdd vout 1k
+RL2 vdd vx   1k
+CL1 vout 0 50f
+CL2 vx   0 50f
+
+.model NCH NMOS(LEVEL=3 VTO=0.45 KP=300u GAMMA=0.4 PHI=0.7 LAMBDA=0.02
++ TOX=9n NSUB=1e17 CGSO=0.3n CGDO=0.3n CJ=0.5m CJSW=0.2n)
+.model PCH PMOS(LEVEL=3 VTO=-0.45 KP=120u GAMMA=0.4 PHI=0.7 LAMBDA=0.03
++ TOX=9n NSUB=1e17 CGSO=0.3n CGDO=0.3n CJ=0.5m CJSW=0.2n)
+.end

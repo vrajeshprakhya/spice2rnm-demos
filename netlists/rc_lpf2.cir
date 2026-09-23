@@ -1,0 +1,22 @@
+2-pole passive RC low-pass filter -- fast-running RNM test case
+* Two cascaded RC sections, corner ~10 MHz. Deliberately PDK-free and
+* passive: no .model cards, no transistors, so ngspice characterization
+* is near-instant and a reader can reproduce every number on a stock
+* install.
+*
+* The sections LOAD each other (no buffer between them), so this is a
+* genuine interacting 2-pole response rather than two independent
+* corners -- which is the point: it gives the fitter something real to
+* do while still running in seconds.
+*
+*   vin  -> filter input
+*   vout -> filtered output
+*
+VIN vin 0 DC 0.9 AC 1
+
+R1  vin  mid  1k
+C1  mid  0    15.9p
+R2  mid  vout 1k
+C2  vout 0    15.9p
+
+.end

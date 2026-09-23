@@ -75,6 +75,12 @@ install.
 ```
 demo_1_lpf.sh  demo_2_dcc.sh  demo_3_pi.sh
 demo_4_pll.sh  demo_4b_pll_nocosim.sh
+netlists/
+  rc_lpf2.cir    the two-pole filter: demo 1's input
+  dcc.cir        the duty-cycle corrector: demo 2
+  pi_therm.cir   the phase interpolator: demo 3
+  pll_analog.cir the PLL deck demos 4 and 4b run -- ams-cosim's example
+                 plus the 20 mV supply-noise card it is run with
 harness/
   prbs_vcd.py    PRBS through the LPF model, scored and dumped to VCD
   demo_dcc.py    threshold sweep -> the corrector's actuator characteristic

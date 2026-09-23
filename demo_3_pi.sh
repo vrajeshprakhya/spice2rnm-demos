@@ -35,7 +35,7 @@ case "$OUT" in
   *) echo "refusing to clean unexpected OUT: $OUT" >&2; exit 1 ;;
 esac
 mkdir -p "$OUT"
-NETLIST="$S2R/work/pi_therm.cir"
+NETLIST="$HERE/netlists/pi_therm.cir"
 
 hr()  { printf '\n\033[1m%s\033[0m\n%s\n' "$1" "$(printf '=%.0s' {1..72})"; }
 say() { printf '  %s\n' "$*"; }
@@ -91,12 +91,12 @@ hr "4. One command"
 say "Same tool, code-phase path: measure at every setting, generate the"
 say "model from the measurement, emit an environment that checks it."
 echo
-say "  python3 -m spice2rnm work/pi_therm.cir --output-node vout \\"
+say "  python3 -m spice2rnm netlists/pi_therm.cir --output-node vout \\"
 say "      --code-map thermometer:8 --code-period 2e-9 \\"
 say "      --emit-uvm-ms --uvm-ms-lib $UVM_MS_LIB"
 echo
 T0=$(date +%s)
-( cd "$S2R" && python3 -m spice2rnm work/pi_therm.cir \
+( cd "$S2R" && python3 -m spice2rnm "$NETLIST" \
     --out-dir "$OUT" --output-node vout \
     --code-map thermometer:8 --code-period 2e-9 \
     --ngspice-bin "$NGSPICE" --emit-uvm-ms --uvm-ms-lib "$UVM_MS_LIB" \

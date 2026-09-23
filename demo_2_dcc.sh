@@ -30,7 +30,7 @@ case "$OUT" in
   *) echo "refusing to clean unexpected OUT: $OUT" >&2; exit 1 ;;
 esac
 mkdir -p "$OUT"
-NETLIST="$S2R/work/dcc.cir"
+NETLIST="$HERE/netlists/dcc.cir"
 
 hr()  { printf '\n\033[1m%s\033[0m\n%s\n' "$1" "$(printf '=%.0s' {1..72})"; }
 say() { printf '  %s\n' "$*"; }
