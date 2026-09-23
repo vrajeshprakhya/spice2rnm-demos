@@ -101,7 +101,7 @@ phase interpolator by how far it moves the clock at each setting.
 This paper walks through four circuits, getting harder as it goes, and
 runs the last of them twice --- once against a co-simulation, once with
 none at all. Every number in it was produced by the shipped tool, in
-under an hour on a laptop.
+about an hour on a laptop.
 \end{abstract}
 
 \newpage
@@ -122,7 +122,7 @@ that block, traces archived.
 
 \medskip
 \noindent\textbf{What it produced on five circuits}, each one command,
-under an hour in total on a laptop, on open-source simulators:
+about an hour in total on a laptop, on open-source simulators:
 
 \begin{center}
 \small
@@ -879,11 +879,16 @@ demonstration hands it the document along with the netlist and the RTL.
 What it took from this one, in the run these figures come from:
 
 \begin{lstlisting}
-read as: Document describes a 400 MHz ring-oscillator PLL:
-  kind=oscillator (ro_vco is the fitted block, negative tuning
-  slope). Environment: metric is timing since "hold 400 MHz to
-  within 2%" and "control voltage is the number to read" -- this
-  is a VCO-style behavioral model closed with digital RTL, so [...]
+read as: Document states "PLL -- 400 MHz ring-oscillator
+  phase-locked loop" with "seven-stage differential ring" whose
+  "behaviour is a frequency, not a gain" -> oscillator/vco
+  environment; "Output ... 400 MHz" is the highest stated
+  frequency; "Reference ... 10 MHz" is the lowest stated rate;
+  "20 mV rms of wideband noise is specified on it"; "hold 400 MHz
+  to within 2%" and "No small-signal specification ... Do not
+  verify any of them against a frequency response" implies
+  timing-based verdict; control-voltage swing range quoted as
+  "characterizable from 0.5 V to 2.8 V".
 \end{lstlisting}
 
 \noindent Those are the same facts the command line states, arrived at
@@ -921,8 +926,8 @@ figure here regenerates identically from its run. The text above does
 not: a language model produces different words each time, and the
 paragraph quotes words. What is stable is what surrounds it --- the
 bands, the measurements, the verdicts --- all of which were byte-for-byte
-identical between this run, the one before it with a different reading,
-and the one before that, when the reader declined for want of a key. The
+identical across this run, two before it with different readings,
+and the one before those, when the reader declined for want of a key. The
 model changed what was \emph{read}, not what was measured.
 
 \noindent A declared band is not a measured one, and the run never
@@ -984,8 +989,8 @@ Environments generated                  & $3$ per block, $1$ over the loop \\
 \quad blocks refused, with a reason      & $2$ \\
 \quad run, and reporting                 & $4$ of $4$ \\
 \midrule
-Characterisation                        & $16$ min \\
-Closing the loop and running it         & $34.6\unit{s}$ \\
+Characterisation                        & $33$ min \\
+Closing the loop and running it         & $37.3\unit{s}$ \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -1096,9 +1101,9 @@ scoreboard reported:
 \textbf{Environment} & \textbf{what its scoreboard concluded} & \textbf{time} \\
 \midrule
 \texttt{inv1}   & $54$ DC checks, $0$ failed, worst $0.001\unit{mV}$ of a $6.6\unit{mV}$ bar & $5\unit{s}$ \\
-\texttt{inv2}   & $54$ DC checks, $0$ failed & $111\unit{s}$ \\
-\texttt{ro\_vco} & $15$ breakpoint $+$ $5$ held-out, $0$ failed, worst $0.024\%$ & $194\unit{s}$ \\
-the loop        & $12$ checks over $3$ windows, $0$ failed & $322\unit{s}$ \\
+\texttt{inv2}   & $54$ DC checks, $0$ failed & $116\unit{s}$ \\
+\texttt{ro\_vco} & $15$ breakpoint $+$ $5$ held-out, $0$ failed, worst $0.024\%$ & $203\unit{s}$ \\
+the loop        & $12$ checks over $3$ windows, $0$ failed & $335\unit{s}$ \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -1148,9 +1153,10 @@ generation, both simulators, and every generated environment --- run end
 to end in under $16$ minutes on a laptop. The PLL is a further
 $15$ minutes, most of it the ring oscillator's tuning curve. The
 no-co-simulation variant costs the same kind of time and for the same
-reason --- $16$ minutes on the run these figures come from, and it moves
-between runs because the oscillator's refinement passes do --- of which
-closing the loop and running it is $34.6$ seconds. Its extra twelve are
+reason --- $33$ minutes on the run these figures come from, and it moves
+between runs because the oscillator's refinement passes do and because
+the machine is shared --- of which closing the loop and running it is
+$37.3$ seconds. Its extra twelve are
 the loop environment's, over three windows: rate and control window from
 the specification, agreement with the measured tuning curve and
 finiteness from this run's own measurements. Its $5$ per-block passes
