@@ -1607,32 +1607,53 @@ never does it.
 \textbf{Every environment is proven able to fail.} The tool deliberately
 breaks the generated model and confirms the test goes red. It also
 \emph{measures} how small a break it can still catch, rather than simply
-claiming one. For the duty-cycle corrector's environment:
+claiming one. For the duty-cycle corrector's published environment ---
+the one judged against its specification's $1.0$ pp requirement --- seven
+runs of the same testbench, the model broken in a known way each time:
 
 \begin{center}
-\begin{tabular}{@{}ll@{}}
+\begin{tabular}{@{}llll@{}}
 \toprule
-\textbf{Injected fault} & \textbf{Detected by} \\
+\textbf{Injected fault} & \textbf{DC section} & \textbf{duty section} & \textbf{worst duty error} \\
 \midrule
-comparator offset, $20\unit{mV}$   & DC and duty sections \\
-dynamics slowed $10\times$         & duty section (DC is structurally blind) \\
-dynamics slowed $50\times$         & duty section (DC is structurally blind) \\
+none                              & $46$ pass & $14$ pass & $0.43$ pp \\
+comparator offset, $+5\unit{mV}$  & $1$ fails & pass      & $0.43$ pp \\
+comparator offset, $+20\unit{mV}$ & $1$ fails & pass      & $0.73$ pp \\
+comparator offset, $+50\unit{mV}$ & $2$ fail  & pass      & $0.77$ pp \\
+dynamics slowed $2\times$         & pass      & pass      & $0.65$ pp \\
+dynamics slowed $10\times$        & pass      & pass      & $0.87$ pp \\
+dynamics slowed $50\times$        & pass      & $9$ fail  & $14.3$ pp \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent The right-hand column is the point. A DC check looks at the
-circuit after it has settled, and that is the whole of what many
-hand-written environments test. It cannot see \emph{any} error in how fast
-a block responds --- slow this model down fiftyfold and the DC check still
-passes it. The function-matched sections exist because of that blind spot,
-and the fault sweep is re-run against the shipped model so these detection
-claims stay true rather than becoming folklore.
+\noindent Two things in that table are the point. The DC column cannot
+see \emph{any} error in how fast the block responds --- slow this model
+down fiftyfold and every one of its $46$ checks still passes --- and that
+is the whole of what many hand-written environments test. The duty
+section exists because of that blind spot, and it is the only check in
+the environment that catches the slowed model.
+
+The second is where it stops catching, and why. A tenfold slow-down
+moves the output duty by $0.87$ pp, under the $1$ pp the specification
+allows, so it passes; the tool's own default bar for this environment is
+$0.5$ pp, which would have failed it. An environment built from a
+specification is exactly as strict as the specification, no stricter,
+and that is by design: a requirement is what the circuit is held to, and
+a generated environment that quietly held it to something tighter would
+be reporting failures the design does not have. What the sweep adds is
+the number --- a reader knows that this specification cannot see a
+tenfold dynamics error, and can decide whether that requirement is the
+one they meant to write.
 
 \textbf{The test is checked in both directions.} A test that fails
-everything is as useless as one that passes everything. So the same sweep
-also confirms that errors small enough to be acceptable do \emph{not} trip
-the environment.
+everything is as useless as one that passes everything. The same sweep
+confirms that errors small enough to be acceptable do \emph{not} trip
+the environment: the baseline passes, and a $5\unit{mV}$ offset moves
+the duty by nothing the duty section should object to. The sweep is
+re-run against the shipped model whenever the environment changes, which
+is how this table came to differ from the one measured against the
+default bar, rather than the claims becoming folklore.
 
 %======================================================================
 \section{Functional specifications as input}
