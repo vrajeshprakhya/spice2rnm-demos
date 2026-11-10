@@ -162,7 +162,6 @@ say "      --band vout=1.75:1.95 \\"
 say "      --band xvco.outm1=0:3.3 --band xvco.outm2=0:3.3 \\"
 say "      --band xvco.sub=0:0 --band xvco.well=3.3:3.3 \\"
 say "      --emit-uvm-ms --uvm-ms-lib $UVM_MS_LIB \\"
-say "      --emit-rtl-loop $OUT/rtl_loop --run-rtl-loop \\"
 say "      --out-dir $OUT"
 echo
 say "The .sv files are sorted from the netlist by suffix, not by"
@@ -170,6 +169,12 @@ say "position. They reach characterization nowhere: RTL has nothing to"
 say "say about how a transistor behaves. They are read once, at the end,"
 say "for their module headers -- which is where the loop's wiring comes"
 say "from now, instead of from a file this repo used to ship."
+echo
+say "AND THERE IS NO FLAG ASKING FOR THE LOOP. Passing the RTL with no"
+say "co-simulation testbench among it is what asks for it, so that is"
+say "what the tool acts on; it lands in rtl_loop/ under --out-dir like"
+say "every other artifact, and it is run rather than merely written."
+say "--no-rtl-loop is the way to say no."
 echo
 if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
   say "ANTHROPIC_API_KEY is NOT set here, so --spec will fail safe and the"
@@ -195,7 +200,6 @@ else
     --band xvco.outm1=0:3.3 --band xvco.outm2=0:3.3 \
     --band xvco.sub=0:0 --band xvco.well=3.3:3.3 \
     --emit-uvm-ms --uvm-ms-lib "$UVM_MS_LIB" \
-    --emit-rtl-loop "$OUT/rtl_loop" --run-rtl-loop \
     --out-dir "$OUT" \
     --ngspice-bin "$NGSPICE" --xezim-bin "$XEZIM" \
     > "$OUT.log" 2>&1
