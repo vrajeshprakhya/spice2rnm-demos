@@ -19,11 +19,11 @@ package pll_analog_loop_ms_pkg;
   `include "uvm_macros.svh"
 
   // The specification's numbers, and the divider the RTL implements.
-  localparam real REF_HZ     = 10000000;
+  localparam real REF_HZ     = 10001401.5;
   localparam int  NDIV       = 40;
   localparam real TOL_FRAC   = 0.02;
-  localparam real SETTLE_S   = 2e-05;
-  localparam real WINDOW_S   = 5e-06;
+  localparam real SETTLE_S   = 1.99971975e-05;
+  localparam real WINDOW_S   = 4.99929937e-06;
   localparam real STEP_FRAC  = 0.005;
   // The control window the specification states, if it states one.
   localparam bit  BAND_STATED = 1'b1;

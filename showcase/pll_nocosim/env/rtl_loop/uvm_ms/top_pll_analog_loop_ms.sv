@@ -43,23 +43,23 @@ module top_pll_analog_loop_ms;
   //--------------------------------------------------------------------
   // The design's own RTL, instantiated with the ports the spec names.
   //--------------------------------------------------------------------
-  logic div_clk, dn, ref_clk, up, vco_clk;
-  pfd u_pfd (.div_clk(div_clk), .dn(dn), .ref_clk(ref_clk), .up(up));
-  divn #(.N(40)) u_div (.clk_in(vco_clk), .clk_out(div_clk));
+  logic aout_clk, clk_out, dn, ref_clk, up;
+  pfd u_pfd (.div_clk(ref_clk), .dn(dn), .ref_clk(clk_out), .up(up));
+  divn #(.N(40)) u_divn (.clk_in(aout_clk), .clk_out(clk_out));
 
   // analog -> digital, at the threshold above
-  assign vco_clk = (aout_v > VTH);
+  assign aout_clk = (aout_v > VTH);
 
   // digital -> analog. Each sense DERIVED from the measured tuning slope
   // and the measured per-state currents; see the loop harness header.
-  assign pdn    = up;      // active HIGH
-  assign pupb   = ~dn;     // active LOW
+  assign pdn    = dn;      // active HIGH
+  assign pupb   = ~up;     // active LOW
 
   //--------------------------------------------------------------------
   // The reference. Its half period is a variable because the sequence
   // steps it -- that is the whole reason this environment has a driver.
   //--------------------------------------------------------------------
-  time ref_half = 50000000;
+  time ref_half = 49992994;
   initial ref_clk = 1'b0;
   always #(ref_half) ref_clk = ~ref_clk;
 
@@ -75,7 +75,7 @@ module top_pll_analog_loop_ms;
   real         w_lo = 1.0e308, w_hi = -1.0e308;
   bit          w_finite = 1'b1;
 
-  always @(posedge div_clk) begin
+  always @(posedge clk_out) begin
     if (w_open) begin
       if (w_edges == 0) w_t_first = $realtime;
       w_t_last = $realtime;
@@ -106,7 +106,7 @@ module top_pll_analog_loop_ms;
   event window_done;
 
   class pll_analog_loop_ms_proxy_impl extends pll_analog_loop_ms_proxy;
-    real   cur_ref_hz = 10000000;
+    real   cur_ref_hz = 10001401.5;
     string cur_label  = "none";
     real   res_rate, res_lo, res_hi, res_end;
     int    res_edges;

@@ -15,13 +15,13 @@
 // scheduled is not retimed, exactly as a real oscillator behaves.
 //
 // Tuning curve: 16 points measured from SPICE over 0.49..2.80 V
-// (16.7..804.5 MHz). Each point is the period counted over whole
+// (18.7..805.6 MHz). Each point is the period counted over whole
 // cycles of a transient whose timestep is a fixed fraction of that point's
 // own period, re-run at half that step to show the number stopped moving.
-// Held-out error on the 14 midpoints between them: 4.986% of period (1774.5 ps), worst at 2.7689 V.
-// In the MEASURED OPERATING BAND 1.7942..1.9069 V, taken from a golden
-// co-simulation run before this model existed: 0.002% (0.1 ps) over 5
-// held-out point(s), worst at 1.8928 V.
+// Held-out error on the 14 midpoints between them: 4.232% of period (1377.9 ps), worst at 2.7689 V.
+// In the MEASURED OPERATING BAND 1.7956..1.9065 V, taken from a golden
+// co-simulation run before this model existed: 0.002% (0.1 ps) over 4
+// held-out point(s), worst at 1.8926 V.
 // Measurement convergence: halving the timestep moved the
 // worst point by 0.015%. The held-out score above is
 // interpolation error ONLY -- it compares points measured one
@@ -36,8 +36,8 @@
 //======================================================================
 module ro_vco_rnm #(
   // Measured, at the control voltage this block was characterized around.
-  parameter real VDD_NOM  = 3.3,   // volts
-  parameter real DFDV_SUP = 4.506311866e+08,  // Hz per volt of supply
+  parameter real VDD_NOM  = 3.30553225,   // volts
+  parameter real DFDV_SUP = 4.498196731e+08,  // Hz per volt of supply
   // Sub-steps per half cycle. 16 tracks a fast-moving input; 1 restores
   // the one-event-per-half-cycle scheduling, which is right when nothing
   // on this block's inputs moves within a cycle.
@@ -62,11 +62,11 @@ module ro_vco_rnm #(
 ) (
   input  wreal cont,
   // THE SUPPLY IS AN INPUT, because the circuit's frequency depends on it
-  // about as strongly as on the control: measured at 450.6 MHz/V
+  // about as strongly as on the control: measured at 449.8 MHz/V
   // against roughly the same from the tuning port, and opposite in sign.
   // A model without this pin is not a slightly simplified oscillator, it
   // is one that cannot show what a supply droop does -- and on this ring
-  // 100 mV of droop is worth about 45.06 MHz.
+  // 100 mV of droop is worth about 44.98 MHz.
   input  wreal vdd,
   output logic clk
 );
@@ -81,22 +81,22 @@ module ro_vco_rnm #(
   // see an all-zero table.
   bit tab_loaded;
   function automatic void load_tab();
-      VC[0] = 0.495000; FO[0] = 8.044728186e+08;
-      VC[1] = 0.783750; FO[1] = 7.353222574e+08;
-      VC[2] = 1.072500; FO[2] = 6.634459647e+08;
-      VC[3] = 1.361250; FO[3] = 5.803862641e+08;
-      VC[4] = 1.650000; FO[4] = 4.774032573e+08;
-      VC[5] = 1.794240; FO[5] = 4.215058135e+08;
-      VC[6] = 1.822408; FO[6] = 4.105547410e+08;
-      VC[7] = 1.850575; FO[7] = 3.996391394e+08;
-      VC[8] = 1.878743; FO[8] = 3.887770523e+08;
-      VC[9] = 1.906911; FO[9] = 3.779819313e+08;
-      VC[10] = 1.938750; FO[10] = 3.658689447e+08;
-      VC[11] = 2.227500; FO[11] = 2.570119652e+08;
-      VC[12] = 2.516250; FO[12] = 1.366251648e+08;
-      VC[13] = 2.660625; FO[13] = 7.416278165e+07;
-      VC[14] = 2.732812; FO[14] = 4.240882586e+07;
-      VC[15] = 2.805000; FO[15] = 1.673948453e+07;
+      VC[0] = 0.495000; FO[0] = 8.055653828e+08;
+      VC[1] = 0.783750; FO[1] = 7.365021857e+08;
+      VC[2] = 1.072500; FO[2] = 6.648517875e+08;
+      VC[3] = 1.361250; FO[3] = 5.822692658e+08;
+      VC[4] = 1.650000; FO[4] = 4.798322394e+08;
+      VC[5] = 1.795609; FO[5] = 4.235086112e+08;
+      VC[6] = 1.823333; FO[6] = 4.127360414e+08;
+      VC[7] = 1.851057; FO[7] = 4.019935983e+08;
+      VC[8] = 1.878781; FO[8] = 3.912988948e+08;
+      VC[9] = 1.906505; FO[9] = 3.806661778e+08;
+      VC[10] = 1.938750; FO[10] = 3.683886476e+08;
+      VC[11] = 2.227500; FO[11] = 2.596955681e+08;
+      VC[12] = 2.516250; FO[12] = 1.397913372e+08;
+      VC[13] = 2.660625; FO[13] = 7.724823163e+07;
+      VC[14] = 2.732812; FO[14] = 4.545370936e+07;
+      VC[15] = 2.805000; FO[15] = 1.869166075e+07;
     tab_loaded = 1'b1;
   endfunction
 
@@ -176,7 +176,7 @@ module ro_vco_rnm #(
     f = freq_of(v) + DFDV_SUP * (supply_eff(vs) - VDD_NOM);
     // A zero delay here would spin the scheduler forever rather than model
     // a stopped oscillator, so floor it at the slowest tabulated rate.
-    if (f <= 0.0) return 1.0e15 / (2.0 * 1.673948453e+07);
+    if (f <= 0.0) return 1.0e15 / (2.0 * 1.869166075e+07);
     return 1.0e15 / (2.0 * f);
   endfunction
 

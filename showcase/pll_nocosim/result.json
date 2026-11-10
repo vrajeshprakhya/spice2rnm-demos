@@ -1,35 +1,22 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-23T01:17:51.343575+00:00",
+    "timestamp_utc": "2026-11-10T19:26:43.089665+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
     "argv": [
-      "/home/vraje/spice2rnm/spice2rnm/__main__.py",
+      "/home/vraje/spice2rnm-derive/spice2rnm/__main__.py",
       "/home/vraje/s2r_runs/demo4b_pll_deck/pll_analog.cir",
+      "/home/vraje/s2r_runs/demo4b_pll_deck/pfd.sv",
+      "/home/vraje/s2r_runs/demo4b_pll_deck/divn.sv",
       "--hierarchical",
       "--emit-assertions",
       "--spec",
       "/home/vraje/s2r_runs/demo4b_pll_deck/pll_spec.md",
-      "--band",
-      "vout=1.75:1.95",
-      "--band",
-      "xvco.outm1=0:3.3",
-      "--band",
-      "xvco.outm2=0:3.3",
-      "--band",
-      "xvco.sub=0:0",
-      "--band",
-      "xvco.well=3.3:3.3",
       "--emit-uvm-ms",
       "--uvm-ms-lib",
       "/home/vraje/uvm_ms_demo/ms",
-      "--emit-rtl-loop",
-      "/home/vraje/s2r_runs/demo4b_pll/rtl_loop",
-      "--rtl-loop-spec",
-      "/home/vraje/s2r_runs/demo4b_pll_deck/pll_loop.json",
-      "--run-rtl-loop",
       "--out-dir",
       "/home/vraje/s2r_runs/demo4b_pll",
       "--ngspice-bin",
@@ -37,7 +24,7 @@
       "--xezim-bin",
       "/home/vraje/xezim/target/release/xezim"
     ],
-    "cwd": "/home/vraje/spice2rnm",
+    "cwd": "/home/vraje/spice2rnm-derive",
     "netlist": "/home/vraje/s2r_runs/demo4b_pll_deck/pll_analog.cir",
     "ngspice_bin": "/home/vraje/ngspice-install/bin/ngspice",
     "xezim_bin": "/home/vraje/xezim/target/release/xezim"
@@ -163,7 +150,7 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 244
+              "chars": 275
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
@@ -1152,7 +1139,7 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 364
+              "chars": 426
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
@@ -1200,7 +1187,7 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 244
+              "chars": 531
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
@@ -2530,9 +2517,9 @@
         "holdout_ps": 1774.5080741033687,
         "intrinsic_jitter": {
           "n_cycles": 200,
-          "mean_period_s": 2.50347845014094e-09,
-          "rms_s": 1.1707233300363276e-11,
-          "pk_pk_s": 6.116967754114558e-11,
+          "mean_period_s": 2.5036790841551104e-09,
+          "rms_s": 1.215648012018052e-11,
+          "pk_pk_s": 6.410458601495337e-11,
           "rel_uncertainty": 0.05,
           "control_v": 1.8499999999999999,
           "sources": [
@@ -2542,7 +2529,7 @@
         "isf_jitter": {
           "usable": false,
           "measured": false,
-          "why_not": "the declared source is worth 11.71 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.702 ps -- 0.00148 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00148 of its period. Sixteen transients would refine a number no reader could see move"
+          "why_not": "the declared source is worth 12.16 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.844 ps -- 0.00154 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00154 of its period. Sixteen transients would refine a number no reader could see move"
         },
         "supply_sensitivity": {
           "source": "VBIAS2",
@@ -2578,7 +2565,7 @@
               "source": "vctrl",
               "replay_node": "cont",
               "model_port": "cont",
-              "worst_ratio": 0.8472306951702376,
+              "worst_ratio": 0.9431224912679451,
               "worst_sigma_v": 0.05,
               "tol_frac": 0.25,
               "floor_spice_s": 5.0452312476854353e-14,
@@ -2596,33 +2583,33 @@
                 },
                 {
                   "sigma_v": 0.005,
-                  "spice_rms_s": 2.351529532842991e-12,
-                  "model_rms_s": 2.2132215094221658e-12,
+                  "spice_rms_s": 2.5611936124442033e-12,
+                  "model_rms_s": 2.4672850542880054e-12,
                   "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 0.9411838033547419,
+                  "ratio": 0.9633340651405972,
                   "judged": true,
-                  "note": "model 2.213 ps against reference 2.352 ps over 200 cycles"
+                  "note": "model 2.467 ps against reference 2.561 ps over 200 cycles"
                 },
                 {
                   "sigma_v": 0.02,
-                  "spice_rms_s": 1.0179727247439264e-11,
-                  "model_rms_s": 9.437578821200266e-12,
+                  "spice_rms_s": 9.909114057163703e-12,
+                  "model_rms_s": 9.650409458794852e-12,
                   "spice_cycles": 199,
                   "model_cycles": 200,
-                  "ratio": 0.9270954507719559,
+                  "ratio": 0.973892257483723,
                   "judged": true,
-                  "note": "model 9.438 ps against reference 10.18 ps over 199 cycles"
+                  "note": "model 9.65 ps against reference 9.909 ps over 199 cycles"
                 },
                 {
                   "sigma_v": 0.05,
-                  "spice_rms_s": 2.5501216262169396e-11,
-                  "model_rms_s": 2.1605413181484346e-11,
+                  "spice_rms_s": 2.477780686332843e-11,
+                  "model_rms_s": 2.3368506937098298e-11,
                   "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 0.8472306951702376,
+                  "ratio": 0.9431224912679451,
                   "judged": true,
-                  "note": "model 21.61 ps against reference 25.5 ps over 200 cycles"
+                  "note": "model 23.37 ps against reference 24.78 ps over 200 cycles"
                 }
               ],
               "errors": []
@@ -2634,8 +2621,8 @@
               "source": "VBIAS2",
               "replay_node": "dd",
               "model_port": "vdd",
-              "worst_ratio": 1.0893769311406905,
-              "worst_sigma_v": 0.05,
+              "worst_ratio": 1.0382947060290595,
+              "worst_sigma_v": 0.02,
               "tol_frac": 0.25,
               "floor_spice_s": 5.0452312476854353e-14,
               "floor_model_s": 4.142837625474882e-23,
@@ -2652,40 +2639,40 @@
                 },
                 {
                   "sigma_v": 0.005,
-                  "spice_rms_s": 2.9452988682630713e-12,
-                  "model_rms_s": 2.9126142771777033e-12,
+                  "spice_rms_s": 2.8033174549438323e-12,
+                  "model_rms_s": 2.767635145950958e-12,
                   "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 0.9889027930450254,
+                  "ratio": 0.9872713991310736,
                   "judged": true,
-                  "note": "model 2.913 ps against reference 2.945 ps over 200 cycles"
+                  "note": "model 2.768 ps against reference 2.803 ps over 200 cycles"
                 },
                 {
                   "sigma_v": 0.02,
-                  "spice_rms_s": 1.2468736333072147e-11,
-                  "model_rms_s": 1.1473957238932456e-11,
+                  "spice_rms_s": 1.191934259347943e-11,
+                  "model_rms_s": 1.2375790314156372e-11,
                   "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 0.9202181305653939,
+                  "ratio": 1.0382947060290595,
                   "judged": true,
-                  "note": "model 11.47 ps against reference 12.47 ps over 200 cycles"
+                  "note": "model 12.38 ps against reference 11.92 ps over 200 cycles"
                 },
                 {
                   "sigma_v": 0.05,
-                  "spice_rms_s": 2.6063081920473667e-11,
-                  "model_rms_s": 2.8392520198594015e-11,
+                  "spice_rms_s": 2.6915194776300937e-11,
+                  "model_rms_s": 2.6333790134758858e-11,
                   "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 1.0893769311406905,
+                  "ratio": 0.9783986463269435,
                   "judged": true,
-                  "note": "model 28.39 ps against reference 26.06 ps over 200 cycles"
+                  "note": "model 26.33 ps against reference 26.92 ps over 200 cycles"
                 }
               ],
               "errors": []
             }
           ],
           "source": "vctrl",
-          "worst_ratio": 0.8472306951702376,
+          "worst_ratio": 0.9431224912679451,
           "worst_sigma_v": 0.05,
           "worst_path": "control",
           "tol_frac": 0.25,
@@ -2702,33 +2689,33 @@
             },
             {
               "sigma_v": 0.005,
-              "spice_rms_s": 2.351529532842991e-12,
-              "model_rms_s": 2.2132215094221658e-12,
+              "spice_rms_s": 2.5611936124442033e-12,
+              "model_rms_s": 2.4672850542880054e-12,
               "spice_cycles": 200,
               "model_cycles": 200,
-              "ratio": 0.9411838033547419,
+              "ratio": 0.9633340651405972,
               "judged": true,
-              "note": "model 2.213 ps against reference 2.352 ps over 200 cycles"
+              "note": "model 2.467 ps against reference 2.561 ps over 200 cycles"
             },
             {
               "sigma_v": 0.02,
-              "spice_rms_s": 1.0179727247439264e-11,
-              "model_rms_s": 9.437578821200266e-12,
+              "spice_rms_s": 9.909114057163703e-12,
+              "model_rms_s": 9.650409458794852e-12,
               "spice_cycles": 199,
               "model_cycles": 200,
-              "ratio": 0.9270954507719559,
+              "ratio": 0.973892257483723,
               "judged": true,
-              "note": "model 9.438 ps against reference 10.18 ps over 199 cycles"
+              "note": "model 9.65 ps against reference 9.909 ps over 199 cycles"
             },
             {
               "sigma_v": 0.05,
-              "spice_rms_s": 2.5501216262169396e-11,
-              "model_rms_s": 2.1605413181484346e-11,
+              "spice_rms_s": 2.477780686332843e-11,
+              "model_rms_s": 2.3368506937098298e-11,
               "spice_cycles": 200,
               "model_cycles": 200,
-              "ratio": 0.8472306951702376,
+              "ratio": 0.9431224912679451,
               "judged": true,
-              "note": "model 21.61 ps against reference 25.5 ps over 200 cycles"
+              "note": "model 23.37 ps against reference 24.78 ps over 200 cycles"
             }
           ],
           "errors": []
@@ -2969,13 +2956,13 @@
           "refinement pass 1: the worst held-out error did not improve (3.286% -> 6.694%). Subdividing is not converging here, which is what a curve bending faster than the grid can follow looks like -- each new midpoint lands somewhere harder. More passes would not fix it; a different range or a different interpolant would.",
           "refinement pass 2: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
           "intrinsic jitter: the top-level deck declares transient noise on dd, which this block is wired to, so it was restored onto VBIAS2 for the measurement -- extraction had rebuilt that rail as a plain DC source and the condition would otherwise not be measured at all",
-          "intrinsic jitter at 1.85 V: 11.71 ps rms over 200 cycles (61.17 ps peak-to-peak, mean period 2503 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
+          "intrinsic jitter at 1.85 V: 12.16 ps rms over 200 cycles (64.1 ps peak-to-peak, mean period 2504 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
           "supply sensitivity at 1.85 V control: 450.6 MHz/V from 'VBIAS2' (nominal 3.3 V, 3 points). For scale, 100 mV of droop is worth 45.06 MHz here -- a model without this input cannot show that at all.",
-          "ISF: not measured -- the declared source is worth 11.71 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.702 ps -- 0.00148 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00148 of its period. Sixteen transients would refine a number no reader could see move",
-          "model jitter: none emitted, and none is wanted. The 11.71 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
+          "ISF: not measured -- the declared source is worth 12.16 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.844 ps -- 0.00154 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00154 of its period. Sixteen transients would refine a number no reader could see move",
+          "model jitter: none emitted, and none is wanted. The 12.16 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
           "held-out frequency error is 0.024% inside the measured operating band 1.6500..2.0500 V (5 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.987% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed.",
-          "jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.85 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
-          "jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 1.09 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+          "jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.94 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+          "jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 1.04 at 0.02 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
           "jitter transfer: run because the top-level deck declares transient noise on dd, which this block is wired to, so this design is asking for noise to be simulated -- the block's own fragment shows a plain DC source there because extraction rebuilt it -- 2 path(s) exercised (control, supply)"
         ],
         "errors": []
@@ -3371,8 +3358,250 @@
     },
     "standalone_wrapper_equivalence": null,
     "cosim_system_equivalence": null,
+    "operating_bands": {
+      "aout": {
+        "node": "aout",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outm1": {
+        "node": "xvco.outm1",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outm2": {
+        "node": "xvco.outm2",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outm3": {
+        "node": "xvco.outm3",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outm4": {
+        "node": "xvco.outm4",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outm5": {
+        "node": "xvco.outm5",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outm6": {
+        "node": "xvco.outm6",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outm7": {
+        "node": "xvco.outm7",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outp1": {
+        "node": "xvco.outp1",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outp2": {
+        "node": "xvco.outp2",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outp3": {
+        "node": "xvco.outp3",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outp4": {
+        "node": "xvco.outp4",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outp5": {
+        "node": "xvco.outp5",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outp6": {
+        "node": "xvco.outp6",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "xvco.outp7": {
+        "node": "xvco.outp7",
+        "lo": 0.0,
+        "hi": 3.3,
+        "settled_lo": 0.0,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "a complementary pair drives it between 0 V and 3.3 V"
+      },
+      "vout": {
+        "node": "vout",
+        "lo": 1.75,
+        "hi": 1.95,
+        "settled_lo": 1.75,
+        "settled_hi": 1.95,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "declared",
+        "basis": "the specification's 'Control voltage' row reads | Control voltage    | 1.75 | 1.85 | 1.95 | V    |"
+      },
+      "dd": {
+        "node": "dd",
+        "lo": 3.13,
+        "hi": 3.47,
+        "settled_lo": 3.13,
+        "settled_hi": 3.47,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "declared",
+        "basis": "the specification's 'Supply (VDD)' row reads | Supply (VDD)       | 3.13 | 3.30 | 3.47 | V    |"
+      },
+      "xcp.ss": {
+        "node": "xcp.ss",
+        "lo": 0.0,
+        "hi": 0.0,
+        "settled_lo": 0.0,
+        "settled_hi": 0.0,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "source vss ties it to 0 V"
+      },
+      "xvco.ss": {
+        "node": "xvco.ss",
+        "lo": 0.0,
+        "hi": 0.0,
+        "settled_lo": 0.0,
+        "settled_hi": 0.0,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "source vss ties it to 0 V"
+      },
+      "xvco.sub": {
+        "node": "xvco.sub",
+        "lo": 0.0,
+        "hi": 0.0,
+        "settled_lo": 0.0,
+        "settled_hi": 0.0,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "source ve ties it to 0 V"
+      },
+      "xvco.well": {
+        "node": "xvco.well",
+        "lo": 3.3,
+        "hi": 3.3,
+        "settled_lo": 3.3,
+        "settled_hi": 3.3,
+        "samples": 0,
+        "switch_hz": null,
+        "source": "derived",
+        "basis": "source vpe ties it to 3.3 V"
+      }
+    },
     "warnings": [
       "dropped ngspice's `external` keyword from 2 source(s) (Vpdn, Vpupb): it needs a controlling program supplying values through the callback, and the isolated decks this tool runs have none. The sources still hold their declared dc value during characterization. Those nodes are where the digital side drives this partition.",
+      "net 'dra' is driven by a complementary pair with independent gates -- a switched driver, not a logic swing -- so its rails are not read as a band; where it sits is a property of the loop",
+      "band for 'aout' DERIVED as 0..3.3 V, the range its own drivers can reach -- not where it sits; the same for 14 more net(s): xvco.outm1, xvco.outm2, xvco.outm3, xvco.outm4, xvco.outm5, xvco.outm6, xvco.outm7, xvco.outp1, xvco.outp2, xvco.outp3, xvco.outp4, xvco.outp5, xvco.outp6, xvco.outp7",
+      "the specification's control window belongs to net 'vout': it is control port 'cont' of 'ro_vco', which was measured to be an oscillator",
+      "band for 'vout' DECLARED as 1.75..1.95 V from the specification's 'Control voltage' row -- not measured, because no golden run was available to measure it",
+      "band for 'dd' DECLARED as 3.13..3.47 V from the specification's 'Supply (VDD)' row -- not measured",
+      "band for 'xcp.ss' DERIVED as 0 V, fixed: source vss ties it to 0 V",
+      "band for 'xvco.ss' DERIVED as 0 V, fixed: source vss ties it to 0 V",
+      "band for 'xvco.sub' DERIVED as 0 V, fixed: source ve ties it to 0 V",
+      "band for 'xvco.well' DERIVED as 3.3 V, fixed: source vpe ties it to 3.3 V",
       "block 'gaincell' has no confident input/output port role assignment (ports: ['dd', 'ss', 'sub', 'well', 'co', 'in-', 'in+', 'out-', 'out+']); skipped, not characterized",
       "block 'ro_vco' is not a transfer function: oscillates at 4.593e+08 Hz with its inputs held at DC, so its function is a frequency rather than a transfer function. Skipped by the hierarchical path; run the VCO path (`--vco`), which measures a tuning curve rather than a transfer function",
       "block 'cpump' is not a transfer function: a complementary pair drives node 'dra' from INDEPENDENTLY controlled gates (pdn, pupb), which is a switched current driver rather than a gain stage -- an inverter would tie those gates together. Skipped by the hierarchical path; run the charge-pump path, which measures one I(V) table per control state",
@@ -3381,27 +3610,32 @@
       "block 'lpfilt' (rc): equivalence PASS -- the emitted model tracks SPICE to 0.019% of the output's own 1.353 V excursion (rms 0.008%), under a 0.004359 A step into 'dra' over 3.556e-06 s",
       "block 'lpfilt': 3-state current-driven network (c1, int1, vout), current into 'dra' and voltage out of 'vout' by topology (no capacitance on 'dra') -- exact from the topology, nothing fitted -> /home/vraje/s2r_runs/demo4b_pll/lpfilt/lpfilt_rc_rnm.sv",
       "block 'cpump': 4 control state(s) measured as I(V) onto 'dra', 0.549% held out -> /home/vraje/s2r_runs/demo4b_pll/cpump/cpump_cp_rnm.sv",
-      "block 'ro_vco': control port 'cont' is net 'vout', which a spec DECLARES as 1.7500..1.9500 V, not measured -- 8.7% of the 0.495..2.805 V being swept. Adding 5 measured points across 1.6500..2.0500 V (the band plus margin for acquisition); the full range is still swept, because the loop leaves the band on its way in and a table that stopped at the edge would clamp there.",
+      "block 'ro_vco': control port 'cont' is net 'vout', which a spec DECLARES as 1.7500..1.9500 V, not measured (the specification's 'Control voltage' row reads | Control voltage    | 1.75 | 1.85 | 1.95 | V    |) -- 8.7% of the 0.495..2.805 V being swept. Adding 5 measured points across 1.6500..2.0500 V (the band plus margin for acquisition); the full range is still swept, because the loop leaves the band on its way in and a table that stopped at the edge would clamp there.",
       "block 'ro_vco' (vco): refinement pass 1: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
       "block 'ro_vco' (vco): refinement pass 1: the worst held-out error did not improve (3.286% -> 6.694%). Subdividing is not converging here, which is what a curve bending faster than the grid can follow looks like -- each new midpoint lands somewhere harder. More passes would not fix it; a different range or a different interpolant would.",
       "block 'ro_vco' (vco): refinement pass 2: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
       "block 'ro_vco' (vco): intrinsic jitter: the top-level deck declares transient noise on dd, which this block is wired to, so it was restored onto VBIAS2 for the measurement -- extraction had rebuilt that rail as a plain DC source and the condition would otherwise not be measured at all",
-      "block 'ro_vco' (vco): intrinsic jitter at 1.85 V: 11.71 ps rms over 200 cycles (61.17 ps peak-to-peak, mean period 2503 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
+      "block 'ro_vco' (vco): intrinsic jitter at 1.85 V: 12.16 ps rms over 200 cycles (64.1 ps peak-to-peak, mean period 2504 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
       "block 'ro_vco' (vco): supply sensitivity at 1.85 V control: 450.6 MHz/V from 'VBIAS2' (nominal 3.3 V, 3 points). For scale, 100 mV of droop is worth 45.06 MHz here -- a model without this input cannot show that at all.",
-      "block 'ro_vco' (vco): ISF: not measured -- the declared source is worth 11.71 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.702 ps -- 0.00148 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00148 of its period. Sixteen transients would refine a number no reader could see move",
-      "block 'ro_vco' (vco): model jitter: none emitted, and none is wanted. The 11.71 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
+      "block 'ro_vco' (vco): ISF: not measured -- the declared source is worth 12.16 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.844 ps -- 0.00154 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00154 of its period. Sixteen transients would refine a number no reader could see move",
+      "block 'ro_vco' (vco): model jitter: none emitted, and none is wanted. The 12.16 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
       "block 'ro_vco' (vco): held-out frequency error is 0.024% inside the measured operating band 1.6500..2.0500 V (5 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.987% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed.",
-      "block 'ro_vco' (vco): jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.85 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
-      "block 'ro_vco' (vco): jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 1.09 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+      "block 'ro_vco' (vco): jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.94 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+      "block 'ro_vco' (vco): jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 1.04 at 0.02 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
       "block 'ro_vco' (vco): jitter transfer: run because the top-level deck declares transient noise on dd, which this block is wired to, so this design is asking for noise to be simulated -- the block's own fragment shows a plain DC source there because extraction rebuilt it -- 2 path(s) exercised (control, supply)",
       "block 'ro_vco' characterized on the VCO path: 15-point tuning curve, 4.986% held-out error",
-      "block 'inv1': input port 'in' is net 'xvco.outm1', which a spec DECLARES as 0.0000..3.3000 V, not measured -- 100% of the 3.3 V rail. The comparison below is judged over the whole range, which is what this block uses.",
+      "block 'inv1': input port 'in' is net 'xvco.outm1', which the deck itself gives as 0.0000..3.3000 V (a complementary pair drives it between 0 V and 3.3 V), derived and not measured -- 100% of the 3.3 V rail. The comparison below is judged over the whole range, which is what this block uses.",
       "block 'inv1': cannot characterize in context: node 'outm1' is driven by nothing and has no measured operating point to drive it at; falling back to an isolated fragment (neighbour loading not represented)",
-      "block 'inv2': input port 'in' is net 'xvco.outm2', which a spec DECLARES as 0.0000..3.3000 V, not measured -- 100% of the 3.3 V rail. The comparison below is judged over the whole range, which is what this block uses.",
+      "block 'inv2': input port 'in' is net 'xvco.outm2', which the deck itself gives as 0.0000..3.3000 V (a complementary pair drives it between 0 V and 3.3 V), derived and not measured -- 100% of the 3.3 V rail. The comparison below is judged over the whole range, which is what this block uses.",
       "block 'inv2': cannot characterize in context: node 'outm2' is driven by nothing and has no measured operating point to drive it at; falling back to an isolated fragment (neighbour loading not represented)",
       "output node 'vout' GUESSED FROM ITS NAME. Connectivity does not say which node you care about, and this deck declares no .save/.print/.probe, so this is a naming convention rather than a measurement -- name it with --output-node if it is wrong",
       "top-level input/output ports could not be determined; skipping structural wrapper generation (per-block models are still available individually)"
     ],
     "errors": []
+  },
+  "spec": {
+    "notes": [
+      "no AWS region for Amazon Bedrock (set AWS_REGION or AWS_DEFAULT_REGION); the spec cannot be read and every choice stays as it was"
+    ]
   }
 }

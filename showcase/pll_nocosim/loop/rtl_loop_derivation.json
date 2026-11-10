@@ -1,0 +1,110 @@
+{
+  "_derived": [
+    {
+      "what": "the RTL",
+      "value": "pfd (pfd.sv), divn (divn.sv)",
+      "from": "read from the ANSI headers of the files given positionally"
+    },
+    {
+      "what": "the oscillator's control net",
+      "value": "vout",
+      "from": "the port block_classify measured as its control source"
+    },
+    {
+      "what": "the net that becomes a clock",
+      "value": "aout",
+      "from": "block 'ro_vco' was measured to oscillate on its port 'aout', which the deck wires to 'aout'"
+    },
+    {
+      "what": "the divide ratio",
+      "value": "40",
+      "from": "parameter N of module divn defaults to 40 in its own header"
+    },
+    {
+      "what": "the reference rate",
+      "value": "1.00014e+07 Hz",
+      "from": "the deck holds 'vout' at 1.8495 V, where the measured tuning curve puts block 'ro_vco' at 400.056 MHz, and the divider's ratio is 40"
+    },
+    {
+      "what": "the control band",
+      "value": "1.75 to 1.95 V",
+      "from": "a specification declares it for net 'vout', and the characterisation used the same figures (the specification's 'Control voltage' row reads | Control voltage    | 1.75 | 1.85 | 1.95 | V    |)"
+    },
+    {
+      "what": "the wiring",
+      "value": "divn.clk_in <- aout_clk; divn.clk_out <- clk_out; pfd.div_clk <- ref_clk; pfd.ref_clk <- clk_out",
+      "from": "followed from the oscillator's clock by port direction; no port name was read and no module was given a role"
+    },
+    {
+      "what": "settling and measurement window",
+      "value": "2e-05 s then 4.999e-06 s",
+      "from": "200 and 50 reference periods at 1.00014e+07 Hz"
+    },
+    {
+      "what": "the loop's sense",
+      "value": "up raises the control voltage, which makes the oscillator slower",
+      "from": "STATED by the specification, not derived: which of pfd's outputs speeds the oscillator up is a fact about its body. The specification names only the control voltage; this run's measured tuning slope of -1 Hz/V is what turns that into slower, and the two are opposite on a curve that falls"
+    },
+    {
+      "what": "the gate pairing",
+      "value": "dn -> pdn, up -> pupb",
+      "from": "follows from the stated sense above. The other pairing is still written beside it, because a loop that locks is a measurement and a document is not: if this one does not lock and that one does, the document is wrong about its own detector and the run says so"
+    }
+  ],
+  "name": "pll_analog_rtl_loop",
+  "ref_clk": {
+    "signal": "ref_clk",
+    "hz": 10001401.465519262
+  },
+  "rtl": [
+    {
+      "file": "/home/vraje/s2r_runs/demo4b_pll_deck/pfd.sv",
+      "module": "pfd",
+      "instance": "u_pfd",
+      "params": {},
+      "connect": {
+        "ref_clk": "clk_out",
+        "div_clk": "ref_clk",
+        "dn": "dn",
+        "up": "up"
+      }
+    },
+    {
+      "file": "/home/vraje/s2r_runs/demo4b_pll_deck/divn.sv",
+      "module": "divn",
+      "instance": "u_divn",
+      "params": {
+        "N": 40
+      },
+      "connect": {
+        "clk_in": "aout_clk",
+        "clk_out": "clk_out"
+      }
+    }
+  ],
+  "square": {
+    "aout_clk": "aout"
+  },
+  "drive": {
+    "pdn": {
+      "from": "dn",
+      "intent": "faster"
+    },
+    "pupb": {
+      "from": "up",
+      "intent": "slower"
+    }
+  },
+  "lock": {
+    "signal": "clk_out",
+    "expect_hz": 10001401.465519262,
+    "settle_s": 1.999719746172755e-05,
+    "window_s": 4.9992993654318876e-06,
+    "tol_frac": 0.02,
+    "control_band": [
+      1.75,
+      1.95
+    ],
+    "vco_multiple": 40
+  }
+}

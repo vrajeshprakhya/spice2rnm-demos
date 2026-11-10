@@ -12,7 +12,7 @@ XEZIM="${XEZIM:-$HOME/xezim/target/release/xezim}"
 # from the tree it was generated in and from a copy of it.
 SEARCH=${SEARCH:-"../analog ../../cpump ../../lpfilt ../../ro_vco ../../../demo4b_pll_deck . .. ../.. ../../.. ../../../.. ../../analog ../../../analog"}
 SRC=""
-for f in ams_node_pkg.sv cpump_cp_rnm.sv lpfilt_rc_rnm.sv ro_vco_rnm.sv cpump_iface.sv lpfilt_iface.sv ro_vco_iface.sv netlist_top.sv pfd.sv divn.sv pll_rtl_loop.sv; do
+for f in ams_node_pkg.sv cpump_cp_rnm.sv lpfilt_rc_rnm.sv ro_vco_rnm.sv cpump_iface.sv lpfilt_iface.sv ro_vco_iface.sv netlist_top.sv pfd.sv divn.sv pll_analog_rtl_loop.sv; do
   found=""
   for d in $SEARCH; do [ -f "$d/$f" ] && { found="$d/$f"; break; }; done
   [ -n "$found" ] || { echo "ERROR: $f not found on: $SEARCH" >&2

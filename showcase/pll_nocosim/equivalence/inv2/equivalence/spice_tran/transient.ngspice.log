@@ -1,6 +1,6 @@
 # command : /home/vraje/ngspice-install/bin/ngspice -b /home/vraje/s2r_runs/demo4b_pll/inv2/equivalence/spice_tran/transient.cir
-# started : 2026-09-23T01:16:39.867582+00:00
-# finished: 2026-09-23T01:16:41.803721+00:00
+# started : 2026-11-10T19:25:38.853438+00:00
+# finished: 2026-11-10T19:25:42.141304+00:00
 # exit    : 0
 
 --- stdout ---
@@ -31,64 +31,100 @@ vctx_sub#branch                     3.3012e-12
 vctx_ss#branch                     1.99875e-09
 vctx_dd#branch                    -2.00205e-09
 
- Reference value :  0.00000e+00
- Reference value :  4.39408e-10
- Reference value :  1.10052e-09
- Reference value :  1.75369e-09
- Reference value :  2.36194e-09
- Reference value :  2.98165e-09
- Reference value :  3.58311e-09
- Reference value :  4.07318e-09
- Reference value :  4.57397e-09
- Reference value :  4.61395e-09
- Reference value :  4.61762e-09
- Reference value :  4.61963e-09
- Reference value :  4.82776e-09
- Reference value :  5.10282e-09
- Reference value :  5.65661e-09
- Reference value :  6.20930e-09
- Reference value :  6.71174e-09
- Reference value :  7.24352e-09
- Reference value :  7.75678e-09
- Reference value :  8.23851e-09
- Reference value :  8.53786e-09
- Reference value :  8.89292e-09
- Reference value :  9.31468e-09
- Reference value :  9.46138e-09
- Reference value :  9.84577e-09
- Reference value :  1.02015e-08
- Reference value :  1.06763e-08
- Reference value :  1.10171e-08
- Reference value :  1.13685e-08
- Reference value :  1.16272e-08
- Reference value :  1.20909e-08
- Reference value :  1.22824e-08
- Reference value :  1.27261e-08
- Reference value :  1.31912e-08
- Reference value :  1.32439e-08
- Reference value :  1.34516e-08
- Reference value :  1.37017e-08
- Reference value :  1.41514e-08
- Reference value :  1.45238e-08
- Reference value :  1.48130e-08
- Reference value :  1.48899e-08
- Reference value :  1.53314e-08
- Reference value :  1.57437e-08
- Reference value :  1.59541e-08
- Reference value :  1.63599e-08
- Reference value :  1.66212e-08
- Reference value :  1.70538e-08
- Reference value :  1.74351e-08
- Reference value :  1.78349e-08
- Reference value :  1.82496e-08
- Reference value :  1.85780e-08
- Reference value :  1.89504e-08
- Reference value :  1.92212e-08
- Reference value :  1.95880e-08
- Reference value :  1.98856e-08
- Reference value :  2.02817e-08
- Reference value :  2.06736e-08
- Reference value :  2.10405e-08
+ Reference value :  2.64699e-10
+ Reference value :  7.59166e-10
+ Reference value :  8.30223e-10
+ Reference value :  8.69190e-10
+ Reference value :  9.48498e-10
+ Reference value :  9.60876e-10
+ Reference value :  9.60968e-10
+ Reference value :  9.61518e-10
+ Reference value :  9.63856e-10
+ Reference value :  1.08585e-09
+ Reference value :  1.59030e-09
+ Reference value :  2.07276e-09
+ Reference value :  2.42080e-09
+ Reference value :  2.91930e-09
+ Reference value :  3.41817e-09
+ Reference value :  3.90961e-09
+ Reference value :  4.24257e-09
+ Reference value :  4.33522e-09
+ Reference value :  4.65539e-09
+ Reference value :  5.01480e-09
+ Reference value :  5.46819e-09
+ Reference value :  5.92158e-09
+ Reference value :  6.38873e-09
+ Reference value :  6.79976e-09
+ Reference value :  7.19121e-09
+ Reference value :  7.63631e-09
+ Reference value :  7.87469e-09
+ Reference value :  7.87772e-09
+ Reference value :  8.30246e-09
+ Reference value :  8.72422e-09
+ Reference value :  9.16064e-09
+ Reference value :  9.59776e-09
+ Reference value :  1.00269e-08
+ Reference value :  1.02655e-08
+ Reference value :  1.06469e-08
+ Reference value :  1.10324e-08
+ Reference value :  1.14065e-08
+ Reference value :  1.15136e-08
+ Reference value :  1.19272e-08
+ Reference value :  1.23266e-08
+ Reference value :  1.26184e-08
+ Reference value :  1.30268e-08
+ Reference value :  1.34252e-08
+ Reference value :  1.38300e-08
+ Reference value :  1.42334e-08
+ Reference value :  1.46335e-08
+ Reference value :  1.50293e-08
+ Reference value :  1.54304e-08
+ Reference value :  1.55870e-08
+ Reference value :  1.57797e-08
+ Reference value :  1.61479e-08
+ Reference value :  1.64779e-08
+ Reference value :  1.67824e-08
+ Reference value :  1.69210e-08
+ Reference value :  1.69223e-08
+ Reference value :  1.69247e-08
+ Reference value :  1.69256e-08
+ Reference value :  1.69267e-08
+ Reference value :  1.69290e-08
+ Reference value :  1.69297e-08
+ Reference value :  1.69313e-08
+ Reference value :  1.69330e-08
+ Reference value :  1.69350e-08
+ Reference value :  1.69366e-08
+ Reference value :  1.69387e-08
+ Reference value :  1.69403e-08
+ Reference value :  1.69430e-08
+ Reference value :  1.69440e-08
+ Reference value :  1.69513e-08
+ Reference value :  1.70100e-08
+ Reference value :  1.70501e-08
+ Reference value :  1.70514e-08
+ Reference value :  1.70530e-08
+ Reference value :  1.70544e-08
+ Reference value :  1.70574e-08
+ Reference value :  1.70577e-08
+ Reference value :  1.70597e-08
+ Reference value :  1.70611e-08
+ Reference value :  1.70624e-08
+ Reference value :  1.70648e-08
+ Reference value :  1.70670e-08
+ Reference value :  1.70687e-08
+ Reference value :  1.70714e-08
+ Reference value :  1.74207e-08
+ Reference value :  1.77726e-08
+ Reference value :  1.81503e-08
+ Reference value :  1.85127e-08
+ Reference value :  1.88551e-08
+ Reference value :  1.92029e-08
+ Reference value :  1.95696e-08
+ Reference value :  1.99511e-08
+ Reference value :  2.03288e-08
+ Reference value :  2.06692e-08
+ Reference value :  2.09875e-08
 No. of Data Rows : 40318
 Note: Simulation executed from .control section
 
