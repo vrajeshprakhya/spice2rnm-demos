@@ -50,7 +50,6 @@ PLL_SRC="$COSIM/examples/pll"
 PLL="$HOME/s2r_runs/demo4b_pll_deck"
 NETLIST="$PLL/pll_analog.cir"
 SPEC="$PLL/pll_spec.md"
-LOOPSPEC="$PLL/pll_loop.json"
 
 hr()  { printf '\n\033[1m%s\033[0m\n%s\n' "$1" "$(printf '=%.0s' {1..72})"; }
 say() { printf '  %s\n' "$*"; }
@@ -73,7 +72,6 @@ need "$HERE/netlists/pll_analog.cir" "the analog netlist"  "this repo, netlists/
 need "$PLL_SRC/pfd.sv"          "phase detector RTL"       "same repo, examples/pll"
 need "$PLL_SRC/divn.sv"         "divider RTL"              "same repo, examples/pll"
 need "$HERE/specs/pll_spec.md"     "the specification, in English" "this repo, specs/"
-need "$HERE/harness/pll_loop.json" "how the loop is wired"         "this repo, harness/"
 need "$NGSPICE"                 "ngspice binary"           "a normal ngspice build"
 need "$XEZIM"                   "the SV simulator"         "xezim, release build"
 need "$UVM_MS_LIB"             "the Accellera UVM-MS library" "for act 7 only; the rest runs without it"
@@ -103,7 +101,6 @@ beat
 mkdir -p "$PLL"
 cp "$PLL_SRC/pfd.sv" "$PLL_SRC/divn.sv" "$PLL/"
 cp "$HERE/specs/pll_spec.md"     "$SPEC"
-cp "$HERE/harness/pll_loop.json" "$LOOPSPEC"
 cp "$HERE/netlists/pll_analog.cir" "$NETLIST"
 if ! grep -q '^vdd dd 0 dc {vcc} trnoise(0.02 1e-10 0 0)$' "$NETLIST"; then
   echo
@@ -158,19 +155,21 @@ beat
 hr "3. One command"
 say "  python3 -m spice2rnm \\"
 say "      $NETLIST \\"
+say "      $PLL/pfd.sv $PLL/divn.sv \\"
 say "      --hierarchical --emit-assertions \\"
 say "      --spec $SPEC \\"
 say "      --band vout=1.75:1.95 \\"
 say "      --band xvco.outm1=0:3.3 --band xvco.outm2=0:3.3 \\"
 say "      --band xvco.sub=0:0 --band xvco.well=3.3:3.3 \\"
 say "      --emit-uvm-ms --uvm-ms-lib $UVM_MS_LIB \\"
-say "      --emit-rtl-loop $OUT/rtl_loop \\"
-say "      --rtl-loop-spec $LOOPSPEC --run-rtl-loop \\"
+say "      --emit-rtl-loop $OUT/rtl_loop --run-rtl-loop \\"
 say "      --out-dir $OUT"
 echo
-say "The RTL is not passed to characterization at all -- it has nothing to"
-say "say about how a transistor behaves. It is read at the end, by"
-say "--emit-rtl-loop, for its module headers."
+say "The .sv files are sorted from the netlist by suffix, not by"
+say "position. They reach characterization nowhere: RTL has nothing to"
+say "say about how a transistor behaves. They are read once, at the end,"
+say "for their module headers -- which is where the loop's wiring comes"
+say "from now, instead of from a file this repo used to ship."
 echo
 if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
   say "ANTHROPIC_API_KEY is NOT set here, so --spec will fail safe and the"
@@ -189,14 +188,14 @@ else
   t0=$(date +%s)
   python3 -m spice2rnm \
     "$NETLIST" \
+    "$PLL/pfd.sv" "$PLL/divn.sv" \
     --hierarchical --emit-assertions \
     --spec "$SPEC" \
     --band vout=1.75:1.95 \
     --band xvco.outm1=0:3.3 --band xvco.outm2=0:3.3 \
     --band xvco.sub=0:0 --band xvco.well=3.3:3.3 \
     --emit-uvm-ms --uvm-ms-lib "$UVM_MS_LIB" \
-    --emit-rtl-loop "$OUT/rtl_loop" \
-    --rtl-loop-spec "$LOOPSPEC" --run-rtl-loop \
+    --emit-rtl-loop "$OUT/rtl_loop" --run-rtl-loop \
     --out-dir "$OUT" \
     --ngspice-bin "$NGSPICE" --xezim-bin "$XEZIM" \
     > "$OUT.log" 2>&1
@@ -356,24 +355,49 @@ say "Per-block models are evidence about each block alone. The loop asks a"
 say "different question, and answering it here needs no co-simulation at"
 say "all: the composed models are pure SystemVerilog, and so is the RTL."
 echo
-say "What the spec file STATES is topology -- which RTL port lands on"
-say "which net -- because connectivity is not recoverable from a model,"
-say "and on this circuit a name is actively misleading."
+say "NOTHING TELLS IT THE TOPOLOGY. This demo used to carry a JSON file"
+say "naming which RTL port landed on which net. It does not any more: the"
+say "wiring is followed out from the one clock the analog produces, by"
+say "port DIRECTION, and not one port NAME is read on the way."
 echo
-python3 - "$LOOPSPEC" <<'PY'
+say "That last part is the point. In ngspice's own PLL example the"
+say "detector is wired \`Xfpdet d_divout d_ref\` against a subcircuit"
+say "declared \`.subckt f-p-det d_R d_V\` -- so d_R carries the DIVIDED"
+say "clock, the opposite of what it reads like. A wiring taken from names"
+say "is confidently backwards there."
+echo
+say "Here is what it worked out, and what from:"
+echo
+python3 - "$OUT/rtl_loop/rtl_loop_derivation.json" <<'PY'
 import json, sys, textwrap
-d = json.load(open(sys.argv[1]))
+try:
+    d = json.load(open(sys.argv[1]))
+except OSError:
+    print("    (no derivation record -- the loop was not written)")
+    raise SystemExit(0)
 for r in d["rtl"]:
     for port, sig in r["connect"].items():
         print("    %-6s . %-8s -> %s" % (r["module"], port, sig))
 for sig, net in d["square"].items():
     print("    %-6s   %-8s -> %s" % ("analog", net, sig))
+print()
+for f in d.get("_derived", []):
+    # The wiring's own value is the port list printed above, so
+    # only its provenance is worth repeating here.
+    if f["what"] == "the wiring":
+        print("    the wiring, as listed above")
+    else:
+        print(textwrap.fill("%s = %s" % (f["what"], f["value"]),
+                            74, initial_indent="    ",
+                            subsequent_indent="      "))
+    print(textwrap.fill(f["from"], 70, initial_indent="        ",
+                        subsequent_indent="        "))
 PY
 echo
-say "What it does NOT state is the sense of either pump gate. That is"
-say "DERIVED, from two things characterization measured -- the sign of the"
-say "tuning curve and the direction of the current each control state"
-say "drives -- and the run prints the numbers it used:"
+say "The sense of each pump gate is derived too, and from measurements"
+say "rather than from structure -- the sign of the tuning curve and the"
+say "direction of the current each control state drives. The run prints"
+say "the numbers it used:"
 echo
 grep -aE "^  (pdn|pupb) <-|^      (block|with cpump)" "$OUT.log" \
   | cut -c1-200 | sed 's/^/  /' | head -14
@@ -385,6 +409,14 @@ beat
 
 hr "9. And the loop, running"
 say "One simulator. No bridge, no shared libngspice, no SPICE process."
+echo
+say "TWO RUNS BELOW, and that is the design. One thing about this loop"
+say "is not derivable from the analog at all: which of the detector's"
+say "outputs should speed the oscillator up is a fact about its body,"
+say "and both wirings elaborate and run. So neither is guessed. The"
+say "first is tried, and if it does not lock the other one is -- the"
+say "loop either holds 40x the reference or it does not, and that is a"
+say "measurement rather than an opinion."
 echo
 grep -aE "^  \[rtl-loop\]" "$OUT.log" | sed 's/^/  /'
 echo
@@ -406,6 +438,7 @@ rate=$(grep -aoE '\[rtl-loop\] rate .*' "$OUT.log" | tail -1 \
 vout=$(grep -aoE '\[rtl-loop\] net vout .*' "$OUT.log" | tail -1 \
        | sed 's/.*net *vout *//' | squeeze | cut -c1-105)
 derived=$(grep -acE '^  (pdn|pupb) <- .*\(derived\)' "$OUT.log")
+pairings=$(grep -acE '^  \[rtl-loop\] VERDICT ' "$OUT.log")
 declared=$(grep -acE 'DECLARES as .*not measured' "$OUT.log")
 
 blockfail=$(python3 - "$OUT/result.json" <<'PY'
@@ -427,7 +460,9 @@ say "                0 system -- it would need the transistor run"
 ran=$(find "$OUT" -name "_ms_run.log" 2>/dev/null | wc -l)
 sbfail=$(grep -ah "SB_SUMMARY" $(find "$OUT" -name "_ms_run.log" 2>/dev/null) 2>/dev/null | grep -aoE "failed=[1-9][0-9]*" | wc -l)
 say "                $ran run, $sbfail scoreboard(s) reporting a failure"
-say "loop wiring   : $derived gate sense(s) derived from measurement"
+say "loop wiring   : $derived gate sense(s) derived from measurement,"
+say "                0 stated by hand"
+say "gate pairing  : $pairings harness(es) run; the loop settles which"
 say "loop          : ${verdict:-?}"
 [ -n "$rate" ] && say "                $rate"
 [ -n "$vout" ] && say "                vout      $vout"

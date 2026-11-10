@@ -269,12 +269,24 @@ curate_nocosim() {  # src-dir, dest-name
   done
   place_block_models "$dst" inv1 inv2
 
-  # The customer's RTL and the two specifications, because the loop
+  # The customer's RTL and the specification, because the loop
   # environment compiles the first and is judged against the second.
   for f in "$RUNS/${1}_deck"/pfd.sv "$RUNS/${1}_deck"/divn.sv \
-           "$RUNS/${1}_deck"/pll_spec.md "$RUNS/${1}_deck"/pll_loop.json; do
+           "$RUNS/${1}_deck"/pll_spec.md; do
     [ -f "$f" ] || continue
     mkdir -p "$dst/rtl"; cp "$f" "$dst/rtl/"; n=$((n + 1))
+  done
+  # AND THE DERIVATION RECORD, which is what used to be a
+  # hand-written loop spec sitting in this repo. The loop's wiring
+  # is worked out from the circuit and the RTL now, so this file is
+  # the only published account of how the thing in loop/ came to be
+  # wired that way, and of which field came from which measurement.
+  # Named, not globbed: if the tool stops writing it, this should
+  # stop publishing a stale copy beside today's loop.
+  for f in rtl_loop_derivation.json rtl_loop_derivation.alternate.json; do
+    src="$RUNS/$1/rtl_loop/$f"
+    [ -f "$src" ] || continue
+    mkdir -p "$dst/loop"; cp "$src" "$dst/loop/"; n=$((n + 1))
   done
 
   # Named, not counted: the environment is the point of this case.
