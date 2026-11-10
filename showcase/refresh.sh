@@ -495,7 +495,13 @@ core_rev() {
 }
 
 NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-REVS="spice2rnm $(git -C "$HOME/spice2rnm" rev-parse --short HEAD)  demos $(git -C "$DEMOS" rev-parse --short HEAD)  xezim $(xz_rev)  xezim-core $(core_rev)"
+# $S2R, NOT $HOME/spice2rnm. S2R is the pipeline that was run and it
+# is overridable, so stamping the default tree records a revision
+# that did not produce these artifacts whenever anyone overrides it.
+# That is the exact claim this directory exists to support, and it
+# has already been wrong: pll_nocosim has carried a revision with no
+# loop derivation in it since September.
+REVS="spice2rnm $(git -C "$S2R" rev-parse --short HEAD)  demos $(git -C "$DEMOS" rev-parse --short HEAD)  xezim $(xz_rev)  xezim-core $(core_rev)"
 python3 - "$HERE/STAMP" "$NOW" "$REVS" "$CURATED" "$RUNS" \
           "$([ -n "${ONLY:-}" ] && echo partial || echo full)" \
           /tmp/showcase_run_summary.txt <<'PY'

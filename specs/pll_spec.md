@@ -55,11 +55,19 @@ range is failing the block over a bias the design never reaches.
    stores its state, so a model that settles anywhere else disagrees
    there first.
 
-3. **Supply sensitivity shall survive into the model.** A model whose
+3. **The detector's `up` output raises the control voltage.** This is the
+   one fact about closing the loop that nothing on the analog side can
+   measure: it is a property of the detector's body, and both wirings
+   elaborate and run. Note that it does **not** mean `up` speeds the
+   oscillator up -- the ring's tuning slope is negative, so raising the
+   control voltage lowers the frequency, and a loop wired as though the
+   two were the same is wired backwards.
+
+4. **Supply sensitivity shall survive into the model.** A model whose
    oscillator has no supply input cannot show a droop at all, and the
    rail on this design is specified noisy.
 
-4. **No small-signal specification.** None of the three blocks has a
+5. **No small-signal specification.** None of the three blocks has a
    meaningful transfer function. Do not verify any of them against a
    frequency response.
 

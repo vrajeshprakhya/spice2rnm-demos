@@ -10,7 +10,7 @@ one question.
 | `demo_2_dcc.sh` | duty-cycle corrector | level-dependent dynamics: a block that defeats fixed-response modelling, verified by what it does to duty |
 | `demo_3_pi.sh` | phase interpolator | a block with no amplitude transfer at all, verified by phase per code |
 | `demo_4_pll.sh` | phase-locked loop | three characterisation problems in one netlist, composed and checked against the transistors on the design's own co-simulation testbench |
-| `demo_4b_pll_nocosim.sh` | the same PLL | the same circuit with no co-simulation anywhere: operating bands declared from the specification instead of probed, and the loop closed around the customer's RTL in pure SystemVerilog |
+| `demo_4b_pll_nocosim.sh` | the same PLL | the same circuit with no co-simulation anywhere: operating bands read off the deck and the specification instead of probed, and the loop closed around the customer's RTL in pure SystemVerilog |
 
 The last two are the same circuit from opposite ends. Demo 4 starts from a
 co-simulation that already runs and uses it as the reference. Demo 4b starts

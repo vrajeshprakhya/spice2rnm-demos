@@ -11,9 +11,13 @@
 # What this demo is for is the two questions that raises:
 #
 #   1. Characterization asks where in its range each block is used. With
-#      no closed loop, nothing can measure that. Here it is DECLARED, from
-#      the specification, and every message the run prints about a
-#      declared band says "declared, not measured" in those words.
+#      no closed loop, nothing can measure that. So it is read off the two
+#      artifacts that do know: the DECK, for what the deck decides (a
+#      substrate tie is a source card; a logic swing is a pair of rails),
+#      and the SPECIFICATION, for the one number only a document holds --
+#      where a locked loop keeps its control voltage. Derived and declared
+#      are not measured, and every message the run prints about a band
+#      says which of the three it is, in those words.
 #
 #   2. Per-block models are not a system. The loop is closed afterwards in
 #      PURE SystemVerilog: the composed models, the customer's own RTL,
@@ -130,26 +134,38 @@ say "the oscillator gets characterised over its whole 0.5..2.8 V range"
 say "rather than the 200 mV the loop uses."
 beat
 
-hr "2. What replaces the probe: the specification"
-say "The band does not have to be measured. It has to be TRUE. The"
-say "specification states it, in the table a designer writes anyway:"
+hr "2. What replaces the probe: the deck, and the specification"
+say "The band does not have to be measured. It has to be TRUE. And four"
+say "of the five are not opinions at all -- they are in the deck, which"
+say "is read rather than restated:"
+echo
+grep -nE '^(ve|vpe) ' "$NETLIST" | sed 's/^/    /'
+echo
+say "A source holding a node at one voltage IS that node's band, and the"
+say "two ring nodes sit between a pull-down to 0 V and a pull-up to the"
+say "rail, so they cannot leave them. Nothing about either needs saying"
+say "twice."
+echo
+say "The ONE number that is not in the netlist is where a LOCKED loop"
+say "keeps its control voltage, and that is in the specification, in the"
+say "table a designer writes anyway:"
 echo
 sed -n '/^| Control voltage/p;/^| Supply (VDD)/p' "$SPEC" | sed 's/^/    /'
 echo
-say "and the two ring nodes are full-swing CMOS between those rails,"
-say "while the substrate and well ties do not move at all. Five bands,"
-say "every one of them derivable from the spec above and the netlist --"
-say "NONE of them copied from a probe that did not run:"
+say "which is read by TEXT, not by a model: a band decides the range a"
+say "block is MEASURED over, so unlike every other field a spec supplies"
+say "it cannot be checked against a measurement afterwards -- it chose"
+say "the measurement. A number with that much authority must not move"
+say "depending on whether an API key happened to be set."
 echo
-say "  --band vout=1.75:1.95          the control window, from the table"
-say "  --band xvco.outm1=0:3.3        rail to rail, inside the ring"
-say "  --band xvco.outm2=0:3.3        the same"
-say "  --band xvco.sub=0:0            substrate tie"
-say "  --band xvco.well=3.3:3.3       well tie"
+say "And nothing names a net anywhere. The spec says 'control voltage',"
+say "the deck says 'cont', and the x card says cont is the top level's"
+say "vout; what binds the three is the measurement that found which port"
+say "tunes the oscillator. Act 4 reads that back off the log."
 echo
-say "A declared band is not a measured one, and the run never pretends"
-say "otherwise: every message that uses one says so in those words. Act 4"
-say "reads them back off the log."
+say "A declared band is still not a measured one, and the run never"
+say "pretends otherwise: measured, derived and declared are three"
+say "different words and every message that uses a band says which."
 beat
 
 hr "3. One command"
@@ -158,11 +174,16 @@ say "      $NETLIST \\"
 say "      $PLL/pfd.sv $PLL/divn.sv \\"
 say "      --hierarchical --emit-assertions \\"
 say "      --spec $SPEC \\"
-say "      --band vout=1.75:1.95 \\"
-say "      --band xvco.outm1=0:3.3 --band xvco.outm2=0:3.3 \\"
-say "      --band xvco.sub=0:0 --band xvco.well=3.3:3.3 \\"
 say "      --emit-uvm-ms --uvm-ms-lib $UVM_MS_LIB \\"
 say "      --out-dir $OUT"
+echo
+say "THE OPERATING BANDS ARE NOT ON THIS LINE. They were, for a while:"
+say "five --band flags, the one above in the middle of them. A number"
+say "typed on a command line has no source -- it cannot be traced to"
+say "the document that justifies it, it is not reviewed with the design,"
+say "and five of them in a shell script drift from the specification"
+say "they were copied out of without anything noticing. The deck and the"
+say "spec are artifacts somebody owns; this line is not."
 echo
 say "The .sv files are sorted from the netlist by suffix, not by"
 say "position. They reach characterization nowhere: RTL has nothing to"
@@ -176,12 +197,50 @@ say "what the tool acts on; it lands in rtl_loop/ under --out-dir like"
 say "every other artifact, and it is run rather than merely written."
 say "--no-rtl-loop is the way to say no."
 echo
-if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-  say "ANTHROPIC_API_KEY is NOT set here, so --spec will fail safe and the"
-  say "run proceeds on the netlist and the bands alone. Everything below"
-  say "reads the run's own output, so it will say what actually happened."
-  echo
-fi
+# WHETHER A MODEL CAN BE REACHED, asked of the tree being run rather than
+# assumed from the name of an environment variable. This script tested
+# ANTHROPIC_API_KEY long after the pipeline moved to Claude on Amazon
+# Bedrock, so it was reporting the absence of something nothing reads --
+# and on a machine with working Bedrock credentials it would have said
+# the model part was off while that part ran.
+llm_state=$(cd "$S2R" && python3 - <<'PY' 2>/dev/null
+try:
+    from spice2rnm import llm_client
+    why = llm_client.unavailable()
+except Exception:                      # a tree that reads a key directly
+    import os
+    why = (None if os.environ.get("ANTHROPIC_API_KEY")
+           else "no ANTHROPIC_API_KEY in the environment")
+print("REACHABLE" if not why else "UNAVAILABLE: %s" % why)
+PY
+)
+case "$llm_state" in
+  UNAVAILABLE:*)
+    say "NO MODEL IS REACHABLE HERE: ${llm_state#UNAVAILABLE: }. So the"
+    say "part of --spec a MODEL reads will fail safe. THE BANDS ARE NOT"
+    say "AFFECTED: the operating-conditions table is parsed by text, for"
+    say "exactly this reason -- a band decides what gets measured, so it"
+    say "must not move depending on whether a model could be called."
+    say "Everything below reads the run's own output, so it will say what"
+    say "actually happened."
+    echo
+    ;;
+  REACHABLE)
+    say "A MODEL IS REACHABLE HERE, so the part of --spec a model reads"
+    say "will run. THE BANDS STILL DO NOT DEPEND ON IT: the"
+    say "operating-conditions table is parsed by text either way, because"
+    say "a band decides what gets measured and must not move with whether"
+    say "a model could be called."
+    echo
+    ;;
+  *)
+    say "WHETHER a model is reachable from $S2R could not be determined"
+    say "here. THE BANDS DO NOT DEPEND ON IT either way: the"
+    say "operating-conditions table is parsed by text, and everything"
+    say "below reads the run's own output."
+    echo
+    ;;
+esac
 
 if [ "$REUSE" = "1" ]; then
   printf '\n  \033[33m%s\033[0m\n' "DEMO_REUSE=1 -- NOT RUN. Everything below is read from the run"
@@ -196,9 +255,6 @@ else
     "$PLL/pfd.sv" "$PLL/divn.sv" \
     --hierarchical --emit-assertions \
     --spec "$SPEC" \
-    --band vout=1.75:1.95 \
-    --band xvco.outm1=0:3.3 --band xvco.outm2=0:3.3 \
-    --band xvco.sub=0:0 --band xvco.well=3.3:3.3 \
     --emit-uvm-ms --uvm-ms-lib "$UVM_MS_LIB" \
     --out-dir "$OUT" \
     --ngspice-bin "$NGSPICE" --xezim-bin "$XEZIM" \
@@ -227,11 +283,19 @@ fi
 beat
 
 hr "4. Where the numbers came from, in the run's own words"
-say "A band that was declared is never reported as measured:"
+say "Three sources, three different words, and a band that was declared"
+say "is never reported as measured:"
 echo
-grep -aE "which a spec DECLARES as|which the golden co-simulation put in" "$OUT.log" \
+grep -aE "which a spec DECLARES as|which the deck itself gives as|which the golden co-simulation put in" "$OUT.log" \
   | sed "s/^.*\(block '\)/\\1/" | cut -c1-230 | fold -s -w 70 \
   | sed 's/^/    /' | head -12
+echo
+say "and the bands themselves, each with the card or the table row it"
+say "came from:"
+echo
+grep -aE "band for '[^']+' (DERIVED|DECLARED)" "$OUT.log" \
+  | sed 's/^.*band for/band for/' | cut -c1-200 | fold -s -w 70 \
+  | sed 's/^/    /' | head -14
 echo
 say "and the blocks the open loop cannot reach say that too, rather than"
 say "quietly characterising something else:"
@@ -414,13 +478,25 @@ beat
 hr "9. And the loop, running"
 say "One simulator. No bridge, no shared libngspice, no SPICE process."
 echo
-say "TWO RUNS BELOW, and that is the design. One thing about this loop"
-say "is not derivable from the analog at all: which of the detector's"
-say "outputs should speed the oscillator up is a fact about its body,"
-say "and both wirings elaborate and run. So neither is guessed. The"
-say "first is tried, and if it does not lock the other one is -- the"
-say "loop either holds 40x the reference or it does not, and that is a"
-say "measurement rather than an opinion."
+say "ONE THING ABOUT THIS LOOP IS NOT DERIVABLE FROM THE ANALOG AT"
+say "ALL: which of the detector's outputs speeds the oscillator up is a"
+say "fact about its body, and both wirings elaborate and run. It used to"
+say "be settled by building both and seeing which locked. The"
+say "specification states it instead -- one line, about the CONTROL"
+say "VOLTAGE and not about any gate of the pump:"
+echo
+say "    The detector's \`up\` output raises the control voltage."
+echo
+say "AND THAT IS NOT THE SAME AS SPEEDING IT UP. This ring's tuning"
+say "slope is negative, so raising the control voltage LOWERS the"
+say "frequency; the run converts the one into the other using the slope"
+say "it measured, and a loop wired as though they were the same is"
+say "wired backwards. The act above printed that conversion."
+echo
+say "The other pairing is still built and run if this one does not"
+say "lock, because a loop that locks is a measurement and a document is"
+say "not. If they disagree the measurement wins and the run says the"
+say "document is wrong about its own detector."
 echo
 grep -aE "^  \[rtl-loop\]" "$OUT.log" | sed 's/^/  /'
 echo

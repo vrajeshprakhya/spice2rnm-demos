@@ -154,12 +154,39 @@ say "that score one, which for the two inverters in the ring is the whole"
 say "difference between a verdict that means something and one that does"
 say "not. Everything it proposes is checked against the measured circuit,"
 say "and where they disagree the measurement wins."
-if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-  echo
-  say "ANTHROPIC_API_KEY is NOT set here, so the advisor will fail safe and"
-  say "the chirp will be kept. The run still completes, and act 5 will say so"
-  say "-- it reads the metric the run recorded, not the flag on this line."
-fi
+# WHETHER A MODEL CAN BE REACHED, asked of the tree being run rather than
+# assumed from the name of an environment variable. This script tested
+# ANTHROPIC_API_KEY long after the pipeline moved to Claude on Amazon
+# Bedrock, so it was reporting the absence of something nothing reads --
+# and on a machine with working Bedrock credentials it would have said
+# the model part was off while that part ran.
+llm_state=$(cd "$S2R" && python3 - <<'PY' 2>/dev/null
+try:
+    from spice2rnm import llm_client
+    why = llm_client.unavailable()
+except Exception:                      # a tree that reads a key directly
+    import os
+    why = (None if os.environ.get("ANTHROPIC_API_KEY")
+           else "no ANTHROPIC_API_KEY in the environment")
+print("REACHABLE" if not why else "UNAVAILABLE: %s" % why)
+PY
+)
+case "$llm_state" in
+  UNAVAILABLE:*)
+    echo
+    say "NO MODEL IS REACHABLE HERE: ${llm_state#UNAVAILABLE: }. So the"
+    say "advisor will fail safe and the chirp will be kept. The run still"
+    say "completes, and act 5 will say so -- it reads the metric the run"
+    say "recorded, not the flag on this line."
+    ;;
+  REACHABLE) : ;;
+  *)
+    echo
+    say "WHETHER a model is reachable from $S2R could not be determined"
+    say "here, so this line does not claim either way. Act 5 reads the"
+    say "metric the run recorded, which is the answer."
+    ;;
+esac
 beat
 
 rm -rf "$OUT"
