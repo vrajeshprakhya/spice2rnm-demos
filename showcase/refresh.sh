@@ -9,7 +9,7 @@
 #   ./refresh.sh              run all four demos, then curate and stamp
 #   ./refresh.sh --no-run     curate from the existing run directories
 #                             (only for iterating on the curation itself)
-#   ./refresh.sh --only pll   curate ONE case (lpf2, dcc2, pi, pll,
+#   ./refresh.sh --only CASE  curate ONE case (lpf2, dcc2, pi, pll_cosim,
 #                             pll_nocosim) and leave the others alone.
 #                             Implies --no-run. STAMP is per case: this
 #                             rewrites that case's line and carries the
@@ -24,7 +24,7 @@ RUNS="$HOME/s2r_runs"
 ONLY=""
 if [ "${1:-}" = "--only" ]; then
   ONLY="${2:-}"
-  [ -n "$ONLY" ] || { echo "--only needs a case name: lpf2, dcc2, pi, pll or pll_nocosim"; exit 1; }
+  [ -n "$ONLY" ] || { echo "--only needs a case name: lpf2, dcc2, pi, pll_cosim or pll_nocosim"; exit 1; }
   set -- --no-run
 fi
 
@@ -432,7 +432,7 @@ want() { [ -z "${ONLY:-}" ] || [ "${ONLY}" = "$1" ]; }
 want lpf2 && curate lpf2      lpf2
 want dcc2 && curate dcc2      dcc2
 want pi   && curate demo3_pi  pi
-want pll  && curate_pll demo4_pll pll
+want pll_cosim && curate_pll demo4_pll pll_cosim
 want pll_nocosim && curate_nocosim demo4b_pll pll_nocosim
 
 echo "curating equivalence evidence:"
@@ -443,7 +443,7 @@ want dcc2 && curate_equivalence "$HOME/s2r_runs/dcc2"     dcc2  equivalence
 # published a manifest and no evidence -- nothing under it is a log or a
 # table, because the check moved and this line did not follow it.
 want pi && curate_equivalence "$HOME/s2r_runs/demo3_pi" pi    code_sweep equivalence
-want pll && curate_equivalence "$HOME/s2r_runs/demo4_pll" pll \
+want pll_cosim && curate_equivalence "$HOME/s2r_runs/demo4_pll" pll_cosim \
     inv1/equivalence inv2/equivalence lpfilt/equivalence \
     ro_vco/_vco_equiv cpump/_cp_equiv cosim/model cosim/golden
 # The same five, minus the two a co-simulation would have produced:
@@ -457,7 +457,7 @@ want pll_nocosim && curate_equivalence "$HOME/s2r_runs/demo4b_pll" pll_nocosim \
 # files the customer does not have. This gate exists because both have
 # happened; the generators were fixed, and this keeps them fixed.
 leaks=$(grep -rln "/home/$(id -un)" "$HERE"/lpf2 "$HERE"/dcc2 "$HERE"/pi \
-          "$HERE"/lpf2_house "$HERE"/pll "$HERE"/pll_nocosim \
+          "$HERE"/lpf2_house "$HERE"/pll_cosim "$HERE"/pll_nocosim \
           --include='*.sv' --include='*.svh' --include='*.sh' 2>/dev/null || true)
 if [ -n "$leaks" ]; then
   echo "REFUSING to stamp: local paths leaked into generated files:"
@@ -480,7 +480,7 @@ fi
 if [ -n "${ONLY:-}" ]; then
   CURATED="$ONLY"
 else
-  CURATED="lpf2 dcc2 pi pll pll_nocosim lpf2_house"
+  CURATED="lpf2 dcc2 pi pll_cosim pll_nocosim lpf2_house"
 fi
 
 XEZIM_BIN="${XEZIM:-$HOME/xezim/target/release/xezim}"
@@ -508,8 +508,8 @@ python3 - "$HERE/STAMP" "$NOW" "$REVS" "$CURATED" "$RUNS" \
 import os, re, sys, time
 path, now, revs, curated, runs, mode, summary = sys.argv[1:8]
 curated = curated.split()
-ORDER = ["lpf2", "dcc2", "pi", "pll", "pll_nocosim", "lpf2_house"]
-RUN_OF = {"lpf2": "lpf2", "dcc2": "dcc2", "pi": "demo3_pi", "pll": "demo4_pll",
+ORDER = ["lpf2", "dcc2", "pi", "pll_cosim", "pll_nocosim", "lpf2_house"]
+RUN_OF = {"lpf2": "lpf2", "dcc2": "dcc2", "pi": "demo3_pi", "pll_cosim": "demo4_pll",
           "pll_nocosim": "demo4b_pll", "lpf2_house": "lpf2"}
 
 # What the previous stamp said, line by line per case, and its run summary.

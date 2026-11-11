@@ -28,13 +28,13 @@ merely describing what that would look like. Its own README says so.
 | [`dcc2/`](dcc2/) | duty-cycle corrector | level-dependent dynamics; duty checked instead of AC |
 | [`pi/`](pi/) | phase interpolator | phase-per-code environment; no DC or AC at all |
 | [`lpf2_house/`](lpf2_house/) | the filter again | the same circuit generated against an existing model library — see below |
-| [`pll/`](pll/) | phase-locked loop | five blocks by four characterisation routes, composed and checked against the transistors in SV–SPICE co-simulation |
+| [`pll_cosim/`](pll_cosim/) | phase-locked loop | five blocks by four characterisation routes, composed and checked against the transistors in SV–SPICE co-simulation |
 | [`pll_nocosim/`](pll_nocosim/) | the same PLL | the same netlist with **no SPICE in the loop**: bands off the deck and the specification, and the loop closed around the customer's RTL in pure SystemVerilog |
 
 The two PLL cases are the same circuit answered two ways, and the
 difference is what each is for.
 
-`pll/` has a co-simulation testbench, so a **golden probe** runs the
+`pll_cosim/` has a co-simulation testbench, so a **golden probe** runs the
 design's own testbench against the transistors before anything is
 characterised. That measures the range each block really operates over,
 and the system check then runs that same testbench twice — once with the
@@ -96,7 +96,7 @@ lpf2/
 | Looking for | Open |
 |---|---|
 | a model with **wreal** ports | [`lpf2/rc_lpf2_rnm.sv`](lpf2/rc_lpf2_rnm.sv) — what `--model-ports wreal` emits, and the default here |
-| a model with plain **`real`** ports | [`lpf2_house/rc_lpf2_rnm.sv`](lpf2_house/rc_lpf2_rnm.sv), and [`pll/ro_vco_rnm.sv`](pll/ro_vco_rnm.sv) whose output is a `logic` clock rather than an analog node |
+| a model with plain **`real`** ports | [`lpf2_house/rc_lpf2_rnm.sv`](lpf2_house/rc_lpf2_rnm.sv), and [`pll_cosim/ro_vco_rnm.sv`](pll_cosim/ro_vco_rnm.sv) whose output is a `logic` clock rather than an analog node |
 | a model with **UDN** ports, on a library's own nettype | [`lpf2_house/rc_lpf2_rnm_ng_anet.sv`](lpf2_house/rc_lpf2_rnm_ng_anet.sv) |
 | a **UDN declaration** the tool generated | [`lpf2/rc_lpf2_ms_types_pkg.sv`](lpf2/rc_lpf2_ms_types_pkg.sv) |
 | a **UDN declaration** a customer already had | [`house_lib/ng_ams_pkg.sv`](house_lib/ng_ams_pkg.sv) |
@@ -113,12 +113,12 @@ lpf2/
 | a model asserting **its own validity range** | [`lpf2/rc_lpf2_rnm.sv`](lpf2/rc_lpf2_rnm.sv) — `a_input_domain`, at the end |
 | the same idea for **discrete settings** | [`pi/pi_therm_rnm.sv`](pi/pi_therm_rnm.sv) — `a_code_range`; a delay line has no amplitude domain |
 | what a **conformed** run script compiles | [`lpf2_house/run_rc_lpf2_ms.sh`](lpf2_house/run_rc_lpf2_ms.sh) — the house package, not a generated one |
-| an **interface wrapper**, and why it is separate | [`pll/ro_vco_iface.sv`](pll/ro_vco_iface.sv) — re-presents the measured core at the subcircuit's own ports, so the netlist's `xvco` card instantiates it unchanged |
-| a wrapper doing **real boundary work** | [`pll/cpump_iface.sv`](pll/cpump_iface.sv) — carries conductance out beside current, because pump and filter form an algebraic loop |
-| an **oscillator** model (a frequency, not a gain) | [`pll/ro_vco_rnm.sv`](pll/ro_vco_rnm.sv) — 15-point measured tuning curve |
-| a **switched current** model, per control state | [`pll/cpump_cp_rnm.sv`](pll/cpump_cp_rnm.sv) — one I(V) table per state, high-Z state included |
-| an **RC state space** taken from topology, nothing fitted | [`pll/lpfilt_rc_rnm.sv`](pll/lpfilt_rc_rnm.sv) |
-| a **composed system** on the design's own testbench | [`pll/netlist_top.sv`](pll/netlist_top.sv) with [`pll/env/cosim/uvm_ms/`](pll/env/cosim/uvm_ms/) |
+| an **interface wrapper**, and why it is separate | [`pll_cosim/ro_vco_iface.sv`](pll_cosim/ro_vco_iface.sv) — re-presents the measured core at the subcircuit's own ports, so the netlist's `xvco` card instantiates it unchanged |
+| a wrapper doing **real boundary work** | [`pll_cosim/cpump_iface.sv`](pll_cosim/cpump_iface.sv) — carries conductance out beside current, because pump and filter form an algebraic loop |
+| an **oscillator** model (a frequency, not a gain) | [`pll_cosim/ro_vco_rnm.sv`](pll_cosim/ro_vco_rnm.sv) — 15-point measured tuning curve |
+| a **switched current** model, per control state | [`pll_cosim/cpump_cp_rnm.sv`](pll_cosim/cpump_cp_rnm.sv) — one I(V) table per state, high-Z state included |
+| an **RC state space** taken from topology, nothing fitted | [`pll_cosim/lpfilt_rc_rnm.sv`](pll_cosim/lpfilt_rc_rnm.sv) |
+| a **composed system** on the design's own testbench | [`pll_cosim/netlist_top.sv`](pll_cosim/netlist_top.sv) with [`pll_cosim/env/cosim/uvm_ms/`](pll_cosim/env/cosim/uvm_ms/) |
 | a loop closed in **SystemVerilog only** | [`pll_nocosim/loop/pll_analog_rtl_loop.sv`](pll_nocosim/loop/pll_analog_rtl_loop.sv) |
 | how that loop's **wiring was worked out** | [`pll_nocosim/loop/rtl_loop_derivation.json`](pll_nocosim/loop/rtl_loop_derivation.json) — every field with its source; `.alternate.json` is the pairing not used |
 | a **system-level UVM-MS** environment with full stimulus | [`pll_nocosim/env/rtl_loop/uvm_ms/`](pll_nocosim/env/rtl_loop/uvm_ms/) — sequence, driver, scoreboard; checks tagged `[SPEC]` or `[MEASURED]` |
