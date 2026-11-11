@@ -203,39 +203,49 @@ echo
 # Bedrock, so it was reporting the absence of something nothing reads --
 # and on a machine with working Bedrock credentials it would have said
 # the model part was off while that part ran.
+#
+# THE TREE NOW HAS TWO BACKENDS, so the probe asks which one this run
+# would take before deciding what would stop it: demanding botocore on a
+# run that reaches Claude's own API with a key would report the model off
+# while that part ran, which is the same mistake in the other direction.
 llm_state=$(cd "$S2R" && python3 - <<'PY' 2>/dev/null
 import importlib.util as iu
 
 
-def sdk_missing():
-    """Why no Bedrock call could be made from here, SDK-wise.
+def sdk_missing(which):
+    """Why no call could be made from here, SDK-wise, on this backend.
 
     unavailable() answers about CONFIGURATION only and says so: it
-    checks the region and leaves credentials to surface on the first
-    request. But SECURITY.md's first condition for a call is that the
-    optional client is INSTALLED, and nothing checks that -- so a
-    region set with no SDK present answers "reachable" and every
+    checks the credentials and leaves their validity to surface on the
+    first request. But SECURITY.md's first condition for a call is that
+    the optional client is INSTALLED, and nothing checks that -- so a
+    credential set with no SDK present answers "reachable" and every
     advisor call then dies on an import. This narration must not claim
     the advisor was consulted when it could not be.
     """
     if iu.find_spec("anthropic") is None:
-        return "the Bedrock client is not installed (pip install spice2rnm[llm])"
+        return "the Claude client is not installed (pip install spice2rnm[llm])"
     import anthropic
-    if not hasattr(anthropic, "AnthropicBedrock"):
-        return "the installed anthropic client has no Bedrock support"
-    if iu.find_spec("botocore") is None:
-        return "botocore is absent, so a Bedrock request cannot be signed"
+    if which == "bedrock":
+        if not hasattr(anthropic, "AnthropicBedrock"):
+            return "the installed anthropic client has no Bedrock support"
+        if iu.find_spec("botocore") is None:
+            return "botocore is absent, so a Bedrock request cannot be signed"
+    elif not hasattr(anthropic, "Anthropic"):
+        return "the installed anthropic client has no first-party client"
     return None
 
 
 try:
     from spice2rnm import llm_client
-    why = llm_client.unavailable() or sdk_missing()
+    which = llm_client.backend()
+    why = llm_client.unavailable() or sdk_missing(which)
 except Exception:                      # a tree that reads a key directly
     import os
+    which = "api"
     why = (None if os.environ.get("ANTHROPIC_API_KEY")
            else "no ANTHROPIC_API_KEY in the environment")
-print("REACHABLE" if not why else "UNAVAILABLE: %s" % why)
+print("REACHABLE: %s" % which if not why else "UNAVAILABLE: %s" % why)
 PY
 )
 case "$llm_state" in
@@ -249,12 +259,14 @@ case "$llm_state" in
     say "actually happened."
     echo
     ;;
-  REACHABLE)
-    say "A MODEL IS REACHABLE HERE, so the part of --spec a model reads"
-    say "will run. THE BANDS STILL DO NOT DEPEND ON IT: the"
-    say "operating-conditions table is parsed by text either way, because"
-    say "a band decides what gets measured and must not move with whether"
-    say "a model could be called."
+  REACHABLE:*)
+    say "A MODEL IS REACHABLE HERE (${llm_state#REACHABLE: }: either"
+    say "Claude's own API with a key, or Amazon Bedrock in this machine's"
+    say "own AWS account -- SECURITY.md states what that choice means for"
+    say "the netlist), so the part of --spec a model reads will run. THE"
+    say "BANDS STILL DO NOT DEPEND ON IT: the operating-conditions table"
+    say "is parsed by text either way, because a band decides what gets"
+    say "measured and must not move with whether a model could be called."
     echo
     ;;
   *)
