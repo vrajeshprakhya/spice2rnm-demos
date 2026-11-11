@@ -5,6 +5,13 @@
 __pycache__/
 *.pyc
 
+# pdflatex's scratch files. The .pdf and the .tex are tracked; these are
+# rebuilt on every pass and otherwise show the tree as dirty after a
+# build. (.log is already covered above.)
+whitepaper*/*.aux
+whitepaper*/*.out
+whitepaper*/*.toc
+
 # The curated equivalence evidence is the exception: these logs are the
 # record of what actually ran, small by construction (refresh.sh copies
 # only logs and manifests the traces), and the whitepaper points readers

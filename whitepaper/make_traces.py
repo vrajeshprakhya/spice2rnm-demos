@@ -161,16 +161,20 @@ for lo, hi, title in (
 figs["lpf2"] = (
     "\\begin{center}\n" + "\\hfill".join(panels) + "\n\\end{center}\n"
     "\\vspace{-0.4em}\n"
-    "\\noindent{\\footnotesize Grey is the stimulus, black the transistors, "
-    "red dashed the generated model --- two moments of the same chirp, at "
-    "the simulator's own resolution. Early, the output follows the input. "
-    "Late, the input still swings and the output barely moves: that is the "
-    "filter. Measured over $100\\,$ns windows the output-to-input swing "
-    "ratio is $0.99$ in the first window and $0.50$ in the second, "
-    "and the model "
-    "tracks the transistors through both. Drawn from "
-    "\\texttt{waveform\\_compare.csv} and the PWL stimulus in that run's "
-    "own \\texttt{equivalence/} directory.}\\vspace{0.6em}\n")
+    "\\noindent{\\footnotesize "
+    "Grey is the stimulus, black the transistor-level circuit in "
+    "SPICE, red dashed the generated model. The two panels are two "
+    "moments of the same chirp, at the simulator's own time "
+    "resolution. Early in the sweep, the output follows the input. "
+    "Late in the sweep, the input still swings but the output "
+    "barely moves: that is the filter at work. Measured over "
+    "$100\\,$ns windows, the output-to-input swing ratio is $0.99$ "
+    "in the first window and $0.50$ in the second, and the model "
+    "tracks the transistor-level circuit through both. Data taken "
+    "from \\texttt{waveform\\_compare.csv} and the PWL "
+    "(piecewise-linear) stimulus in that run's own "
+    "\\texttt{equivalence/} directory."
+    "}\\vspace{0.6em}\n")
 
 # ---- 2. duty corrector: the edge, because edge placement is the job ----
 #
@@ -200,12 +204,13 @@ w = [x for x in r if lo <= x[0] <= hi]
 figs["dcc2"] = fig(
     two(coords(w, 0, 1, 1e9), coords(w, 0, 2, 1e9)),
     "time (ns)", "output (V)",
-    "One falling edge at the simulator's own resolution. The model places "
-    "it %.2f\\,ns early, and places the next edge %.2f\\,ns early too, so "
-    "the interval between them -- the duty this block is specified on --- "
-    "is preserved to $0.03\\%%$. An average voltage error over the whole "
-    "run would report this as a large disagreement; the duty check the "
-    "environment actually applies does not."
+    "One falling edge, at the simulator's own time resolution. The "
+    "model places this edge %.2f\\,ns early and the next edge "
+    "%.2f\\,ns early, so the interval between them (the duty this "
+    "block is specified on) is preserved to $0.03\\%%$. An average "
+    "voltage error over the whole run would report this as a large "
+    "disagreement. The duty check that the testbench actually "
+    "applies does not."
     % ((s_edge - m_edge) * 1e9, 1.605))
 
 # ---- 3. interpolator: nine measured points ----------------------------
@@ -216,9 +221,11 @@ figs["pi"] = fig(
     "    \\addplot[red,dashed,mark=o,mark size=2.4pt] coordinates {%s};"
     % (coords(r, 0, 1, 1.0, 1e12), coords(r, 0, 2, 1.0, 1e12)),
     "control code", "edge position (ps)",
-    "Nine codes, nine measured answers. There is no waveform to compare "
-    "here: what the block does is place an edge, so that is what is "
-    "plotted.")
+    "Edge position at each of the nine control codes: the "
+    "transistor-level circuit in SPICE (black) against the "
+    "generated model (red). There is no waveform to compare here. "
+    "What this block does is place a clock edge, so edge position "
+    "is what is plotted.")
 
 # ---- 4. the PLL, at the co-simulation boundary -------------------------
 #
@@ -254,12 +261,16 @@ figs["pll"] = fig(
     # own sample contradicted the table the moment either was
     # regenerated. The number belongs in one place, next to the
     # explanation of what it is.
-    "The control voltage at the co-simulation boundary: the composed "
-    "models against the transistors, on the design's own testbench, on a "
-    "node the loop holds near 1.85\\,V. Both settle to the same place "
-    "and hold it. Eight samples because that is how often the digital "
-    "side reads this node; how closely they agree at any one instant is "
-    "a draw, and the table's bar is what the verdict is taken against.")
+    "The control voltage at the boundary between the digital RTL "
+    "and the analog half: the composed models against the "
+    "transistor-level circuit in SPICE, on the design's own "
+    "testbench, on a node the loop holds near 1.85\\,V. Both settle "
+    "to the same place and hold it. There are eight points because "
+    "the digital side reads this node eight times. Because the "
+    "supply carries random noise, how closely the two curves agree "
+    "at any one instant is one run's result, a random sample. The "
+    "pass/fail limit in the table is what the result is checked "
+    "against.")
 
 s = TEX.read_text(encoding="utf-8")
 for name, body in figs.items():

@@ -156,7 +156,7 @@ say "which is read by TEXT, not by a model: a band decides the range a"
 say "block is MEASURED over, so unlike every other field a spec supplies"
 say "it cannot be checked against a measurement afterwards -- it chose"
 say "the measurement. A number with that much authority must not move"
-say "depending on whether an API key happened to be set."
+say "depending on whether a model happened to be reachable."
 echo
 say "And nothing names a net anywhere. The spec says 'control voltage',"
 say "the deck says 'cont', and the x card says cont is the top level's"

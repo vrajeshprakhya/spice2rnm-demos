@@ -74,122 +74,193 @@
 
 \begin{abstract}
 \noindent
-A real number model is a fast stand-in for an analog block. Rather than
-solving transistor physics the way SPICE does, it computes an output
-number from an input number --- so it runs in an ordinary digital
-simulator, alongside the chip's logic, fast enough for a full regression
-suite.
+A real-number model is a fast stand-in for an analog block. SPICE solves
+the physics of every transistor. A real-number model instead computes an
+output number from an input number with ordinary arithmetic. That lets it
+run in a normal digital simulator, next to the chip's logic, fast enough
+for a full regression suite.
 
-The trouble is that somebody has to write it, keep it matching the circuit
-as the circuit changes, and convince the team it still matches. The first
-two are slow. The third usually never happens at all.
+The trouble is that someone has to write the model, keep it matching the
+circuit as the circuit changes, and show the team that it still matches.
+The first two jobs are slow. The third usually never happens.
 
-\textbf{spice2rnm} does all three from one command. Give it a SPICE
-netlist and you get back a SystemVerilog real number model, a UVM-MS
-verification environment that exercises it, and the evidence that both
+\textbf{spice2rnm} does all three with one command. You give it a SPICE
+netlist. It gives you back a SystemVerilog real-number model, a UVM-MS
+verification environment that tests the model, and evidence that both
 agree with the real circuit.
 
-Three things make that evidence worth reading. Every expected value in
+Three rules make that evidence trustworthy. First, every expected value in
 every generated testbench is a \emph{SPICE measurement of your circuit},
-never the model's own equations, so a test cannot pass by agreeing with
-itself. Every generated environment is proven able to fail: the tool
-breaks the model on purpose and confirms the test goes red. And how a
-block gets checked depends on what that block is for --- a filter as a
-frequency response, a duty-cycle corrector by where its edges land, a
-phase interpolator by how far it moves the clock at each setting.
+never a value computed from the model's own equations, so a test cannot
+pass just by agreeing with itself. Second, every generated environment is
+shown to be able to fail: the tool deliberately breaks the model and
+confirms that the test then fails. Third, each block is checked on what it
+is for. A filter is checked on its frequency response, a duty-cycle
+corrector on where its clock edges land, and a phase interpolator on how
+far it shifts the clock at each setting.
 
-This paper walks through four circuits, getting harder as it goes, and
-runs the last of them twice --- once against a co-simulation, once with
-none at all. Every number in it was produced by the shipped tool, in
-about an hour on a laptop.
+The paper works through four circuits, from simple to hard. It runs the
+last one, a PLL, twice. The first run is an SV--SPICE co-simulation: the
+digital RTL runs in the SystemVerilog simulator while the analog blocks run
+as the transistor-level circuit in SPICE, joined by a bridge. This checks
+the generated models against the real circuit. The second run is
+SystemVerilog only: the RTL and the generated models, with no SPICE at
+all. Every number in the paper was produced by the shipped tool, in about
+an hour on a laptop.
 \end{abstract}
 
 \newpage
 \section*{On one page}
 
-\noindent\textbf{What you hand it.} A SPICE netlist --- flat, or with
-subcircuits --- and optionally a plain-language specification and an
-existing model library to take conventions from. No port annotations, no
-model template, no testbench.
+\noindent\textbf{What you give it.} A SPICE netlist, either flat or with
+subcircuits. Optionally, also a plain-language specification and an
+existing model library whose conventions the tool should follow. You do
+not need to label ports, supply a model template or write a testbench.
 
 \medskip
-\noindent\textbf{What you get back, from one command.} A SystemVerilog
-real-number model with the structure chosen from the measured circuit; a
-UVM-MS environment that exercises it, with every expected value a SPICE
-measurement of your circuit; and the equivalence evidence --- the circuit
-and the model driven identically, compared in the domain that matters for
-that block, traces archived.
+\noindent\textbf{What you get back, from one command.} Three things:
+\begin{itemize}[leftmargin=1.5em,itemsep=0.2em]
+  \item a SystemVerilog real-number model, whose structure the tool
+        chooses from measurements of the circuit;
+  \item a UVM-MS environment that tests the model, in which every
+        expected value is a SPICE measurement of your circuit;
+  \item evidence that the model matches the circuit. The circuit and the
+        model get identical inputs, their outputs are compared in the way
+        that matters for that block, and the waveforms are saved.
+\end{itemize}
 
 \medskip
-\noindent\textbf{What it produced on five circuits}, each one command,
-about an hour in total on a laptop, on open-source simulators:
+\noindent\textbf{Results on five circuits.} Each is one command. All five
+together took about an hour on a laptop, using open-source simulators.
 
 \begin{center}
 \small
 \begin{tabular}{@{}llll@{}}
 \toprule
-\textbf{Circuit} & \textbf{Judged on} & \textbf{Worst, against its bar} & \textbf{Environment} \\
+\textbf{Circuit} & \textbf{What is compared} & \textbf{Worst vs pass/fail limit} & \textbf{Environment} \\
 \midrule
 two-pole filter       & waveform, unseen input   & $0.0097$ vs $0.15$          & $64$ checks, $0$ failed \\
 duty-cycle corrector  & where its edges land     & $0.428$ vs $1.0\unit{pp}$   & $60$ checks, $0$ failed \\
 phase interpolator    & edge position per code   & $1.83$ vs $6.25\unit{ps}$   & $9$ checks, $0$ failed \\
-PLL, co-simulated     & system vs transistors    & $4.62\unit{mV}$, $12\%$ of bar & $5$ blocks, $0$ failed \\
-PLL, no co-simulation & loop closed in SV alone  & locked, $+0.0004\%$         & $12$ checks, $0$ failed \\
+PLL, SV--SPICE co-sim & system vs SPICE circuit  & $3.851\unit{mV}$, $41\%$ of limit & $5$ blocks, $0$ failed \\
+PLL, SV only          & loop closed in SV alone  & locked, $-0.0005\%$         & $12$ checks, $0$ failed \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \medskip
-\noindent\textbf{Why a green result here is worth believing.} Three
-rules, kept throughout.
+\noindent\textbf{Why a passing result here is worth believing.} Three
+rules hold throughout.
 \begin{itemize}[leftmargin=1.5em,itemsep=0.2em]
-  \item The right answers come from SPICE, never from the model. A test
-        cannot pass by agreeing with itself.
-  \item Every environment is proven able to fail. The tool breaks the
-        model on purpose and confirms the test goes red, and measures how
-        small a break it still catches.
-  \item Each block is scored on its own job --- a filter on its response,
-        a clock buffer on its edges, an oscillator on its rate --- and a
-        check that does not apply is reported as not applicable, never
-        counted as a pass.
+  \item The expected answers come from SPICE, never from the model. A
+        test cannot pass by agreeing with itself.
+  \item Every environment is shown to be able to fail. The tool
+        deliberately breaks the model, confirms the test fails, and
+        measures the smallest break the test still catches.
+  \item Each block is checked on its own job: a filter on its frequency
+        response, a clock buffer on its edges, an oscillator on its
+        frequency. A check that does not apply to a block is reported as
+        ``not applicable'', never counted as a pass.
 \end{itemize}
 
 \medskip
 \noindent\textbf{Where the evidence is.} Every model, environment and
-verdict in this document is published exactly as the tool wrote it, at
-\url{https://github.com/vrajeshprakhya/spice2rnm-demos}, and regenerates
-from one command. The outputs are plain IEEE 1800 SystemVerilog and
-carry no vendor dependence; they ran here on ngspice and on the
-open-source simulator xezim, and will run on the simulators your flow
-already uses.
+pass/fail result in this paper is published exactly as the tool wrote it,
+at \url{https://github.com/vrajeshprakhya/spice2rnm-demos}. One command
+regenerates all of it. The outputs are plain IEEE 1800 SystemVerilog with
+no vendor dependence. Here they ran on ngspice and on the open-source
+simulator xezim; they will also run on the simulators your flow already
+uses.
 
 \newpage
 \tableofcontents
 \vspace{0.2em}
 
 %======================================================================
+\section*{Terms used in this paper}
+\addcontentsline{toc}{section}{Terms used in this paper}
+
+\begin{description}[leftmargin=1.5em,itemsep=0.15em,font=\normalfont\bfseries]
+  \item[Real-number model (RNM)] A SystemVerilog model of an analog block.
+        It computes output values from input values with ordinary
+        arithmetic, so it runs in a digital simulator.
+  \item[Netlist] The SPICE description of a circuit: its components and
+        how they connect. (Older SPICE usage calls it a \emph{deck}; the
+        tool's own generated files still use that word.)
+  \item[The transistors] Short for the transistor-level circuit in SPICE
+        (here, ngspice): the real circuit, simulated in full. Every model
+        is compared against it.
+  \item[SV--SPICE co-simulation] One simulation in which the design's
+        digital RTL runs in the SystemVerilog simulator while its analog
+        part runs as the transistor-level circuit in SPICE. A bridge
+        passes signals between the two. In this paper, ``co-simulation''
+        always means this.
+  \item[SV-only system simulation] Also ``SystemVerilog only''. The
+        design's RTL and the generated models of its analog blocks all run
+        in the SystemVerilog simulator. No SPICE is involved.
+  \item[Generated] Written as output by spice2rnm. A file ``not
+        generated'' is one the tool deliberately does not write.
+  \item[Equivalence check] Giving the circuit (in SPICE) and the model
+        the same input and comparing their outputs.
+  \item[Golden value] An expected value in a testbench. It is measured
+        from the circuit in SPICE, never taken from the model.
+  \item[Route] The characterisation method the tool picks for a block:
+        for example, measuring a filter's frequency response, or an
+        oscillator's frequency against its control voltage (its tuning
+        curve).
+  \item[Bar] Short for the pass/fail limit a result is compared against.
+  \item[Verdict] The outcome of a check: pass or fail.
+  \item[Reported for information] A number that is shown for
+        information, with no pass/fail limit applied to it.
+  \item[rms] Root mean square: the standard measure of the size of a
+        noise signal or an error.
+  \item[pp] Percentage points (for example, of duty cycle).
+  \item[Random sample, fixed random seed] A simulation with noise gives a
+        different result each run, so one run's result is one random
+        sample of the possible results. Fixing the random seed makes the
+        random number generator repeat, so a rerun gives the same result.
+  \item[White and flicker noise] White noise has equal power at all
+        frequencies. Flicker (or 1/f) noise gets stronger towards low
+        frequencies.
+  \item[Jitter] Variation in when clock edges arrive. \emph{Period
+        jitter} is the variation in the time between one edge and the
+        next.
+  \item[Composed model] The individual block models wired together into
+        a model of the whole circuit.
+  \item[UVM-MS] Accellera's Universal Verification Methodology for
+        mixed-signal designs, built on IEEE 1800 SystemVerilog.
+  \item[\texttt{wreal}, nettype] Two ways of declaring nets that carry
+        analog (real) values in SystemVerilog. \texttt{wreal} comes from
+        Verilog-AMS; a user-defined nettype is the IEEE 1800 equivalent.
+  \item[\texttt{MANIFEST.txt}] The list of large output files that are
+        not stored in the repository. For each file it gives the size and
+        the command that recreates it. Such a file is ``listed in
+        \texttt{MANIFEST.txt}''.
+\end{description}
+
+%======================================================================
 \section{The problem}
 
-A model of an analog block has to be two things at once, and they pull
-against each other. Fast, or it cannot run in a digital regression suite
-at all. Accurate, or passing it does not mean anything.
+A model of an analog block must be both fast and accurate, and the two
+goals pull against each other. It must be fast, or it cannot run in a
+digital regression suite at all. It must be accurate, or passing its tests
+means nothing.
 
-Hand-written models drift away from the circuits they stand for, and the
-drift is silent. Nothing breaks. The model still compiles, still
-simulates, still passes its tests. It has simply stopped describing the
-circuit.
+Hand-written models drift away from the circuits they represent, and
+nothing signals the drift. The model still compiles, still simulates and
+still passes its tests. It has simply stopped describing the circuit.
 
-The usual defence is a hand-written testbench, which has the same problem
-one level up. A person decides what to check and how close is close
-enough, and those decisions are rarely written down beside the numbers
-they produced. When the circuit is revised, the model, the testbench and
-the tolerances all need revisiting by hand --- which, in practice, is not
-what happens.
+The usual safeguard is a hand-written testbench, but it has the same
+problem one level up. A person decides what to check and how close counts
+as close enough. Those decisions are rarely recorded next to the numbers
+they produced. When the circuit changes, the model, the testbench and the
+tolerances all need revisiting by hand, and in practice that does not
+happen.
 
-\textbf{spice2rnm} regenerates all three from the netlist whenever you ask
-it to. The model, the environment that checks it, and the evidence trail
-all come out of the same command, so they cannot quietly fall out of step
-with the circuit or with each other.
+\textbf{spice2rnm} regenerates all three from the netlist whenever you ask.
+The model, the environment that checks it and the evidence all come from
+the same command. So they cannot quietly fall out of step with the circuit
+or with each other.
 
 %======================================================================
 \section{What you get from one command}
@@ -198,90 +269,100 @@ with the circuit or with each other.
 spice2rnm dcc.cir --emit-uvm-ms --spec dcc_spec.md
 \end{lstlisting}
 
-\noindent The ports are not named because the tool reads them. The input
-is the node driven by the one source carrying a transient function or an
-AC magnitude, where the deck's supplies carry a DC level and nothing
-else --- on this netlist, \texttt{clk}.
+\noindent You do not name the ports: the tool finds them in the netlist.
+The supplies carry only a DC level. The input is the node driven by the
+one source that carries a transient waveform or an AC magnitude. On this
+netlist, that node is \texttt{clk}.
 
-The output is a different kind of question. How a circuit is wired does
-not say which node you care about. What does say it is the deck's own
-\texttt{.save}, \texttt{.print} or \texttt{.probe}: that is the author
-naming the signal the netlist exists to show, and where a deck carries
-one the tool takes the output from it. Where a deck carries none, as
-this one does, the output is a guess from a node's name. The run says
-which of the two it used, so a reader can tell a declaration from a
-guess. Four routes decline to guess at all and ask to be told --- the
-ones measuring a particular node's edge, frequency or current.
+Finding the output is a different problem, because the wiring alone does
+not say which node you care about. The netlist's own \texttt{.save},
+\texttt{.print} or \texttt{.probe} statement does say it: that is the
+author naming the signal the netlist exists to show. When a netlist has
+one, the tool takes the output from it. When it has none, as here, the
+tool guesses the output from the node names. The run reports which of the
+two it did, so you can tell a declared output from a guessed one.
+
+Four routes (a route is the characterisation method the tool picks for a
+block) never guess. These are the ones that measure the edge, frequency
+or current of one particular node. For them, you must name the output.
+
+The command produces three things.
 
 \begin{itemize}[leftmargin=1.5em,itemsep=0.3em]
-  \item \textbf{A SystemVerilog real-number model}, with the model
-        structure chosen automatically to match the block's measured
-        behaviour --- including blocks whose dynamics move with signal
-        level, where any fixed-response model is wrong across most of its
-        range.
+  \item \textbf{A SystemVerilog real-number model.} The tool chooses the
+        model's structure to match the block's measured behaviour. This
+        includes blocks whose dynamics change with signal level, where
+        any fixed-response model is wrong over most of its range.
 
-        The model presents \texttt{wreal} ports, so it wires straight
-        into an RNM library like the models beside it --- and it is the
-        model itself that does, not a wrapper around it.
+        The model has \texttt{wreal} ports, so it connects directly into
+        an RNM library like the models next to it. The model itself
+        connects; there is no wrapper around it.
 
-        That distinction is functional, not stylistic. A \texttt{real}
-        port is a \emph{variable}, and a variable takes exactly one
-        driver: nothing can share the node and no bridge can attach
-        without a converting module in between. A \texttt{wreal} port is
-        a \emph{net}, so drivers combine on it --- an offset source, a
-        noise injector, a second bridge --- and the model drops into a
-        library with nothing standing between it and the nets it is
+        This choice affects function, not just style. A \texttt{real}
+        port is a \emph{variable}, and a variable accepts exactly one
+        driver. Nothing else can share the node, and a bridge cannot
+        attach without a converter module in between. A \texttt{wreal}
+        port is a \emph{net}, so several drivers can combine on it: an
+        offset source, a noise injector or a second bridge. The model then
+        drops into a library with nothing between it and the nets it is
         wired to.
 
-        It costs one thing, and the cost is real: \texttt{wreal} is
-        Verilog-AMS vocabulary rather than IEEE 1800, so the model
-        compiles where the simulator provides it, and everything
-        instantiating the model inherits that. For a flow without it,
-        \texttt{-{}-model-ports real} emits the same model with variable
-        ports, depending on no package, no nettype and no extension.
-        \texttt{-{}-model-ports house} gives it your own library's
-        nettype instead (Section~\ref{sec:style}).
+        There is one real cost. \texttt{wreal} is Verilog-AMS, not IEEE
+        1800, so the model compiles only on simulators that support it,
+        and everything that instantiates the model inherits that need.
+        For a flow without \texttt{wreal}, \texttt{-{}-model-ports real}
+        generates the same model with variable ports. It depends on no
+        package, no nettype and no language extension.
+        \texttt{-{}-model-ports house} instead gives the model your own
+        library's nettype (Section~\ref{sec:style}).
 
-        The computation is identical in every case --- only the
-        declaration of the ports differs, and a net cannot be assigned
-        procedurally, so a net-typed model drives its output through one
-        continuous assignment. Measured rather than asserted: the filter
-        scores \texttt{rms\_error\_norm} $0.029008790476737805$ against
-        SPICE with either discipline, the same to every digit.
-  \item \textbf{A UVM-MS verification environment} following the Accellera
-        UVM-MS specification, built on IEEE 1800 --- not on Verilog-AMS.
+        The computation is identical in every case; only the port
+        declarations differ. One detail: a net cannot be assigned inside
+        procedural code, so a model with net ports drives its output
+        through a single continuous assignment. We measured that the
+        choice makes no difference: the filter scores
+        \texttt{rms\_error\_norm} $0.029008790476737805$ against SPICE
+        with either port type, identical to every digit.
+  \item \textbf{A UVM-MS verification environment} that follows the
+        Accellera UVM-MS specification. It is built on IEEE 1800, not on
+        Verilog-AMS.
+
         Analog values travel on \emph{user-defined nettypes} (IEEE
-        1800-2017 \S6.6.7) with a generated resolution function: the
-        emitted package declares the nettype together with a
-        \texttt{sum\_res} that adds every driver's contribution. Multiple drivers on a net then combine in the net
-        type rather than in hand-edited testbench code --- an offset
-        source, a noise injector, a second bridge. The environment instantiates
-        the model itself rather than a copy of it behind a wrapper, so
-        what the checks cover is what ships. Its own structure is IEEE
-        1800 throughout --- the nettype, the resolution function, the
-        \texttt{interconnect} ports --- but the model it drives carries
-        \texttt{wreal}, so running it needs a simulator that
-        provides it. Bridge and wrapper ports are
-        \texttt{interconnect} (\S6.6.8), inheriting the testbench's nettype
-        instead of naming one, and scoreboard golden values are SPICE
-        measurements of your circuit.
-  \item \textbf{Equivalence evidence}: circuit and model driven with the
-        identical stimulus, then compared in the domain that matters for
-        the block --- waveform error for signal-path blocks, edge
-        placement for clock-path blocks. The aligned traces are archived,
-        so any verdict can be re-derived from its own run directory.
+        1800-2017 \S6.6.7). The generated package declares the nettype
+        together with a generated resolution function, \texttt{sum\_res},
+        that adds up the contributions of all drivers. So when several
+        drivers share a net (an offset source, a noise injector, a second
+        bridge), the nettype combines them, with no hand-edited testbench
+        code.
+
+        The environment instantiates the model itself, not a copy behind a
+        wrapper, so the checks cover exactly what ships. The environment's
+        own structure is IEEE 1800 throughout: the nettype, the
+        resolution function and the \texttt{interconnect} ports. The model
+        it drives has \texttt{wreal} ports, though, so running it needs a
+        simulator that supports \texttt{wreal}.
+
+        Bridge and wrapper ports are \texttt{interconnect} (\S6.6.8), so
+        they take on the testbench's nettype instead of naming one. The
+        scoreboard's golden values are SPICE measurements of your circuit.
+  \item \textbf{Equivalence evidence.} The circuit and the model get
+        identical inputs. Their outputs are then compared in the way that
+        matters for the block: waveform error for blocks on the signal
+        path, edge position for blocks on the clock path. The aligned
+        waveforms are saved, so any pass/fail result can be recomputed
+        from its own run directory.
 \end{itemize}
 
-\noindent An optional plain-language functional specification supplies what
-no netlist can: the block's intended operating range and its acceptance
-criteria (Section~\ref{sec:spec}).
+\noindent An optional plain-language functional specification supplies
+what no netlist can: the block's intended operating range and its
+acceptance criteria (Section~\ref{sec:spec}).
 
 %======================================================================
-\section{Case study 1 --- Two-pole filter}
+\section{Case study 1: two-pole filter}
 
-A two-pole RC low-pass filter --- the ordinary case, a block that takes a
-signal in and shapes it on the way out. This is the whole input, its
-comment lines aside:
+The first case is a two-pole RC low-pass filter. It is an ordinary block:
+it takes a signal in and shapes its frequency response on the way out.
+Below is the whole input netlist, apart from its comment lines:
 
 \begin{lstlisting}
 2-pole passive RC low-pass filter -- fast-running RNM test case
@@ -293,14 +374,14 @@ C2  vout 0    15.9p
 .end
 \end{lstlisting}
 
-\noindent Nothing else: no directives naming the ports, no hint about
-what the block is for, no declared corner frequency. The generated model
-is checked four independent ways.
+\noindent That is all the tool is given. There are no directives naming
+the ports, no hint about what the block is for, and no declared corner
+frequency. The generated model is then checked in four independent ways:
 
 \begin{center}
 \begin{tabular}{@{}lr@{}}
 \toprule
-Chirp equivalence           & $0.0290$ against a $0.15$ threshold \quad \pass \\
+Chirp (swept-tone) equivalence & $0.0290$ against a $0.15$ threshold \quad \pass \\
 PRBS (independent stimulus) & $0.0097$ normalised \quad \pass \\
 \midrule
 UVM-MS, DC section          & $49$ checks, $0$ failed \\
@@ -311,8 +392,8 @@ UVM-MS, AC section          & $15$ checks, $0$ failed \\
 \end{tabular}
 \end{center}
 
-\noindent This is what it produced --- the head of
-\texttt{rc\_lpf2\_rnm.sv}, as published:
+\noindent Below is the head of the generated file,
+\texttt{rc\_lpf2\_rnm.sv}, exactly as published:
 
 \begin{lstlisting}
 // SystemVerilog Real Number Model, auto-generated by spice2rnm.
@@ -323,13 +404,16 @@ UVM-MS, AC section          & $15$ checks, $0$ failed \\
 module rc_lpf2_rnm(input wreal in_val, output wreal out_val);
 \end{lstlisting}
 
-\noindent The poles are measured, not declared, and the model carries
-the quality of its own fit at the top of the file. A reader who wants to
-know how good it is does not have to run anything.
+\noindent The poles were measured from the circuit, not declared by
+anyone. The file also records how closely its fitted transfer function
+matches those measurements: the \texttt{fit quality} line gives the rms
+(root mean square) and worst-case error in dB. A reader can judge the
+model's accuracy without running anything.
 
-\textbf{It also says where it stops being evidence.} Every model carries
-the range it was characterised over, and an input outside that range is
-reported rather than quietly served:
+\textbf{The model also states where its results stop counting as
+evidence.} Every model carries the input range it was characterised
+over. If an input falls outside that range, the model reports it instead
+of quietly returning a value:
 
 \begin{lstlisting}
 localparam real DOMAIN_LO = 0.0;
@@ -343,15 +427,16 @@ else ... $warning("%m: input %0.6g V is outside the characterized
   extrapolating, and it is no longer evidence. Reported once.");
 \end{lstlisting}
 
-\noindent A model asked for a voltage it was never characterised at does
-not fail and does not extrapolate --- it clamps, which means it keeps
-returning a plausible number. That is the dangerous case, and it is the
-reason the warning exists. Once per model, so a long run stays readable.
+\noindent Asked for a voltage it was never characterised at, the model
+neither fails nor extrapolates. It clamps: it keeps returning the value
+at the edge of its range. That value looks plausible, which is what
+makes this case dangerous and why the warning exists. The warning fires
+once per model, so the log of a long run stays readable.
 
-\noindent The PRBS row matters more than it looks. The model is built from
-a chirp --- a tone sweeping upward through frequency --- and then tested
-with a pseudo-random bit sequence it has never seen. A model that had
-merely memorised the input it was built from would come apart here. This
+\noindent The PRBS row matters more than it looks. The model is built
+from a chirp, a tone whose frequency sweeps upward. It is then tested
+with a pseudo-random bit sequence (PRBS) it has never seen. A model that
+had only memorised the stimulus it was built from would fail here. This
 one does not.
 
 % <<TRACE:lpf2>>
@@ -383,49 +468,53 @@ one does not.
 \end{tikzpicture}
 \end{center}
 \vspace{-0.4em}
-\noindent{\footnotesize Grey is the stimulus, black the transistors, red dashed the generated model --- two moments of the same chirp, at the simulator's own resolution. Early, the output follows the input. Late, the input still swings and the output barely moves: that is the filter. Measured over $100\,$ns windows the output-to-input swing ratio is $0.99$ in the first window and $0.50$ in the second, and the model tracks the transistors through both. Drawn from \texttt{waveform\_compare.csv} and the PWL stimulus in that run's own \texttt{equivalence/} directory.}\vspace{0.6em}
+\noindent{\footnotesize Grey is the stimulus, black the transistor-level circuit in SPICE, red dashed the generated model. The two panels are two moments of the same chirp, at the simulator's own time resolution. Early in the sweep, the output follows the input. Late in the sweep, the input still swings but the output barely moves: that is the filter at work. Measured over $100\,$ns windows, the output-to-input swing ratio is $0.99$ in the first window and $0.50$ in the second, and the model tracks the transistor-level circuit through both. Data taken from \texttt{waveform\_compare.csv} and the PWL (piecewise-linear) stimulus in that run's own \texttt{equivalence/} directory.}\vspace{0.6em}
 % <<END TRACE:lpf2>>
 
 %======================================================================
-\section{Case study 2 --- Duty-cycle corrector}
+\section{Case study 2: duty-cycle corrector}
 \label{sec:dcc}
 
-A clock is meant to be high for half of each cycle. When it is not, a
-duty-cycle corrector fixes it. This one is built around a comparator.
+A clock is meant to be high for half of each cycle. The fraction of each
+cycle it spends high is its duty cycle, and a duty-cycle corrector
+restores it when it is wrong. This one is built around a comparator.
 
-Ask how fast the block responds and you get two answers. Nudge the input
-a little and watch the output move, and the answer is
-$3.7\times10^{8}\unit{rad/s}$. Swing the input hard and time the output
-with a stopwatch, and it is between $1.3\times10^{10}$ and
-$5.1\times10^{10}\unit{rad/s}$ --- $35$ to $137$ times faster.
+The block's speed has two different answers, depending on how you
+measure it. Nudge the input slightly (a small-signal measurement) and
+watch the output move: the answer is $3.7\times10^{8}\unit{rad/s}$.
+Swing the input hard and time the output edges directly: the answer is
+between $1.3\times10^{10}$ and $5.1\times10^{10}\unit{rad/s}$, which is
+$35$ to $137$ times faster.
 
-The slow answer is not wrong. It measures a delicate node inside the
-comparator, and sensitive things are sluggish. But the output does not
-come from that node. It comes from a buffer that slams between the rails
-and does not wait. So the slow number is true about something the output
-ignores, and a model built on it runs tens to hundreds of times too slow.
+The slow answer is not wrong. It measures a sensitive node inside the
+comparator, and that node responds slowly. But the output is not taken
+from that node. It comes from a buffer that switches hard between the
+supply rails without waiting for it. So the slow number is true of a node
+the output does not follow, and a model built on it runs tens to
+hundreds of times too slow.
 
-The faster answer is not a single number either. It moves by a factor of
+The fast answer is not a single number either. It changes by a factor of
 $3.9$ across the input range, so a model with one fixed speed cannot
 follow it.
 
-Then the trap. The usual way to check a model like this compares its AC
-response against the circuit's. Both are measured by nudging, so both
-report the slow node, and the two agree. The check passes on a model that
-is a hundred times too slow, and it has said nothing about the error.
+This sets a trap for the usual check. That check compares the model's AC
+(small-signal frequency) response with the circuit's. Both are measured
+by nudging, so both report the slow node, and the two agree. The check
+passes a model that is a hundred times too slow and never reveals the
+error.
 
-That is why blocks like this tend to have the hand-written models people
-trust least.
+That is why hand-written models of blocks like this tend to be the ones
+people trust least.
 
 \subsection{A model that follows the circuit's dynamics}
 
-spice2rnm notices that level dependence while it is measuring the circuit,
-and builds a model whose speed varies with level the way the measurements
-say it should. That includes the circuit's rise/fall asymmetry --- it takes
-longer to switch one way than the other, by a measured $95\unit{ps}$ ---
-which the model reproduces. Fed a clock that is high exactly half the
-time, the model's output duty matches the circuit's to $0.000$ percentage
-points.
+While measuring the circuit, spice2rnm detects that its speed depends on
+input level. It then builds a model whose speed varies with level as the
+measurements say it should. The model also reproduces the circuit's
+rise/fall asymmetry: the circuit takes a measured $95\unit{ps}$ longer to
+switch one way than the other. Fed a clock that is high exactly half the
+time, the model's output duty matches the circuit's to $0.000$
+percentage points (pp).
 
 \begin{center}
 \begin{tabular}{@{}lr@{}}
@@ -440,21 +529,24 @@ UVM-MS, duty section    & $14$ checks, $0$ failed \\
 
 \subsection{Verified by function, not by formula}
 
-The testbench generated for this block has \emph{no AC section}, and that
-is a measured decision rather than an oversight. An AC sweep assumes the
-circuit sits at one operating point and wiggles gently around it. A
-comparator in normal use never does that --- it slams between two states.
-Check this model that way and it fails every single point by more than
-$55\unit{dB}$, despite being demonstrably accurate. The failure tells you
-nothing about the model and everything about using the wrong check.
+The UVM-MS environment generated for this block has \emph{no AC section}. That is
+a deliberate decision based on measurement, not an oversight. An AC sweep
+assumes the circuit sits at one operating point and moves only gently
+around it. A comparator in normal use never does that: it switches hard
+between two states. Checked that way, this model fails every single
+point by more than $55\unit{dB}$, even though it is demonstrably
+accurate. That failure says nothing about the model and everything about
+using the wrong check.
 
-So the environment checks what a duty-cycle corrector is actually for. The
-tool drives the real circuit with clocks at two rates and three input
-duties --- the rates and the $35$--$65\%$ range its specification states
-(Section~\ref{sec:spec}) --- records what duty comes back out of SPICE
-each time, and holds the model to those recorded answers. The table spans
-$30$ percentage points of measured output duty --- wide enough that a
-model ignoring its input could not fake its way through.
+So the generated environment checks what a duty-cycle corrector is
+actually for: the duty of its output. The tool drives the
+transistor-level circuit in SPICE with clocks at two rates and three
+input duties. These are the rates and the $35$--$65\%$ duty range that
+the block's specification states (Section~\ref{sec:spec}). Each time,
+the tool records the output duty SPICE produces (the golden value), and
+the model must reproduce those recorded values. The recorded output
+duties span $30$ percentage points, wide enough that a model ignoring its
+input could not pass by luck.
 
 % <<TRACE:dcc2>>
 \begin{center}
@@ -473,31 +565,32 @@ model ignoring its input could not fake its way through.
 \end{tikzpicture}
 \end{center}
 \vspace{-0.6em}
-\noindent{\footnotesize One falling edge at the simulator's own resolution. The model places it 1.68\,ns early, and places the next edge 1.60\,ns early too, so the interval between them -- the duty this block is specified on --- is preserved to $0.03\%$. An average voltage error over the whole run would report this as a large disagreement; the duty check the environment actually applies does not.}\vspace{0.6em}
+\noindent{\footnotesize One falling edge, at the simulator's own time resolution. The model places this edge 1.68\,ns early and the next edge 1.60\,ns early, so the interval between them (the duty this block is specified on) is preserved to $0.03\%$. An average voltage error over the whole run would report this as a large disagreement. The duty check that the testbench actually applies does not.}\vspace{0.6em}
 % <<END TRACE:dcc2>>
 
 %======================================================================
-\section{Case study 3 --- Phase interpolator}
+\section{Case study 3: Phase interpolator}
 
-A phase interpolator does not change a signal's size. It shifts the signal
-in \emph{time}: each control code slides the clock edge a little further
-along. So there is no frequency response worth fitting, and comparing
-voltages just measures noise. Conventional flows have nothing to offer
-this block.
+A phase interpolator does not change a signal's amplitude. It shifts the
+signal in \emph{time}: each control code moves the clock edge a little
+further along. So there is no frequency response worth fitting, and
+comparing voltages only measures noise. Conventional flows have nothing to
+offer this block.
 
-spice2rnm recognises what the block does and changes approach. It measures
-how far the edge moves at each code, builds a delay-line model, and
-generates a \emph{phase} testbench --- one measured answer per control
-code, and no DC or AC section, because neither of those describes where an
+spice2rnm recognises what the block does and changes its approach. It
+measures how far the edge moves at each control code and builds a
+delay-line model from those measurements. It then generates a \emph{phase}
+testbench: one check per control code against the value measured in SPICE.
+The testbench has no DC or AC section, because neither tells you where an
 edge lands.
 
 \begin{center}
 \begin{tabular}{@{}lr@{}}
 \toprule
 Codes measured           & $9$ of $9$ \\
-Total traversal          & $-500.1\unit{ps}$, monotonic \\
+Total edge movement, code 0 to 8 & $-500.1\unit{ps}$, monotonic \\
 Mean step (1 LSB)        & $-62.51\unit{ps}$ \\
-Worst DNL                & $-100.5\unit{ps}$ \quad ($-1.61$ LSB) \\
+Worst step error (DNL)   & $-100.5\unit{ps}$ \quad ($-1.61$ LSB) \\
 \midrule
 UVM-MS phase section     & $9$ checks, $0$ failed \\
 \quad worst              & $3.26\unit{ps}$ of a $6.25\unit{ps}$ tolerance \\
@@ -505,29 +598,32 @@ UVM-MS phase section     & $9$ checks, $0$ failed \\
 \end{tabular}
 \end{center}
 
-\noindent Two terms from that table. \textbf{One LSB} is one step of the
-control code --- the nine codes span $500.1\unit{ps}$ in eight steps, so
-a step is worth $62.51\unit{ps}$, and that is the natural unit for
-everything else here. \textbf{DNL} is how wrong each individual step is
-against that average.
+\noindent Two terms in that table need defining. \textbf{One LSB} (least
+significant bit) is one step of the control code. The nine codes span
+$500.1\unit{ps}$ in eight steps, so the average step is $62.51\unit{ps}$.
+That average is the natural unit for everything else here.
+\textbf{DNL} (differential non-linearity) is how far each individual step
+is from that average.
 
-This dial is lumpy. Differencing the measured edge positions gives eight
-steps of $-17$, $-30$, $-48$, $-163$, $-153$, $-48$, $-28$ and
-$-12\unit{ps}$, where every one of them should be $-62.5$. The worst is
-that fourth step: it moves $163\unit{ps}$ for one click of the code,
-$100.5\unit{ps}$ more than it should, which is the $-1.61$ LSB in the
-table. A block like this usually sits in a loop that nudges a sampling
-clock one code at a time to stay centred in a data eye, and such a loop
-assumes a click is worth about one LSB. Here one click moves
-$12\unit{ps}$ and another moves $163\unit{ps}$, so the loop's gain varies
-by more than $13\times$ depending where it starts.
+The steps in this circuit are very uneven. Subtracting each measured edge
+position from the next gives eight steps of $-17$, $-30$, $-48$, $-163$,
+$-153$, $-48$, $-28$ and $-12\unit{ps}$. Each should be $-62.5$. The worst
+is the fourth step: it moves $163\unit{ps}$ for a single code change,
+$100.5\unit{ps}$ more than it should. That is the $-1.61$ LSB in the table.
 
-The tolerance is a tenth of an LSB, the finest the model can resolve ---
-tight enough to catch a real error, loose enough never to trip on
-rounding. All of that lumpiness is the circuit's own imperfection,
-reported as measured. The model's job is to reproduce it, and it does:
-a model that drew an evenly spaced line would look tidier and would be
-hiding a real defect from whoever verified against it.
+This unevenness matters in a real system. A phase interpolator usually sits
+in a control loop that moves a sampling clock one code at a time to keep it
+centred in a data eye. That loop assumes each code change is worth about
+one LSB. Here one code change moves the edge $12\unit{ps}$ and another
+moves it $163\unit{ps}$, so the loop's gain varies by more than $13\times$
+depending on where it starts.
+
+The pass/fail tolerance per code is a tenth of an LSB, the finest step the
+model can resolve. That is tight enough to catch a real error, and loose
+enough never to fail on rounding. The uneven steps are the circuit's own
+imperfection, reported exactly as measured. The model's job is to
+reproduce them, and it does. A model with evenly spaced steps would look
+tidier, but it would hide a real defect from anyone verifying against it.
 
 % <<TRACE:pi>>
 \begin{center}
@@ -546,21 +642,21 @@ hiding a real defect from whoever verified against it.
 \end{tikzpicture}
 \end{center}
 \vspace{-0.6em}
-\noindent{\footnotesize Nine codes, nine measured answers. There is no waveform to compare here: what the block does is place an edge, so that is what is plotted.}\vspace{0.6em}
+\noindent{\footnotesize Edge position at each of the nine control codes: the transistor-level circuit in SPICE (black) against the generated model (red). There is no waveform to compare here. What this block does is place a clock edge, so edge position is what is plotted.}\vspace{0.6em}
 % <<END TRACE:pi>>
 
 %======================================================================
-\section{Case study 4 --- Phase-locked loop}
+\section{Case study 4: Phase-locked loop}
 
-The first three are single blocks. This one is a \emph{loop}, and that
-changes what a model has to get right. In a loop, a small error does not
-stay small --- it is fed back around and pushes the whole system to a
-different operating point. So a model that looks perfectly reasonable on
+The first three case studies are single blocks. This one is a
+\emph{loop}, and that changes what a model has to get right. In a loop, a
+small error does not stay small. It is fed back around and moves the whole
+system to a different operating point. So a model that looks reasonable on
 its own can still settle the loop somewhere the real circuit never goes.
 
-It is also three different characterisation problems in one netlist, and
-no single method covers them. The deck's own \texttt{.subckt}
-boundaries are the blocks:
+The netlist also holds three different characterisation problems, and no
+single method covers all of them. The blocks are the netlist's own
+\texttt{.subckt} boundaries:
 
 \begin{lstlisting}
 .subckt ro_vco aout cont dd
@@ -576,25 +672,26 @@ xlf  dra vout         lpfilt
 xvco aout vout dd     ro_vco
 \end{lstlisting}
 
-\noindent Three \texttt{x} cards at the top level, so three models are
-composed into the runnable whole. \texttt{inv1} and \texttt{inv2} are
-instantiated one level down, inside \texttt{ro\_vco}: they get their own
-models and their own verdicts --- which is why the score below is five of
-five and not three of three --- but they are not wired into the composed
-top, because the \texttt{ro\_vco} model was measured with them in it
-already. \texttt{gaincell} gets no model at all: two inputs and two
-outputs, so no route that fits one input to one output can characterise
-it, and it does not need one.
+\noindent The top level has three \texttt{x} lines (subcircuit instances),
+so three models are joined into the runnable whole. \texttt{inv1} and
+\texttt{inv2} are instantiated one level down, inside \texttt{ro\_vco}.
+They get their own models and their own pass/fail results, which is why
+the score below is five of five and not three of three. They are not
+wired into the composed top, because the \texttt{ro\_vco} model was
+measured with them already inside it. \texttt{gaincell} gets no model at
+all. It has two inputs and two outputs, so no method that fits one input
+to one output can characterise it, and the composed model does not need
+one.
 
-The pipeline classifies each remaining block from its topology and routes
-it accordingly:
+Each remaining block is classified from its topology and given a
+\emph{route}, meaning the characterisation method chosen for that block:
 
 \begin{center}
 \begin{tabular}{@{}lll@{}}
 \toprule
 \textbf{Block} & \textbf{Why the default does not fit} & \textbf{Route taken} \\
 \midrule
-\texttt{ro\_vco} & oscillates with its inputs at DC ---
+\texttt{ro\_vco} & oscillates with its inputs at DC;
                    & tuning curve, \\
                  & its output is a frequency, not a gain
                    & scored on rate \\
@@ -610,57 +707,60 @@ it accordingly:
 \end{tabular}
 \end{center}
 
-\noindent Not one of those three is a simple input-to-output response. A
-conventional flow that fitted one to each would be fitting the wrong
-quantity three times over.
+\noindent None of the three is a simple input-to-output response. A
+conventional flow that fitted one to each block would fit the wrong
+quantity three times.
 
-\noindent What a tuning curve, a control state and a state space
-actually \emph{are} --- and why an oscillator is compared as a rate
-rather than as a waveform --- is set out in Appendix~\ref{app:routes},
-with this circuit's own numbers.
+\noindent Appendix~\ref{app:routes} explains, with this circuit's own
+numbers, what a tuning curve, a control state and a state space are, and
+why an oscillator is compared by its frequency (its rate) rather than
+by its waveform.
 
-\subsection{Checked as a system, against the transistors}
+\subsection{Checked as a system, against the transistor-level circuit}
 
-A score for each block on its own is evidence about that block on its own.
-A loop asks a different question: wired together, do these models behave
-like the circuit? The co-simulation answers it directly. The design's own
-testbench is run twice: once where the analog half is the generated
-models, once where it is the real transistors through ngspice. Only the
-small piece of code that connects the two halves is swapped between
-runs. The thresholds, the expressions and the pass/fail logic are
-byte-for-byte identical in both, so the two logs can be compared
-line against line.
+A score for each block tells you about that block alone. A loop raises a
+different question: wired together, do these models behave like the
+circuit? An SV--SPICE co-simulation answers it directly. Here that means
+the digital RTL runs in the SystemVerilog simulator while the analog half
+runs as the transistor-level circuit in SPICE (ngspice), joined by a
+bridge.
+
+The design's own testbench is run twice. In the first run the analog half
+is the generated models, all in SystemVerilog. In the second it is the
+transistors in ngspice, in co-simulation with the digital RTL. Only the
+small piece of code joining the two halves changes between runs. The
+thresholds, expressions and pass/fail logic are byte-for-byte identical,
+so the two logs can be compared line by line.
 
 \begin{center}
 \begin{tabular}{@{}lr@{}}
 \toprule
-Blocks modelled, three routes        & $3$ composed, $2$ more emitted \\
+Blocks modelled, three routes        & $3$ composed, $2$ more generated \\
 Per-block equivalence                & $5$ of $5$ pass \\
 \midrule
-Supply condition                     & $20\unit{mV}$ rms, declared in the deck \\
-System check vs transistors          & $4$ boundary signals, $0$ failed \\
-\quad \texttt{vout} (control voltage) & $4.62\unit{mV}$, $12.4\%$ of its bar \\
-\quad \texttt{aout} (VCO output)      & $0.4\%$ of crossings, bar $2\%$ \\
-\quad \texttt{dra} (internal probe)   & $20.3\unit{mV}$, $0.9\%$ of its range \\
+Supply noise                         & $20\unit{mV}$ rms, declared in the netlist \\
+System check vs transistor-level circuit & $4$ boundary signals, $0$ failed \\
+\quad \texttt{vout} (control voltage) & $3.851\unit{mV}$, $41\%$ of its pass/fail limit \\
+\quad \texttt{aout} (VCO output)      & $0.4\%$ of crossings, limit $2\%$ \\
+\quad \texttt{dra} (internal probe)   & $19.1\unit{mV}$, $0.8\%$ of its range \\
 \midrule
 Both loops lock at                   & $400.00\unit{MHz}$ \\
-\quad control band, transistors      & $1.8449$--$1.8568\unit{V}$ \\
-\quad control band, models           & $1.8483$--$1.8522\unit{V}$ \\
+\quad control voltage range, transistors & $1.8448$--$1.8563\unit{V}$ \\
+\quad control voltage range, models      & $1.8486$--$1.8525\unit{V}$ \\
 \midrule
-Model half vs transistor half        & $6.36\unit{s}$ vs $105.3\unit{s}$ \\
-\quad same testbench, same span       & $17\times$ \\
+Model half vs transistor half        & $4.81\unit{s}$ vs $76.2\unit{s}$ \\
+\quad same testbench, same span       & $16\times$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent The control voltage is the number to read. It is where the loop
-stores its state, so a model that settles anywhere else disagrees here
-first --- and the two agree to $4.62\unit{mV}$ while reaching the same
-frequency, on a rail carrying $20\unit{mV}$ rms of noise the deck
-declares. That is looser than the figure this table carried while the
-rail was quiet, and the rail is the reason: a loop concentrates a supply
-disturbance onto precisely this node. Running the case that way is the
-point of it.
+\noindent The control voltage is the number to read. The loop stores its
+state there, so a model that settles in the wrong place shows it here
+first. The two runs agree to $3.851\unit{mV}$ and reach the same
+frequency. They do so with $20\unit{mV}$ rms (root mean square) of random
+noise on the supply, as the netlist declares. The agreement is looser than
+it was with a quiet supply, and the supply noise is the reason: a loop
+concentrates a supply disturbance onto exactly this node.
 
 % <<TRACE:pll>>
 \begin{center}
@@ -672,52 +772,56 @@ point of it.
       legend columns=2,draw=none,column sep=1.2em},
     grid=both, grid style={line width=0.1pt,draw=gray!18},
     every axis plot/.append style={line width=0.7pt}]
-    \addplot[black,mark=*,mark size=1.5pt] coordinates {(0.3999,1.85565) (0.7999,1.8568) (1.2,1.85275) (1.6,1.84742) (2,1.84491) (2.4,1.84605) (2.8,1.84878) (2.9,1.84945)};
-    \addplot[red,dashed,mark=o,mark size=2.4pt] coordinates {(0.3999,1.85183) (0.7999,1.85218) (1.2,1.85061) (1.6,1.84879) (2,1.84828) (2.4,1.84869) (2.8,1.84971) (2.9,1.84995)};
+    \addplot[black,mark=*,mark size=1.5pt] coordinates {(0.3999,1.85583) (0.7999,1.8563) (1.2,1.85233) (1.6,1.84734) (2,1.84478) (2.4,1.84606) (2.8,1.84901) (2.9,1.84966)};
+    \addplot[red,dashed,mark=o,mark size=2.4pt] coordinates {(0.3999,1.85198) (0.7999,1.85249) (1.2,1.85084) (1.6,1.84894) (2,1.84857) (2.4,1.84898) (2.8,1.84996) (2.9,1.85015)};
     \legend{transistors (SPICE), generated model}
   \end{axis}
 \end{tikzpicture}
 \end{center}
 \vspace{-0.6em}
-\noindent{\footnotesize The control voltage at the co-simulation boundary: the composed models against the transistors, on the design's own testbench, on a node the loop holds near 1.85\,V. Both settle to the same place and hold it. Eight samples because that is how often the digital side reads this node; how closely they agree at any one instant is a draw, and the table's bar is what the verdict is taken against.}\vspace{0.6em}
+\noindent{\footnotesize The control voltage at the boundary between the digital RTL and the analog half: the composed models against the transistor-level circuit in SPICE, on the design's own testbench, on a node the loop holds near 1.85\,V. Both settle to the same place and hold it. There are eight points because the digital side reads this node eight times. Because the supply carries random noise, how closely the two curves agree at any one instant is one run's result, a random sample. The pass/fail limit in the table is what the result is checked against.}\vspace{0.6em}
 % <<END TRACE:pll>>
 
-\textbf{That figure is one draw. The bar beside it is not.}
+\textbf{The agreement figure changes from run to run. The pass/fail limit
+does not.}
 
-Both runs make their own noise from the source the deck declares, so
-neither ever sees the same noise twice. The worst-window difference
-therefore changes every time. Seven consecutive runs of this same deck
-gave $3.61$, $1.83$, $4.15$, $2.05$, $1.86$, $1.72$ and
-$4.62\unit{mV}$, and the last two were a pair run back to back with
-nothing changed between them. So that figure is a sample of a
-distribution, not a property of the model.
+The supply noise is random. Each run generates its own random noise from
+the noise source declared in the netlist, so the model run and the
+transistor run never see the same noise. The largest difference between
+them, over any time window, therefore changes from run to run. Seven
+consecutive runs of this same netlist gave $3.61$, $1.83$, $4.15$,
+$2.05$, $1.86$, $1.72$ and $4.62\unit{mV}$, and the run this section is
+drawn from gave $3.851\unit{mV}$ as an eighth. Two of the eight were run
+back to back with nothing changed between them. So the $3.851\unit{mV}$
+quoted above is one random sample from a spread of possible results, not
+a property of the model.
 
-What does not change from run to run is what the difference is compared
-against. That bar is $0.265$ of \texttt{vout}'s own scale, and $0.215$
-of it exists to absorb exactly this variation. The $4.62\unit{mV}$ above
-comes to $0.124$ against it --- comfortably inside. That is the number
-the verdict is taken on, and the number the record keeps.
+What stays fixed is the limit the difference is compared against. That
+limit is $0.252$ of \texttt{vout}'s own scale, and $0.202$ of it is there
+to allow for exactly this run-to-run variation. The $3.851\unit{mV}$ comes
+to $0.104$ against it, comfortably inside. That ratio is what the pass/fail
+result is based on, and what the record keeps.
 
-The scale has a floor of its own: $2\%$ of the node's magnitude. Without
-one the comparison would be unfair here, because the transistor run's
-\texttt{vout} moved only $11.8\unit{mV}$ across the window, and judging
+The scale has a minimum of its own: $2\%$ of the node's magnitude. Without
+that minimum the comparison would be unfair here. In the transistor run
+\texttt{vout} moved only $11.5\unit{mV}$ across the window, and measuring
 a difference against so small a range would report ordinary noise as
 error.
 
-The general point is worth stating plainly. An agreement figure quoted
-without its bar tells you less than it appears to --- in the same way a
-jitter ratio means little without the correlation time it was measured
-at.
+In general, an agreement figure quoted without its limit tells you less
+than it seems to. A jitter ratio means little without the correlation
+time it was measured at, for the same reason.
 
 \medskip
-\noindent Each node also records which metric its bar applies to. Some
-of them the digital side reads through a threshold, where what matters
-is when the signal crosses and not what it averages; those are judged on
-their crossings. Printing the average next to a crossing bar would put a
-pass beside two numbers that contradict it --- $0.030$ against a
-$0.020$ bar --- when the figure actually compared was $0.004$.
+\noindent Each node also records which metric its limit applies to. The
+digital side reads some nodes through a threshold. For those, what
+matters is when the signal crosses the threshold, not its average value,
+so they are scored on their crossings. Printing the average beside a
+crossing limit would show a pass next to numbers that seem to contradict
+it ($0.030$ against a $0.020$ bar) when the figure actually compared was
+$0.004$.
 
-\subsection{The rail the deck declares is the rail the model sees}
+\subsection{The supply noise the netlist declares is the noise the model sees}
 \label{sec:noise}
 
 The netlist for this case says
@@ -726,11 +830,16 @@ The netlist for this case says
 \texttt{vdd dd 0 dc \{vcc\} trnoise(0.02 1e-10 0 0)}
 \end{center}
 
-\noindent --- a supply with $20\unit{mV}$ rms on it, redrawn every
-$100\unit{ps}$. A composition that reads that line and emits
+\noindent This is a supply with random noise on it, set by the
+\texttt{trnoise} (transient noise) settings. The first two numbers are the
+white-noise settings: an amplitude of $20\unit{mV}$ rms, and a time step
+of $100\unit{ps}$ between new random values. The next two, both zero
+here, would add flicker (1/f) noise.
+
+A composed model that reads that line and generates
 \texttt{assign dd\_v = 3.3;} has deleted a disturbance the design asked
-for, and every check downstream then agrees about a circuit nobody is
-shipping. What the tool emits instead, in \texttt{netlist\_top.sv}:
+for. Every later check then agrees about a circuit nobody is shipping.
+The tool instead generates this, in \texttt{netlist\_top.sv}:
 
 \begin{lstlisting}
 int unsigned dd_rng;
@@ -746,139 +855,209 @@ end
 assign dd_v = ((dd_v_ext > 0.0) ? dd_v_ext : DD_NOM) + dd_nw;
 \end{lstlisting}
 
-\noindent The amplitude and the redraw interval are the deck's own, the
-rail stays overridable from outside, and the draw is seeded so the run
-repeats. A transient of this deck puts that source at
-$10.91\unit{ps}$ rms of period jitter at the oscillator, $\pm 5\%$ at the
-two hundred cycles it was measured over. That figure is itself a draw. A
-constant rail produces none of it.
+\noindent The noise amplitude and the time step are the ones the netlist
+declares. The supply can still be overridden from outside. The random
+generator starts from a fixed random seed (\texttt{DD\_SEED}), so a rerun
+repeats exactly. In a transient simulation of this netlist, that noise
+source causes $10.72\unit{ps}$ rms of period jitter at the oscillator,
+$\pm 5\%$ over the two hundred cycles it was measured on. That jitter
+figure is itself one random sample. A constant supply produces no jitter
+at all.
 
-That figure is measured per design rather than quoted. Getting it
-needs one step first: the declared condition is restored onto the block's
-own supply. Extraction rebuilds every rail as a plain DC source, so the
-fragment a block is characterised from does not carry the noise its
-design states. Without that step the measurement would be of a quieter
-circuit than the one being modelled. The generated file says which source
-the number came from.
+The jitter figure is measured for each design, not quoted from elsewhere.
+Measuring it needs one step first. To characterise a block, the tool
+extracts it from the netlist, and extraction rebuilds every supply as a
+plain DC source, without the declared noise. So the tool restores the
+declared noise onto the block's own supply. Without that step the
+measurement would describe a quieter circuit than the one being
+modelled. The generated file records which source the number came from.
 
-So the declared source is carried into the composed model, sampled and
-held at the source's own interval. That reproduces the two properties
-which decide how much jitter a source causes --- its rms and its
-correlation time. The spectra agree at low frequency and part near
-$1/NT$, where ngspice interpolates between its noise breakpoints and the
-model does not.
+The declared source is therefore carried into the composed model: a new
+random value is taken at each of the source's own time steps and held
+until the next. That reproduces the two properties that decide how much
+jitter a noise source causes: its rms and its correlation time. The
+noise spectra of model and SPICE agree at low frequency. They differ near
+$1/NT$ (NT is the time step), because ngspice interpolates between its
+random values and the model holds them flat.
 
 \textbf{All seven fields of a \texttt{trnoise} declaration are read}, not
-the white pair alone. Where a deck declares flicker, the composition
-carries it as a Voss--McCartney summation across the octaves the run
-spans; where it declares a random telegraph, as a two-state Markov
-process with exponentially distributed dwells, at the capture and
-emission times given. The Voss construction produces $\alpha = 1$, and
-the generated file records both that and the exponent the deck asked for
-rather than quietly substituting one for the other. This PLL declares the
-white pair alone, which is why every figure here is white --- 1/f is what
-dominates close-in phase noise, and a deck that states it gets it.
+just the two white-noise settings. Where a netlist declares flicker (1/f)
+noise, the composed model carries it as a Voss--McCartney summation (a sum
+of random sources updated at octave-spaced rates) across the octaves the
+run spans. Where it declares random-telegraph noise (a signal that jumps
+between two levels), the model carries it as a two-state Markov process
+with exponentially distributed dwell times, using the capture and emission
+times given. The Voss construction produces $\alpha = 1$. The generated
+file records both that and the exponent the netlist asked for, rather
+than quietly substituting one for the other. This PLL's netlist declares
+white noise only, which is why every figure here shows white noise.
+Flicker noise dominates close-in phase noise, and a netlist that declares
+it gets it in the model.
 
-Carrying it changes what a comparison means. Both halves now draw their
-own noise, so two runs of the same circuit differ by sampling error
-alone and a fixed tolerance would be measuring run length. Each node's
-bar is widened by three standard errors of the difference between two
-window means, taken from the reference's own spread rather than from the
-declared amplitude --- what actually reaches a node is a property of the
-circuit. On \texttt{vout} that allowance is $0.215$ of the $0.265$ bar,
-and the record carries both, so a reader can see how much of the bar was
-earned and how much was allowed.
+Carrying the noise changes what a comparison means. The model run and the
+transistor run now each generate their own random noise. Two runs of the
+same circuit therefore differ by chance alone, and with a fixed tolerance
+the pass/fail result would depend on how long the run was. So each node's
+limit is widened to allow for that run-to-run variation: by three standard
+errors of the difference between two window means. The standard error is
+taken from how much the SPICE reference itself varies, not from the
+declared amplitude, because how much noise reaches a node is a property of
+the circuit. On \texttt{vout} that allowance is $0.202$ of the $0.252$
+bar. The record carries both, so a reader can see how much of the bar was
+earned by agreement and how much was allowance for noise.
 
 \subsection{Where the block works is measured, not assumed}
 \label{sec:whereitworks}
 
 The two output-buffer inverters sit in the clock path. Their job is to
-place edges in time, and an average voltage error is close to blind to
-that. Both pass an average-error comparison comfortably --- while their
-error at the single worst instant is $99.9\%$ of the full voltage swing.
-Those are not in conflict: if the model's edge lands slightly late, then
-for that brief moment the model sits at one supply rail while the real
-circuit sits at the other. Averaged over time it vanishes. For a clock
-buffer, that moment is the behaviour being verified. The pipeline
-classifies them from the measured DC curve --- $62\%$ and $61\%$ of
-swept points within $5\%$ of a rail is a switching characteristic, not a
-smooth response --- and scores them on duty cycle instead.
+place clock edges in time, and an average voltage error barely sees that.
+Both pass an average-error comparison comfortably, yet their error at the
+single worst instant is $99.9\%$ of the full voltage swing. These do not
+conflict. If the model's edge lands slightly late, then for that brief
+moment the model sits at one supply rail while the real circuit sits at
+the other. Averaged over time, that moment disappears. For a clock buffer,
+that moment is exactly the behaviour being verified.
 
-The frequency it scores them at is measured. Where a block operates is a
-property of the closed loop and exists only once the digital side is
-attached, exactly like the operating range the golden probe already
-measures. The probe therefore measures each net's switching rate beside
-its voltage band: the two inverter inputs return $399.8$ and
-$399.7\unit{MHz}$, the $400\unit{MHz}$ this PLL locks to. Scored there,
-they pass at $0.276$ and $0.307\unit{pp}$ of duty against a
-$0.5\unit{pp}$ bar.
+The tool classifies the two inverters from their measured DC curve. With
+$62\%$ and $61\%$ of swept points within $5\%$ of a rail, the curve is a
+switching characteristic, not a smooth response. So they are scored on
+duty cycle instead.
 
-The form they are re-emitted in has no delay line, so it cannot carry the
-measured rise/fall skew --- $0.589$ and $0.672\unit{pp}$ of duty at that
-clock. Both blocks measure below their own floor, so the skew partly
-cancels rather than adding. That makes the floor an upper bound on what
-the form costs, not margin to spend, and the pipeline states it before
-scoring rather than leaving a pass to be read as unqualified.
+The clock frequency they are scored at is also measured. Where a block
+operates is a property of the closed loop, and exists only once the
+digital side is attached. The same holds for the operating voltage range,
+which the golden probe (the SPICE run that measures golden values, the
+expected values) already measures. So the probe measures each net's
+switching rate beside its voltage range. The two inverter inputs return
+$399.8$ and $399.7\unit{MHz}$, the $400\unit{MHz}$ this PLL locks to.
+Scored there, they pass at $0.276$ and $0.307\unit{pp}$ (percentage
+points) of duty cycle, against a $0.5\unit{pp}$ bar.
 
-That number is not one a language model can supply. Asked five times
-about the same inverter with the same measurements, the classifier
-proposed clock rates of $2\unit{MHz}$, $765\unit{MHz}$, $300\unit{MHz}$,
-$10\unit{GHz}$ and $15\unit{GHz}$; asked about the second stage, it
-proposed $10\unit{GHz}$. The lowest is two hundred times below where the
-buffer runs and the highest thirty-seven times above what its own model
-can follow. The measurement returns the same answer every run, and gives
-the two stages answers agreeing to $0.03\%$, which no classifier run did.
-Intent from the model, physics from the circuit, applied to a number that
-looked like intent and was not.
+The model form they are regenerated in has no delay line, so it cannot
+represent the measured rise/fall skew: $0.589$ and $0.672\unit{pp}$ of
+duty at that clock. Both blocks measure below their own floor, so the
+skew partly cancels rather than adding. That makes the floor an upper
+bound on what the simpler model form costs, not spare margin. The tool
+states this before scoring, so a pass is not read as unqualified.
 
-What the classifier is asked for, it has been steady on: buffer, clock
-stimulus, duty metric, on every run of both stages. That is the judgement
-gated on a measurement it can check itself against. What moved is the one
-number it was in no position to know.
+A language model cannot supply that clock frequency. Asked five times
+about the same inverter with the same measurements, the classifier (the
+language model that judges design intent) proposed clock rates of
+$2\unit{MHz}$, $765\unit{MHz}$, $300\unit{MHz}$, $10\unit{GHz}$ and
+$15\unit{GHz}$. Asked about the second stage, it proposed
+$10\unit{GHz}$. The lowest is two hundred times below where the buffer
+runs. The highest is thirty-seven times above what the buffer's own model
+can follow. The measurement returns the same answer every run, and its
+answers for the two stages agree to $0.03\%$, which no classifier run
+did. The rule is: design intent comes from the language model, physical
+values from the circuit. The clock rate looked like intent but is physics.
 
-\paragraph{The verdict names the metric it came from.}
-Asking for the classifier is not the same as getting it. Every duty
-figure above comes from a run with a key present and the classifier
-consulted. The same demonstration was then run deliberately
-\emph{without} one, to see what a reader would be shown if it declined.
-The chirp is kept, and these same two blocks pass an rms comparison at
-$0.025$ against a $0.15$ bar --- a green result from a measurement that
-cannot see the property in question. The two transcripts are otherwise alike, and the
-command line is identical, so the run records which figure each verdict
-was reached by, and the demonstration reports it from that record.
-Asking for a check on the command line does not show that it ran.
+On what it is actually asked for, the classifier has been consistent:
+buffer, clock stimulus and duty-cycle metric, on every run of both stages.
+That is a judgement it can check against a measurement. What varied is the
+one number it had no way to know.
+
+\paragraph{The pass/fail result names the metric it came from.}
+Asking for the classifier does not guarantee it is used. Every duty-cycle
+figure above comes from a run with the classifier reachable and
+consulted. The same demonstration was then run deliberately with it
+\emph{unreachable}, to see what a reader would be shown in that case.
+(Which credential makes it reachable is a property of the build, not of
+this result: the demonstrations ask the toolchain whether it can call a
+model rather than testing for a named environment variable.) The default chirp stimulus is kept, and the
+same two blocks pass an rms comparison at $0.025$ against a $0.15$ bar.
+That is a green result from a measurement that cannot see the property in
+question (edge timing). The two transcripts are otherwise alike and the
+command line is identical. So the run records which figure each pass/fail
+result was based on, and the demonstration reports it from that record.
+Asking for a check on the command line does not prove that it ran.
 
 
-\subsection{The same loop, with no co-simulation to probe it}
+\subsection{The same loop, in SystemVerilog alone}
 \label{sec:nocosim}
 
-Everything above this point in this case study needs a co-simulation to
-already exist. The golden probe runs the design's own testbench against
-the transistors; the system check runs that testbench twice. Both need a
-testbench spanning the two halves, a DPI bridge, and a shared
-\texttt{libngspice} for it to load.
+Everything earlier in this case study depends on an SV--SPICE
+co-simulation set-up already existing: the digital RTL runs in the
+SystemVerilog simulator, the analog half runs as transistors in ngspice,
+and a bridge joins them. Two steps rely on it. The golden probe is a run
+of the design's own testbench in that co-simulation, against the
+transistor-level circuit in SPICE, which measures the range each block
+really operates over. The system check runs that same testbench twice.
+Both need a testbench spanning the two halves, a DPI bridge, and a shared
+\texttt{libngspice} for the bridge to load.
 
 Most designs have none of those. What they have is an analog netlist,
 some RTL, a specification in English, and nothing wiring the three
-together. The same PLL was run that way, and two things break.
+together. This section runs the same PLL that way, in SystemVerilog only
+(RTL plus generated models, no SPICE anywhere). Call it the SV-only run,
+to keep it apart from the SV--SPICE co-simulation run earlier. In the
+SV-only run, two things break.
 
-\paragraph{The operating band has nothing to measure it.} Where a block
-works is a property of the closed loop, and with the loop open there is
-no loop to measure. Worse, two of the ring's internal nets are driven by
-nothing at all and have no operating point either. So the band is
-\emph{declared}, from the table a designer writes anyway --- control
-voltage $1.75$--$1.95\unit{V}$, supply $3.3\unit{V}$, buffers
-full-swing between the rails, substrate and well tied:
+\paragraph{Nothing measures the operating band.} A block's operating band
+is the range of voltages it actually sees in use. That range is a
+property of the closed loop, and with the loop open there is no loop to
+measure. Worse, two of the ring oscillator's internal nets are driven by
+nothing at all, so they have no operating point either.
+
+The band therefore comes from the two artifacts that do know it, and the
+run says which for every net. Most of it is in the \emph{deck}, and is
+read rather than restated: a source holding a node at one voltage is that
+node's band, and a node with a pull-down to ground and a pull-up to the
+rail cannot leave them. Two numbers are in neither the netlist nor
+derivable from it: where a \emph{locked} loop keeps its control voltage,
+and how far the supply is allowed to move. Both are \emph{declared}, from
+the operating-conditions table a designer writes anyway. Seven messages
+covering twenty-one nets, five of them facts about the circuit and two of
+them design intent:
 
 \begin{lstlisting}
---band vout=1.75:1.95          the control window, from the table
---band xvco.outm1=0:3.3        rail to rail, inside the ring
---band xvco.sub=0:0            substrate tie
+band for 'aout'      DERIVED  as 0..3.3 V, the range its own drivers
+                              can reach -- not where it sits; the same
+                              for 14 more net(s): xvco.outm1 ...
+                              xvco.outm7, xvco.outp1 ... xvco.outp7
+band for 'xcp.ss'    DERIVED  as 0 V, fixed: source vss ties it to 0 V
+band for 'xvco.ss'   DERIVED  as 0 V, fixed: source vss ties it to 0 V
+band for 'xvco.sub'  DERIVED  as 0 V, fixed: source ve ties it to 0 V
+band for 'xvco.well' DERIVED  as 3.3 V, fixed: source vpe ties it to 3.3 V
+band for 'dd'        DECLARED as 3.13..3.47 V from the specification's
+                              'Supply (VDD)' row -- not measured
+band for 'vout'      DECLARED as 1.75..1.95 V from the specification's
+                              'Control voltage' row -- not measured,
+                              because no golden run was available to
+                              measure it
 \end{lstlisting}
 
-\textbf{And the tool reads that specification.} The
-demonstration hands it the document along with the netlist and the RTL.
-What it took from this one, in the run these figures come from:
+\noindent Nothing on the command line states any of this, and nothing in
+the specification names a net. The document says ``control voltage''; the
+netlist says \texttt{cont}; the instance card says \texttt{cont} is the
+top level's \texttt{vout}. What binds the three is the measurement that
+found which port tunes the oscillator, so the binding happens after
+classification and is reported with the block and port it came
+from. Earlier these five numbers were five \texttt{-{}-band} flags on the
+command line, which is the one place a number has no owner: it cannot be
+traced to the document that justifies it, it is not reviewed with the
+design, and a copy of it in a script drifts from its source silently.
+
+One further distinction the run keeps. A band read off a pair of rails is
+what a net \emph{can reach}, not where it sits, so it is the weakest of
+the three and never narrower than the truth. The charge pump's output can
+reach either rail too, and in a locked loop it sits at the control voltage
+instead; that topology is recognised and left without a band rather than
+given a true and useless one.
+
+\paragraph{A band is an input, not a claim.} The operating-conditions
+table is parsed by text, with no model involved, while the rest of the
+document is read by one. The asymmetry is deliberate. Every other fact
+taken from a specification is checked afterwards against what the circuit
+was measured to do, and the measurement wins; a band cannot be checked
+that way, because it decides the range the circuit is measured over. A
+number with that much authority must not depend on whether a model could
+be reached, so it is read by the part of the toolchain that always runs.
+
+\textbf{The tool also reads the specification itself.} The demonstration
+gives it the specification document along with the netlist and the RTL.
+This is what it took from that document, in the run these figures come
+from:
 
 \begin{lstlisting}
 read as: Document states "PLL -- 400 MHz ring-oscillator
@@ -893,16 +1072,19 @@ read as: Document states "PLL -- 400 MHz ring-oscillator
   "characterizable from 0.5 V to 2.8 V".
 \end{lstlisting}
 
-\noindent Those are the same facts the command line states, arrived at
-independently, and Section~\ref{sec:spec} describes the rule that
-governs them: every extracted fact is checked against what the circuit
-was measured to do, and the measurement wins. Here nothing disagreed.
+\noindent These are facts about what the part is FOR, which is a
+different kind of statement from the operating band above: they choose
+the stimulus and the verdict, and they are claims the measurement can
+contradict. Section~\ref{sec:spec} describes the rule that governs them:
+every fact extracted from the document is checked against what the
+circuit was measured to do, and the measurement wins. Here nothing
+disagreed.
 
 \textbf{More useful is what it refused to let pass.} The document names
-$20\unit{mV}$ rms of supply noise as a condition the part must work
-under. The reader placed that correctly --- an operating condition
-belongs in the stimulus, not in the model --- and then reported that the
-generated environment does not drive it:
+$20\unit{mV}$ rms (root mean square) of supply noise as a condition the
+part must work under. The reader placed that correctly: an operating
+condition belongs in the stimulus, not in the model. It then reported
+that the generated environment does not drive that noise:
 
 \begin{lstlisting}
 spec: the document states 20 mV rms of supply noise as a condition
@@ -913,101 +1095,173 @@ NOTE: the supply-noise condition is not driven by the generated
   netlist itself declares
 \end{lstlisting}
 
-\noindent A requirement it cannot yet meet is reported rather than
-dropped. That is the behaviour worth having from a language model in a
-verification flow: not a proposal, a gap it can name.
+\noindent So a requirement the tool cannot yet meet is flagged in the
+output, not silently dropped. That is the behaviour worth having from a
+language model in a verification flow: not a guess at a fix, but a gap
+it can name.
 
-\textbf{What it did not do is supply the five bands.} Those are still
-typed on the command line, read off the specification's table by a
-person. The phrase the run prints for them --- \texttt{a spec DECLARES}
---- is the band mechanism describing a human-supplied figure, not the
-reader describing one it extracted.
+\textbf{It did not supply the five bands.} A person still reads those off
+the specification's table and types them on the command line. The run
+prints the phrase \texttt{a spec DECLARES} for them. That phrase is the
+band mechanism labelling a figure a human supplied. It does not mean the
+reader extracted that figure.
 
-\textbf{And this passage costs the document something.} Every other
-figure here regenerates identically from its run. The text above does
-not: a language model produces different words each time, and the
-paragraph quotes words. What is stable is what surrounds it --- the
-bands, the measurements, the verdicts --- all of which were byte-for-byte
-identical across this run, two before it with different readings,
-and the one before those, when the reader declined for want of a key. The
-model changed what was \emph{read}, not what was measured.
+\textbf{This passage costs the paper some reproducibility.} Every other
+figure in the paper regenerates identically from its run. The quoted text
+above does not, because a language model produces different words each
+time. What stays stable is everything around it: the bands, the
+measurements and the verdicts. All of these were byte-for-byte identical
+across this run, two earlier runs where the model read the document
+differently, and the run before those, where the reader did not run at
+all because no model was reachable. What a model changed was what was
+\emph{read}, never what was measured.
 
-\noindent A declared band is not a measured one, and the run never
-reports it as one. Every message that uses a declared band says so in
-those words --- \texttt{a spec DECLARES as 0.0000..3.3000 V, not
-measured} --- and the blocks the open loop cannot reach say that too,
-rather than quietly characterising something else.
+\noindent Neither a derived band nor a declared one is a measured band,
+and the run never presents either as one. Every message that uses a band
+names its source in those words: \texttt{a spec DECLARES as
+1.7500..1.9500 V, not measured} for the control window, and \texttt{the
+deck itself gives as 0.0000..3.3000 V} --- a complementary pair drives it
+between the rails --- \texttt{derived and not measured} for a net inside
+the ring. The blocks the open loop cannot reach say so too, instead of
+quietly characterising something else.
 
-\paragraph{Per-block models are still not a system.} That question does
-not go away with the co-simulation, so the loop is closed afterwards in
-\emph{pure SystemVerilog}: the composed models, the design's own
-\texttt{pfd.sv} and \texttt{divn.sv} instantiated unchanged, one
-simulator. No DPI import, no bridge, no SPICE process anywhere in it.
+\paragraph{Per-block models are still not a system.} Checking each block
+alone does not show that the loop works. Without an SV--SPICE
+co-simulation that question still needs an answer, so the SV-only run
+closes the loop in \emph{pure SystemVerilog}. It uses the composed
+models and the design's own \texttt{pfd.sv} and \texttt{divn.sv},
+instantiated unchanged, in one simulator. There is no DPI import, no
+bridge, and no SPICE process anywhere in it.
 
-What has to be stated is the \emph{topology} --- which RTL port lands on
-which net --- because connectivity is not recoverable from a model, and
-on this circuit a name is actively misleading: in the reference
-example's own RTL, \texttt{d\_R} is the \emph{divided} clock, the
-opposite of what it reads like, and a loop wired from that name is
-inverted.
+The user states no \emph{topology}. An earlier version of this
+demonstration shipped a JSON file naming which RTL port landed on which
+net, and that file is gone: the wiring is followed out from the one clock
+the analog half produces, by port \emph{direction}, and not one port name
+is read on the way.
 
-What is \emph{not} stated is the sense of either pump gate. That follows
-from two things characterisation has already measured --- the sign of the
-tuning curve and the direction of the current each control state drives
---- and the generated file carries the numbers it came from:
+That last part is the point, because on this circuit a port name is
+actively misleading. In ngspice's own PLL example the detector is
+instantiated \texttt{Xfpdet d\_divout d\_ref} against a subcircuit
+declared \texttt{.subckt f-p-det d\_R d\_V}, so \texttt{d\_R} carries the
+\emph{divided} clock, the opposite of what it reads like. A loop wired
+from names is confidently backwards there. What the run worked out here,
+and what from:
 
 \begin{lstlisting}
-pdn <- up, active HIGH (derived)
+pfd  . ref_clk -> clk_out      divn . clk_in  -> aout_clk
+pfd  . div_clk -> ref_clk      divn . clk_out -> clk_out
+pfd  . dn      -> dn           analog aout    -> aout_clk
+pfd  . up      -> up
+
+the oscillator's control net = vout
+    the port block_classify measured as its control source
+the net that becomes a clock = aout
+    block 'ro_vco' was measured to oscillate on its port 'aout'
+the divide ratio = 40
+    parameter N of module divn defaults to 40 in its own header
+the reference rate = 1.00014e+07 Hz
+    the deck holds 'vout' at 1.8495 V, where the measured tuning
+    curve puts block 'ro_vco' at 400.056 MHz, and the ratio is 40
+\end{lstlisting}
+
+\noindent\textbf{One fact about this loop is in neither the netlist nor
+the measurements.} Which of the detector's two outputs speeds the
+oscillator up is a property of the RTL's \emph{body}, and both wirings
+elaborate and run. This used to be settled by building both loops and
+keeping whichever locked, which works, costs a second loop run every
+time, and leaves the question answered by an experiment rather than by
+the document that ought to state it. The specification states it instead,
+in one line that names a port of the customer's RTL and the control
+voltage, and no gate of the charge pump:
+
+\begin{quote}
+\textbf{The detector's \texttt{up} output raises the control voltage.}
+\end{quote}
+
+\noindent That is read by text, with no model and no credentials, for the
+same reason the operating-conditions table is: it decides how the loop is
+\emph{wired}, so it must not move with whether a model could be called.
+
+And ``raises the control voltage'' is not ``speeds it up''. This ring's
+tuning curve falls, so the output that raises the control voltage is the
+\emph{slower} one, and the run does that conversion with the sign it
+measured rather than assuming the two agree. Reading one as the other is
+exactly the error the statement exists to remove, and on this circuit
+they are opposite.
+
+The stated sense does not outrank the circuit. The other pairing is still
+written out beside the one that was built, and if the stated one fails to
+lock it is built and run too: a loop that locks is a measurement and a
+document is not, so the measurement wins and the run reports the document
+as wrong about its own detector. On this deck the stated pairing locked
+first time, so one loop was built and the alternative stayed a record.
+
+The user does \emph{not} state the polarity of either charge-pump gate
+(whether it is active high or active low). The tool derives it from two
+things characterisation has already measured: the sign of the
+oscillator's tuning curve, and the direction of the current each control
+state drives. The generated file records the numbers it came from:
+
+\begin{lstlisting}
+pdn <- dn, active HIGH (derived)
   ro_vco measured at 15 control points, 0.495 to 2.805 V, over which
-    its frequency FALLS 804.5 -> 16.74 MHz: Kvco is NEGATIVE
+    its frequency FALLS 804.47 -> 16.74 MHz: Kvco is NEGATIVE
   lpfilt: current into dra reaches vout through a state space whose
     input vector is non-negative throughout, so positive current
     RAISES it
-  with pupb quiescent, pdn at 1 drives -0.00447 A into dra and at 0
-    drives -1.961e-09 A, both at 1.849 V -- so it is active HIGH
+  with cpump quiescent (pupb=1), pdn at 1 drives -0.00447 A into dra
+    and at 0 drives -1.961e-09 A, both at 1.849 V -- active HIGH
+pupb <- up, active LOW (derived)
+  ... the same two measurements, and with pdn=0, pupb at 1 drives
+    -1.961e-09 A into dra -- so its asserted level is the LOW one
 \end{lstlisting}
 
-\noindent \texttt{pupb} comes out active \emph{low} and \texttt{pdn}
-active \emph{high} on the same pump. That is not a distinction a port
-name survives, and a charge pump wired from its names has shipped upside
-down before.
+\noindent On the same pump, \texttt{pupb} comes out active \emph{low} and
+\texttt{pdn} active \emph{high}. A port name does not reliably carry
+that distinction, and charge pumps wired from their names have shipped
+upside down before.
+
+The table summarises the SV-only run. ``Route'' here means the
+characterisation method the tool chose for a block.
 
 \begin{center}
 \begin{tabular}{@{}lr@{}}
 \toprule
-Co-simulation, at any stage             & none \\
-Models emitted, four routes             & $5$ \\
-Operating bands                         & $5$ declared, $0$ measured \\
+SV--SPICE co-simulation, at any stage   & none \\
+Models generated, using four routes       & $5$ \\
+Operating bands                         & $5$ derived, $2$ declared, $0$ measured \\
 Per-block equivalence                   & $5$ of $5$ pass \\
 \midrule
 Loop closed in                          & SystemVerilog only \\
-Gate senses derived from measurement    & $2$ of $2$ \\
-Divider output vs the reference it follows & $10.000040$ vs $10.000000\unit{MHz}$ \\
-\quad against a $2\%$ bar                & $+0.0004\%$, locked \\
-Control voltage across the window        & $1.8490$--$1.8507\unit{V}$ \\
-\quad drift end to end                   & $-0.16\unit{mV}$ \\
+Loop sense, stated by the specification  & $1$ line, no net named \\
+Gate polarities derived from measurement & $2$ of $2$ \\
+Gate pairings built and run              & $1$ of $2$, the stated one \\
+Divider output vs the reference it follows & $10.001348$ vs $10.001401\unit{MHz}$ \\
+\quad against a $2\%$ pass/fail limit    & $-0.0005\%$, locked \\
+Control voltage across the window        & $1.8488$--$1.8506\unit{V}$ \\
+\quad drift end to end                   & $-0.26\unit{mV}$ \\
 \midrule
 Environments generated                  & $3$ per block, $1$ over the loop \\
 \quad blocks refused, with a reason      & $2$ \\
-\quad run, and reporting                 & $4$ of $4$ \\
+\quad run, and reporting results         & $4$ of $4$ \\
 \midrule
-Characterisation                        & $33$ min \\
-Closing the loop and running it         & $37.3\unit{s}$ \\
+Characterisation, loop included          & $11$ min \\
+The four environments, run afterwards    & $11$ min \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 
-\paragraph{And a UVM-MS environment over the whole loop.} The loop above
-is a plain testbench: it drives a reference and checks a rate. What the
-same run also emits is a full environment around it --- sequence,
-sequencer, driver, monitor, agent, scoreboard, and an MS proxy split
-into an abstract half the components talk to and a concrete half in the
-top level, so neither driver nor monitor holds a hierarchical path into
-the design.
+\paragraph{A UVM-MS environment over the whole loop.} The loop above is
+a plain testbench: it drives a reference clock and checks a frequency.
+The SV-only run also generates a full UVM-MS environment around it. It
+has a sequence, sequencer, driver, monitor, agent and scoreboard. It also
+has an MS proxy split in two: an abstract half that the components talk
+to, and a concrete half in the top level. As a result, neither the
+driver nor the monitor holds a hierarchical path into the design.
 
-It is the only \emph{system} environment this tool generates with every
-one of those, and the reason is the stimulus:
+It is the only \emph{system-level} environment this tool generates with
+all of those components. The reason is the stimulus:
 
 \begin{center}
 \begin{tabular}{@{}lccccccl@{}}
@@ -1017,53 +1271,59 @@ one of those, and the reason is the stimulus:
 \midrule
 block, transfer function & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & \texttt{uvm\_scoreboard} \\
 block, oscillator        & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & \texttt{uvm\_scoreboard} \\
-system, co-simulated     & ---       & ---       & ---       & $\bullet$ & $\bullet$ & $\bullet$ & \texttt{uvm\_scoreboard} \\
-system, no co-simulation & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & \texttt{uvm\_scoreboard} \\
+system, SV--SPICE co-simulation & ---       & ---       & ---       & $\bullet$ & $\bullet$ & $\bullet$ & \texttt{uvm\_scoreboard} \\
+system, SV only          & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & \texttt{uvm\_scoreboard} \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent The co-simulated system environment has the observing half and
-none of the driving half, because the testbench it wraps brings its own
-stimulus --- there is nothing for a sequence to ask for. Here there is no
-such testbench: the stimulus is the reference clock and this environment
-generates it, so a sequence, a sequencer and a driver have work to do.
+\noindent The system environment for the SV--SPICE co-simulation run has
+the observing half and none of the driving half. The testbench it wraps
+brings its own stimulus, so there is nothing for a sequence to ask for.
+The SV-only run has no such testbench. Its stimulus is the reference
+clock, and this environment generates it, so a sequence, a sequencer and
+a driver have real work to do.
 
-The oscillator's block environment is built on the same pattern, and
-the pattern is what makes it extensible. The timing lives in the proxy's
-concrete half in \texttt{top}, which is the only scope that can see the
-design's signals; the driver, monitor, agent, scoreboard and test hold
-none --- zero references to either signal, against eight in
-\texttt{top}. A second observer can subscribe to the monitor's analysis
-port without restructuring anything, and \emph{one} implementation of
-``time a clock'' serves this environment and the loop one.
+The oscillator's block environment uses the same pattern, and the
+pattern is what makes both extensible. The timing measurement lives in
+the proxy's concrete half in \texttt{top}, the only scope that can see
+the design's signals. The driver, monitor, agent, scoreboard and test
+hold no references to either signal, against eight in \texttt{top}. A
+second observer can subscribe to the monitor's analysis port without
+restructuring anything. And \emph{one} implementation of ``time a
+clock'' serves both this environment and the loop one.
 
-What the loop environment's sequence and driver do with that timing is
-step the reference by $0.5\%$ and back, which is why the run below has
-three windows rather than one
-settled snapshot --- a model frozen at its initial condition would
-produce that snapshot too.
+The reference rate itself is not a round number any more. It is the
+measured tuning curve read at the control voltage the deck states,
+divided by the ratio the divider's own header declares: $1.8495\unit{V}$
+puts the ring at $400.056\unit{MHz}$, and $40$ of those make
+$10.001402\unit{MHz}$. The loop environment's sequence and driver use
+that timing to step the reference frequency up by $0.5\%$ and back. That is why the results
+below have three measurement windows, not one settled snapshot. A model
+frozen at its initial condition would produce a single settled snapshot
+too, so one snapshot proves little.
 
-\textbf{Its goldens come from two places, and every line of its report
-says which.} Two are the specification's: reach the reference within
-tolerance, keep the control voltage inside the stated window. Two are
-this run's own measurements, and the second of those is the one worth
-having. The oscillator's tuning curve was measured point by point in
-ngspice before any of this existed; inverting it at the frequency the
-loop is asked for names the control voltage that frequency lives at.
+\textbf{Its expected values come from two places, and every line of its
+report says which.} Two come from the specification: reach the reference
+frequency within tolerance, and keep the control voltage inside the
+stated window. Two come from this run's own measurements, and the second
+of those is the valuable one. The oscillator's tuning curve was measured
+point by point in ngspice before any of this existed. Inverting that
+curve at the frequency the loop is asked for gives the control voltage
+the oscillator needs to produce that frequency.
 
 \begin{center}
 \begin{tabular}{@{}lrr@{}}
 \toprule
 \textbf{Window} & \textbf{divider output} & \textbf{control voltage} \\
 \midrule
-nominal, $10.000000\unit{MHz}$  & $10.000040$ & $1.8490$--$1.8507\unit{V}$ \\
-stepped, $10.050000\unit{MHz}$  & $10.049121$ & $1.8437$--$1.8459\unit{V}$ \\
-returned, $10.000000\unit{MHz}$ & $9.999296$  & $1.8493$--$1.8508\unit{V}$ \\
+nominal, $10.001402\unit{MHz}$  & $10.001342$ & $1.8488$--$1.8505\unit{V}$ \\
+stepped, $10.051409\unit{MHz}$  & $10.050600$ & $1.8435$--$1.8457\unit{V}$ \\
+returned, $10.001402\unit{MHz}$ & $10.000518$ & $1.8490$--$1.8506\unit{V}$ \\
 \midrule
-rate, against a $2\%$ bar        & \multicolumn{2}{r}{$3$ checks, $0$ failed, worst $+0.0087\%$ \quad[SPEC]} \\
+rate, against a $2\%$ bar        & \multicolumn{2}{r}{$3$ checks, $0$ failed, worst $0.0088\%$ \quad[SPEC]} \\
 control window, $1.75$--$1.95\unit{V}$ & \multicolumn{2}{r}{$3$ checks, $0$ failed \quad[SPEC]} \\
-against the measured curve       & \multicolumn{2}{r}{$3$ checks, $0$ failed, worst $0.90\unit{mV}$ \quad[MEASURED]} \\
+against the measured curve       & \multicolumn{2}{r}{$3$ checks, $0$ failed, worst $0.89\unit{mV}$ \quad[MEASURED]} \\
 boundary finite                  & \multicolumn{2}{r}{$3$ checks, $0$ failed \quad[MEASURED]} \\
 \bottomrule
 \end{tabular}
@@ -1071,67 +1331,71 @@ boundary finite                  & \multicolumn{2}{r}{$3$ checks, $0$ failed \qu
 
 \noindent The stepped window is the one to read. The reference went
 \emph{up} and the control voltage went \emph{down}, which is what a
-negative $K_\mathrm{vco}$ requires, and it went down by the amount the
-measured curve predicts. That curve puts $400\unit{MHz}$ at
-$1.8496\unit{V}$ from its $15$ points, with $\pm2\%$ spanning
-$1.8291$--$1.8705\unit{V}$; the loop settles $0.90\unit{mV}$ from the
-prediction inside a window $41.5\unit{mV}$ wide.
+negative $K_\mathrm{vco}$ requires. It also went down by the amount the
+measured curve predicts. From its $15$ points, that curve puts
+$400\unit{MHz}$ at $1.8496\unit{V}$, with $\pm2\%$ spanning
+$1.8291$--$1.8705\unit{V}$. The loop settles $0.89\unit{mV}$ from the
+prediction, inside a window $41.5\unit{mV}$ wide.
 
-\textbf{That check can fail, which is the only reason to report it.} A
-loop can reach the right rate at the wrong control voltage --- through a
-mis-signed pump, a mis-fitted slope, a divider ratio the reference
-happens to absorb --- and counting edges cannot see it. Shifting the
-measured table by $100\unit{mV}$ turns exactly those three checks red,
-worst $100.18\unit{mV}$, while the two specification checks stay green.
-A specification-only environment would have passed the same run.
+\textbf{That check is worth reporting because it can fail.} A loop can
+reach the right frequency at the wrong control voltage, for example
+through a charge pump with the wrong sign, a wrongly fitted slope, or a
+divider ratio that the reference happens to absorb. Counting clock edges
+cannot see that. Shifting the measured table by $100\unit{mV}$ makes
+exactly those three checks fail, by about that same $100\unit{mV}$, while
+the two specification checks still pass. An environment built only from the
+specification would have passed the same run.
 
-Three per-block environments are emitted beside it, for the two clock
-buffers and the oscillator, and two blocks are refused with the reason
-written out: the charge pump's verdict is a current per control state
-and the filter's a voltage from an injected current, and every generated
-section scores a voltage against a stimulus.
+Three per-block environments are generated beside it: one for each of
+the two clock buffers, and one for the oscillator. Two blocks are
+refused, with the reason written out. The charge pump's result is a
+current for each control state, and the filter's is a voltage produced
+by an injected current. Every generated environment, however, scores a
+voltage against a stimulus, so neither fits.
 
-\textbf{All four are then run, which is a different claim from all four
-being generated.} A file count says a generator produced something; it
-says nothing about whether what it produced elaborates, compiles against
-the Accellera library, or scores anything. Each is executed and its
-scoreboard reported:
+\textbf{All four are then run, which is a stronger claim than all four
+being generated.} A file count shows that a generator produced
+something. It says nothing about whether the output elaborates, compiles
+against the Accellera UVM library, or scores anything. Each environment
+is executed and its scoreboard result reported:
 
 \begin{center}
 \begin{tabular}{@{}llr@{}}
 \toprule
 \textbf{Environment} & \textbf{what its scoreboard concluded} & \textbf{time} \\
 \midrule
-\texttt{inv1}   & $54$ DC checks, $0$ failed, worst $0.001\unit{mV}$ of a $6.6\unit{mV}$ bar & $5\unit{s}$ \\
-\texttt{inv2}   & $54$ DC checks, $0$ failed & $116\unit{s}$ \\
-\texttt{ro\_vco} & $15$ breakpoint $+$ $5$ held-out, $0$ failed, worst $0.024\%$ & $203\unit{s}$ \\
-the loop        & $12$ checks over $3$ windows, $0$ failed & $335\unit{s}$ \\
+\texttt{inv1}   & $54$ DC checks, $0$ failed, worst $0.001\unit{mV}$ of a $6.6\unit{mV}$ bar & $6\unit{s}$ \\
+\texttt{inv2}   & $54$ DC checks, $0$ failed & $111\unit{s}$ \\
+\texttt{ro\_vco} & $15$ breakpoint $+$ $5$ held-out, $0$ failed, worst $0.024\%$ & $219\unit{s}$ \\
+the loop        & $12$ checks over $3$ windows, $0$ failed & $336\unit{s}$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent The two inverter figures are the weakest of these and the
-paragraph after next says why. All four environments are published, and
-all four were run from the published copy rather than from the run
-directory, so what is published is what ran.
+\noindent The two inverter results are the weakest of these, and the
+last paragraph of this subsection explains why. All four environments are published. All four
+were run from the published copy, not from the run directory, so what is
+published is exactly what ran.
 
-\paragraph{What this result does not carry.} Two things, and neither is
-small.
+\paragraph{What this result does not carry.} There are two limits, and
+neither is small.
 
-There are no transistors in this loop, so nothing here is evidence about
-the circuit. A loop that settles somewhere plausible and wrong still
-settles, and only the co-simulation above can catch that. The verdict
-covers this loop, at this reference, from the initial condition the deck
-states.
+First, there are no transistors in this loop, so nothing in the SV-only
+run is evidence about the circuit itself. A loop that settles at a
+plausible but wrong point still settles, and only the SV--SPICE
+co-simulation run earlier can catch that. The verdict covers this
+modelled loop, at this reference frequency, starting from the initial
+condition the netlist states.
 
-And the $5$ of $5$ is not the same $5$ of $5$ as the co-simulated run's.
-The duty metric that makes a clock buffer's verdict mean anything needs
-a clock \emph{rate}, and the probe is what measures it. With no probe
-there is no rate, so \texttt{inv1} and \texttt{inv2} fall back to the
-average-voltage comparison --- $0.021$ and $0.026$ against a $0.15$ bar,
-green, and blind to edge placement for exactly the reason
-Section~\ref{sec:whereitworks} gives. The two runs agree on the
-count and differ on what the count is worth.
+Second, the SV-only run's $5$ of $5$ is not the same $5$ of $5$ as the
+SV--SPICE co-simulation run's. A clock buffer's verdict is only
+meaningful with the duty-cycle metric, and that metric needs the clock's
+frequency. The golden probe is what measures that frequency, and the
+SV-only run has no golden probe. So \texttt{inv1} and \texttt{inv2} fall
+back to comparing average voltage: $0.021$ and $0.026$ against a $0.15$
+bar. Both pass, but this check is blind to where the clock edges fall,
+for exactly the reason Section~\ref{sec:whereitworks} gives. The two runs
+agree on the count and differ on what the count is worth.
 
 %======================================================================
 \section{Results at a glance}
@@ -1144,55 +1408,64 @@ count and differ on what the count is worth.
 Filter        & DC $+$ AC                  & $49 + 15$ & $0$ \\
 Duty corrector & DC $+$ duty               & $46 + 14$ & $0$ \\
 Phase interpolator & phase per code        & $9$       & $0$ \\
-Phase-locked loop & co-simulation vs transistors & $5 + 4$   & $0$ \\
-\quad the same loop, no co-simulation & UVM-MS loop env, declared bands & $5 + 12$ & $0$ \\
+Phase-locked loop & SV--SPICE co-simulation vs SPICE & $5 + 4$   & $0$ \\
+\quad the same loop, SV only & UVM-MS loop env, derived/declared bands & $5 + 12$ & $0$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent The first three case studies --- characterisation, model
-generation, both simulators, and every generated environment --- run end
-to end in under $16$ minutes on a laptop. The PLL is a further
-$15$ minutes, most of it the ring oscillator's tuning curve. The
-no-co-simulation variant costs the same kind of time and for the same
-reason --- $33$ minutes on the run these figures come from, and it moves
-between runs because the oscillator's refinement passes do and because
-the machine is shared --- of which closing the loop and running it is
-$37.3$ seconds. Its extra twelve are
-the loop environment's, over three windows: rate and control window from
-the specification, agreement with the measured tuning curve and
-finiteness from this run's own measurements. Its $5$ per-block passes
-are worth less than the row above them, for the reason given in
-Section~\ref{sec:nocosim}.
+\noindent The first three case studies run end to end in under $16$
+minutes on a laptop. That covers characterisation, model generation,
+both simulators and every generated environment. The PLL takes a further
+$11$ minutes, mostly to measure the ring oscillator's tuning curve
+(its frequency against control voltage).
 
-Each is one command: \texttt{demo\_4\_pll.sh} for the co-simulated PLL,
-\texttt{demo\_4b\_pll\_\allowbreak nocosim.sh} for the row beneath it.
-The co-simulated one differs from the others in what it needs, not in how
-it is run. Being
-the analog half of a co-simulation, it needs the other half: the RTL, the
-DPI bridge, and a \emph{shared} libngspice --- a different ngspice build
-from the binary the first three use. It checks for each of those before
-doing any work and names what is missing. A machine without them gets a
-skip saying which piece and where it comes from, rather than a failure
-twelve minutes into a run. spice2rnm's outputs are
-simulator-agnostic: plain IEEE 1800 SystemVerilog, tied to no vendor. So
-that anyone can reproduce the results here, all of them were produced
-with open-source simulators --- \textbf{ngspice} for characterisation and
-the reference transients, \textbf{xezim} --- an open-source IEEE 1800
-simulator that runs the Accellera UVM
-library\footnote{\url{https://github.com/vrajeshprakhya/xezim}} --- for
-both the transient equivalence co-simulation and the generated UVM-MS
-environments. No commercial licence was used anywhere in this
-document. The generated artifacts themselves are published for
-inspection: the models, the complete environments, and the evidence
-files, exactly as the tool wrote them. They are at
+The SV-only variant takes time for the same reason. On the run these
+figures come from the pipeline took $11$ minutes, closing the loop
+included, and running the four generated environments afterwards took a
+further $11$. The total varies between runs, because the oscillator's
+refinement passes vary and because the machine is shared. Its twelve extra checks belong to the loop environment and cover
+three windows. The rate and control-window limits come from the
+specification. Agreement with the measured tuning curve, and finiteness
+(no NaN or infinite values), come from this run's own measurements. Its
+$5$ per-block passes carry less weight than the $5$ in the row above,
+for the reason given in Section~\ref{sec:nocosim}.
+
+Each case is one command: \texttt{demo\_4\_pll.sh} for the PLL checked
+by SV--SPICE co-simulation (the digital RTL in the SystemVerilog
+simulator, the analog half as transistors in ngspice, joined by a
+bridge), and \texttt{demo\_4b\_pll\_\allowbreak nocosim.sh} for the
+SV-only row beneath it. The co-simulation case is run the same way as
+the others, but it needs more installed. As the analog half of a
+co-simulation, it needs the other half: the RTL, the DPI bridge, and a
+\emph{shared} libngspice. That is a different ngspice build from the
+standalone binary the first three cases use.
+
+The script checks for each of those pieces before doing any work. If one
+is missing, it skips and says which piece is missing and where to get
+it, rather than failing twelve minutes into a run.
+
+spice2rnm's outputs are plain IEEE 1800 SystemVerilog, tied to no
+simulator vendor. So that anyone can reproduce the results here, all of
+them were produced with open-source simulators. \textbf{ngspice} ran the
+characterisation and the reference transient simulations.
+\textbf{xezim}, an open-source IEEE 1800 simulator that runs the
+Accellera UVM
+library\footnote{\url{https://github.com/vrajeshprakhya/xezim}}, ran
+both the SV--SPICE equivalence co-simulation and the generated UVM-MS
+environments. No commercial licence was used anywhere in this document.
+
+The generated files are published for inspection, exactly as the tool
+wrote them: the models, the complete environments, and the evidence
+files. They are at
 
 \begin{center}
 \url{https://github.com/vrajeshprakhya/spice2rnm-demos}
 \end{center}
 
 \noindent under \texttt{showcase/}, stamped with the revisions of the
-tool, the demos and the simulator that produced them. What the repository holds:
+tool, the demos and the simulator that produced them. The repository
+holds:
 
 \begin{lstlisting}
 spice2rnm-demos/
@@ -1205,7 +1478,7 @@ spice2rnm-demos/
                      run_all.sh chains the first four
   netlists/          the four SPICE inputs, exactly as the demos
                      run them: rc_lpf2, dcc, pi_therm, and the PLL
-                     deck with the supply-noise card it runs under
+                     netlist with the supply-noise card it runs under
   specs/             the three specifications in English: the
                      filter's, the duty-cycle corrector's (demo 2
                      reads it) and the PLL's (demo 4b reads it)
@@ -1250,7 +1523,7 @@ spice2rnm-demos/
                      goldens the transistor run's own statistics,
                      carrying a period-jitter monitor at 1 fs
     pll_nocosim/     58 files + 9 under equivalence/. The same
-                     circuit with no co-simulation anywhere:
+                     circuit run in SystemVerilog only:
       11 at the top  the same models, interfaces and composed top
       env/inv1/  12  env/inv2/ 12, env/ro_vco/ 10 -- as above
       env/rtl_loop/ 7 the LOOP environment. The only SYSTEM
@@ -1277,13 +1550,14 @@ spice2rnm-demos/
 
 \subsection{What the equivalence folders hold}
 
-Every case study publishes an \texttt{equivalence/} directory: what the
-check ran, what it found, and a manifest of what was left out.
+Every case study publishes an \texttt{equivalence/} directory. It holds
+what the check ran, what it found, and a list (\texttt{MANIFEST.txt}) of
+the large files kept out of the repository.
 
 \begin{center}
 \begin{tabular}{@{}lll@{}}
 \toprule
-\textbf{Case} & \textbf{Judged on} & \textbf{Published verdict} \\
+\textbf{Case} & \textbf{Scored on} & \textbf{Published verdict} \\
 \midrule
 Filter        & rms voltage        & $0.0290$ against $0.15$ \\
 Duty corrector & rms voltage       & $0.0769$ against $0.15$ \\
@@ -1295,75 +1569,88 @@ Phase-locked loop & five routes, then & five block verdicts, and the \\
 \end{tabular}
 \end{center}
 
-\noindent Start with two files. \texttt{equivalence/verdict.txt} is the
-summary of the check performed and what it concluded, one line per
-route: the metric, the worst point, the bar, and the verdict. The case's
-\texttt{result.json} beside it is the full record that line was taken
-from --- what was driven, what was compared, over how many points, and
-every warning raised on the way.
+\noindent In the table, ``rms'' is root mean square: the rms voltage
+error between model and SPICE, against a pass/fail limit of $0.15$. A
+``route'' is the characterisation method chosen for a block; the PLL has
+five blocks, so five routes.
 
-Each folder carries three things. \texttt{verdict.txt} is
-lifted from that run's own \texttt{result.json} rather than retyped, so a
-number here cannot disagree with the run that produced it. The simulator
-and SPICE logs say what actually executed. And the comparison table gives
-one row per measured point. The phase interpolator's
-\texttt{phase\_compare.csv} is nine rows, one per control code, with the
-measured delay, the model's delay and the error. The PLL's
-\texttt{rc\_compare.csv} is the loop filter's response to an injected
-current, sample by sample.
+Start with two files. \texttt{equivalence/verdict.txt} summarises the
+check and its conclusion, one line per route: the metric, the worst
+point, the pass/fail limit (bar), and the verdict. The case's
+\texttt{result.json}, beside it, is the full record that line was taken
+from. It records what was driven, what was compared, over how many
+points, and every warning raised along the way.
 
-\paragraph{What is manifested rather than published, and why.}
-The waveform routes write one row per simulator timestep rather than one
-per measured point, so the filter's aligned comparison is
-$18.6\unit{MB}$ and its generated testbench $18\unit{MB}$; the duty
-corrector's is $2.8\unit{MB}$. The PLL is the weight: its golden
-co-simulation raw file alone is $202.8\unit{MB}$, two thirds of
-everything the five cases produce. Close to $296\unit{MB}$ across
-them, in a repository whose history is permanent, for files
-\texttt{refresh.sh} regenerates in half an hour. Every one is named in
-\texttt{MANIFEST.txt} with its exact size and the command that recreates
-it, so a reader sees what exists and what it weighs without every future
-clone carrying it. What is published comes to $1.4\unit{MB}$, of
-which the no-co-simulation PLL is $546\unit{kB}$: four environments,
-the loop harness, the customer's RTL and both specifications.
+Each folder carries three things. First, \texttt{verdict.txt}, copied
+by the tool from that run's own \texttt{result.json} rather than
+retyped, so a number here cannot disagree with the run that produced it.
+Second, the simulator and SPICE logs, which show what actually ran.
+Third, a comparison table with one row per measured point. For example,
+the phase interpolator's \texttt{phase\_compare.csv} has nine rows, one
+per control code: the measured delay, the model's delay and the error.
+The PLL's \texttt{rc\_compare.csv} is the loop filter's response to an
+injected current, sample by sample.
 
-The distinction is drawn by size rather than by filename. A
-comparison table small enough to read is evidence; one large enough to be
-a waveform is a trace. The routes differ in which they produce --- a
-network compared point by point writes a table, a waveform compared
-sample by sample writes a trace --- so the rule has to be about the file,
-not about what it is called.
+\paragraph{Why some files are listed in \texttt{MANIFEST.txt} instead of published.}
+Some output files are large, easy to regenerate, and add little for a
+reader, so they are not committed. Git keeps every committed file in the
+repository's history forever, so anyone who clones it downloads them,
+even after they are deleted. Instead, \texttt{MANIFEST.txt} names each
+such file with its exact size and the command that recreates it. A
+reader can see what exists and how big it is, without every future
+clone carrying it.
 
-\noindent And what it deliberately does not hold: the spice2rnm tool
-itself (the product is licensed separately; this repository is its
-evidence), and the build products of the runs --- characterisation
-scratch, compiled simulator objects, DPI shims. \texttt{refresh.sh}
-filters those out, so the showcase is what a user would keep, not
-everything a run produces.
+The large files come from the waveform routes. These write one row per
+simulator timestep, not one per measured point. The filter's aligned
+comparison is $18.6\unit{MB}$ and its generated testbench
+$18\unit{MB}$; the duty corrector's comparison is $2.8\unit{MB}$. The
+PLL is the bulk: its SV--SPICE co-simulation waveform file alone is
+$202.8\unit{MB}$, two thirds of everything the five cases produce.
+
+Together these come to close to $296\unit{MB}$, and
+\texttt{refresh.sh} regenerates all of them in half an hour. Committing
+them would make the repository permanently heavy for no lasting benefit.
+What is published comes to $1.4\unit{MB}$. Of that, the SV-only PLL is
+$546\unit{kB}$: four environments, the loop harness, the customer's RTL
+and both specifications.
+
+The rule is based on file size, not file name. A comparison table small
+enough to read is evidence; one large enough to be a waveform is a
+trace. Routes differ in which they produce: a network compared point by
+point writes a table, while a waveform compared sample by sample writes
+a trace. So the rule has to look at the file itself, not at what it is
+called.
+
+\noindent The repository also deliberately leaves out two things. One is
+the spice2rnm tool itself: the product is licensed separately, and this
+repository is its evidence. The other is the build products of the
+runs: characterisation scratch files, compiled simulator objects and
+DPI shims. \texttt{refresh.sh} filters those out, so the showcase holds
+what a user would keep, not everything a run produces.
 
 %======================================================================
 \section{What the equivalence check compares}
 \label{sec:equiv}
 
 Every model in this document was checked the same way. The generated
-SystemVerilog is loaded into a digital simulator and fed an input signal.
-The transistor circuit is fed the very same input in SPICE. The two
-outputs are then lined up in time and compared point by point, and both
-traces are saved, so anyone can go back to the run's own folder and work
-out the number again for themselves.
+SystemVerilog is loaded into a digital simulator and given an input
+signal. The transistor-level circuit in SPICE is given the very same
+input. The two outputs are lined up in time and compared point by point.
+Both traces are saved, so anyone can open the run's own folder and work
+out the number again.
 
-Two things about that arrangement matter more than the numbers it
-produces. The first is that \textbf{it reads the file you are actually
-handed}. There is a weaker number some tools report --- how well the
-fitted maths matched its own measurements. That number never opens the
-generated file, and would look identical if the file had been written out
-wrongly. This check loads that file into a simulator and runs it, so a
-code-generation bug fails it.
+Two properties of this check matter more than the numbers it produces.
+The first is that \textbf{it tests the file you are actually handed}. Some
+tools report a weaker number: how well the fitted equations matched the
+measurements they were fitted to. That number never opens the generated
+file, so it would look identical even if the file had been written out
+wrongly. This check loads the generated file into a simulator and runs it,
+so a code-generation bug makes it fail.
 
-The second is that \textbf{each block is scored on its own job}. One error
-figure used everywhere would be blind on most of these blocks: an average
-voltage error cannot see where an edge lands, and a frequency has no
-voltage error to measure in the first place.
+The second is that \textbf{each block is scored on its own job}. A single
+error figure used for every block would miss what matters on most of
+them. An average voltage error cannot see where a clock edge lands, and an
+oscillator's frequency has no voltage error to measure at all.
 
 \begin{center}
 \begin{tabular}{@{}lll@{}}
@@ -1387,121 +1674,136 @@ is passive R/C    & the output's response to   & the error, against how \\
 \end{tabular}
 \end{center}
 
-\noindent Why the fourth row cannot work like the first --- two
-oscillators at the same frequency drift apart in phase, so subtracting
-their waveforms scores a perfect model as entirely wrong --- is in
-Appendix~\ref{app:routes}.
+\noindent The fourth row cannot be scored like the first. Two oscillators
+at the same frequency slowly drift apart in phase, so subtracting their
+waveforms would score a perfect model as entirely wrong.
+Appendix~\ref{app:routes} explains this in full.
 
 \subsection{What keeps a figure from flattering itself}
 
-\textbf{Some measurements are held back.} Where a block is characterised
-by measuring it at many points, a share of those points is kept out of the
-model-building and used only for scoring. The headline figure is then not
-the fit marking its own work. The charge pump in case study 4 reports
-$0.549\%$ held back; the ring oscillator reports its held-back frequency
-error directly.
+\textbf{Some measurements are held back.} When a block is characterised by
+measuring it at many points, a share of those points is kept out of
+model-building and used only for scoring. The headline figure is therefore
+not the fit marking its own work. The charge pump in case study 4 reports
+$0.549\%$ error on held-back points; the ring oscillator reports its
+held-back frequency error directly.
 
 \textbf{An input the model has never seen.} The filter in case study 1 is
-built from a frequency sweep and then tested with a pseudo-random bit
+built from a frequency sweep. It is then tested with a pseudo-random bit
 sequence it was never shown ($0.0097$). A model that had merely memorised
-what it was built from is exposed there.
+the data it was built from would be exposed there.
 
-\textbf{The report says what range the answer covers.} A comparison proves
-nothing about conditions it never drove, so the report states the range it
-did drive. The ring oscillator is the clearest case, and the honest answer
-there is two numbers. Inside the voltage band the loop actually operates
-in, its held-back frequency error is $0.002\%$. At the far edge of the
-wider range that was characterised --- where the curve bends hardest, and
-where the loop never goes --- it reaches $4.99\%$. Both are reported. The
-verdict is taken in the band that matters, and the less flattering number
-is printed rather than quietly dropped.
+\textbf{The report states the range the answer covers.} A comparison proves
+nothing about conditions it never tested, so the report states the range
+it did test. The ring oscillator is the clearest case, and the honest
+answer there is two numbers. Inside the control-voltage band the loop
+actually operates in, its held-back frequency error is $0.024\%$. At the
+far edge of the wider characterised range, where the tuning curve bends
+hardest and where the loop never goes, the error reaches $4.987\%$. Both
+numbers are reported, and both come from the SV-only run of
+Section~\ref{sec:nocosim}; the co-simulated run of the same block, whose
+band the golden probe measures instead of the specification declaring it,
+reports $0.001\%$ and $4.231\%$. The pass/fail verdict is taken in the band that
+matters, and the less flattering number is printed, not quietly dropped.
 
-\textbf{What the model shape cannot do is priced in advance.} Sometimes
-the shape of model chosen simply cannot represent something the circuit
-does. When that happens, the cost is stated up front, in the same units as
-the verdict --- as with the inverter timing asymmetry in case study 4,
+\textbf{Known limits of the model shape are costed in advance.} Sometimes
+the chosen model shape simply cannot represent something the circuit does.
+When that happens, the cost is stated up front, in the same units as the
+verdict. An example is the inverter timing asymmetry in case study 4,
 quoted as duty error at the clock rate in use. A pass is then read against
-that floor, instead of being taken as a clean win.
+that floor, not taken as a clean win.
 
 \subsection{Blocks, and then the system}
 
-The table above scores blocks one at a time. Putting blocks together asks
-a further question, because errors that are small individually need not
-stay small once everything is wired up. Three levels of check answer it.
+The table above scores blocks one at a time. Joining blocks raises a
+further question: errors that are small in each block need not stay small
+once everything is wired together. Three levels of check answer it.
 
-The first needs nothing but the netlist. The assembled model is driven at
-the outside edge of the design, and its output is compared against the
-full transistor circuit driven the same way.
+\textbf{First level: the netlist alone.} The assembled model is driven at
+the external pins of the design. Its output is compared against the full
+transistor-level circuit in SPICE, driven the same way.
 
-The second applies when what you hand the tool is a co-simulation --- a
-design whose analog half already talks to a digital half --- and it is the
-one case study 4 reports first. Here the design's own testbench is run
-twice.
-Once, the analog half is the generated models. Once, it is the real
-transistors. Everything else is left alone: the digital logic, the limits
-it checks against, and the pass/fail rules are byte-for-byte identical in
-both runs, and only the small piece of code joining the two halves is
-swapped. That makes the two runs directly comparable, signal by signal:
-$4$ signals crossing between the halves, $0$ failed, the control voltage
-agreeing to $4.15\unit{mV}$ on a rail carrying $20\unit{mV}$ rms of
+\textbf{Second level: an existing SV--SPICE co-simulation.} This applies
+when you hand the tool an SV--SPICE co-simulation set-up: the digital RTL
+runs in the SystemVerilog simulator, the analog half runs as transistors
+in ngspice, and a bridge joins the two. Case study 4 reports this level
+first. Here the design's own testbench is run twice: once with the
+generated models as the analog half, once with the transistor-level
+circuit. Nothing else changes. The digital logic, the limits it checks
+against and the pass/fail rules are byte-for-byte identical in both runs;
+only the small piece of code joining the two halves is swapped. That makes
+the two runs directly comparable, signal by signal: $4$ signals crossing
+between the halves, $0$ failed, the control voltage agreeing to
+$3.851\unit{mV}$ on a rail carrying $20\unit{mV}$ rms (root mean square) of
 declared noise, and both versions locking to the same frequency.
 
-The third is for the case that has no co-simulation to hand, which is
-most of them: an analog netlist, some RTL, and nothing joining them. The
-models are composed and the customer's own RTL is wired around them in
-SystemVerilog alone --- no bridge, no SPICE in the loop --- and the
-question asked is whether the assembled thing does what it is for. A
-full UVM-MS environment drives it, and judges it against the
-specification \emph{and} against what this run measured: the
-oscillator's own tuning curve says which control voltage the target
-frequency lives at, so a loop reaching the right rate by the wrong route
-is caught rather than counted as a pass.
-Section~\ref{sec:nocosim} runs the same PLL that way and it locks to
-$+0.0004\%$ of its reference, $0.90\unit{mV}$ from where the measurement
-puts it. That is still a weaker claim than the second check makes,
-deliberately: there are no transistors in it to disagree with.
+\textbf{Third level: SystemVerilog only.} Most designs have no SV--SPICE
+co-simulation set-up: just an analog netlist, some RTL, and nothing
+joining them. Here the models are composed and the customer's own RTL is
+wired around them in SystemVerilog only, with no bridge and no SPICE in
+the loop. The question is whether the assembled design does its job. A
+full UVM-MS environment drives it and checks it against two things: the
+specification, \emph{and} what this run measured. For example, the
+oscillator's own tuning curve says which control voltage gives the target
+frequency. A loop that reaches the right frequency at the wrong control
+voltage is therefore caught, not counted as a pass.
+Section~\ref{sec:nocosim} runs the same PLL this way. It locks to
+$-0.0005\%$ of its reference, with the control voltage $0.89\unit{mV}$
+from where the measured tuning curve puts it. This is deliberately a
+weaker claim than the second level makes, because there is no
+transistor-level circuit in the run to disagree with.
 
-And a check that does not apply to a given run is reported as not
-applicable, with the reason why. It is never quietly counted as a pass.
+A check that does not apply to a given run is reported as not applicable,
+with the reason. It is never quietly counted as a pass.
 
 \subsection{One thing a score at an operating point cannot see}
 \label{sec:jitter}
 
-Every check described so far is \emph{static}: it compares a value at an
-operating point. That is the right shape for most of what a model claims,
-and it is blind to one error that matters.
+Every check described so far is \emph{static}: it compares a value at a
+fixed operating point. That suits most of what a model claims. It is
+blind, though, to one error that matters: how the model responds to a
+control or supply voltage that is moving.
 
-An oscillator model has to decide when to place its next edge. One way
-reads the control voltage at the instant the previous edge fired and
-schedules a whole half cycle from it. Another integrates the control
-across the cycle, which is what the circuit does. Both models carry the
-\emph{same} tuning curve, so a check that measures frequency at held
-control voltages scores them identically --- and it does: run against
-both, it passes both. Give them the same moving control and they part: on
-the reference ring, fed a control with a $100\unit{ps}$ correlation time,
-the sampling form produced $3.37\times$ the period jitter the transistors
-did.
+An oscillator model has to decide when to place its next edge. One way is
+to read the control voltage at the instant of the previous edge and
+schedule a whole half cycle from that single value (the
+\emph{sampling} form). The other way is to integrate the control voltage
+across the cycle, which is what the real circuit does (the
+\emph{integrating} form). Both forms use the \emph{same} tuning curve. So
+a check that measures frequency at fixed control voltages scores them
+identically, and in practice it passes both. Feed them the same moving
+control voltage and they diverge. On the reference ring oscillator, with
+a control disturbance of $100\unit{ps}$ correlation time, the sampling
+form produced $3.37\times$ the period jitter of the transistor-level
+circuit in SPICE.
 
-How far apart they land is not a fixed property of the two forms. It is
-$\sqrt{T_{\mathrm{half}}/\tau}$ in the correlation time $\tau$ of the
-disturbance, which for $1.25\unit{ns}$ against $100\unit{ps}$ predicts
-$3.54$ --- the measurement above, to within $5\%$. A faster disturbance
-separates them further, so a ratio quoted without its $\tau$ says less
-than it appears to.
+The size of that gap is not a fixed property of the two forms; it depends
+on how fast the disturbance moves. The predicted ratio is
+$\sqrt{T_{\mathrm{half}}/\tau}$, where $\tau$ is the disturbance's
+correlation time (roughly, how long it stays at one value) and
+$T_{\mathrm{half}}$ is the half period. For $1.25\unit{ns}$ against
+$100\unit{ps}$ this predicts $3.54$, which matches the measured value
+above to within $5\%$. A faster disturbance pushes the two forms further
+apart, so a ratio quoted without its $\tau$ means less than it appears to.
 
-So the tool checks the dynamic behaviour directly. A known disturbance is
-injected in SPICE at several amplitudes, and the disturbance
-\emph{ngspice actually solved} is replayed into the model sample for
-sample. That last part is the point: giving the model its own random
-noise of the same size would compare two random sequences, and agreement
-between those says more about how long the run was than about the model.
-Replaying the same waveform compares transfer.
+So the tool tests this dynamic behaviour directly. A known disturbance is
+injected in SPICE at several amplitudes. Then the exact disturbance
+waveform \emph{that ngspice actually solved} is replayed into the model,
+sample for sample. Replaying matters. If the model were given its own,
+separate random noise of the same size, the check would compare two
+unrelated random sequences, and their agreement would depend more on run
+length than on the model. Replaying the same waveform tests how the
+disturbance is transferred into jitter.
 
-Both of the model's inputs are exercised, not just the obvious one. On the
-reference ring the supply moves the frequency by $450.6\unit{MHz/V}$,
-comparable to the control port and opposite in sign, so a model given no
-supply input cannot show what a droop does at all. The verdict is the
-worse of the two paths.
+Both of the oscillator's inputs are tested, not just the obvious one. On
+the reference ring, the supply voltage moves the frequency by
+$450.6\unit{MHz/V}$: comparable to the control input, and opposite in
+sign. A model with no supply input could not show what a supply droop
+does at all. The overall verdict is the worse of the two paths.
+
+In the table below, each row gives the rms (root mean square) period
+jitter of the circuit and of the model, and the model-to-circuit ratio. A
+ratio of $1$ means perfect agreement.
 
 \begin{center}
 \small
@@ -1509,7 +1811,7 @@ worse of the two paths.
 \hline
 \textbf{Path} & \textbf{Injected} & \textbf{Circuit} & \textbf{Model} & \textbf{Ratio}\\
 \hline
-either  & none (floor)      & $0.051\unit{ps}$  & $0.000\unit{ps}$  & not judged\\
+either  & none (floor)      & $0.051\unit{ps}$  & $0.000\unit{ps}$  & no limit\\
 \hline
 control & $5\unit{mV}$ rms  & $2.396\unit{ps}$  & $2.352\unit{ps}$  & $0.981$\\
         & $20\unit{mV}$ rms & $8.743\unit{ps}$  & $8.690\unit{ps}$  & $0.994$\\
@@ -1522,94 +1824,102 @@ supply  & $5\unit{mV}$ rms  & $2.808\unit{ps}$  & $2.640\unit{ps}$  & $0.940$\\
 \end{tabular}
 \end{center}
 
-These ratios are a draw, like the boundary figures earlier. Each
-injection is a fresh realisation and an rms over two hundred cycles
-carries about $5\%$ on each side, so the same six points on the previous
-run read $0.987$, $0.946$, $0.925$ and $0.896$, $0.953$, $0.970$. That
-spread is why the bar is $0.25$ rather than something that looks
-stricter: a tolerance tighter than the measurement's own uncertainty
-fails correct models at a rate set by run length.
+Each ratio is one random sample, like the boundary figures earlier, not a
+fixed property of the model. Every injection uses a new random noise
+waveform, and an rms measured over two hundred cycles has a sampling
+uncertainty of about $5\%$ either way. That is why the same six points on
+the previous run read $0.987$, $0.946$, $0.925$ and $0.896$, $0.953$,
+$0.970$. This spread is why the pass/fail limit is $0.25$ rather than
+something that looks stricter. A tolerance tighter than the measurement's
+own uncertainty would fail correct models, at a rate set by how long the
+run was.
 
-The floor row is measured and deliberately not judged. With nothing
-injected the reference still reports about $54\unit{fs}$, which is how
-precisely the edge-finder can locate a crossing rather than anything the
-circuit did. Asking the model to reproduce it would be asking it to
-reproduce an artefact. It is used instead as the floor every other
-amplitude has to clear before its result counts.
+The floor row is measured but shown for information, with no pass/fail
+limit. With nothing injected, the reference still reports about
+$54\unit{fs}$ of jitter. That figure is the precision with which the
+edge-finder locates a threshold crossing, not anything the circuit did.
+Asking the model to reproduce it would mean asking it to reproduce a
+measurement artefact. Instead, it is the floor that every other amplitude
+must clear before its result counts.
 
-That agreement was not obtained by fitting anything. Take the supply
-path, where the sensitivity is separately measured: $450.6\unit{MHz/V}$ on a $2.509\unit{ns}$ period
-predicts $14.18\unit{ps}$ of period jitter for $5\unit{mV}$ rms, if the
-disturbance held still across the cycle. The circuit gives
-$2.797\unit{ps}$ --- a ratio of $0.197$, against the
-$\sqrt{\tau/T} = \sqrt{100.3\unit{ps}/2509\unit{ps}} = 0.200$ that
-averaging over the cycle predicts.
+That agreement was not obtained by fitting anything; simple physics
+predicts it. Take the supply path, where the sensitivity is measured
+separately. If the disturbance held still for a whole cycle,
+$450.6\unit{MHz/V}$ on a $2.509\unit{ns}$ period would predict
+$14.18\unit{ps}$ of period jitter for $5\unit{mV}$ rms. The circuit gives
+$2.797\unit{ps}$, a ratio of $0.197$. The reason is that the oscillator
+averages a fast supply disturbance over its period. Averaging about
+$T/\tau$ independent pieces of noise shrinks the effect by
+$\sqrt{\tau/T} = \sqrt{100.3\unit{ps}/2509\unit{ps}} = 0.200$, which is
+what the circuit shows.
 
-It holds across the decade rather than at one point: $0.197$, $0.223$ and
-$0.203$ at the three judged amplitudes, where an oscillator that did not
-average its input would sit at $1$ --- five times higher. Three points
-within $12\%$ of a parameter-free prediction, over a tenfold range, and
-each carrying the same few per cent of sampling uncertainty as the
-ratios above. The model reproduces it because
-it integrates, and the version that samples does not.
+This holds across the tenfold range of amplitudes, not just at one
+point: the ratio is $0.197$, $0.223$ and $0.203$ at the three amplitudes
+checked. An oscillator that did not average its input would sit at $1$,
+five times higher. All three points are within $12\%$ of a prediction
+with no fitted parameters, and each carries the same few per cent of
+sampling uncertainty as the ratios above. The integrating model
+reproduces this because it integrates; the sampling model does not.
 
-\textbf{And it decides for itself whether the check is worth running},
-because for most designs the honest answer is no and a quarter of an hour
-is a real cost. Two things can say yes.
+\textbf{The tool decides for itself whether this check is worth running.}
+For most designs the honest answer is no, and the check costs a quarter
+of an hour. Two things can say yes.
 
-The first is the design's own closed-loop behaviour, measured: how far the
-control moves within one oscillator period, carried through the tuning
-curve's own slope into period movement, against what the reference
-measurement can resolve. On this PLL it says no, and says it with numbers
---- on a run where it was the deciding voice, $12.18\unit{\textmu V}$ rms
-per $2.503\unit{ns}$ period, worth $0.0288\unit{ps}$ against a
-$0.0521\unit{ps}$ floor, $0.55\times$ what the reference can resolve. A
-loop filter holds its control still; that is what a loop filter is for.
+The first is the design's own closed-loop behaviour, measured. The tool
+measures how far the control voltage moves within one oscillator period,
+converts that into period movement using the tuning curve's slope, and
+compares it with what the reference measurement can resolve. On this PLL
+the answer is no, backed by numbers. On a run where this was the deciding
+input, the control moved $12.18\unit{\textmu V}$ rms per $2.503\unit{ns}$
+period. That is worth $0.0288\unit{ps}$ against a $0.0521\unit{ps}$
+floor, or $0.55\times$ what the reference can resolve. A loop filter
+holds its control voltage still; that is its purpose.
 
-The second is the netlist, and it is what runs the sweep above: this deck
-declares $20\unit{mV}$ rms on the ring's supply, and a design that writes
-noise into its own deck is asking for noise to be simulated. That rule is
-matched on the net rather than the source name, because block extraction
-rebuilds every supply as a plain DC source: the fragment carries
-\texttt{VBIAS2 dd 0 DC 3.3} where the top level wrote
-\texttt{vdd dd 0 dc \{vcc\} trnoise(...)}. The net survives extraction
-and the source name does not.
+The second is the netlist, and it is what triggers the sweep above. This
+netlist declares $20\unit{mV}$ rms of noise on the ring's supply, and a
+design that writes noise into its own netlist is asking for noise to be
+simulated. The rule matches on the net name, not the source name, because
+block extraction rebuilds every supply as a plain DC source. The
+extracted fragment carries \texttt{VBIAS2 dd 0 DC 3.3}, where the top
+level wrote \texttt{vdd dd 0 dc \{vcc\} trnoise(...)}. The net name
+survives extraction; the source name does not.
 
-There is no flag to force it, because a request to run a check is not
-evidence that one is warranted. And where the tool has no closed-loop
-evidence either way, it runs the check rather than skipping it: having no
-opinion about whether a check is needed is not the same as deciding it is
-not.
+There is no flag to force the check, because a request to run it is not
+evidence that it is needed. Where the tool has no closed-loop evidence
+either way, it runs the check rather than skipping it. Having no evidence
+that a check is needed is not the same as deciding it is not.
 
-\paragraph{What the sweep measures, and what it does not.} The ring in
-isolation, driven on its own characterisation fragment. That is the right
-scope for the question it answers --- does this model transfer a
-disturbance correctly --- and it is not the same question as what the
-loop does with one. Inside the loop the filter holds the control still,
-which is precisely why the closed-loop half of the gate declines; these
-numbers come from driving the block directly, where nothing is holding
-it. A reader should not read the supply column as a statement about this
-PLL's supply rejection. It is a statement about the model.
+\paragraph{What the sweep measures, and what it does not.} The sweep
+drives the ring oscillator in isolation, on its own characterisation
+fragment. That is the right scope for its question: does this model
+transfer a disturbance into jitter correctly? It is a different question
+from what the PLL does with a disturbance. Inside the loop, the filter
+holds the control voltage still, which is exactly why the closed-loop
+test above says no. These numbers come from driving the block directly,
+with nothing holding it. So the supply rows are not a statement about
+this PLL's supply rejection. They are a statement about the model.
 
 %======================================================================
 \section{Why a green testbench is worth believing}
 
-Generated verification has an obvious credibility problem. If the same
-tool writes the model \emph{and} writes the test, what stops it from
-writing a test its own model is bound to pass? Three rules answer that.
+Generated verification has an obvious credibility problem. The same tool
+writes the model \emph{and} the test. What stops it from writing a test
+that its own model is bound to pass? Three rules answer that.
 
 \textbf{The right answers come from SPICE, never from the model.} Every
-expected value in every generated environment is a SPICE measurement of
-your circuit. Checking a model against the equations that model itself
-implements would pass no matter how wrong the model was, so spice2rnm
-never does it.
+expected value in every generated test environment is a golden value: a
+SPICE measurement of your circuit. Checking a model against the
+equations it implements would pass however wrong the model was. So
+spice2rnm never does it.
 
 \textbf{Every environment is proven able to fail.} The tool deliberately
-breaks the generated model and confirms the test goes red. It also
-\emph{measures} how small a break it can still catch, rather than simply
-claiming one. For the duty-cycle corrector's published environment ---
-the one judged against its specification's $1.0$ pp requirement --- seven
-runs of the same testbench, the model broken in a known way each time:
+breaks the generated model and confirms that the test goes red (fails).
+It also \emph{measures} the smallest break the test still catches,
+rather than simply claiming one. The example below is the duty-cycle
+corrector's published environment, the one checked against its
+specification's $1.0$ pp requirement (pp means percentage points of duty
+cycle). The same testbench was run seven times, each time with the model
+broken in one known way:
 
 \begin{center}
 \begin{tabular}{@{}llll@{}}
@@ -1627,42 +1937,48 @@ dynamics slowed $50\times$        & pass      & $9$ fail  & $14.3$ pp \\
 \end{tabular}
 \end{center}
 
-\noindent Two things in that table are the point. The DC column cannot
-see \emph{any} error in how fast the block responds --- slow this model
-down fiftyfold and every one of its $46$ checks still passes --- and that
-is the whole of what many hand-written environments test. The duty
-section exists because of that blind spot, and it is the only check in
-the environment that catches the slowed model.
+\noindent The table shows two things. First, the DC section is blind to
+\emph{any} error in how fast the block responds. Slow the model down
+fiftyfold and all $46$ of its DC checks still pass. Yet DC checks are
+all that many hand-written environments contain. The duty section exists
+to cover that blind spot, and it is the only check in the environment
+that catches the slowed model.
 
-The second is where it stops catching, and why. A tenfold slow-down
-moves the output duty by $0.87$ pp, under the $1$ pp the specification
-allows, so it passes; the tool's own default bar for this environment is
-$0.5$ pp, which would have failed it. An environment built from a
-specification is exactly as strict as the specification, no stricter,
-and that is by design: a requirement is what the circuit is held to, and
-a generated environment that quietly held it to something tighter would
-be reporting failures the design does not have. What the sweep adds is
-the number --- a reader knows that this specification cannot see a
-tenfold dynamics error, and can decide whether that requirement is the
-one they meant to write.
+Second, the table shows where the test stops catching errors, and why. A
+tenfold slow-down shifts the output duty cycle by $0.87$ pp. That is
+under the $1$ pp the specification allows, so the test passes. The
+tool's own default pass/fail limit (bar) for this environment is $0.5$
+pp, which would have failed it.
+
+An environment built from a specification is exactly as strict as the
+specification, and no stricter. This is deliberate. A requirement is
+what the circuit is held to; an environment that silently applied a
+tighter limit would report failures the design does not actually have.
+What the fault sweep adds is the number. The reader now knows that this
+specification cannot detect a tenfold error in the block's dynamics, and
+can decide whether that is the requirement they meant to write.
 
 \textbf{The test is checked in both directions.} A test that fails
-everything is as useless as one that passes everything. The same sweep
-confirms that errors small enough to be acceptable do \emph{not} trip
-the environment: the baseline passes, and a $5\unit{mV}$ offset moves
-the duty by nothing the duty section should object to. The sweep is
-re-run against the shipped model whenever the environment changes, which
-is how this table came to differ from the one measured against the
-default bar, rather than the claims becoming folklore.
+everything is as useless as one that passes everything. So the same
+sweep also confirms that small, acceptable errors do \emph{not} trip the
+environment. The unbroken model passes, and a $5\unit{mV}$ offset shifts
+the duty cycle by nothing the duty section should object to.
+
+The sweep is re-run against the shipped model whenever the environment
+changes, so the table always reflects the current environment. That is
+why this table differs from the earlier one measured against the default
+bar. The claims stay measured results rather than drifting into
+unchecked folklore.
 
 %======================================================================
 \section{Functional specifications as input}
 \label{sec:spec}
 
-A netlist says what a circuit \emph{is}. It never says what it is
-\emph{for}, what rate it must run at, or how close is close enough. Hand
-those to the tool as a plain-language document --- a datasheet excerpt, a
-requirements page --- and it reads out the facts that shape verification:
+A netlist says what a circuit \emph{is}. It does not say what the circuit
+is \emph{for}, what rate it must run at, or how much error is acceptable.
+You can give the tool those facts as a plain-language document, such as a
+datasheet excerpt or a requirements page. The tool reads out the facts
+that shape verification:
 
 \begin{center}
 \begin{tabular}{@{}ll@{}}
@@ -1677,90 +1993,92 @@ block function                 & which environment is generated \\
 \end{tabular}
 \end{center}
 
-\noindent Case study 2 is run this way, reading
-\texttt{specs/dcc\_spec.md} from the repository: its duty environment
-checks $35$--$65\%$ input duty at the specified clock rates against the
-specification's own $1.0$ pp requirement --- $14$ checks, $0$ failed,
-worst $0.428$ pp. \pass
+\noindent Case study 2 is run this way. It reads
+\texttt{specs/dcc\_spec.md} from the repository. Its duty-cycle
+environment checks $35$--$65\%$ input duty at the specified clock rates,
+against the specification's own $1.0$ pp requirement. Result: $14$ checks,
+$0$ failed, worst $0.428$ pp. \pass
 
-\textbf{The specification is cross-checked, never trusted.} Every
-extracted fact is validated against what the circuit was actually measured
-to do, and the measurement wins. When the two disagree, that disagreement
-is surfaced as a finding:
+\textbf{The specification is cross-checked, never trusted.} Every fact
+taken from it is compared with what the circuit was actually measured to
+do, and the measurement wins. When the two disagree, the tool reports the
+disagreement as a finding:
 
 \begin{lstlisting}
 SPEC CONFLICT: the spec says this block operates up to 4e+08 Hz, but
 the fitted model is only valid below 1.195e+08 Hz -- 3.3x lower.
 \end{lstlisting}
 
-\noindent That is a coverage gap between a requirement and a
-characterisation, caught at model-generation time instead of at silicon
-correlation --- and it is the kind of finding no amount of manual model
-review produces, because no one document contains both halves of it.
+\noindent This is a coverage gap: the requirement asks for more than the
+characterisation covers. It is caught when the model is generated, not
+later at silicon correlation. Manual model review cannot find it, because
+no single document contains both the requirement and the measurement.
 
 %======================================================================
 \section{Joining an existing model library}
 \label{sec:style}
 
-A team with real-number models already has conventions --- which
-user-defined nettype analog values travel on, which package declares it,
-what discipline their model ports use. Generated files that import their
-own freshly-invented nettype do not join that library; they sit beside it,
-each net scheme blind to the other, and the integration cost lands on the
-customer.
+A team that already has real-number models also has conventions: which
+user-defined nettype carries analog values, which package declares that
+nettype, and what port discipline the models use. Generated files that
+import a nettype the tool invented do not join that library. They sit
+beside it, the two net schemes cannot connect, and the customer pays the
+integration cost.
 
-Point \texttt{-{}-style-from} at the library and the output conforms: the
-environment's analog nets use \emph{their} nettype, its files import
-\emph{their} package, no types package of the tool's own is emitted, and
-the generated run script compiles their package file. A library whose
-models use \texttt{wreal} ports gets a model with wreal ports without
-being asked. Their timescale is reported but deliberately not adopted ---
-generated delays are computed femtosecond values, and timescale is per
-compilation unit, so the directives interoperate unchanged.
+Point \texttt{-{}-style-from} at the library and the output follows its
+conventions. The environment's analog nets use the library's nettype, its
+files import the library's package, the tool generates no types package of
+its own, and the generated run script compiles the library's package file.
+If the library's models use \texttt{wreal} ports, the generated model gets
+wreal ports automatically. The library's timescale is reported but
+deliberately not adopted. Generated delays are computed femtosecond
+values, and timescale applies per compilation unit, so the two timescale
+directives work together unchanged.
 
-\textbf{Reading a house style is a judgement, so it is read and then
-verified.} A library may declare several nettypes, only one of which is
-the living standard --- and what says so is often a comment. Measured on a
-library that declares two, where the deprecated one happens to sort first
-alphabetically:
+\textbf{Reading a house style takes judgement, so the tool reads it and
+then verifies it.} A library may declare several nettypes, of which only
+one is the current standard, and often only a comment says which. We
+measured this on a library that declares two nettypes, where the
+deprecated one happens to sort first alphabetically:
 
 \begin{center}
 \begin{tabular}{@{}ll@{}}
 \toprule
-mechanical scan & picks the deprecated nettype, and warns \\
-model reading   & picks the live one, quoting the deprecation notice \\
-verification    & re-checks the choice against the named file \\
+mechanical scan        & picks the deprecated nettype, and warns \\
+language-model reading & picks the current one, quoting the deprecation notice \\
+verification           & re-checks the choice against the named file \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent The model's stated grounds, verbatim from that run: \emph{``line
+\noindent The language model's stated grounds, verbatim from that run: \emph{``line
 15 marks \texttt{aaa{}\_legacy{}\_wire} deprecated (``kept only so ancient
 testbenches still compile. Do NOT use in new code\,''), \ldots{} both models
 declare all analog ports as \texttt{acme{}\_ewire}, confirming this is the
-live convention.''} Nothing in that reading is taken on trust: the named
-nettype, package and file are checked against the file before use, and a
-claim the file does not support leaves the mechanical answer standing,
-out loud. Where the tool has a \emph{measurement} --- a count of which
-discipline the library's ports actually use --- the count wins outright
-and a disagreement is recorded rather than adopted.
+live convention.''} None of this is taken on trust. The nettype, package
+and file it names are checked against the file before use. If the file
+does not support the claim, the mechanical scan's answer stands, and the
+run states that it fell back. Where the tool has a \emph{measurement}
+(here, a count of which port discipline the library's models actually
+use), the count wins outright. A disagreement with it is recorded, not
+adopted.
 
-\textbf{The result is an environment that runs on the house net},
-and it is published rather than described. The showcase carries the same
-filter twice: \texttt{lpf2/} generated normally, and
-\texttt{lpf2{}\_house/} generated against
-\texttt{house{}\_lib/} --- a small hand-written library standing in for a
-customer's own. Diffing the two directories is the whole argument:
+\textbf{The result is an environment that runs on the library's own net
+type}, and the generated files are published so you can inspect them. The
+showcase carries the same filter twice: \texttt{lpf2/} generated normally,
+and \texttt{lpf2{}\_house/} generated against \texttt{house{}\_lib/}, a
+small hand-written library standing in for a customer's own. Comparing the
+two directories with diff shows the whole effect:
 
 \begin{center}
 \begin{tabular}{@{}lll@{}}
 \toprule
  & \textbf{\texttt{lpf2/}} & \textbf{\texttt{lpf2{}\_house/}} \\
 \midrule
-types package & emitted            & \textbf{not emitted} \\
+types package & generated            & \textbf{not generated} \\
 nets          & \texttt{rc{}\_lpf2{}\_wire} & \texttt{ng{}\_anet} \\
-imports       & the generated one  & \texttt{ng{}\_ams{}\_pkg} \\
-run script    & compiles it        & compiles the house package \\
+imports       & the generated package & \texttt{ng{}\_ams{}\_pkg} \\
+run script    & compiles the generated package & compiles the house package \\
 model ports   & plain \texttt{real}     & \texttt{ng{}\_anet}, and the
                                      environment instantiates it \\
 \midrule
@@ -1770,185 +2088,204 @@ the scoreboard & \multicolumn{2}{l}{byte-identical} \\
 \end{tabular}
 \end{center}
 
-\noindent Conformance changes the boundary and nothing else --- and the
-published environment runs from where it sits, against the library beside
-it: $49$ DC and $15$ AC checks, $0$ failed, exactly the default
-environment's result.
+\noindent Following the house style changes only the boundary of the
+model. The published environment runs where it sits, against the library
+beside it: $49$ DC and $15$ AC checks, $0$ failed, exactly the same result
+as the default environment.
 
-Note what the environment instantiates in that second column. When the
-model is delivered behind a port boundary, the generated testbench drives
-\emph{that} module rather than the core inside it, and the boundary's
-file joins the compile list --- so what the evidence covers is what
-ships, not a component of it. Measured separately, a library resolving its net by
-averaging rather than summing conforms and passes the same way, and a
-library using \texttt{wreal} ports gets wreal ports on the model
-instead.
-Without \texttt{-{}-style-from}, or against a directory with nothing
-recognisable in it, nothing changes --- and the run says so.
+Note what the environment instantiates in the second column. When the
+model is delivered inside a port wrapper, the generated testbench drives
+that wrapper module, not the core inside it, and the wrapper's file is
+added to the compile list. So the verification evidence covers what ships,
+not just one component of it. In separate measurements, a library whose
+nettype resolves multiple drivers by averaging rather than summing also
+conforms and passes the same way. A library using \texttt{wreal} ports
+gets wreal ports on the model instead. Without \texttt{-{}-style-from},
+or against a directory with nothing recognisable in it, nothing changes,
+and the run says so.
 
 \section{AI where it helps, physics where it decides}
 
 spice2rnm asks a language model four kinds of question: where one block
 ends and the next begins, what a block is for, what a written
 specification requires, and what conventions an existing model library
-follows (Section~\ref{sec:style}). Every one of those is a question of
+follows (Section~\ref{sec:style}). Each of these is a question of
 \emph{intent}. None is a question of physics.
 
-That is the rule the tool works by: \textbf{intent from the model, physics
-from the measurement}. Every suggestion is checked against the measured
-circuit before it is used. One that does not check out is discarded, the
-run carries on with what was measured, and it says that it did so. With no
-API key at all, every AI feature declines cleanly and the pipeline runs
-entirely on measurement.
+The tool's rule is: \textbf{intent from the language model, physics from
+the measurement}. Every suggestion is checked against the measured circuit
+before it is used. If it does not match, it is discarded, the run
+continues with the measured data, and the run reports that it did so. With
+no model reachable at all, every AI feature switches off cleanly and the
+pipeline runs entirely on measurement.
 
-Which of those two happened is recorded in the run's own result, not only
-in its log. A verdict carries the metric it was reached by. A report
-read months later can then tell a check that ran from one that declined
-and fell back. Without that, every green result would have to be taken on
-trust that the feature requested was the feature exercised.
+Which of the two happened is recorded in the run's result, not only in its
+log. Each pass/fail verdict records the metric used to reach it. A reader
+of the report months later can therefore tell a check that ran as
+requested from one where the AI feature declined and the tool fell back
+to measurement. Without that record, every passing result would have to be
+trusted to have used the feature that was requested.
 
 %======================================================================
 \section{Scope and requirements}
 
 \begin{itemize}[leftmargin=1.5em,itemsep=0.3em]
-  \item \textbf{Inputs}: SPICE netlists, flat or with subcircuits;
-        optional plain-language functional specification; optionally an
-        existing RNM library to take conventions from.
-  \item \textbf{Outputs}: SystemVerilog real-number models, with the
-        port discipline of your choice --- \texttt{wreal} by default,
-        plain \texttt{real} where a flow has no wreal support, or your
-        library's own nettype; UVM-MS 1.0
-        environments; equivalence reports with archived waveforms.
-  \item \textbf{Toolchain}: a SPICE simulator for characterisation,
-        and a digital simulator capable of running real number models ---
-        with UVM support for the generated environments. The generated
-        models and environments are standard SystemVerilog and carry no
-        vendor dependence, so either may be the one your flow already
+  \item \textbf{Inputs}: SPICE netlists, flat or with subcircuits.
+        Optionally, a plain-language functional specification, and an
+        existing RNM library whose conventions the generated models should
+        follow.
+  \item \textbf{Outputs}: SystemVerilog real-number models, using the
+        port type of your choice: \texttt{wreal} by default, plain
+        \texttt{real} where a flow has no wreal support, or your
+        library's own nettype. Also UVM-MS 1.0 environments, and
+        equivalence reports with archived waveforms.
+  \item \textbf{Toolchain}: a SPICE simulator for characterisation, and a
+        digital simulator that can run real-number models (with UVM
+        support, for the generated environments). The generated models
+        and environments are standard SystemVerilog with no vendor
+        dependence, so either simulator can be the one your flow already
         uses.
   \item \textbf{Block-level scope}: single-input single-output blocks and
-        compositions of them, including current-mode blocks sharing a
-        node. Hierarchical composition trades some accuracy for structure;
-        the equivalence report states the composed figure separately from
-        the per-block figures, so the trade is visible, not hidden.
-  \item \textbf{Jitter TRANSFER is verified; intrinsic device noise is
-        characterised.} Both are measured, and they are measured
-        differently.
+        compositions of them, including current-mode blocks that share a
+        node. Composing blocks hierarchically gives up some accuracy in
+        exchange for structure. The equivalence report states the
+        composed figure separately from the per-block figures, so the
+        accuracy cost is visible.
+  \item \textbf{Jitter transfer is verified; the oscillator's own device
+        noise is characterised.} Both are measured, but in different ways.
 
-        What is checked is what the model does with a disturbance it is
-        given: injected in SPICE, replayed into the model, period jitter
-        compared, on both the control and the supply. Section~%
-        \ref{sec:jitter} gives the measurements --- six judged points over
-        a tenfold range, worst ratio $0.940$ against a $0.25$ tolerance,
-        reached by the pipeline's own decision because the deck declares
-        noise on a net the ring is wired to. This is a real check with a
-        verdict, and it fails a model whose transfer is wrong.
+        \emph{Jitter transfer} is what the model does with a disturbance
+        it is given, and it is checked with a pass/fail limit. The
+        disturbance is injected into the transistor-level circuit in
+        SPICE, the same disturbance is replayed into the model, and the
+        period jitter of the two is compared. This is done on both the
+        control input and the supply. Section~%
+        \ref{sec:jitter} gives the measurements: six points checked over
+        a tenfold range, with a worst ratio of $0.940$ against a $0.25$
+        tolerance. Nobody asked for this check: the pipeline ran it on
+        its own because the netlist declares noise on a net the ring
+        oscillator is wired to. It is a real check with a pass/fail
+        result, and it fails a model whose transfer is wrong.
 
-        The oscillator's own noise is characterised through its
-        impulse sensitivity function, which the pipeline measures without
-        being asked: a narrow charge injected at each phase of the cycle,
-        the lasting phase shift measured, and $\Gamma(\phi)$ is the
-        sensitivity that results.\footnote{%
+        \emph{The oscillator's own noise} is characterised through its
+        impulse sensitivity function (ISF), $\Gamma(\phi)$: how much a
+        small kick of charge at phase $\phi$ of the cycle permanently
+        shifts the oscillator's phase. The pipeline measures it without
+        being asked. It injects a narrow charge pulse at each phase of
+        the cycle and measures the lasting phase shift; $\Gamma(\phi)$ is
+        the sensitivity that results.\footnote{%
         The method is Hajimiri, Limotyrakis and Lee, \emph{Jitter and
         Phase Noise in Ring Oscillators}, IEEE JSSC 34(6), June 1999. Two
-        details decide whether it works, and each returns a plausible
-        wrong answer rather than an error, so the tool enforces both. The
-        pulse is applied differentially where the circuit is differential
-        --- into one node of a differential ring it is mostly common
-        mode, which the ring rejects by design, and the measurement then
-        reads its own floor however large the pulse. And linearity is
-        judged at the phase of greatest sensitivity rather than a
-        convenient one: the same charge that moves the phase by
-        $0.04\unit{ps}$ where the ring barely responds moves it by
-        $52\unit{ps}$ at the peak.}
-        On the reference ring $\Gamma_{\mathrm{rms}}$ is
-        $4.04\times10^{12}\unit{rad/C}$ from the automated sweep, against
-        $4.33\times10^{12}$ measured by hand: the two agree to $7\%$.
-        $\Gamma$ changes sign across the cycle as a ring's must, and
-        halves when the injected charge halves.
+        details decide whether it works. Getting either wrong gives a
+        plausible but wrong answer rather than an error, so the tool
+        enforces both. First, the pulse is applied differentially where
+        the circuit is differential. Injected into one node of a
+        differential ring, it is mostly common mode, which the ring
+        rejects by design; the measurement then reads its own noise floor
+        however large the pulse. Second, linearity is checked at the
+        phase of greatest sensitivity, not at a convenient one. The same
+        charge that moves the phase by $0.04\unit{ps}$ where the ring
+        barely responds moves it by $52\unit{ps}$ at the peak.}
+        On the reference ring oscillator, the rms (root mean square) value
+        $\Gamma_{\mathrm{rms}}$ is $4.04\times10^{12}\unit{rad/C}$ from
+        the automated sweep, against $4.33\times10^{12}$ measured by
+        hand: the two agree to $7\%$. $\Gamma$ changes sign across the
+        cycle, as a ring oscillator's must, and halves when the injected
+        charge halves.
 
-        $\Gamma_{\mathrm{rms}}$ times a device noise density is a jitter:
-        $0.236$ to $0.578\unit{ps}$ rms here, or $-114.5$ to
-        $-106.7\unit{dBc/Hz}$ at $1\unit{MHz}$, reported as a range
-        because the channel-noise factor and the way per-node densities
-        combine are both ranges. The model carries it as a parameter,
-        shipped at zero: the figure is computed from the measured ISF
-        rather than compared against a reference transient, since ngspice
-        simulates no device noise in one.
+        Multiplying $\Gamma_{\mathrm{rms}}$ by a device noise density
+        gives a jitter: $0.236$ to $0.578\unit{ps}$ rms here, or $-114.5$
+        to $-106.7\unit{dBc/Hz}$ at $1\unit{MHz}$. It is given as a range
+        because two inputs are themselves ranges: the transistor
+        channel-noise factor, and the way the noise densities of the
+        individual nodes combine. The model carries this jitter as a
+        parameter, shipped set to zero. The figure is computed from the
+        measured ISF, not compared against a SPICE transient, because
+        ngspice does not simulate device noise in a transient run.
 
-        \textbf{Driven blocks jitter differently, and the models say so.}
-        An oscillator measures each edge from its own last one, so its
-        phase random-walks and the error accumulates. A buffer or a lag
-        block measures its output from an \emph{input} event, so every
-        traversal draws independently and nothing accumulates.\footnote{%
+        \textbf{Driven blocks jitter differently, and the models reflect
+        this.} An oscillator times each edge from its own previous edge.
+        Its phase therefore does a random walk, and the timing error
+        accumulates. A buffer or a lag block times its output from an
+        \emph{input} event. Each pass through the block gets an
+        independent random delay, and nothing accumulates.\footnote{%
         The distinction and both implementations are Kundert's, in
         \emph{Modeling and Simulation of Jitter in Phase-Locked Loops},
-        AACD 1997. He makes four points this model follows. Driven
-        systems jitter without accumulating; autonomous ones have a phase
-        difference that is ``a random walk that is not bounded''. The
-        metric for both is $J = \sigma(T)$, the standard deviation of one
-        period. Driven jitter is modelled by ``randomly dithering the
-        delay argument \ldots{} on every output transition''. And the
-        per-update dither scales by $\sqrt{N}$ for $N$ updates per
-        period, which is $1.414$ for the two this model uses.
+        AACD 1997. This model follows four of his points. Driven
+        systems jitter without accumulating; autonomous ones (free-running
+        oscillators) have a phase difference that is ``a random walk that
+        is not bounded''. The metric for both is $J = \sigma(T)$, the
+        standard deviation of one period. Driven jitter is modelled by
+        ``randomly dithering the delay argument \ldots{} on every output
+        transition''. And with $N$ updates per period, the per-update
+        dither scales by $\sqrt{N}$, which is $1.414$ for the two updates
+        this model uses.
 
-        Each was checked. Asked for $1\%$ rms period jitter, the model
-        produced $0.9998\%$. Its scaling constant is the $\sqrt{2}$ his
-        listing specifies. And over $30{,}000$ cycles, the variance of
-        the accumulated deviation grew linearly in cycle count, at
+        Each point was checked. Asked for $1\%$ rms period jitter, the
+        model produced $0.9998\%$. Its scaling constant is the $\sqrt{2}$
+        his listing specifies. Over $30{,}000$ cycles, the variance of
+        the accumulated deviation grew linearly with cycle count, at
         $1.004 \pm 0.026$ of the $k J^2$ his random walk requires.
 
-        One combination is refused: at one sub-step per half cycle the
-        scheduler cannot resolve a randomised threshold, and the model
-        declines it rather than report $39.6\%$ jitter where $1\%$ was
-        asked.} The
-        scheduled-lag models take a synchronous-jitter figure on that
-        basis, perturbing the input-to-output delay once per traversal.
-        That figure is supplied, not measured: a transient of a deck
-        declaring no noise has no delay variation in it to measure. The
-        generated file says so. It also states the constant latency the
-        perturbation costs, because a tap only looks backwards, so an
-        edge can be early only relative to a delay already present.
+        One setting is refused. At one sub-step per half cycle the
+        scheduler cannot resolve a randomised threshold, so the model
+        rejects that setting rather than report $39.6\%$ jitter when
+        $1\%$ was asked for.} On that basis, the scheduled-lag models
+        accept a synchronous-jitter figure and perturb the input-to-output
+        delay once per pass through the block.
+        This figure is supplied by the user, not measured: a SPICE
+        transient of a netlist that declares no noise contains no delay
+        variation to measure. The generated file says so. It also states
+        the fixed extra latency the perturbation costs. The model's delay
+        line can only look back in time, so an edge can be made early
+        only relative to a delay that is already there.
 
-        Edge JITTER is measured where the reference has edges. On the
-        reference PLL's two clock-path buffers it is $3.98\unit{ps}$ and
-        $3.60\unit{ps}$, reported beside the skew because the two fail
-        differently. It is reported rather than judged: there is no
-        threshold for it, and inventing one from a single design would be
-        worse than showing the number. The system equivalence check does
-        not judge it either, and the reason is the probe rather than
-        the model. Its boundary log is sampled at $100\unit{ps}$. The
-        composed model's output crosses its threshold between samples, so
-        a crossing can only be located to the nearest tick. Reporting
-        that as jitter would be measuring the sampling grid.
+        \emph{Edge jitter} is measured wherever the transistor-level
+        circuit in SPICE has clock edges. On the reference PLL's two
+        clock-path buffers it is $3.98\unit{ps}$ and $3.60\unit{ps}$. It
+        is listed next to the skew because jitter and skew go wrong in
+        different ways. Edge jitter is shown for information, with no
+        pass/fail limit, because there is no agreed threshold for it.
+        Inventing one from a single design would be worse than showing
+        the number.
 
-        The generated UVM-MS environment carries a monitor without that
-        limitation. It is event-driven on the signal rather than sampled
-        on a clock, and compiled at \texttt{1fs} while the rest of the
-        environment stays at \texttt{1ps}, which costs nothing anywhere
-        else because SystemVerilog scopes timescale per module. Running
-        that environment on the composed PLL gives $12.70\unit{ps}$ rms
-        of period jitter over $1151$ periods at the boundary, with none
-        of its system checks failed and one inconclusive, over
-        $116{,}012$ boundary crossings. The number of checks is not
-        quoted because it is not fixed: one of them exists only where the
-        transistor reference settled measurably, which under a noisy rail
-        it may or may not do.
+        The system-level equivalence check also shows its jitter with no
+        pass/fail limit, and here the reason is the measurement, not the
+        model. The check's boundary log is sampled every $100\unit{ps}$.
+        The composed model's output crosses its threshold between
+        samples, so a crossing can only be located to the nearest sample.
+        Reporting that as jitter would measure the sampling grid, not the
+        circuit.
 
-        REPORTED, NOT JUDGED, and for a specific reason rather than
-        caution. A loop
-        suppresses its oscillator's jitter inside the loop bandwidth, so
-        a figure measured at the boundary is not the block's own jitter
-        and the two are not expected to agree. The $10.91\unit{ps}$ this
-        deck's declared rail is worth at \texttt{ro\_vco} is a different
-        measurement of a different quantity. On this run they differ by
-        $16\%$; on the one before, by $3\%$. Both are draws, and neither
-        is evidence about the other.
+        The generated UVM-MS environment has a monitor without that
+        limitation. It reacts to each change of the signal instead of
+        sampling on a clock. It is compiled with a \texttt{1fs} timescale
+        while the rest of the environment stays at \texttt{1ps}; this
+        costs nothing elsewhere, because SystemVerilog sets timescale per
+        module. Running that environment on the composed PLL gives
+        $12.70\unit{ps}$ rms period jitter over $1151$ periods at the
+        boundary. Over $116{,}012$ boundary crossings, none of its system
+        checks failed and one was inconclusive. The total number of
+        checks is not quoted because it varies: one check exists only
+        when the transistor-level circuit in SPICE settled measurably,
+        which under a noisy supply it may or may not do.
 
-        This is further than published practice goes on the validation
-        side, while the gap named above --- intrinsic noise in the model
-        --- is one the same practice also has. Analog Devices'
-        production RNM suite for a GHz transceiver validates its PLL on
-        lock time and frequency error, the same quantities checked in
+        This $12.88\unit{ps}$ figure is also shown for information, with
+        no pass/fail limit, for a specific reason. A PLL suppresses its
+        oscillator's jitter inside the loop bandwidth. A figure measured
+        at the PLL boundary is therefore not the oscillator's own jitter,
+        and the two are not expected to agree. The $10.72\unit{ps}$ that
+        this netlist's declared supply noise produces at
+        \texttt{ro\_vco} is a different measurement of a different
+        quantity. On this run the two differ by $20\%$; on the previous
+        run, by $16\%$. Each is one run's result from a single random
+        sample, and neither is evidence about the other.
+
+        This validation goes further than published practice. The gap
+        named above (no intrinsic device noise in the model) is one that
+        published practice shares. Analog Devices' production RNM suite
+        for a GHz transceiver validates its PLL on lock time and
+        frequency error, the same quantities checked in
         Section~\ref{sec:equiv}. It states that ``model validation
         remains an area for improvement in the real number modeling
         flow'', and names frequency-domain performance as future
@@ -1965,36 +2302,37 @@ trust that the feature requested was the feature exercised.
 \section{What the routes measure}
 \label{app:routes}
 
-The case studies name the characterisation routes and say why each block
-needs the one it gets. This appendix says what the terms mean, using the
-reference PLL's own measurements rather than an example invented for the
-purpose. None of it is needed to read the results; it is here for a
-reader who wants to check them.
+A route is the characterisation method the tool chooses for a block. The
+case studies name each block's route and say why the block needs it. This
+appendix explains what the routes actually measure, using the reference
+PLL's own results rather than an invented example. You do not need it to
+read the results; it is here for a reader who wants to check them.
 
 \subsection{Why an oscillator is compared as a rate}
 
-The first row of the table in Section~\ref{sec:equiv} is the ordinary
-case: two output waveforms, lined up in time and
-subtracted. The fourth row cannot work that way, and the reason is worth
-a paragraph because it is the whole justification for the route.
+Most blocks are checked by lining up two output waveforms in time and
+subtracting them. That is the first row of the table in
+Section~\ref{sec:equiv}. An oscillator, the fourth row, cannot be checked
+this way, and the reason is the whole justification for its route.
 
-Suppose the model and the transistors run at \emph{exactly} the same
-frequency --- a perfect model. They start aligned. Nothing locks their
-phase together, so a difference of one part in $10^5$ slides them a full
-cycle apart within a millisecond, and from then on the model sits at one
-supply rail at the instants the circuit sits at the other. Subtract
-those two waveforms and you get full-swing error everywhere. The perfect
-model scores as entirely wrong.
+Suppose the model and the transistor-level circuit in SPICE run at
+\emph{exactly} the same frequency: a perfect model. They start aligned.
+But nothing locks their phases together. A frequency difference of one
+part in $10^5$ slides them a full cycle apart within a millisecond. From
+then on, the model sits at one supply rail whenever the circuit sits at
+the other. Subtracting the two waveforms gives full-swing error
+everywhere, and the perfect model scores as entirely wrong.
 
-That is not hypothetical, and a milder version of it is visible
-elsewhere in this document: the two clock buffers in case study 4 report
-a worst instantaneous error of $99.9\%$ of full swing, from an edge
-landing slightly late. For a buffer that is a brief moment each cycle.
-For an oscillator it is the permanent steady state.
+This is not hypothetical. A milder version appears elsewhere in this
+document: the two clock buffers in case study 4 report a worst
+instantaneous error of $99.9\%$ of full swing, because an edge lands
+slightly late. For a buffer, that error lasts a brief moment each cycle.
+For an oscillator, it would be the permanent steady state.
 
-So no waveform is subtracted. The control voltage is set, the circuit is
-run in SPICE and the cycles counted, the model is run at the same
-control and its cycles counted, and the two frequencies are compared:
+So the oscillator route subtracts no waveforms. Instead it compares
+frequencies. It sets the control voltage, runs the circuit in SPICE and
+counts cycles, runs the model at the same control voltage and counts its
+cycles, then compares the two frequencies:
 
 \begin{center}
 \begin{tabular}{@{}ll@{}}
@@ -2003,27 +2341,28 @@ set \texttt{cont} to        & $1.9000\unit{V}$ \\
 SPICE: count cycles, divide & $f_\mathrm{spice}$ \\
 model: same control, count  & $f_\mathrm{model}$ \\
 score                       & $|f_\mathrm{model}-f_\mathrm{spice}| / f_\mathrm{spice} = 0.024\%$ \\
-against                     & a $2\%$ bar \\
+pass/fail limit             & $2\%$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent Phase is ignored deliberately. The model does not claim to
-reproduce it --- it emits an ideal square wave, and the real ring's
-finite edges were already accounted for when its frequency was measured
-by FFT.
+\noindent Phase is ignored on purpose. The model does not claim to
+reproduce it: the model generates an ideal square wave. The real ring
+oscillator's finite edge rates were already taken into account when its
+frequency was measured by FFT.
 
 
-\noindent Every verdict records which of these rows it came from. Months
-later, a reader can still tell which number actually decided the result
-from the numbers that were merely noted alongside it.
+\noindent Every verdict records which of these rows it came from. So
+months later, a reader can still tell which number decided the result
+and which numbers were only noted alongside it.
 
 \subsection{The tuning curve}
 
-\noindent A tuning curve is not a description of the model --- it
-\emph{is} the model. What the oscillator route measures is a table, one row
-per control voltage, each row a separate transistor-level transient in
-which the control is held and the resulting oscillation is timed:
+\noindent For an oscillator, the tuning curve is not a description of the
+model: it \emph{is} the model. The oscillator route measures a table with
+one row per control voltage. Each row is a separate transient simulation
+of the transistor-level circuit in SPICE, with the control voltage held
+fixed and the resulting oscillation timed:
 
 \begin{center}
 \begin{tabular}{@{}rr@{}}
@@ -2040,36 +2379,40 @@ $2.805$ & $16.74$ \\
 \end{tabular}
 \end{center}
 
-\noindent The generated model looks its frequency up in that table and
-interpolates between rows. That is also why its checks come in three
-kinds rather than one. At the table's own $15$ rows the model is exact
-by construction, so agreement there ($0.001\%$) shows the table was
-transcribed and nothing more. At $5$ control voltages \emph{deliberately
-withheld} from it, the model must interpolate and is compared against
-fresh SPICE measurements --- $0.024\%$, and the only one of the three
-that is evidence about accuracy. At $9$ voltages far outside where the
-closed loop operates it reaches $4.987\%$, which is reported and not
-failed, because the loop never goes there.
+\noindent The generated model looks up its frequency in this table and
+interpolates between rows. That is why its checks come in three kinds:
+\begin{itemize}
+\item \textbf{At the table's own $15$ rows.} Here the model is exact by
+  construction. Agreement ($0.001\%$) only shows that the table was copied
+  correctly.
+\item \textbf{At $5$ control voltages \emph{deliberately withheld} from
+  the table.} Here the model must interpolate, and it is compared against
+  fresh SPICE measurements. The result, $0.024\%$, is the only one of the
+  three that is evidence about accuracy.
+\item \textbf{At $9$ voltages far outside the closed loop's operating
+  range.} Here the error reaches $4.987\%$. This is shown for information,
+  with no pass/fail limit, because the loop never goes there.
+\end{itemize}
 
-It is the same table Section~\ref{sec:nocosim} reads backwards: at
-$400\unit{MHz}$ it says $1.8496\unit{V}$, and that is the control
-voltage the assembled loop is then required to settle at.
+Section~\ref{sec:nocosim} reads the same table backwards. For
+$400\unit{MHz}$ it gives $1.8496\unit{V}$, and the assembled loop is then
+required to settle at that control voltage.
 
 \subsection{Control states}
 
-\noindent A control state is one combination of the digital gates
-driving a block. The pump has two of them, \texttt{pdn}
-and \texttt{pupb}, and they are driven \emph{independently}, so it has
-four states rather than one control axis --- and one measured $I(V)$
-table for each, $12$ points from $0$ to $3.3\unit{V}$ with $11$ more
-held out:
+\noindent A control state is one combination of the digital gate inputs
+that drive a block. The charge pump has two gate inputs, \texttt{pdn} and
+\texttt{pupb}, driven \emph{independently}. So it has four states rather
+than one continuous control input. Each state has its own measured
+current-versus-output-voltage table, $I(V)$: $12$ points from $0$ to
+$3.3\unit{V}$, with $11$ more held out for checking.
 
 \begin{center}
 \begin{tabular}{@{}llrrl@{}}
 \toprule
 \textbf{state} & \textbf{(\texttt{pdn},\texttt{pupb})}
   & \textbf{$i$ at $1.80\unit{V}$} & \textbf{at $3.3\unit{V}$}
-  & \textbf{what it is} \\
+  & \textbf{what it does} \\
 \midrule
 $00$ & $(0,0)$ & $+7.239\unit{mA}$ & $\approx 0$          & sources: charges the filter \\
 $01$ & $(0,1)$ & $-1.9\unit{nA}$   & $-4.0\unit{nA}$      & high-Z: off \\
@@ -2079,40 +2422,41 @@ $11$ & $(1,1)$ & $-4.441\unit{mA}$ & $-5.078\unit{mA}$    & sinks: discharges it
 \end{tabular}
 \end{center}
 
-\noindent \textbf{Why a table per state and not one fitted curve.} The
-gates are digital: each is on or off, so the block has no continuous
-control axis to fit against. It has a small finite set of modes, and
-within a mode its behaviour depends on the output voltage alone --- how
-much current it can push into a node depends on what voltage is already
-there. That is what $I(V)$ means here, and why there are four of them.
+\noindent \textbf{Why one table per state, not one fitted curve.} The
+gates are digital: each is on or off. So the block has no continuous
+control input to fit a curve against. Instead it has a small, fixed set
+of modes. Within a mode, its current depends only on the output voltage,
+because how much current it can push into a node depends on the voltage
+already there. That is what $I(V)$ means here, and why there are four
+tables.
 
-It is also why the default route cannot express it, which the pipeline
-says from the topology rather than from the block's name. An inverter
-ties its two gates together, so one input drives both and there is a
-single axis to fit. Here the two are separate digital signals, which
-makes $01$ and $10$ reachable --- states an inverter does not have. $01$
-is the quiescent one, drawing nanoamps, and $10$ is both devices
-conducting at once.
+This is also why the default route cannot model the pump. The pipeline
+decides this from the circuit's topology, not from the block's name. An
+inverter ties its two gates together, so one input drives both and there
+is a single input to fit against. In the pump, the two gates are separate
+digital signals. That makes states $01$ and $10$ reachable, and an
+inverter has neither. State $01$ is the idle state, drawing nanoamps;
+state $10$ has both transistors conducting at once.
 
-Those four rows are load-bearing twice more in this document. The loop
-harness of Section~\ref{sec:nocosim} derives each gate's active level
-from them, read at the $1.849\unit{V}$ the loop sits at rather than at
-a table row: with \texttt{pupb} quiescent, \texttt{pdn} at $1$ reaches
-state $11$ and sinks $4.47\unit{mA}$, so it is active high; with
-\texttt{pdn} quiescent, \texttt{pupb} at $0$ reaches $00$ and sources
-$7.103\unit{mA}$, so it is active low. And the equivalence verdict names
-the state its worst error came from --- $0.5487\%$ against a $2\%$ bar,
-at state $00$ --- because an average across four modes would hide which
-mode is the weak one.
+These four rows matter in two more places in this document. First, the
+loop harness of Section~\ref{sec:nocosim} uses them to work out each
+gate's active level. It reads them at $1.849\unit{V}$, where the loop
+settles, rather than at a table row. With \texttt{pupb} idle,
+\texttt{pdn} at $1$ reaches state $11$ and sinks $4.47\unit{mA}$, so
+\texttt{pdn} is active high. With \texttt{pdn} idle, \texttt{pupb} at $0$
+reaches $00$ and sources $7.103\unit{mA}$, so \texttt{pupb} is active
+low. Second, the equivalence verdict names the state where its worst
+error occurred: $0.5487\%$ against a $2\%$ pass/fail limit, at state
+$00$. An average across the four modes would hide which mode is weakest.
 
 \subsection{The state space}
 
-\noindent A filter's state space is what lets its route measure nothing
-at all. A state space is the ordinary
-way of writing a linear dynamic system --- a few variables whose
-\emph{rates of change} depend on their present values and on the input:
-$\dot{x} = Ax + Bu$, $y = Mx + Nu$. For an RC network the states are the
-capacitor voltages and nothing else. The deck says:
+\noindent Because a filter can be written exactly as a state space, its
+route needs to measure nothing at all. A state space is the standard way
+to write a linear dynamic system: a few variables whose \emph{rates of
+change} depend on their present values and on the input,
+$\dot{x} = Ax + Bu$, $y = Mx + Nu$. For an RC network, the state
+variables are just the capacitor voltages. The netlist is:
 
 \begin{lstlisting}
 .subckt lpfilt dra vout
@@ -2122,16 +2466,17 @@ R3 int1 vout 50         C3 vout 0  0.5n
 .ends
 \end{lstlisting}
 
-\noindent Three capacitors, so three states: \texttt{c1},
-\texttt{int1}, \texttt{vout}. The input is the current the pump injects
-into \texttt{dra}; the output is \texttt{vout}. ``Exact and needs no
-fitting'' then means every coefficient in the emitted model is a product
-of two numbers from those six lines:
+\noindent Three capacitors give three states: the voltages on
+\texttt{c1}, \texttt{int1} and \texttt{vout}. The input is the current
+the charge pump injects into \texttt{dra}; the output is \texttt{vout}.
+When the paper says this route is ``exact and needs no fitting'', it
+means every coefficient in the generated model is computed from values on
+those six lines:
 
 \begin{center}
 \begin{tabular}{@{}lll@{}}
 \toprule
-\textbf{emitted coefficient} & \textbf{is} & \textbf{which is} \\
+\textbf{generated coefficient} & \textbf{is} & \textbf{which is} \\
 \midrule
 $500{,}000$      & $1/(R_2C_1) = 1/(200\times10\unit{n})$  & the \texttt{c1} pole \\
 $40{,}000{,}000$ & $1/(R_3C_3) = 1/(50\times0.5\unit{n})$  & the \texttt{vout} pole \\
@@ -2142,23 +2487,22 @@ $200{,}000{,}000$& $1/C_2 = 1/5\unit{n}$                   & the injected curren
 \end{tabular}
 \end{center}
 
-\noindent Not one of those came from a simulation. Compare the inverter
-in the same netlist, where the tool ran SPICE $33$ times, fitted a
-curve, and reports an rms fit error: here there is nothing to fit and
-nothing to be wrong about, because Kirchhoff's laws and the netlist
-determine the answer completely. What the equivalence check can still
-catch is a code-generation error --- the emitted file disagreeing with
-the matrices it was built from --- and that is what its $0.019\%$
-measures.
+\noindent None of these came from a simulation. Compare the inverter in
+the same netlist: there the tool ran SPICE $33$ times, fitted a curve,
+and reports an rms (root mean square) fit error. Here there is nothing to
+fit and nothing to get wrong, because Kirchhoff's laws and the netlist
+fully determine the answer. The equivalence check can still catch a
+code-generation error, meaning the generated file disagrees with the
+matrices it was built from. That is what its $0.019\%$ measures.
 
-Two details of the emitted file follow from the same reasoning.
-\texttt{dra} is \emph{not} a state, because it carries no capacitance:
-its voltage is whatever the resistors and the driven current imply at
-that instant, so it is solved algebraically each step together with the
-pump driving it. And the filter has no DC path to ground, so a constant
-injected current ramps the output forever without settling --- which is
-exactly what a charge pump into a capacitive filter does, and why this
-is a state space rather than a DC gain.
+Two details of the generated file follow from the same reasoning. First,
+\texttt{dra} is \emph{not} a state, because it has no capacitance. Its
+voltage is set at each instant by the resistors and the injected current,
+so it is solved algebraically at each time step, together with the pump
+that drives it. Second, the filter has no DC path to ground. A constant
+injected current therefore ramps the output forever without settling.
+That is exactly what a charge pump driving a capacitive filter does, and
+it is why the filter is modelled as a state space rather than a DC gain.
 
 
 \vspace{1.5em}
