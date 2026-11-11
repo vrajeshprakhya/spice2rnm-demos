@@ -142,7 +142,7 @@ together took about an hour on a laptop, using open-source simulators.
 two-pole filter       & waveform, unseen input   & $0.0097$ vs $0.15$          & $64$ checks, $0$ failed \\
 duty-cycle corrector  & where its edges land     & $0.428$ vs $1.0\unit{pp}$   & $60$ checks, $0$ failed \\
 phase interpolator    & edge position per code   & $1.83$ vs $6.25\unit{ps}$   & $9$ checks, $0$ failed \\
-PLL, SV--SPICE co-sim & system vs SPICE circuit  & $3.851\unit{mV}$, $41\%$ of limit & $5$ blocks, $0$ failed \\
+PLL, SV--SPICE co-sim & system vs SPICE circuit  & $1.783\unit{mV}$, $27\%$ of limit & $5$ blocks, $0$ failed \\
 PLL, SV only          & loop closed in SV alone  & locked, $-0.0005\%$         & $12$ checks, $0$ failed \\
 \bottomrule
 \end{tabular}
@@ -740,23 +740,31 @@ Per-block equivalence                & $5$ of $5$ pass \\
 \midrule
 Supply noise                         & $20\unit{mV}$ rms, declared in the netlist \\
 System check vs transistor-level circuit & $4$ boundary signals, $0$ failed \\
-\quad \texttt{vout} (control voltage) & $3.851\unit{mV}$, $41\%$ of its pass/fail limit \\
+\quad \texttt{vout} (control voltage) & $1.783\unit{mV}$, $27\%$ of its pass/fail limit \\
 \quad \texttt{aout} (VCO output)      & $0.4\%$ of crossings, limit $2\%$ \\
-\quad \texttt{dra} (internal probe)   & $19.1\unit{mV}$, $0.8\%$ of its range \\
+\quad \texttt{dra} (internal probe)   & $8.9\unit{mV}$, $0.4\%$ of its range \\
 \midrule
 Both loops lock at                   & $400.00\unit{MHz}$ \\
-\quad control voltage range, transistors & $1.8448$--$1.8563\unit{V}$ \\
-\quad control voltage range, models      & $1.8486$--$1.8525\unit{V}$ \\
+\quad control voltage range, transistors & $1.8468$--$1.8538\unit{V}$ \\
+\quad control voltage range, models      & $1.8484$--$1.8523\unit{V}$ \\
 \midrule
-Model half vs transistor half        & $4.81\unit{s}$ vs $76.2\unit{s}$ \\
-\quad same testbench, same span       & $16\times$ \\
+Model half vs transistor half        & $5.12\unit{s}$ vs $124.5\unit{s}$ \\
+\quad same testbench, same span       & $24\times$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
+\noindent One row in that table is load-sensitive and should be read as
+such. Between the two most recent runs of this netlist the model half went
+from $4.81$ to $5.12\unit{s}$ while the transistor half went from $76.2$
+to $124.5\unit{s}$, so the ratio moved from $16\times$ to $24\times$
+without either side getting better: a shared machine slows the
+transistor-level run far more than the model one. The ratio is real but
+it is a property of the machine as much as of the models.
+
 \noindent The control voltage is the number to read. The loop stores its
 state there, so a model that settles in the wrong place shows it here
-first. The two runs agree to $3.851\unit{mV}$ and reach the same
+first. The two runs agree to $1.783\unit{mV}$ and reach the same
 frequency. They do so with $20\unit{mV}$ rms (root mean square) of random
 noise on the supply, as the netlist declares. The agreement is looser than
 it was with a quiet supply, and the supply noise is the reason: a loop
@@ -772,8 +780,8 @@ concentrates a supply disturbance onto exactly this node.
       legend columns=2,draw=none,column sep=1.2em},
     grid=both, grid style={line width=0.1pt,draw=gray!18},
     every axis plot/.append style={line width=0.7pt}]
-    \addplot[black,mark=*,mark size=1.5pt] coordinates {(0.3999,1.85583) (0.7999,1.8563) (1.2,1.85233) (1.6,1.84734) (2,1.84478) (2.4,1.84606) (2.8,1.84901) (2.9,1.84966)};
-    \addplot[red,dashed,mark=o,mark size=2.4pt] coordinates {(0.3999,1.85198) (0.7999,1.85249) (1.2,1.85084) (1.6,1.84894) (2,1.84857) (2.4,1.84898) (2.8,1.84996) (2.9,1.85015)};
+    \addplot[black,mark=*,mark size=1.5pt] coordinates {(0.3999,1.85361) (0.7999,1.85384) (1.2,1.85123) (1.6,1.84806) (2,1.84679) (2.4,1.84767) (2.8,1.8497) (2.9,1.85004)};
+    \addplot[red,dashed,mark=o,mark size=2.4pt] coordinates {(0.3999,1.85183) (0.7999,1.85228) (1.2,1.85058) (1.6,1.84872) (2,1.84838) (2.4,1.84895) (2.8,1.85) (2.9,1.85023)};
     \legend{transistors (SPICE), generated model}
   \end{axis}
 \end{tikzpicture}
@@ -790,21 +798,23 @@ the noise source declared in the netlist, so the model run and the
 transistor run never see the same noise. The largest difference between
 them, over any time window, therefore changes from run to run. Seven
 consecutive runs of this same netlist gave $3.61$, $1.83$, $4.15$,
-$2.05$, $1.86$, $1.72$ and $4.62\unit{mV}$, and the run this section is
-drawn from gave $3.851\unit{mV}$ as an eighth. Two of the eight were run
-back to back with nothing changed between them. So the $3.851\unit{mV}$
-quoted above is one random sample from a spread of possible results, not
-a property of the model.
+$2.05$, $1.86$, $1.72$ and $4.62\unit{mV}$, then $3.851$, then the
+$1.783\unit{mV}$ quoted above: nine draws spanning a factor of
+$2.7$. Two of the nine were run back to back with nothing changed between
+them. So the figure in the table is one random sample from a spread of
+possible results, not a property of the model, and the two most recent
+runs differ by more than a factor of two on it while the limit it is
+judged against never moved.
 
 What stays fixed is the limit the difference is compared against. That
-limit is $0.252$ of \texttt{vout}'s own scale, and $0.202$ of it is there
-to allow for exactly this run-to-run variation. The $3.851\unit{mV}$ comes
-to $0.104$ against it, comfortably inside. That ratio is what the pass/fail
+limit is $0.178$ of \texttt{vout}'s own scale, and $0.128$ of it is there
+to allow for exactly this run-to-run variation. The $1.783\unit{mV}$ comes
+to $0.048$ against it, comfortably inside. That ratio is what the pass/fail
 result is based on, and what the record keeps.
 
 The scale has a minimum of its own: $2\%$ of the node's magnitude. Without
 that minimum the comparison would be unfair here. In the transistor run
-\texttt{vout} moved only $11.5\unit{mV}$ across the window, and measuring
+\texttt{vout} moved only $11.9\unit{mV}$ across the window, and measuring
 a difference against so small a range would report ordinary noise as
 error.
 
@@ -859,7 +869,7 @@ assign dd_v = ((dd_v_ext > 0.0) ? dd_v_ext : DD_NOM) + dd_nw;
 declares. The supply can still be overridden from outside. The random
 generator starts from a fixed random seed (\texttt{DD\_SEED}), so a rerun
 repeats exactly. In a transient simulation of this netlist, that noise
-source causes $10.72\unit{ps}$ rms of period jitter at the oscillator,
+source causes $11.44\unit{ps}$ rms of period jitter at the oscillator,
 $\pm 5\%$ over the two hundred cycles it was measured on. That jitter
 figure is itself one random sample. A constant supply produces no jitter
 at all.
@@ -902,7 +912,7 @@ limit is widened to allow for that run-to-run variation: by three standard
 errors of the difference between two window means. The standard error is
 taken from how much the SPICE reference itself varies, not from the
 declared amplitude, because how much noise reaches a node is a property of
-the circuit. On \texttt{vout} that allowance is $0.202$ of the $0.252$
+the circuit. On \texttt{vout} that allowance is $0.128$ of the $0.178$
 bar. The record carries both, so a reader can see how much of the bar was
 earned by agreement and how much was allowance for noise.
 
@@ -929,12 +939,14 @@ digital side is attached. The same holds for the operating voltage range,
 which the golden probe (the SPICE run that measures golden values, the
 expected values) already measures. So the probe measures each net's
 switching rate beside its voltage range. The two inverter inputs return
-$399.8$ and $399.7\unit{MHz}$, the $400\unit{MHz}$ this PLL locks to.
-Scored there, they pass at $0.276$ and $0.307\unit{pp}$ (percentage
-points) of duty cycle, against a $0.5\unit{pp}$ bar.
+$399.7$ and $399.8\unit{MHz}$, the $400\unit{MHz}$ this PLL locks to.
+Scored there, they pass at $0.279$ and $0.300\unit{pp}$ (percentage
+points) of duty cycle, against a $0.5\unit{pp}$ bar. The rms voltage error
+is reported beside each one, $0.113$ and $0.129$ against the same $0.15$
+bar it was judged on before, but it is no longer what decides the verdict.
 
 The model form they are regenerated in has no delay line, so it cannot
-represent the measured rise/fall skew: $0.589$ and $0.672\unit{pp}$ of
+represent the measured rise/fall skew: $0.583$ and $0.651\unit{pp}$ of
 duty at that clock. Both blocks measure below their own floor, so the
 skew partly cancels rather than adding. That makes the floor an upper
 bound on what the simpler model form costs, not spare margin. The tool
@@ -944,9 +956,10 @@ A language model cannot supply that clock frequency. Asked five times
 about the same inverter with the same measurements, the classifier (the
 language model that judges design intent) proposed clock rates of
 $2\unit{MHz}$, $765\unit{MHz}$, $300\unit{MHz}$, $10\unit{GHz}$ and
-$15\unit{GHz}$. Asked about the second stage, it proposed
-$10\unit{GHz}$. The lowest is two hundred times below where the buffer
-runs. The highest is thirty-seven times above what the buffer's own model
+$15\unit{GHz}$. On the run these figures come from, asked once per
+stage, it proposed $15\unit{GHz}$ for the first and $10.4\unit{GHz}$ for
+the second. The lowest of the eight is two hundred times below where the
+buffer runs. The highest is thirty-seven times above what the buffer's own model
 can follow. The measurement returns the same answer every run, and its
 answers for the two stages agree to $0.03\%$, which no classifier run
 did. The rule is: design intent comes from the language model, physical
@@ -959,14 +972,24 @@ one number it had no way to know.
 
 \paragraph{The pass/fail result names the metric it came from.}
 Asking for the classifier does not guarantee it is used. Every duty-cycle
-figure above comes from a run with the classifier reachable and
-consulted. The same demonstration was then run deliberately with it
-\emph{unreachable}, to see what a reader would be shown in that case.
-(Which credential makes it reachable is a property of the build, not of
-this result: the demonstrations ask the toolchain whether it can call a
-model rather than testing for a named environment variable.) The default chirp stimulus is kept, and the
-same two blocks pass an rms comparison at $0.025$ against a $0.15$ bar.
-That is a green result from a measurement that cannot see the property in
+figure above, and the case study's whole table, comes from a run with
+the classifier reachable and consulted. The same demonstration was also
+run deliberately with it \emph{unreachable}, to see what a reader would be
+shown in that case. (Which credential makes it reachable is a property of
+the build, not of this result: the demonstrations ask the toolchain
+whether it can call a model rather than testing for a named environment
+variable.)
+
+That comparison is worth stating in numbers, because the difference is
+not cosmetic. With the classifier unreachable the same two blocks are
+driven by the default chirp and judged on rms voltage, where they pass at
+$0.026$ and $0.025$ against a $0.15$ bar. With it reachable they are
+driven by a clock at the rate the golden probe measured and judged on
+duty, where they pass at $0.279$ and $0.300\unit{pp}$ against a
+$0.5\unit{pp}$ bar, and the rms figure on that stimulus is $0.113$ and
+$0.129$. Three of the five blocks are unaffected either way, because
+their routes involve no choice of stimulus. The default chirp stimulus is kept, and that
+is a green result from a measurement that cannot see the property in
 question (edge timing). The two transcripts are otherwise alike and the
 command line is identical. So the run records which figure each pass/fail
 result was based on, and the demonstration reports it from that record.
@@ -1703,7 +1726,7 @@ hardest and where the loop never goes, the error reaches $4.987\%$. Both
 numbers are reported, and both come from the SV-only run of
 Section~\ref{sec:nocosim}; the co-simulated run of the same block, whose
 band the golden probe measures instead of the specification declaring it,
-reports $0.001\%$ and $4.231\%$. The pass/fail verdict is taken in the band that
+reports $0.003\%$ and $4.794\%$. The pass/fail verdict is taken in the band that
 matters, and the less flattering number is printed, not quietly dropped.
 
 \textbf{Known limits of the model shape are costed in advance.} Sometimes
@@ -1734,7 +1757,7 @@ against and the pass/fail rules are byte-for-byte identical in both runs;
 only the small piece of code joining the two halves is swapped. That makes
 the two runs directly comparable, signal by signal: $4$ signals crossing
 between the halves, $0$ failed, the control voltage agreeing to
-$3.851\unit{mV}$ on a rail carrying $20\unit{mV}$ rms (root mean square) of
+$1.783\unit{mV}$ on a rail carrying $20\unit{mV}$ rms (root mean square) of
 declared noise, and both versions locking to the same frequency.
 
 \textbf{Third level: SystemVerilog only.} Most designs have no SV--SPICE
@@ -2274,11 +2297,14 @@ trusted to have used the feature that was requested.
         no pass/fail limit, for a specific reason. A PLL suppresses its
         oscillator's jitter inside the loop bandwidth. A figure measured
         at the PLL boundary is therefore not the oscillator's own jitter,
-        and the two are not expected to agree. The $10.72\unit{ps}$ that
+        and the two are not expected to agree. The $11.44\unit{ps}$ that
         this netlist's declared supply noise produces at
         \texttt{ro\_vco} is a different measurement of a different
-        quantity. On this run the two differ by $20\%$; on the previous
-        run, by $16\%$. Each is one run's result from a single random
+        quantity. The gap between them has been $16\%$ and $20\%$ on
+        earlier runs of this same netlist; the boundary figure quoted here
+        is from the run that measured it and was not re-measured
+        alongside the $11.44\unit{ps}$, which is the honest way to leave
+        two numbers that are not comparable in the first place. Each is one run's result from a single random
         sample, and neither is evidence about the other.
 
         This validation goes further than published practice. The gap

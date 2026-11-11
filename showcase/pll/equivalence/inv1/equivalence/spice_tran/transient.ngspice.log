@@ -1,6 +1,6 @@
 # command : /home/vraje/ngspice-install/bin/ngspice -b /home/vraje/s2r_runs/demo4_pll/inv1/equivalence/spice_tran/transient.cir
-# started : 2026-11-10T16:36:14.847418+00:00
-# finished: 2026-11-10T16:36:15.972294+00:00
+# started : 2026-11-11T04:17:48.055794+00:00
+# finished: 2026-11-11T04:17:48.230194+00:00
 # exit    : 0
 
 --- stdout ---
@@ -31,41 +31,12 @@ vctx_sub#branch                     3.3003e-12
 vctx_ss#branch                     6.64637e-10
 vctx_dd#branch                    -6.67938e-10
 
- Reference value :  5.14469e-10
- Reference value :  1.13908e-09
- Reference value :  1.84078e-09
- Reference value :  2.51179e-09
- Reference value :  3.15150e-09
- Reference value :  3.80733e-09
- Reference value :  4.47147e-09
- Reference value :  5.11302e-09
- Reference value :  5.69153e-09
- Reference value :  6.32183e-09
- Reference value :  6.90053e-09
- Reference value :  7.52539e-09
- Reference value :  8.13192e-09
- Reference value :  8.69307e-09
- Reference value :  9.28344e-09
- Reference value :  9.75033e-09
- Reference value :  1.01130e-08
- Reference value :  1.06556e-08
- Reference value :  1.11760e-08
- Reference value :  1.17312e-08
- Reference value :  1.22812e-08
- Reference value :  1.27956e-08
- Reference value :  1.33253e-08
- Reference value :  1.38654e-08
- Reference value :  1.44155e-08
- Reference value :  1.49226e-08
- Reference value :  1.54425e-08
- Reference value :  1.59746e-08
- Reference value :  1.65104e-08
- Reference value :  1.69981e-08
- Reference value :  1.75040e-08
- Reference value :  1.80375e-08
- Reference value :  1.85396e-08
- Reference value :  1.87785e-08
-No. of Data Rows : 40318
+ Reference value :  2.19320e-09
+ Reference value :  4.16407e-09
+ Reference value :  5.71719e-09
+ Reference value :  7.90318e-09
+ Reference value :  9.63485e-09
+No. of Data Rows : 7170
 Note: Simulation executed from .control section
 
 --- stderr ---

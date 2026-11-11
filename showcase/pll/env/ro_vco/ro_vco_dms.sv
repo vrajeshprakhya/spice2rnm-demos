@@ -25,7 +25,7 @@ module ro_vco_dms import ro_vco_ms_types_pkg::*; (
   // sweep would need its own goldens from ngspice, which this run does not
   // have. Stating it as a constant is the honest version of that: the
   // environment covers one supply, and which one is written down.
-  real vdd_r = 3.30553225;
+  real vdd_r = 3.30137737;
 
   ro_vco_rnm u_rnm (
     .cont (cont_r),

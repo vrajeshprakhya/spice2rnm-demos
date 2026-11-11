@@ -161,9 +161,33 @@ say "and where they disagree the measurement wins."
 # and on a machine with working Bedrock credentials it would have said
 # the model part was off while that part ran.
 llm_state=$(cd "$S2R" && python3 - <<'PY' 2>/dev/null
+import importlib.util as iu
+
+
+def sdk_missing():
+    """Why no Bedrock call could be made from here, SDK-wise.
+
+    unavailable() answers about CONFIGURATION only and says so: it
+    checks the region and leaves credentials to surface on the first
+    request. But SECURITY.md's first condition for a call is that the
+    optional client is INSTALLED, and nothing checks that -- so a
+    region set with no SDK present answers "reachable" and every
+    advisor call then dies on an import. This narration must not claim
+    the advisor was consulted when it could not be.
+    """
+    if iu.find_spec("anthropic") is None:
+        return "the Bedrock client is not installed (pip install spice2rnm[llm])"
+    import anthropic
+    if not hasattr(anthropic, "AnthropicBedrock"):
+        return "the installed anthropic client has no Bedrock support"
+    if iu.find_spec("botocore") is None:
+        return "botocore is absent, so a Bedrock request cannot be signed"
+    return None
+
+
 try:
     from spice2rnm import llm_client
-    why = llm_client.unavailable()
+    why = llm_client.unavailable() or sdk_missing()
 except Exception:                      # a tree that reads a key directly
     import os
     why = (None if os.environ.get("ANTHROPIC_API_KEY")

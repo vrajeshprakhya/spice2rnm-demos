@@ -6,7 +6,7 @@ studies, the last of them run twice --- once in SV--SPICE co-simulation
 (the generated models against the real transistors), once in SystemVerilog
 alone, with no SPICE at all.
 
-**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (34
+**Read it compiled: [`spice2rnm-demos.pdf`](spice2rnm-demos.pdf)** (35
 pages). The PDF is regenerated from the `.tex` whenever it changes; if
 the two ever disagree, the `.tex` is the source of truth.
 
