@@ -1,6 +1,6 @@
 # command : /home/vraje/ngspice-install/bin/ngspice -b /home/vraje/s2r_runs/demo4_pll/inv1/equivalence/spice_tran/transient.cir
-# started : 2026-11-11T04:17:48.055794+00:00
-# finished: 2026-11-11T04:17:48.230194+00:00
+# started : 2026-11-11T16:59:05.734564+00:00
+# finished: 2026-11-11T16:59:05.867231+00:00
 # exit    : 0
 
 --- stdout ---
@@ -31,12 +31,10 @@ vctx_sub#branch                     3.3003e-12
 vctx_ss#branch                     6.64637e-10
 vctx_dd#branch                    -6.67938e-10
 
- Reference value :  2.19320e-09
- Reference value :  4.16407e-09
- Reference value :  5.71719e-09
- Reference value :  7.90318e-09
- Reference value :  9.63485e-09
-No. of Data Rows : 7170
+ Reference value :  2.57560e-09
+ Reference value :  5.25168e-09
+ Reference value :  7.80198e-09
+No. of Data Rows : 7166
 Note: Simulation executed from .control section
 
 --- stderr ---
