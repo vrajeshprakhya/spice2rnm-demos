@@ -81,6 +81,10 @@ netlists/
   pi_therm.cir   the phase interpolator: demo 3
   pll_analog.cir the PLL deck demos 4 and 4b run -- ams-cosim's example
                  plus the 20 mV supply-noise card it is run with
+rtl/
+  pll/           the PLL's digital half: pfd.sv and divn.sv, the RTL
+                 both PLL demos instantiate, and tb_pll.sv, the
+                 co-simulation testbench demo 4 runs as its golden
 harness/
   prbs_vcd.py    PRBS through the LPF model, scored and dumped to VCD
   demo_dcc.py    threshold sweep -> the corrector's actuator characteristic

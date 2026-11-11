@@ -29,7 +29,6 @@
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 S2R="${S2R:-$HOME/spice2rnm}"
-COSIM="${COSIM:-$HOME/ams-cosim}"
 NGSPICE="${NGSPICE:-$HOME/ngspice-install/bin/ngspice}"
 UVM_MS_LIB="${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}"
 UVM_SRC="${UVM_SRC:-$HOME/iverilog-unified/uvm-core/src}"
@@ -50,7 +49,7 @@ else
 fi
 mkdir -p "$OUT"
 
-PLL_SRC="$COSIM/examples/pll"
+PLL_SRC="${PLL_SRC:-$HERE/rtl/pll}"
 PLL="$HOME/s2r_runs/demo4b_pll_deck"
 NETLIST="$PLL/pll_analog.cir"
 SPEC="$PLL/pll_spec.md"
@@ -73,8 +72,8 @@ hr "0. What this one needs, and what it does not"
 say "Three inputs, and they are not connected to each other."
 echo
 need "$HERE/netlists/pll_analog.cir" "the analog netlist"  "this repo, netlists/"
-need "$PLL_SRC/pfd.sv"          "phase detector RTL"       "same repo, examples/pll"
-need "$PLL_SRC/divn.sv"         "divider RTL"              "same repo, examples/pll"
+need "$PLL_SRC/pfd.sv"          "phase detector RTL"       "this repo, rtl/pll/"
+need "$PLL_SRC/divn.sv"         "divider RTL"              "this repo, rtl/pll/"
 need "$HERE/specs/pll_spec.md"     "the specification, in English" "this repo, specs/"
 need "$NGSPICE"                 "ngspice binary"           "a normal ngspice build"
 need "$XEZIM"                   "the SV simulator"         "xezim, release build"
@@ -86,7 +85,7 @@ fi
 echo
 say "And what demo 4 needs that this one does NOT:"
 say ""
-say "  tb_pll.sv        a testbench spanning both halves   -- there is none"
+say "  tb_pll.sv        a testbench spanning both halves   -- not read here"
 say "  ams_bridge.so    the DPI bridge                     -- not built"
 say "  libngspice.so    a SHARED ngspice for it to dlopen  -- not needed"
 say ""

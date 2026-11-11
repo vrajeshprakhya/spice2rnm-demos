@@ -37,8 +37,12 @@ case "$OUT" in
 esac
 mkdir -p "$OUT"
 
-# The published partition, exactly as the co-simulation repo ships it.
-PLL_SRC="$COSIM/examples/pll"
+# The digital half, carried IN THIS REPO rather than reached for in the
+# co-simulation one. Byte-identical to ams-cosim's examples/pll, with
+# rtl/pll/README.md recording where it came from: an input that lives in
+# a repo the reader may not have is an input they cannot see, and the
+# testbench below is the golden this whole demo is judged against.
+PLL_SRC="${PLL_SRC:-$HERE/rtl/pll}"
 
 # And the deck this demo actually runs: that one, with ONE line added --
 # 20 mV rms of noise on its supply. Written here rather than published
@@ -75,9 +79,9 @@ say "Demos 1-3 take a netlist and nothing else. This one models the analog"
 say "half of a running co-simulation, so it needs the other half too."
 echo
 need "$HERE/netlists/pll_analog.cir" "the PLL netlist"     "this repo, netlists/"
-need "$PLL_SRC/pfd.sv"          "phase detector RTL"       "same repo, examples/pll"
-need "$PLL_SRC/divn.sv"         "divider RTL"              "same repo, examples/pll"
-need "$PLL_SRC/tb_pll.sv"       "the co-simulation tb"     "same repo, examples/pll"
+need "$PLL_SRC/pfd.sv"          "phase detector RTL"       "this repo, rtl/pll/"
+need "$PLL_SRC/divn.sv"         "divider RTL"              "this repo, rtl/pll/"
+need "$PLL_SRC/tb_pll.sv"       "the co-simulation tb"     "this repo, rtl/pll/"
 need "$BRIDGE"                  "the DPI bridge"           "build it: ams-cosim/build.sh"
 need "$NGLIB/libngspice.so"     "SHARED libngspice"        "ngspice --with-ngshared"
 need "$NGSPICE"                 "ngspice binary"           "a normal ngspice build"
