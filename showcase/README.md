@@ -28,11 +28,39 @@ merely describing what that would look like. Its own README says so.
 | [`dcc2/`](dcc2/) | duty-cycle corrector | level-dependent dynamics; duty checked instead of AC |
 | [`pi/`](pi/) | phase interpolator | phase-per-code environment; no DC or AC at all |
 | [`lpf2_house/`](lpf2_house/) | the filter again | the same circuit generated against an existing model library — see below |
+| [`pll/`](pll/) | phase-locked loop | five blocks by four characterisation routes, composed and checked against the transistors in SV–SPICE co-simulation |
+| [`pll_nocosim/`](pll_nocosim/) | the same PLL | the same netlist with **no SPICE in the loop**: bands off the deck and the specification, and the loop closed around the customer's RTL in pure SystemVerilog |
+
+The two PLL cases are the same circuit answered two ways, and the
+difference is what each is for.
+
+`pll/` has a co-simulation testbench, so a **golden probe** runs the
+design's own testbench against the transistors before anything is
+characterised. That measures the range each block really operates over,
+and the system check then runs that same testbench twice — once with the
+models as the analog half, once with the transistors — with only the
+bridge functions swapped. It is the only case here whose verdict is
+evidence about the circuit.
+
+`pll_nocosim/` has no testbench, no bridge and no `libngspice`, which is
+what most designs have. Nothing can measure an operating band with the
+loop open, so the bands are *derived* from the deck (a source holding a
+node, or a pair of rails) and *declared* by the specification's
+operating-conditions table, and every message naming a band says which.
+The loop is then closed in SystemVerilog around the customer's own
+`pfd.sv` and `divn.sv`, with the wiring followed out from the oscillator's
+clock by port direction. Its `loop/rtl_loop_derivation.json` records every
+field with the measurement or file it came from, and `.alternate.json` is
+the gate pairing it did not need. A loop that settles plausibly and
+wrongly still settles, so this is deliberately the weaker claim.
+
+Both carry `equivalence/` with the per-block evidence, and
+[`STAMP`](STAMP) records which run and which revisions produced each.
 
 ## Every file, and what is in it
 
-The four cases share one file naming scheme, so a file does the same job
-in each. `lpf2/` in full:
+The first four cases share one file naming scheme, so a file does the same
+job in each. `lpf2/` in full:
 
 ```
 lpf2/
@@ -67,8 +95,8 @@ lpf2/
 
 | Looking for | Open |
 |---|---|
-| a generated model, plain `real` ports | [`lpf2/rc_lpf2_rnm.sv`](lpf2/rc_lpf2_rnm.sv) |
-| a model with **wreal** ports | [`lpf2/rc_lpf2_rnm_wreal.sv`](lpf2/rc_lpf2_rnm_wreal.sv) |
+| a model with **wreal** ports | [`lpf2/rc_lpf2_rnm.sv`](lpf2/rc_lpf2_rnm.sv) — what `--model-ports wreal` emits, and the default here |
+| a model with plain **`real`** ports | [`lpf2_house/rc_lpf2_rnm.sv`](lpf2_house/rc_lpf2_rnm.sv), and [`pll/ro_vco_rnm.sv`](pll/ro_vco_rnm.sv) whose output is a `logic` clock rather than an analog node |
 | a model with **UDN** ports, on a library's own nettype | [`lpf2_house/rc_lpf2_rnm_ng_anet.sv`](lpf2_house/rc_lpf2_rnm_ng_anet.sv) |
 | a **UDN declaration** the tool generated | [`lpf2/rc_lpf2_ms_types_pkg.sv`](lpf2/rc_lpf2_ms_types_pkg.sv) |
 | a **UDN declaration** a customer already had | [`house_lib/ng_ams_pkg.sv`](house_lib/ng_ams_pkg.sv) |
@@ -81,10 +109,20 @@ lpf2/
 | why an environment has **no AC section** | [`dcc2/pipeline.txt`](dcc2/pipeline.txt) — the run says it in its own words |
 | a **delay-line** model (no transfer function at all) | [`pi/pi_therm_rnm.sv`](pi/pi_therm_rnm.sv) |
 | **phase-per-code** goldens | [`pi/pi_therm_ms_pkg.sv`](pi/pi_therm_ms_pkg.sv) |
-| a **digital code port** crossing an analog boundary | [`pi/pi_therm_rnm_wreal.sv`](pi/pi_therm_rnm_wreal.sv) — `input int code` stays `int` |
+| a **digital code port** crossing an analog boundary | [`pi/pi_therm_rnm.sv`](pi/pi_therm_rnm.sv) — `input int code` stays `int` beside the wreal ports |
 | a model asserting **its own validity range** | [`lpf2/rc_lpf2_rnm.sv`](lpf2/rc_lpf2_rnm.sv) — `a_input_domain`, at the end |
 | the same idea for **discrete settings** | [`pi/pi_therm_rnm.sv`](pi/pi_therm_rnm.sv) — `a_code_range`; a delay line has no amplitude domain |
 | what a **conformed** run script compiles | [`lpf2_house/run_rc_lpf2_ms.sh`](lpf2_house/run_rc_lpf2_ms.sh) — the house package, not a generated one |
+| an **interface wrapper**, and why it is separate | [`pll/ro_vco_iface.sv`](pll/ro_vco_iface.sv) — re-presents the measured core at the subcircuit's own ports, so the netlist's `xvco` card instantiates it unchanged |
+| a wrapper doing **real boundary work** | [`pll/cpump_iface.sv`](pll/cpump_iface.sv) — carries conductance out beside current, because pump and filter form an algebraic loop |
+| an **oscillator** model (a frequency, not a gain) | [`pll/ro_vco_rnm.sv`](pll/ro_vco_rnm.sv) — 15-point measured tuning curve |
+| a **switched current** model, per control state | [`pll/cpump_cp_rnm.sv`](pll/cpump_cp_rnm.sv) — one I(V) table per state, high-Z state included |
+| an **RC state space** taken from topology, nothing fitted | [`pll/lpfilt_rc_rnm.sv`](pll/lpfilt_rc_rnm.sv) |
+| a **composed system** on the design's own testbench | [`pll/netlist_top.sv`](pll/netlist_top.sv) with [`pll/env/cosim/uvm_ms/`](pll/env/cosim/uvm_ms/) |
+| a loop closed in **SystemVerilog only** | [`pll_nocosim/loop/pll_analog_rtl_loop.sv`](pll_nocosim/loop/pll_analog_rtl_loop.sv) |
+| how that loop's **wiring was worked out** | [`pll_nocosim/loop/rtl_loop_derivation.json`](pll_nocosim/loop/rtl_loop_derivation.json) — every field with its source; `.alternate.json` is the pairing not used |
+| a **system-level UVM-MS** environment with full stimulus | [`pll_nocosim/env/rtl_loop/uvm_ms/`](pll_nocosim/env/rtl_loop/uvm_ms/) — sequence, driver, scoreboard; checks tagged `[SPEC]` or `[MEASURED]` |
+| the **specification** a run read, and the customer's RTL | [`pll_nocosim/rtl/`](pll_nocosim/rtl/) — `pll_spec.md`, `pfd.sv`, `divn.sv` |
 
 `dcc2/` and `pi/` differ from the list above only where their block does:
 `dcc2/` has no AC section and adds `pipeline.txt`; `pi/` has neither a DC
