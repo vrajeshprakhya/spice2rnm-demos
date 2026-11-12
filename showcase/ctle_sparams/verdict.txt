@@ -1,0 +1,54 @@
+SDD21: the generated model against the transistors
+
+how the model was measured:
+  21 frequencies simulated, 1e+06 to 1e+10 Hz, drive 0.001 V about 0.9 V
+  settling 1e-06 s before each measurement (5 time constants of the slowest fitted pole)
+  8 periods integrated, 64 to 20830 samples per period (the step is capped at the model's own 4.801e-11 s, so a response faster than one step is still visible)
+  the integer-femtosecond step moves each frequency by at most 320 ppm, and the reported frequency is the one driven
+  2.44247e-05 s of model time simulated
+  note: the model integrates on a 4.801e-11 s step, so its own ten-steps-per-period ceiling is 2.083e+09 Hz; 4 of 21 frequencies are above it (up to 1e+10 Hz) and what is measured there is the discretization, which is part of the shipped model but not part of the fit
+  note: rounding the step to whole femtoseconds moved a frequency by 320 ppm; the reported frequency is the one driven, but a comparison against another sweep's grid is that far off
+
+the conversion between a voltage response and an S-parameter:
+  k = 2 sqrt(Zd_in/Zd_out) = 0.447213595
+  checked against the .ac sweep of the same deck: worst |k*H_ac/SDD21 - 1| = 5.698e-09
+  (that figure is the claim that both sides measure the same quantity; it is not an accuracy result)
+
+compared over 21 frequencies, 21 of them in band (where the transistors' |SDD21| exceeds -40 dB)
+
+over the WHOLE swept band, reported:
+  worst |magnitude error|     1.9084 dB       at 10 GHz
+  worst |phase error|       101.2910 degrees  at 10 GHz
+  worst |group-delay error|  37.3937 ps       at 10 GHz
+
+against the agreed bars, by band:
+  equaliser, up to 300 MHz  (13 points)
+    magnitude       0.0788 dB  at 251.2 MHz    bar 0.25     PASS
+    phase           0.2722 deg at 100 MHz      bar 1        PASS
+    group delay    15.6304 ps  at 1.585 MHz    bar 40       PASS
+  below_step_ceiling, up to 2.083 GHz  (17 points)
+    magnitude       0.0788 dB  at 251.2 MHz    bar 0.25     PASS
+    phase          10.9649 deg at 1.585 GHz    bar 20       PASS
+    group delay    24.2764 ps  at 1.585 GHz    bar 40       PASS
+
+VERDICT: PASS
+
+above 2.083 GHz the model cannot represent the response and these figures are REPORTED, NOT BARRED:
+  worst |magnitude error|     1.9084 dB       at 10 GHz
+  worst |phase error|       101.2910 degrees  at 10 GHz
+  worst |group-delay error|  37.3937 ps       at 10 GHz
+  a period up there is a handful of the model's own integration steps, so what a measurement finds depends on how finely it is driven.
+
+the model under test integrates on a step whose ten-steps-per-period ceiling is 2.083 GHz, against the 2.083 GHz this band's edge was drawn at
+
+measured, not modelled:
+  SDD11  input differential match          exactly zero at every frequency
+  SDD22  output differential match         worst -46.116 dB at 10 GHz
+  SDC21  common in, differential out       exactly zero at every frequency
+  SCD21  differential in, common out       worst -331.133 dB at 125.9 MHz
+  none of the four is represented in the generated model. An S-parameter port carries two travelling waves and an RNM net
+  carries one real value per tick, so a reflection coefficient has nowhere to live in it. They are measured from the
+  transistors and printed so that what the model does not cover is visible rather than absent.
+
+no passivity check is applied here. This block is an amplifier: its largest singular value may exceed 1, and a passivity
+check would fail it for working. The passivity check in this tool's tests runs against a passive RC fixture instead.

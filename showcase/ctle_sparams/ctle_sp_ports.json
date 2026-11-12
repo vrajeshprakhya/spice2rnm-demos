@@ -1,0 +1,62 @@
+{
+  "comment": [
+    "Port map for netlists/ctle_sp.cir. The tool turns this into port",
+    "sources on the named nets, for both the .sp sweep and the .ac",
+    "characterisation the model is fitted from, so the two see the",
+    "same terminations.",
+    "z0 in = 50 ohm: the receiver input is terminated to 100 ohm",
+    "differential by RT1/RT2 in the deck, which 2 x 50 ohm ports match.",
+    "z0 out = RD = 1000 ohm: the output IS a 1 kohm load node. A 50 ohm",
+    "port there would load the node to 47.6 ohm and measure a circuit",
+    "nobody builds, 26.4 dB down on this one.",
+    "Differential references are 2*z0: 100 ohm in, 2000 ohm out.",
+    "bias natural: each port's DC is the net's own operating-point",
+    "voltage, so no DC current flows through its z0 and the sweep",
+    "linearises about the operating point work/ctle.cir has. Measured",
+    "on a source follower, a port written DC 0 instead moved the node",
+    "from 243.8 mV to 7.7 mV and S21 by 7.8 dB."
+  ],
+  "deck": "netlists/ctle_sp.cir",
+  "bias": "natural",
+  "ports": [
+    {
+      "num": 1,
+      "net": "inp",
+      "z0": 50.0,
+      "role": "in+"
+    },
+    {
+      "num": 2,
+      "net": "inn",
+      "z0": 50.0,
+      "role": "in-"
+    },
+    {
+      "num": 3,
+      "net": "outp",
+      "z0": 1000.0,
+      "role": "out+"
+    },
+    {
+      "num": 4,
+      "net": "outn",
+      "z0": 1000.0,
+      "role": "out-"
+    }
+  ],
+  "mixed_mode": {
+    "differential_in": [
+      1,
+      2
+    ],
+    "differential_out": [
+      3,
+      4
+    ]
+  },
+  "sweep": {
+    "start_hz": 1000000.0,
+    "stop_hz": 10000000000.0,
+    "points_per_decade": 20
+  }
+}
