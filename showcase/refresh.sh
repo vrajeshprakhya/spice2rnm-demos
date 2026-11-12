@@ -10,7 +10,8 @@
 #   ./refresh.sh --no-run     curate from the existing run directories
 #                             (only for iterating on the curation itself)
 #   ./refresh.sh --only CASE  curate ONE case (lpf2, dcc2, pi, pll_cosim,
-#                             pll_nocosim) and leave the others alone.
+#                             pll_nocosim, ctle_sparams) and leave the
+#                             others alone.
 #                             Implies --no-run. STAMP is per case: this
 #                             rewrites that case's line and carries the
 #                             others forward unchanged.
@@ -24,7 +25,7 @@ RUNS="$HOME/s2r_runs"
 ONLY=""
 if [ "${1:-}" = "--only" ]; then
   ONLY="${2:-}"
-  [ -n "$ONLY" ] || { echo "--only needs a case name: lpf2, dcc2, pi, pll_cosim or pll_nocosim"; exit 1; }
+  [ -n "$ONLY" ] || { echo "--only needs a case name: lpf2, dcc2, pi, pll_cosim, pll_nocosim or ctle_sparams"; exit 1; }
   set -- --no-run
 fi
 
@@ -448,6 +449,33 @@ PY
   echo "  $name/equivalence: $n file(s) published, $(grep -c '^  ' "$man") trace(s) manifested"
 }
 
+# The S-parameter case curates differently again: its deliverables are
+# not models but MEASUREMENTS -- two Touchstone files from the
+# transistors, one from the shipped model, the comparison as CSV and as
+# a verdict, and the overlays. The generated model comes too, because
+# the claim is about that file and a reader should be able to open the
+# thing being claimed about. The run's scratch (the characterisation
+# decks, the raw .sp data, the harness logs) does not.
+curate_sparams() {  # src-dir, dest-name
+  local src="$RUNS/$1" dst="$HERE/$2"
+  [ -d "$src" ] || { echo "MISSING run dir: $src (run demo_5 first)"; return 0; }
+  rm -rf "$dst"; mkdir -p "$dst"
+  local n=0 f
+  for f in "$src"/*.s*p "$src"/sdd21_compare.csv "$src"/verdict.txt \
+           "$src"/sparam_verify.json "$src"/*.png \
+           "$src"/ctle_sp_ports.cir "$src"/model/*_rnm.sv \
+           "$DEMOS"/netlists/ctle_sp.cir "$DEMOS"/netlists/ctle_sp_ports.json; do
+    [ -f "$f" ] || continue
+    cp "$f" "$dst/"; n=$((n + 1))
+  done
+  # A measurement case with no measurement in it is a broken refresh.
+  for need in verdict.txt sdd21_compare.csv ctle_sp.s4p; do
+    [ -f "$dst/$need" ] || { echo "curation for $2 has no $need"; exit 1; }
+  done
+  [ "$n" -ge 8 ] || { echo "curation for $2 found only $n file(s)"; exit 1; }
+  echo "  $2: $n files"
+}
+
 # ONLY is set by --only <name>: curate that case and leave the rest of the
 # showcase untouched. Re-publishing one case should not mean re-publishing
 # three others from whatever run directories happen to be lying around.
@@ -458,6 +486,7 @@ want dcc2 && curate dcc2      dcc2
 want pi   && curate demo3_pi  pi
 want pll_cosim && curate_pll demo4_pll pll_cosim
 want pll_nocosim && curate_nocosim demo4b_pll pll_nocosim
+want ctle_sparams && curate_sparams ctle_sparams ctle_sparams
 
 echo "curating equivalence evidence:"
 want lpf2 && curate_equivalence "$HOME/s2r_runs/lpf2"     lpf2  equivalence
@@ -504,7 +533,7 @@ fi
 if [ -n "${ONLY:-}" ]; then
   CURATED="$ONLY"
 else
-  CURATED="lpf2 dcc2 pi pll_cosim pll_nocosim lpf2_house"
+  CURATED="lpf2 dcc2 pi pll_cosim pll_nocosim lpf2_house ctle_sparams"
 fi
 
 XEZIM_BIN="${XEZIM:-$HOME/xezim/target/release/xezim}"

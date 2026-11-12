@@ -30,6 +30,29 @@ merely describing what that would look like. Its own README says so.
 | [`lpf2_house/`](lpf2_house/) | the filter again | the same circuit generated against an existing model library — see below |
 | [`pll_cosim/`](pll_cosim/) | phase-locked loop | five blocks by four characterisation routes, composed and checked against the transistors in SV–SPICE co-simulation |
 | [`pll_nocosim/`](pll_nocosim/) | the same PLL | the same netlist with **no SPICE in the loop**: bands off the deck and the specification, and the loop closed around the customer's RTL in pure SystemVerilog |
+| [`ctle_sparams/`](ctle_sparams/) | CTLE equaliser | **S-parameters**: the differential transmission SDD21 measured from the transistors and from the shipped model, compared — with the port match and the mode conversion measured and reported as *not modelled* |
+
+`ctle_sparams/` is the only case here whose deliverable is a
+**measurement rather than a model**, and the only one that states in its
+own verdict what it does not cover.
+
+Both sides of its comparison are simulations. SDD21 of the circuit comes
+from ngspice's `.sp` analysis with four RF ports on the deck; SDD21 of
+the model comes from driving the generated SystemVerilog with a sine at
+each frequency and reading its amplitude and phase back out by I/Q
+demodulation — never from evaluating the fitted equation, which would
+describe the fit rather than the file that ships. The two decks are the
+same netlist under the same ports, built by one function, so the
+comparison does not rest on two code paths having agreed about what the
+terminations were.
+
+What it does not claim is in `verdict.txt` next to what it does: the
+input match, the output match and both mode-conversion terms are
+measured from the transistors and printed, because an S-parameter port
+carries two travelling waves and a real-number net carries one value per
+tick — a reflection coefficient has nowhere to live in it. Above the
+model's own integration-step ceiling the figures are reported and
+deliberately not barred.
 
 The two PLL cases are the same circuit answered two ways, and the
 difference is what each is for.

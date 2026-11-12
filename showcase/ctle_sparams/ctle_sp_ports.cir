@@ -1,0 +1,106 @@
+Continuous-Time Linear Equalizer (CTLE) - S-parameter port setup
+* ctle_sp.cir with the ports of ctle_sp_ports.json applied, by spice2rnm.
+* This is the deck the model below was characterized from, so its
+* fitted response is the block's UNDER THESE TERMINATIONS.
+* ports: 1=inp 50 ohm (in+), 2=inn 50 ohm (in-), 3=outp 1000 ohm (out+), 4=outn 1000 ohm (out-)
+* bias natural: inn 0.9 V, inp 0.9 V, outn 0.8 V, outp 0.8 V
+* work/ctle.cir plus the input termination a differential RF port
+* needs. The CIRCUIT is untouched: same devices, same RS/CS, same ISS,
+* same RD, same model card, and the measured operating point is
+* identical to work/ctle.cir's to every digit ngspice prints
+* (v(s1) = 2.008946e-01 in both, gm = 6.686607e-03, id = 1.000000e-03).
+*
+* Two things are not byte-identical, neither of them the circuit:
+*   - the additions marked DEMO ADDITION below;
+*   - the .control block is reduced to an operating point, since the
+*     original's own .ac sweep would collide with the analyses the tool
+*     injects (and every deck the tool writes drops .control anyway).
+*
+* The bias values here are LITERALS, not {VICM}-style parameters, and
+* that is load-bearing rather than a style choice: the pipeline reads a
+* source's operating point out of its DC field as text
+* (ngspice_runner.card_dc_value), so `DC {VICM}` reads as 0.0 V and the
+* DC sweep the static fit is built from would be centred at 0 V instead
+* of 0.9 V. The port sources the tool adds take their bias from a
+* MEASURED operating point instead, so they are not affected; this deck
+* is.
+*
+* WHY A TERMINATION HAD TO BE ADDED. The CTLE's inputs are MOSFET
+* gates, and a LEVEL=1 device with no overlap or junction capacitance
+* specified is a perfect open circuit. A port on a perfect open
+* reflects everything: measured on this deck's own topology, S11 came
+* back as exactly 1.0 + 0.0j at every frequency in the sweep. That is
+* a true statement about the deck and a useless one about a receiver,
+* because a real SerDes receiver front end terminates its input. So
+* the termination is added here, in the deck, where a reader can see
+* it and delete it -- not inside the tool, where it would be an
+* invisible assumption about somebody's circuit.
+*
+* PORT MAP (work/ctle_sp_ports.json):
+*   port 1  inp    50 ohm      port 3  outp   1000 ohm
+*   port 2  inn    50 ohm      port 4  outn   1000 ohm
+*   differential pairs (1,2) and (3,4); differential references are
+*   2*z0, so 100 ohm in and 2000 ohm out.
+*
+* The port sources themselves are NOT in this deck. The tool adds them
+* from the port map, so that the .sp sweep and the .ac characterisation
+* the model is fitted from get the same terminations from the same one
+* place. The .control block at the bottom exists only so this file can
+* be run by hand for review; every deck the tool writes drops it.
+
+.param VDD=1.8
+.param ISS=2m
+.param RD=1k
+.param RS=200
+.param CS=8p
+
+VDD vdd 0 DC {VDD}
+
+* Differential small-signal AC stimulus (DC bias 0.9V, +-0.5 AC diff),
+* byte-identical to work/ctle.cir's.
+* These two cards become ports 1 and 2: the tool appends `portnum` and
+* `z0` to them rather than adding a second source beside them, because
+* an ideal source left in parallel with a port short-circuits the
+* port's reference impedance -- measured as S11 = -1 + 0j at every
+* frequency, a dead short, with no error from the simulator.
+VIP inp 0 DC 0.9 AC 0.5 portnum 1 z0 50
+VIN inn 0 DC 0.9 AC -0.5 portnum 2 z0 50
+
+* ---------------------------------------------------------- DEMO ADDITION
+* On-die input termination: 100 ohm differential, as 2 x 50 ohm to the
+* input common mode. At 0.9 V on both sides it carries no DC current,
+* so the gate bias is exactly what work/ctle.cir has. VCM is an ideal
+* source, so it is an AC ground and each gate sees 50 ohm to it.
+VCM cm 0 DC 0.9
+RT1 inp cm 50
+RT2 inn cm 50
+* ------------------------------------------------------ END DEMO ADDITION
+
+* Differential pair
+M1 outp inp s1 0 NMOS_CTLE W=20u L=0.18u
+M2 outn inn s2 0 NMOS_CTLE W=20u L=0.18u
+
+* Source degeneration network: parallel RS/CS between the two sources
+RS1 s1 s2 {RS}
+CS1 s1 s2 {CS}
+
+* Per-side tail current sources (ISS/2 each)
+I1 s1 0 DC {ISS/2}
+I2 s2 0 DC {ISS/2}
+
+* Load resistors
+RD1 vdd outp {RD}
+RD2 vdd outn {RD}
+
+.model NMOS_CTLE NMOS (LEVEL=1 VTO=0.4 KP=200u LAMBDA=0.01)
+
+* For running this file by hand only. The tool writes its own analysis
+* and its own port sources; render_netlist drops every .control block.
+.control
+op
+print v(s1) v(outp) v(outn) @m1[gm] @m1[id]
+.endc
+
+.end
+VSPPORT3 outp 0 DC 0.799999999 portnum 3 z0 1000
+VSPPORT4 outn 0 DC 0.799999999 portnum 4 z0 1000

@@ -22,7 +22,8 @@ FILTER="${1:-}"
 LOGDIR="${TMPDIR:-/tmp}/spice2rnm_demos"
 mkdir -p "$LOGDIR"
 
-DEMOS=(demo_1_lpf.sh demo_2_dcc.sh demo_3_pi.sh demo_4_pll.sh)
+DEMOS=(demo_1_lpf.sh demo_2_dcc.sh demo_3_pi.sh demo_4_pll.sh
+       demo_5_sparams_ctle.sh)
 total=0
 ran=0
 RAN_THIS_TIME=""   # only these get reported; see below
