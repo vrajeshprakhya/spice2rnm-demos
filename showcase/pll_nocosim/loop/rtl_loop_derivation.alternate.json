@@ -43,7 +43,7 @@
     {
       "what": "the loop's sense",
       "value": "up raises the control voltage, which makes the oscillator slower",
-      "from": "STATED by the specification, not derived: which of pfd's outputs speeds the oscillator up is a fact about its body. The specification names only the control voltage; this run's measured tuning slope of -1 Hz/V is what turns that into slower, and the two are opposite on a curve that falls"
+      "from": "STATED by the specification, not derived: which of pfd's outputs speeds the oscillator up is a fact about its body. The specification names only the control voltage; this run measured the tuning curve to be down-going, which is what turns that into slower, and the two are opposite on a curve that falls"
     },
     {
       "what": "the gate pairing",

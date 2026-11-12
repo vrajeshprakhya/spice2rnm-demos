@@ -188,7 +188,14 @@ curate_pll() {  # src-dir, dest-name
   # spice2rnm renamed that directory to cosim/.
   # The generated environments: per block, and for the whole system.
   local envdir
-  for envdir in inv1/uvm_ms inv2/uvm_ms ro_vco cosim/uvm_ms; do
+  # ro_vco/uvm_ms for a run made after the oscillator's environment moved
+  # under uvm_ms/ where every other block's already was; plain ro_vco for
+  # one made before it. Both, for the reason the cosim/loop pair above is
+  # read both ways. Reading only the new spelling would have published
+  # this case with the oscillator's model in env/ro_vco/ and no
+  # environment beside it, which is what the named guard below now
+  # catches instead of counting files.
+  for envdir in inv1/uvm_ms inv2/uvm_ms ro_vco/uvm_ms ro_vco cosim/uvm_ms; do
     [ -d "$src/$envdir" ] || continue
     for f in "$src/$envdir"/*.sv "$src/$envdir"/*.svh "$src/$envdir"/*.sh; do
       [ -f "$f" ] || continue
@@ -202,7 +209,12 @@ curate_pll() {  # src-dir, dest-name
   for want in netlist_top.sv result.json; do
     [ -f "$dst/$want" ] || { echo "curation for $2 has no $want"; exit 1; }
   done
-  place_block_models "$dst" inv1 inv2
+  place_block_models "$dst" inv1 inv2 ro_vco
+  # The oscillator's, named rather than counted, in whichever of the two
+  # places the run wrote it. A count cannot tell an environment from the
+  # model file that would be all that landed there.
+  [ -d "$dst/env/ro_vco/uvm_ms" ] || [ -f "$dst/env/ro_vco/ro_vco_ms_pkg.sv" ] || {
+    echo "curation for $2 has no OSCILLATOR environment: neither"          "env/ro_vco/uvm_ms/ nor a flat env/ro_vco/ro_vco_ms_pkg.sv"; exit 1; }
   [ -d "$dst/env/cosim/uvm_ms" ] || {
     echo "curation for $2 has no SYSTEM environment (env/cosim/uvm_ms) --" \
          "the composed case's whole point is that the RTL and the models" \
@@ -259,7 +271,14 @@ curate_nocosim() {  # src-dir, dest-name
     mkdir -p "$dst/loop"; cp "$f" "$dst/loop/"; n=$((n + 1))
   done
   # Every generated environment: three per block, one over the loop.
-  for envdir in inv1/uvm_ms inv2/uvm_ms ro_vco rtl_loop/uvm_ms; do
+  # ro_vco/uvm_ms for a run made after the oscillator's environment moved
+  # under uvm_ms/ where every other block's already was; plain ro_vco for
+  # one made before it. Both, for the reason the cosim/loop pair above is
+  # read both ways. Reading only the new spelling would have published
+  # this case with the oscillator's model in env/ro_vco/ and no
+  # environment beside it, which is what the named guard below now
+  # catches instead of counting files.
+  for envdir in inv1/uvm_ms inv2/uvm_ms ro_vco/uvm_ms ro_vco rtl_loop/uvm_ms; do
     [ -d "$src/$envdir" ] || continue
     for f in "$src/$envdir"/*.sv "$src/$envdir"/*.svh "$src/$envdir"/*.sh; do
       [ -f "$f" ] || continue
@@ -267,7 +286,7 @@ curate_nocosim() {  # src-dir, dest-name
       cp "$f" "$dst/env/$envdir/"; n=$((n + 1))
     done
   done
-  place_block_models "$dst" inv1 inv2
+  place_block_models "$dst" inv1 inv2 ro_vco
 
   # The customer's RTL and the specification, because the loop
   # environment compiles the first and is judged against the second.
@@ -290,6 +309,11 @@ curate_nocosim() {  # src-dir, dest-name
   done
 
   # Named, not counted: the environment is the point of this case.
+  # The oscillator's, named rather than counted, in whichever of the two
+  # places the run wrote it. A count cannot tell an environment from the
+  # model file that would be all that landed there.
+  [ -d "$dst/env/ro_vco/uvm_ms" ] || [ -f "$dst/env/ro_vco/ro_vco_ms_pkg.sv" ] || {
+    echo "curation for $2 has no OSCILLATOR environment: neither"          "env/ro_vco/uvm_ms/ nor a flat env/ro_vco/ro_vco_ms_pkg.sv"; exit 1; }
   [ -d "$dst/env/rtl_loop/uvm_ms" ] || {
     echo "curation for $2 has no LOOP environment (env/rtl_loop/uvm_ms) --" \
          "that is what distinguishes this case from the co-simulated one"; exit 1; }

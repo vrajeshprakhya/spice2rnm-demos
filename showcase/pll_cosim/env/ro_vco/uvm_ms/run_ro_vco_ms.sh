@@ -31,7 +31,7 @@ timeout "$WALL_TIMEOUT" "$XEZIM" --max-time "$MAX_TIME" -DUVM_NO_DPI \
     "$UVM_MS/uvm_ms_pkg.sv" \
     ro_vco_ms_types_pkg.sv \
     ro_vco_ms_proxy_pkg.sv \
-    ro_vco_rnm.sv \
+    ../ro_vco_rnm.sv \
     ro_vco_dms.sv \
     ro_vco_ms_pkg.sv \
     top_ro_vco_ms.sv \

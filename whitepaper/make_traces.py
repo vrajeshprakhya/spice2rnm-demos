@@ -162,15 +162,15 @@ figs["lpf2"] = (
     "\\begin{center}\n" + "\\hfill".join(panels) + "\n\\end{center}\n"
     "\\vspace{-0.4em}\n"
     "\\noindent{\\footnotesize "
-    "Grey is the stimulus, black the transistor-level circuit in "
-    "SPICE, red dashed the generated model. The two panels are two "
-    "moments of the same chirp, at the simulator's own time "
-    "resolution. Early in the sweep, the output follows the input. "
-    "Late in the sweep, the input still swings but the output "
-    "barely moves: that is the filter at work. Measured over "
+    "Grey is the stimulus, black the transistors in SPICE, red "
+    "dashed the generated model. The two panels are two moments of "
+    "the same chirp, at the simulator's own time resolution. Early "
+    "in the sweep the output follows the input. Late in the sweep "
+    "the input still swings but the output barely moves: that is "
+    "the filter doing its job. Measured over "
     "$100\\,$ns windows, the output-to-input swing ratio is $0.99$ "
     "in the first window and $0.50$ in the second, and the model "
-    "tracks the transistor-level circuit through both. Data taken "
+    "tracks the transistors through both. Data "
     "from \\texttt{waveform\\_compare.csv} and the PWL "
     "(piecewise-linear) stimulus in that run's own "
     "\\texttt{equivalence/} directory."
@@ -205,11 +205,11 @@ figs["dcc2"] = fig(
     two(coords(w, 0, 1, 1e9), coords(w, 0, 2, 1e9)),
     "time (ns)", "output (V)",
     "One falling edge, at the simulator's own time resolution. The "
-    "model places this edge %.2f\\,ns early and the next edge "
-    "%.2f\\,ns early, so the interval between them (the duty this "
-    "block is specified on) is preserved to $0.03\\%%$. An average "
-    "voltage error over the whole run would report this as a large "
-    "disagreement. The duty check that the testbench actually "
+    "model puts this edge %.2f\\,ns early and the next one "
+    "%.2f\\,ns early, so the gap between them, which is the duty "
+    "this block is specified on, survives to $0.03\\%%$. An average "
+    "voltage error over the whole run would call this a large "
+    "disagreement. The duty check the testbench actually "
     "applies does not."
     % ((s_edge - m_edge) * 1e9, 1.605))
 
@@ -222,10 +222,10 @@ figs["pi"] = fig(
     % (coords(r, 0, 1, 1.0, 1e12), coords(r, 0, 2, 1.0, 1e12)),
     "control code", "edge position (ps)",
     "Edge position at each of the nine control codes: the "
-    "transistor-level circuit in SPICE (black) against the "
+    "transistors in SPICE (black) against the "
     "generated model (red). There is no waveform to compare here. "
     "What this block does is place a clock edge, so edge position "
-    "is what is plotted.")
+    "is what gets plotted.")
 
 # ---- 4. the PLL, at the co-simulation boundary -------------------------
 #
@@ -263,13 +263,13 @@ figs["pll"] = fig(
     # explanation of what it is.
     "The control voltage at the boundary between the digital RTL "
     "and the analog half: the composed models against the "
-    "transistor-level circuit in SPICE, on the design's own "
+    "transistors in SPICE, on the design's own "
     "testbench, on a node the loop holds near 1.85\\,V. Both settle "
-    "to the same place and hold it. There are eight points because "
-    "the digital side reads this node eight times. Because the "
-    "supply carries random noise, how closely the two curves agree "
-    "at any one instant is one run's result, a random sample. The "
-    "pass/fail limit in the table is what the result is checked "
+    "to the same place and stay there. There are eight points because "
+    "the digital side reads this node eight times. The "
+    "supply carries random noise, so how closely the two curves agree "
+    "at any one instant is one run's draw, a random sample. The "
+    "pass/fail limit in the table is what the result is judged "
     "against.")
 
 s = TEX.read_text(encoding="utf-8")
