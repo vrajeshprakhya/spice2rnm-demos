@@ -22,6 +22,16 @@ The generated artifacts themselves — models, environments, evidence — are
 committed under [`showcase/`](showcase/), and the whitepaper under
 [`whitepaper/`](whitepaper/).
 
+## Documentation
+
+[`docs/`](docs/) is the whitepaper split into pages you can read one at a
+time, each sitting next to the files it describes. Start with
+[`docs/the-problem.md`](docs/the-problem.md) for what this is and what one
+command gives you, [`docs/cases/`](docs/cases/) for the five circuits and
+their results, or [`docs/README.md`](docs/README.md) for the full index. The
+same material as one document is
+[`whitepaper/spice2rnm-demos.pdf`](whitepaper/spice2rnm-demos.pdf), 35 pages.
+
 Run one:
 
 ```sh

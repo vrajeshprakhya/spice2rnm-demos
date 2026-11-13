@@ -17,3 +17,8 @@ finding rather than trusting either side.
 Nothing here is generated. These are inputs, kept under version control
 so a number in the paper can be traced to the document it was judged
 against.
+
+[`reading-a-specification.md`](reading-a-specification.md) is the longer
+version: which facts the tool takes from a document, why an operating band is
+handled differently from everything else, what a `SPEC CONFLICT` looks like,
+and why an environment is exactly as strict as the document and no stricter.

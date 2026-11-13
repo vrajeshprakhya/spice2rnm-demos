@@ -17,6 +17,12 @@ case saying when it was curated, from which run, and at which tool and
 simulator revisions, plus the last full run's summary — if these files
 and the tool ever disagree, the refresh is the fix, not an edit.
 
+For what each case *shows*, rather than what each file *is*, read
+[`../docs/cases/`](../docs/cases/): one page per case, with the results, the
+reason the case exists, and links back into this directory. Note that nothing
+hand-written can live inside a case directory here, because `refresh.sh`
+removes and rebuilds each one; that is why those pages sit under `docs/`.
+
 One directory is deliberately *not* generated: [`house_lib/`](house_lib/)
 is a small hand-written model library standing in for a customer's
 existing one, so that `lpf2_house/` can demonstrate joining it rather than

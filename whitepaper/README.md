@@ -10,6 +10,12 @@ alone, with no SPICE at all.
 pages). The PDF is regenerated from the `.tex` whenever it changes; if
 the two ever disagree, the `.tex` is the source of truth.
 
+**Or read it a page at a time: [`../docs/`](../docs/)** carries the same
+material split into markdown pages, each one next to the files it describes.
+Those pages quote their figures from this document, so this document (and
+behind it the run) stays the source of truth: if a number there and a number
+here disagree, the markdown is the stale one.
+
 ## Building
 
 ```sh
