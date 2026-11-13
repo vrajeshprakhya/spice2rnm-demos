@@ -327,11 +327,11 @@ prove that it ran.**
 
 | Looking for | Open |
 |---|---|
-| an oscillator model, a frequency rather than a gain | [`ro_vco_rnm.sv`](../../showcase/pll_cosim/ro_vco_rnm.sv), with its 15-point measured tuning curve |
-| a switched current model, per control state | [`cpump_cp_rnm.sv`](../../showcase/pll_cosim/cpump_cp_rnm.sv), one *I(V)* table per state, high-Z included |
-| an RC state space taken from topology, nothing fitted | [`lpfilt_rc_rnm.sv`](../../showcase/pll_cosim/lpfilt_rc_rnm.sv) |
-| an interface wrapper, and why it is separate | [`ro_vco_iface.sv`](../../showcase/pll_cosim/ro_vco_iface.sv), re-presenting the measured core at the subcircuit's own ports so the netlist's `xvco` card instantiates it unchanged |
-| a wrapper doing real boundary work | [`cpump_iface.sv`](../../showcase/pll_cosim/cpump_iface.sv), carrying conductance out beside current because pump and filter form an algebraic loop |
+| an oscillator model, a frequency rather than a gain | [`ro_vco.sv`](../../showcase/pll_cosim/ro_vco.sv), with its 15-point measured tuning curve |
+| a switched current model, per control state | [`cpump.sv`](../../showcase/pll_cosim/cpump.sv), one *I(V)* table per state, high-Z included |
+| an RC state space taken from topology, nothing fitted | [`lpfilt.sv`](../../showcase/pll_cosim/lpfilt.sv) |
+| a model pin-compatible with its subcircuit | [`ro_vco.sv`](../../showcase/pll_cosim/ro_vco.sv) -- module `ro_vco`, the `.subckt`'s own pins in its own order, so the netlist's `xvco` card instantiates it unchanged; the squared-up clock is an internal signal and `aout` carries the voltage |
+| boundary work inside the model | [`cpump.sv`](../../showcase/pll_cosim/cpump.sv), carrying conductance out beside current because pump and filter form an algebraic loop, and reading the deck's two gate pins as the control its tables are indexed by |
 | the composed system on the design's own testbench | [`netlist_top.sv`](../../showcase/pll_cosim/netlist_top.sv) with [`env/cosim/uvm_ms/`](../../showcase/pll_cosim/env/cosim/uvm_ms/) |
 
 The system environment carries a period-jitter monitor at a 1 fs timescale.

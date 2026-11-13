@@ -168,4 +168,4 @@ a charge pump driving a capacitive filter does, and it is why the filter is
 modelled as a state space rather than as a DC gain.
 
 The generated file is
-[`../showcase/pll_cosim/lpfilt_rc_rnm.sv`](../showcase/pll_cosim/lpfilt_rc_rnm.sv).
+[`../showcase/pll_cosim/lpfilt.sv`](../showcase/pll_cosim/lpfilt.sv).
