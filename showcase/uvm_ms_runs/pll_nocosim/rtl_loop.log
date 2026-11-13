@@ -1,0 +1,111 @@
+=== running the UVM-MS loop environment for pll_analog on xezim ===
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 94000 ns
+------------------------------
+[PHASE] compilation: 362.5ms
+[EVENT-EDGE] ARMED mode ON: 7 input signals, 8 fanout edges
+[EVENT-EDGE] measure (timestamp): 9 edge blocks, 4 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=2.00
+[EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
+[xezim][warning] a #delay evaluated to a pathological real value 9.2000e18 at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41590 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro] at time 0 — the process is parked far in the future, so a clock driven by it will appear to stop. This usually means the delay expression produced NaN/inf or IEEE-754 bit garbage.
+
+=================== xezim: DEAD-CLOCK WATCHDOG ===================
+Process pid 35 has been parked on 'window_done' for 19837441752 sim tick(s) with NO
+change to its awaited signal(s), while the design fired 1001397 edges in
+66s of wall time. 'window_done' looks like a DEAD clock/reset.
+Likely cause: an undriven net, an unresolved/black-boxed cell, or an
+ungenerated behavioral clock (PLL VCO) upstream — search the log for
+'[IMPLICIT NET' and '-v resolution summary' / 'unresolved definition'.
+The simulation is making no functional progress (X-churn).
+[xezim][hang-report] 1 event waiter(s), 9 condition waiter(s) parked at sim time 19879388972; oldest first:
+[xezim][hang-report]   pid 35 (fork child) waiting 19879388972 tick(s) (since t=0) on @(window_done (now x, UNCHANGED since parked)) — resumes at <unknown location>
+[xezim][hang-report]     'window_done' (now x) has NO driver — undriven (check for a dropped/unresolved instance driving it)
+[xezim][hang-report]   pid 448 blocked in wait(condition) — resumes at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41651 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro]
+[xezim][hang-report]   pid 16 blocked in wait(condition) — resumes at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41235 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro]
+[xezim][hang-report]   pid 30 blocked in wait(condition) — resumes at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41441 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro]
+[xezim][hang-report]   pid 419 blocked in wait(condition) — resumes at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41441 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro]
+[xezim][hang-report]   pid 446 blocked in wait(condition) — resumes at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41457 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro]
+[xezim][hang-report]   pid 94 blocked in wait(condition) — resumes at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41457 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro]
+[xezim][hang-report]   pid 56 blocked in wait(condition) — resumes at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:61613 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro]
+[xezim][hang-report]   pid 13 blocked in wait(condition) — resumes at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:48284 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro]
+Continuing (set XEZIM_STUCK_CLOCK=abort to stop here; =off to silence).
+=================================================================
+
+[PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=3610800
+[PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=3785528 insns=1153210667 ns_per_insn=0.0 fallbacks=3001983
+[FUSE] array-read-NBA fusions (static sites): 0
+[FUSE] packed-loop NBA copies (static sites): 0
+[FUSE] packed blocking fills (dynamic executions): 0
+[FUSE] const-operand ALU fusions (static sites): Add=9 Eq=0 CaseEq=0 Xor=0 total=9
+[FUSE] Move-into-assign forwards (static sites): 0
+[FUSE] provably-unsigned scrubs elided (static sites): 7
+[FUSE] AddC2 superinstructions (static sites): 0
+[EVENT-EDGE] would-skip 0/782947 gateable main-clk flop-fires (0.0%) had NO data-input change since last posedge => event-driven edge could skip them
+[EVENT-EDGE] adaptive epoch-fast-exec=0 snapshot-checks=782943 healed=0
+[EVENT-EDGE] armed-fast-skips=0 shadow-checks=0
+[PROF] fallback_reason                      Assertion: count= 3001830 total= 26900.2ms avg=    9.0µs
+[PROF] fallback_reason               SystemCall_other: count=     153 total=     0.0ms avg=    0.0µs
+[PROF] settle_dc=0.0ms(6516275) settle_ca=12.8ms(2255) settle_ab=0.0ms(2689538)
+[PROF] engine=event
+[PROF] clock_tree: roots=0 entries=0 eager_evals=0
+[PROF] settle_calls=2620577 settle_iters=2373738 max_iters=1 entry_evals=9208068 unresolved_entries=0/21
+[PROF] settle_writes=6523053 (70.8% of evals changed a signal, 2685015 quiet) dep_edges=6893564 (1.1 per write)
+[PROF] two_state_evals=2254 (1 entries lowered)
+[PROF] two_state_bail warn_x=0 forced_write=0 x_read=1 run_abort=0
+[PROF] simulation_loop=251482.8ms iters=1773027 avg=141.84µs/iter
+[COV] assertions: 4 sites (assert=4, assume=0, cover=0) — 3001830 passes, 0 fails
+[COV] coverage: 0 covergroup instances, 0 samples, 0 unique coverpoint values, 0 unique cross tuples
+[COV] wrote coverage DB to xezim_cov.json
+UVM_INFO /home/vraje/iverilog-unified/uvm-core/src/base/uvm_root.svh(476) @ 0: reporter [UVM/RELNOTES] 
+  ***********       IMPORTANT RELEASE NOTES         ************
+
+  This implementation of the UVM Library deviates from the 1800.2-2020
+  standard.  See the DEVIATIONS.md file contained in the release
+  for more details.
+
+----------------------------------------------------------------
+Accellera:1800.2:UVM:2020.3.1
+
+All copyright owners for this kit are listed in NOTICE.txt
+All Rights Reserved Worldwide
+----------------------------------------------------------------
+
+      (Specify +UVM_NO_RELNOTES to turn off this notice)
+
+UVM_WARNING /home/vraje/iverilog-unified/uvm-core/src/base/uvm_root.svh(551) @ 0: reporter [NO_DPI_USED] We are thinking of removing support for UVM_NO_DPI.  Please try this test without it and evaluate the impact
+UVM_INFO @ 0: reporter [RNTST] Running test pll_analog_loop_ms_test...
+UVM_INFO /home/vraje/iverilog-unified/uvm-core/src/base/uvm_traversal.svh(349) @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
+UVM_WARNING /home/vraje/iverilog-unified/uvm-core/src/base/uvm_traversal.svh(315) @ 0: reporter [NO_VISIT_CHECK] Because UVM_REGEX_NO_DPI is defined, no uvm component name constraints will be checked
+UVM_INFO pll_analog_loop_ms_scoreboard.svh(165) @ 24996496870: uvm_test_top.env.sb [SYS_WINDOW] nominal   ref 10.001402 MHz -> div 10.001342 MHz (-0.0006%, 50 edges), control 1.8488..1.8505 V ending 1.8493 V, measurement says 1.8495 V
+UVM_INFO pll_analog_loop_ms_scoreboard.svh(165) @ 49992993740: uvm_test_top.env.sb [SYS_WINDOW] stepped   ref 10.051409 MHz -> div 10.050600 MHz (-0.0080%, 50 edges), control 1.8435..1.8457 V ending 1.8452 V, measurement says 1.8444 V
+UVM_INFO pll_analog_loop_ms_scoreboard.svh(165) @ 74989490610: uvm_test_top.env.sb [SYS_WINDOW] returned  ref 10.001402 MHz -> div 10.000518 MHz (-0.0088%, 50 edges), control 1.8490..1.8506 V ending 1.8495 V, measurement says 1.8495 V
+UVM_INFO pll_analog_loop_ms_scoreboard.svh(181) @ 74989490611: uvm_test_top.env.sb [SB_SUMMARY] rate checks=3 failed=0 | worst +0.0088% against 2.000% [SPEC]
+UVM_INFO pll_analog_loop_ms_scoreboard.svh(185) @ 74989490611: uvm_test_top.env.sb [SB_SUMMARY] control-window checks=3 failed=0 | the specification states 1.7500..1.9500 V [SPEC]
+UVM_INFO pll_analog_loop_ms_scoreboard.svh(192) @ 74989490611: uvm_test_top.env.sb [SB_SUMMARY] tuning-curve checks=3 failed=0 | worst 0.89 mV from where the MEASURED curve puts that frequency [MEASURED]
+UVM_INFO pll_analog_loop_ms_scoreboard.svh(198) @ 74989490611: uvm_test_top.env.sb [SB_SUMMARY] finite checks=3 failed=0 [MEASURED]
+UVM_INFO pll_analog_loop_ms_scoreboard.svh(200) @ 74989490611: uvm_test_top.env.sb [SB_SUMMARY] no transistors were simulated here: a loop settling somewhere plausible and wrong passes all of the above
+UVM_INFO /home/vraje/iverilog-unified/uvm-core/src/base/uvm_report_server.svh(1010) @ 74989490611: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+
+** Report counts by severity
+UVM_INFO :   11
+UVM_WARNING :    2
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[NO_DPI_USED]     1
+[NO_VISIT_CHECK]     1
+[RNTST]     1
+[SB_SUMMARY]     5
+[SYS_WINDOW]     3
+[UVM/COMP/NAMECHECK]     1
+[UVM/RELNOTES]     1
+
+[PHASE] simulation: 251483.3ms
+[PHASE] total: 251845.9ms
+------------------------------
+------------------------------
+Simulation finished at time 74989490611
+($finish called)

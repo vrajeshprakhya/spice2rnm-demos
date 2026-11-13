@@ -19,6 +19,13 @@ whitepaper*/*.toc
 # and none of the evidence.
 !showcase/*/equivalence/**/*.log
 
+# The UVM-MS run logs are the second exception, for the same reason as
+# the first: the docs quote figures from them (docs/jitter.md's boundary
+# jitter), and a figure a reader cannot check is worse than no figure.
+# They are small -- one environment's console output, not a trace -- and
+# showcase/run_uvm_ms.sh regenerates them.
+!showcase/uvm_ms_runs/*/*.log
+
 # Simulator coverage written by running a published environment. A
 # reader who runs one should not then see their tree as dirty.
 xezim_cov.json

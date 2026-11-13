@@ -1,0 +1,110 @@
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 3000 ns
+------------------------------
+[PHASE] simulator construction: 325.5ms (materialize 3.3, names 0.1, static 0.2, arrays_1d 79.7, arrays_other 2.6, prev 54.0, drop 0.0; signals 262871, named 262871)
+[PHASE] compilation: 981.1ms
+[EVENT-EDGE] ARMED mode ON: 3 input signals, 4 fanout edges
+[EVENT-EDGE] measure (timestamp): 9 edge blocks, 3 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=1.33
+[EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
+Note: $dumpfile ignored — this run has no waveform support. Re-run with `--wave` to dump VCD/FST.
+Note: $dumpvars ignored — this run has no waveform support. Re-run with `--wave` to dump VCD/FST.
+[xezim][warning] a #delay evaluated to a pathological real value 9.2000e15 at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41590 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro] at time 0 — the process is parked far in the future, so a clock driven by it will appear to stop. This usually means the delay expression produced NaN/inf or IEEE-754 bit garbage.
+[PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=202471
+[PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=163097 insns=46798779 ns_per_insn=0.0 fallbacks=248841
+[FUSE] array-read-NBA fusions (static sites): 0
+[FUSE] packed-loop NBA copies (static sites): 0
+[FUSE] packed blocking fills (dynamic executions): 0
+[FUSE] const-operand ALU fusions (static sites): Add=9 Eq=0 CaseEq=0 Xor=0 total=9
+[FUSE] Move-into-assign forwards (static sites): 0
+[FUSE] provably-unsigned scrubs elided (static sites): 8
+[FUSE] AddC2 superinstructions (static sites): 0
+[EVENT-EDGE] would-skip 0/1276 gateable main-clk flop-fires (0.0%) had NO data-input change since last posedge => event-driven edge could skip them
+[EVENT-EDGE] adaptive epoch-fast-exec=0 snapshot-checks=1273 healed=0
+[EVENT-EDGE] armed-fast-skips=0 shadow-checks=0
+[PROF] fallback_reason                      Assertion: count=  116082 total=  2028.4ms avg=   17.5µs
+[PROF] fallback_reason               SystemCall_other: count=   45739 total=   575.5ms avg=   12.6µs
+[PROF] fallback_reason                   Expr_display: count=      11 total=     0.9ms avg=   83.3µs
+[PROF] fallback_reason                    Expr_finish: count=       1 total=     0.0ms avg=    1.1µs
+[PROF] fallback_reason               Expr_Call_impure: count=   87008 total=     0.0ms avg=    0.0µs
+[PROF] settle_dc=0.0ms(235127) settle_ca=0.9ms(89) settle_ab=0.0ms(58536)
+[PROF] engine=event
+[PROF] clock_tree: roots=0 entries=0 eager_evals=0
+[PROF] settle_calls=191016 settle_iters=92056 max_iters=1 entry_evals=293752 unresolved_entries=0/17
+[PROF] settle_writes=249800 (85.0% of evals changed a signal, 43952 quiet) dep_edges=203530 (0.8 per write)
+[PROF] two_state_evals=87 (1 entries lowered)
+[PROF] simulation_loop=123422.7ms iters=97472 avg=1266.24µs/iter
+[COV] assertions: 4 sites (assert=4, assume=0, cover=0) — 116082 passes, 0 fails
+[COV] coverage: 0 covergroup instances, 0 samples, 0 unique coverpoint values, 0 unique cross tuples
+[COV] wrote coverage DB to xezim_cov.json
+UVM_INFO /home/vraje/iverilog-unified/uvm-core/src/base/uvm_root.svh(476) @ 0: reporter [UVM/RELNOTES] 
+  ***********       IMPORTANT RELEASE NOTES         ************
+
+  This implementation of the UVM Library deviates from the 1800.2-2020
+  standard.  See the DEVIATIONS.md file contained in the release
+  for more details.
+
+----------------------------------------------------------------
+Accellera:1800.2:UVM:2020.3.1
+
+All copyright owners for this kit are listed in NOTICE.txt
+All Rights Reserved Worldwide
+----------------------------------------------------------------
+
+      (Specify +UVM_NO_RELNOTES to turn off this notice)
+
+UVM_WARNING /home/vraje/iverilog-unified/uvm-core/src/base/uvm_root.svh(551) @ 0: reporter [NO_DPI_USED] We are thinking of removing support for UVM_NO_DPI.  Please try this test without it and evaluate the impact
+UVM_INFO @ 0: reporter [RNTST] Running test pll_analog_sys_test...
+UVM_INFO /home/vraje/iverilog-unified/uvm-core/src/base/uvm_traversal.svh(349) @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
+UVM_WARNING /home/vraje/iverilog-unified/uvm-core/src/base/uvm_traversal.svh(315) @ 0: reporter [NO_VISIT_CHECK] Because UVM_REGEX_NO_DPI is defined, no uvm component name constraints will be checked
+PLL t=  399.9 ns  vctrl=1.8518 V  vco=160 edges  up=12 dn=53 ticks  (net -41)
+PLL t=  799.9 ns  vctrl=1.8522 V  vco=320 edges  up=12 dn=26 ticks  (net -14)
+PLL t= 1200.0 ns  vctrl=1.8506 V  vco=479 edges  up=36 dn=12 ticks  (net 24)
+PLL t= 1600.0 ns  vctrl=1.8487 V  vco=639 edges  up=52 dn=12 ticks  (net 40)
+PLL t= 1999.9 ns  vctrl=1.8482 V  vco=799 edges  up=35 dn=12 ticks  (net 23)
+PLL t= 2399.9 ns  vctrl=1.8486 V  vco=960 edges  up=18 dn=12 ticks  (net 6)
+PLL t= 2799.9 ns  vctrl=1.8497 V  vco=1120 edges  up=12 dn=22 ticks  (net -10)
+PLL f_vco = 400.00 MHz over 2400.0 ns  (target 400.00 MHz)
+PLL-DONE vctrl=1.8499 V
+PLL-OK locked within 0.00% of 400.00 MHz at 1.8499 V
+PLL-WAVE analog -> pll_analog.raw, digital -> pll_digital.vcd
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(431) @ 2899950000: uvm_test_top.env.sb [SYS_INV] constant_rate on aout ok: model 4.00582e+08 Hz, transistors 4.00582e+08 Hz (differ by 0.2233, tolerance 8.012e+06)
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] aout   w0 n=5800 model mean=1.659243 rises=232 | transistors mean=1.738540 rises=231 | dm=0.02361 dr=0.004329
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] aout   w1 n=5800 model mean=1.647822 rises=231 | transistors mean=1.734575 rises=231 | dm=0.02583 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] aout   w2 n=5800 model mean=1.662635 rises=232 | transistors mean=1.736816 rises=232 | dm=0.02209 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] aout   w3 n=5800 model mean=1.644226 rises=233 | transistors mean=1.736577 rises=233 | dm=0.02749 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] aout   w4 n=5799 model mean=1.669060 rises=232 | transistors mean=1.739504 rises=232 | dm=0.02097 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(374) @ 2899950000: uvm_test_top.env.sb [SYS_SB] aout ok judged on crossings: worst |diff| 0.09235 (2.75% of scale), worst crossings 0.43%, over 5 window(s)
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vout   w0 n=1 model mean=1.851778 rises=0 | transistors mean=1.855649 rises=0 | dm=0.1043 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vout   w1 n=1 model mean=1.852191 rises=0 | transistors mean=1.856349 rises=0 | dm=0.112 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vout   w2 n=2 model mean=1.849676 rises=0 | transistors mean=1.849833 rises=0 | dm=0.004219 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vout   w3 n=1 model mean=1.848200 rises=0 | transistors mean=1.845319 rises=0 | dm=0.07759 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vout   w4 n=2 model mean=1.849120 rises=0 | transistors mean=1.847939 rises=0 | dm=0.03181 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(374) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vout INCONCLUSIVE judged on mean: worst |diff| 0.004158 (11.20% of scale), worst crossings 0.00%, over 5 window(s)
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpdn   w0 n=5801 model mean=0.010240 rises=6 | transistors mean=0.010242 rises=6 | dm=8.026e-07 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpdn   w1 n=5800 model mean=0.023897 rises=6 | transistors mean=0.044956 rises=6 | dm=0.006382 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpdn   w2 n=5800 model mean=0.036414 rises=5 | transistors mean=0.076255 rises=5 | dm=0.01207 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpdn   w3 n=5800 model mean=0.021621 rises=6 | transistors mean=0.046094 rises=6 | dm=0.007416 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpdn   w4 n=5799 model mean=0.010243 rises=6 | transistors mean=0.010245 rises=6 | dm=5.353e-07 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(374) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpdn ok judged on mean: worst |diff| 0.03984 (1.21% of scale), worst crossings 0.00%, over 5 window(s)
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpupb  w0 n=5801 model mean=3.260179 rises=6 | transistors mean=3.201560 rises=6 | dm=0.01776 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpupb  w1 n=5800 model mean=3.288052 rises=6 | transistors mean=3.286342 rises=6 | dm=0.000518 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpupb  w2 n=5800 model mean=3.291466 rises=5 | transistors mean=3.291464 rises=5 | dm=4.446e-07 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpupb  w3 n=5800 model mean=3.289759 rises=6 | transistors mean=3.289757 rises=6 | dm=5.366e-07 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(337) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpupb  w4 n=5799 model mean=3.282359 rises=6 | transistors mean=3.261297 rises=6 | dm=0.006382 dr=0
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(374) @ 2899950000: uvm_test_top.env.sb [SYS_SB] vpupb ok judged on mean: worst |diff| 0.05862 (1.78% of scale), worst crossings 0.00%, over 5 window(s)
+UVM_INFO /home/vraje/s2r-uvm/showcase/pll_cosim/env/cosim/uvm_ms/pll_analog_sys_ms_scoreboard.svh(475) @ 2899950000: uvm_test_top.env.sb [SB_SUMMARY] system checks=5 failed=0 inconclusive=1 | 116012 boundary crossings observed through the MS bridge
+[SYS_JITTER] period jitter at the boundary, measured at 1 fs
+[SYS_JITTER]   reported, not judged: a loop suppresses its
+[SYS_JITTER]   oscillator's jitter inside the loop bandwidth,
+[SYS_JITTER]   so this is not the block's jitter and the two
+[SYS_JITTER]   are not expected to agree.
+aout: 1151 periods, mean 2.500770 ns, rms jitter 12.7022 ps, pk-pk 81.4550 ps
+[PHASE] simulation: 123472.6ms
+[PHASE] total: 124453.7ms
+------------------------------
+------------------------------
+Simulation finished at time 2899950000
+($finish called)

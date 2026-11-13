@@ -2378,7 +2378,7 @@ that a passing result used the feature you asked for.
         timescale while the rest of the environment stays at
         \texttt{1ps}, which costs nothing elsewhere because
         SystemVerilog sets timescale per module. Run that environment
-        on the composed PLL and it reports $12.78\unit{ps}$ rms period
+        on the composed PLL and it reports $12.70\unit{ps}$ rms period
         jitter over $1151$ periods at the boundary. Over $116{,}012$
         boundary crossings, none of its system checks failed and one
         was inconclusive. The total number of checks is not quoted
@@ -2386,7 +2386,7 @@ that a passing result used the feature you asked for.
         settled measurably, which under a noisy supply they may or may
         not do.
 
-        That $12.78\unit{ps}$ is for information only too, for a
+        That $12.70\unit{ps}$ is for information only too, for a
         specific reason. A PLL suppresses its own oscillator's jitter
         inside the loop bandwidth. A figure measured at the PLL
         boundary is therefore not the oscillator's own jitter, and
@@ -2395,9 +2395,16 @@ that a passing result used the feature you asked for.
         \texttt{ro\_vco} is a different measurement of a different
         quantity. Both figures above come from the same run, which
         earlier versions of this paper could not say. The gap between
-        them is $17\%$ here, and has been $16\%$ and $20\%$ on other
-        runs of this same netlist. Each is one run's draw from a random
-        spread, and neither is evidence about the other.
+        them is $7.6\%$ here, computed from the two figures above
+        rather than carried from an earlier run. Each is one run's draw
+        from a random spread -- the oscillator's own figure carries
+        $\pm5\%$ over the two hundred cycles it was measured on -- and
+        neither is evidence about the other. Both are reproducible
+        rather than quoted: the oscillator's is
+        \texttt{vco\_results.ro\_vco.intrinsic\_jitter.rms\_s} in the
+        published \texttt{result.json}, and the boundary figure is the
+        last line of the environment's own saved output in
+        \texttt{showcase/uvm\_ms\_runs/pll\_cosim/cosim.log}.
 
         This validation goes further than published practice. The gap
         named above, no intrinsic device noise in the model, is one
