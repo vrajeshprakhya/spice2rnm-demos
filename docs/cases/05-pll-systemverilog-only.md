@@ -278,6 +278,15 @@ tables those readings come from are in
 
 ## A UVM-MS environment over the whole loop
 
+All four of this case's environments are published with a run of each beside
+them, in
+[`showcase/uvm_ms_runs/pll_nocosim/`](../../showcase/uvm_ms_runs/pll_nocosim/).
+The loop environment's scoreboard passes its rate, control-window,
+tuning-curve and finite checks, 3 each, 0 failed -- and closes by saying that
+no transistors were simulated, so a loop settling somewhere plausible and
+wrong would pass all of them. That is the case's own weaker claim, in the
+environment's words rather than this page's.
+
 The loop above is a plain testbench: it drives a reference clock and checks a
 frequency. The SV-only run also generates a full UVM-MS environment around
 it, with a sequence, sequencer, driver, monitor, agent and scoreboard. It also

@@ -338,6 +338,13 @@ The system environment carries a period-jitter monitor at a 1 fs timescale.
 Why that is reported with no pass/fail limit is in
 [jitter.md](../jitter.md#the-system-level-figure-and-why-it-carries-no-limit).
 
+That environment's own output is published, rather than only its sources:
+[`showcase/uvm_ms_runs/pll_cosim/`](../../showcase/uvm_ms_runs/pll_cosim/) holds
+a log per environment and a `SUMMARY.txt`. All four reached `$finish` with no
+UVM errors -- the system one reporting 5 checks, 0 failed, 1 inconclusive over
+116,012 boundary crossings, and 12.7022 ps rms period jitter over 1151
+periods.
+
 ## Provenance of this deck
 
 It is `examples/pll/pll_analog.cir` from

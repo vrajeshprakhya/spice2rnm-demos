@@ -1,0 +1,28 @@
+UVM-MS environments of pll_cosim, run from the sources published in ../../pll_cosim/env/.
+Summary rebuilt from the logs beside it by showcase/run_uvm_ms.sh --summary-only
+at 2026-11-13T18:40:35Z; every figure below is read out of one of them.
+xezim: xezim version 0.10.5 (git 531e42af)
+UVM:   /home/vraje/iverilog-unified/uvm-core/src
+
+The time is the simulator's own [PHASE] total from each log, not wall clock.
+
+  cosim      finished    124453.7ms  UVM_ERROR=0 UVM_FATAL=0  (no UVM report summary: $finish pre-empts report_phase)
+    [SB_SUMMARY] system checks=5 failed=0 inconclusive=1 | 116012 boundary crossings observed through the MS bridge
+    aout: 1151 periods, mean 2.500770 ns, rms jitter 12.7022 ps, pk-pk 81.4550 ps
+
+  inv1       finished      8704.9ms  UVM_ERROR=0 UVM_FATAL=0
+    [SB_SUMMARY] dc checks=54 failed=0 | worst err 0.000001 V at in = 1.598323 V (tol 0.006600 V)
+    [SB_SUMMARY] ac checks=0 (no AC golden was generated for this model)
+    [SB_SUMMARY]     2
+
+  inv2       finished      8377.4ms  UVM_ERROR=0 UVM_FATAL=0
+    [SB_SUMMARY] dc checks=54 failed=0 | worst err 0.000001 V at in = 1.992085 V (tol 0.006600 V)
+    [SB_SUMMARY] ac checks=0 (no AC golden was generated for this model)
+    [SB_SUMMARY]     2
+
+  ro_vco     finished    325363.2ms  UVM_ERROR=0 UVM_FATAL=0
+    [SB_SUMMARY] vco breakpoint checks=16 failed=0 | worst 0.000% of period
+    [SB_SUMMARY] vco held-out checks=4 failed=0 | worst 0.003% at 1.8934 V (tol 2.000%), judged inside the measured band 1.7948..1.9075 V
+    [SB_SUMMARY] vco outside the band: 10 point(s) reported, worst 5.348% at 2.7689 V -- where the loop does not go
+    [SB_SUMMARY]     3
+

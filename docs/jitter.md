@@ -245,22 +245,32 @@ The generated UVM-MS environment has a monitor without that problem. It
 reacts to each change of the signal instead of sampling on a clock. It is
 compiled with a `1fs` timescale while the rest of the environment stays at
 `1ps`, which costs nothing elsewhere because SystemVerilog sets timescale per
-module. Run that environment on the composed PLL and it reports 12.78 ps rms
+module. Run that environment on the composed PLL and it reports 12.70 ps rms
 period jitter over 1151 periods at the boundary. Over 116,012 boundary
 crossings, none of its system checks failed and one was inconclusive. The
 total number of checks is not quoted because it varies: one check exists only
 when the transistors settled measurably, which under a noisy supply they may
 or may not do.
 
-That 12.78 ps is for information only too, for a specific reason. **A PLL
+That 12.70 ps is for information only too, for a specific reason. **A PLL
 suppresses its own oscillator's jitter inside the loop bandwidth.** A figure
 measured at the PLL boundary is therefore not the oscillator's own jitter, and
 nobody should expect the two to agree. The 11.80 ps that this netlist's
 declared supply noise produces at `ro_vco` is a different measurement of a
 different quantity. Both figures come from the same run, which earlier
-versions of the whitepaper could not say. The gap between them is 17% here,
-and has been 16% and 20% on other runs of this same netlist. Each is one run's
-draw from a random spread, and neither is evidence about the other.
+versions of the whitepaper could not say. The gap between them is 7.6% here,
+computed from the two figures above rather than carried from an earlier run.
+Each is one run's draw from a random spread -- the oscillator's own figure
+carries +/-5% over the two hundred cycles it was measured on -- and neither is
+evidence about the other.
+
+Both numbers are reproducible rather than quoted. The oscillator's is
+`vco_results.ro_vco.intrinsic_jitter.rms_s` in
+[`showcase/pll_cosim/result.json`](../showcase/pll_cosim/result.json), and the
+boundary figure is the last line of
+[`showcase/uvm_ms_runs/pll_cosim/cosim.log`](../showcase/uvm_ms_runs/pll_cosim/cosim.log),
+which is the environment's own output, saved by
+[`showcase/run_uvm_ms.sh`](../showcase/run_uvm_ms.sh).
 
 ## Where this sits against published practice
 

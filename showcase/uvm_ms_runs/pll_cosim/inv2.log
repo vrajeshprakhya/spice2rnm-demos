@@ -1,0 +1,134 @@
+=== running UVM-MS testbench for inv2_rnm on xezim ===
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 50000000 ns
+------------------------------
+[PHASE] compilation: 614.3ms
+[EVENT-EDGE] ARMED mode ON: 0 input signals, 0 fanout edges
+[EVENT-EDGE] measure (timestamp): 3 edge blocks, 0 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=0.00
+[EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
+[xezim][warning] a #delay evaluated to a pathological real value 9.2000e18 at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41590 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro] at time 0 — the process is parked far in the future, so a clock driven by it will appear to stop. This usually means the delay expression produced NaN/inf or IEEE-754 bit garbage.
+UVM_INFO /home/vraje/iverilog-unified/uvm-core/src/base/uvm_root.svh(476) @ 0: reporter [UVM/RELNOTES] 
+  ***********       IMPORTANT RELEASE NOTES         ************
+
+  This implementation of the UVM Library deviates from the 1800.2-2020
+  standard.  See the DEVIATIONS.md file contained in the release
+  for more details.
+
+----------------------------------------------------------------
+Accellera:1800.2:UVM:2020.3.1
+
+All copyright owners for this kit are listed in NOTICE.txt
+All Rights Reserved Worldwide
+----------------------------------------------------------------
+
+      (Specify +UVM_NO_RELNOTES to turn off this notice)
+
+UVM_INFO top_inv2_ms.sv(59) @ 0: reporter [TOP_MS] UVM-MS testbench for inv2_rnm: bridge instantiated, DC goldens from ngspice
+UVM_WARNING /home/vraje/iverilog-unified/uvm-core/src/base/uvm_root.svh(551) @ 0: reporter [NO_DPI_USED] We are thinking of removing support for UVM_NO_DPI.  Please try this test without it and evaluate the impact
+UVM_INFO @ 0: reporter [RNTST] Running test inv2_ms_test...
+UVM_INFO /home/vraje/iverilog-unified/uvm-core/src/base/uvm_traversal.svh(349) @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
+UVM_WARNING /home/vraje/iverilog-unified/uvm-core/src/base/uvm_traversal.svh(315) @ 0: reporter [NO_VISIT_CHECK] Because UVM_REGEX_NO_DPI is defined, no uvm component name constraints will be checked
+UVM_INFO inv2_ms_pkg.sv(330) @ 0: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 0, level = 0.000000 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 1113124: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 1, level = 0.086991 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 1857538: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 2, level = 0.173981 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 2603163: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 3, level = 0.260972 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 3348788: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 4, level = 0.347962 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 4465454: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 5, level = 0.434953 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 5580909: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 6, level = 0.521944 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 7067405: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 7, level = 0.608934 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 8552690: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 8, level = 0.695925 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 10037975: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 9, level = 0.782915 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 11523260: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 10, level = 0.869906 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 13008545: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 11, level = 0.956897 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 14493830: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 12, level = 1.043887 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 15979115: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 13, level = 1.130878 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 17464400: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 14, level = 1.217868 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 18949685: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 15, level = 1.304859 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 20434970: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 16, level = 1.391850 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 21920255: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 17, level = 1.478840 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 23405540: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 18, level = 1.565831 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 24890825: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 19, level = 1.652821 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 26747151: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 20, level = 1.739812 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 28608231: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 21, level = 1.818104 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 30469311: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 22, level = 1.905094 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 32330391: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 23, level = 1.992085 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 33820430: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 24, level = 2.079075 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 35305715: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 25, level = 2.166066 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 36791000: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 26, level = 2.253057 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 38276285: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 27, level = 2.340047 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 39761570: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 28, level = 2.427038 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 41246855: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 29, level = 2.514028 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 42732140: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 30, level = 2.601019 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 44217425: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 31, level = 2.688010 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 45702710: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 32, level = 2.775000 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 47187995: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 33, level = 2.861991 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 48673280: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 34, level = 2.948981 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 49787524: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 35, level = 3.035972 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 50902979: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 36, level = 3.122963 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 51647393: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 37, level = 3.209953 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 52393018: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 38, level = 3.296944 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 53138643: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 39, level = 3.383934 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 53884268: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 40, level = 3.470925 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 54629893: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 38, level = 3.296944 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 55375518: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 4, level = 0.347962 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 57234266: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 14, level = 1.217868 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 59095346: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 26, level = 2.253057 V, response = 0.000000 V
+[PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=87322
+[PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=13121 insns=591111 ns_per_insn=0.0 fallbacks=13121
+[FUSE] array-read-NBA fusions (static sites): 0
+[FUSE] packed-loop NBA copies (static sites): 0
+[FUSE] packed blocking fills (dynamic executions): 0
+[FUSE] const-operand ALU fusions (static sites): Add=0 Eq=0 CaseEq=0 Xor=0 total=0
+[FUSE] Move-into-assign forwards (static sites): 0
+[FUSE] provably-unsigned scrubs elided (static sites): 0
+[FUSE] AddC2 superinstructions (static sites): 0
+[PROF] fallback_reason                  TimingControl: count=      54 total=   282.0ms avg= 5222.9µs
+[PROF] fallback_reason                      Assertion: count=   13067 total=   154.8ms avg=   11.8µs
+[PROF] settle_dc=0.0ms(52342) settle_ca=0.0ms(0) settle_ab=0.0ms(0)
+[PROF] engine=event
+[PROF] clock_tree: roots=0 entries=0 eager_evals=0
+[PROF] settle_calls=116443 settle_iters=116316 max_iters=1 entry_evals=52342 unresolved_entries=2/5
+[PROF] settle_writes=39147 (74.8% of evals changed a signal, 13195 quiet) dep_edges=26080 (0.7 per write)
+[PROF] two_state_evals=0 (0 entries lowered)
+[PROF] simulation_loop=7760.5ms iters=14132 avg=549.15µs/iter
+[COV] assertions: 2 sites (assert=2, assume=0, cover=0) — 13067 passes, 0 fails
+[COV] coverage: 0 covergroup instances, 0 samples, 0 unique coverpoint values, 0 unique cross tuples
+[COV] wrote coverage DB to xezim_cov.json
+UVM_INFO inv2_ms_pkg.sv(330) @ 60956426: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 22, level = 1.905094 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 62817506: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 24, level = 2.079075 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 64678586: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 9, level = 0.782915 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 66539666: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 27, level = 2.340047 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 68400746: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 21, level = 1.818104 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 70261826: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 19, level = 1.652821 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 72122906: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 1, level = 0.086991 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 73983986: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 32, level = 2.775000 V, response = 0.000000 V
+UVM_INFO inv2_ms_pkg.sv(330) @ 75845066: uvm_test_top.tb.agent.driver [inv2_ms_driver] pushing DC  idx = 32, level = 2.775000 V, response = 0.000000 V
+UVM_INFO inv2_ms_scoreboard.svh(233) @ 82529678: uvm_test_top.tb.sb [SB_SUMMARY] dc checks=54 failed=0 | worst err 0.000001 V at in = 1.992085 V (tol 0.006600 V)
+UVM_INFO inv2_ms_scoreboard.svh(242) @ 82529678: uvm_test_top.tb.sb [SB_SUMMARY] ac checks=0 (no AC golden was generated for this model)
+UVM_INFO /home/vraje/iverilog-unified/uvm-core/src/base/uvm_report_server.svh(1010) @ 82529678: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+
+** Report counts by severity
+UVM_INFO :   60
+UVM_WARNING :    2
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[NO_DPI_USED]     1
+[NO_VISIT_CHECK]     1
+[RNTST]     1
+[SB_SUMMARY]     2
+[TOP_MS]     1
+[UVM/COMP/NAMECHECK]     1
+[UVM/RELNOTES]     1
+[inv2_ms_driver]    54
+
+[PHASE] simulation: 7763.0ms
+[PHASE] total: 8377.4ms
+------------------------------
+------------------------------
+Simulation finished at time 82529678
+($finish called)

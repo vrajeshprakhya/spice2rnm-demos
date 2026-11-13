@@ -86,6 +86,49 @@ wrongly still settles, so this is deliberately the weaker claim.
 Both carry `equivalence/` with the per-block evidence, and
 [`STAMP`](STAMP) records which run and which revisions produced each.
 
+### Running those environments, and the output of doing so
+
+The environments above were published as sources with no run of them
+beside the sources, which left every figure the documents quote from one
+uncheckable here. [`run_uvm_ms.sh`](run_uvm_ms.sh) runs all eight and
+saves each one's output under [`uvm_ms_runs/`](uvm_ms_runs/), with a
+`SUMMARY.txt` per case. All eight reached the simulator's own `$finish`
+with **no UVM errors**:
+
+| environment | simulator time | what its own scoreboard said |
+|---|--:|---|
+| [`pll_cosim/cosim`](uvm_ms_runs/pll_cosim/cosim.log) | 124.5 s | system checks 5, 0 failed, 1 inconclusive, over 116,012 boundary crossings; and 12.7022 ps rms period jitter over 1151 periods, mean 2.500770 ns |
+| [`pll_cosim/ro_vco`](uvm_ms_runs/pll_cosim/ro_vco.log) | 325.4 s | 16 breakpoint and 4 held-out checks, 0 failed, worst 0.003%; 10 points outside the measured band reported, worst 5.348% |
+| [`pll_cosim/inv1`](uvm_ms_runs/pll_cosim/inv1.log), [`inv2`](uvm_ms_runs/pll_cosim/inv2.log) | 8.7 s, 8.4 s | 54 DC checks each, 0 failed, worst error 1 uV against a 6.6 mV tolerance |
+| [`pll_nocosim/rtl_loop`](uvm_ms_runs/pll_nocosim/rtl_loop.log) | 251.8 s | rate, control-window, tuning-curve and finite checks, 3 each, 0 failed -- and its own closing line that no transistors were simulated, so a loop settling plausibly and wrongly passes all of them |
+| [`pll_nocosim/ro_vco`](uvm_ms_runs/pll_nocosim/ro_vco.log) | 161.1 s | 15 breakpoint and 5 held-out checks, 0 failed, worst 0.024% |
+| [`pll_nocosim/inv1`](uvm_ms_runs/pll_nocosim/inv1.log), [`inv2`](uvm_ms_runs/pll_nocosim/inv2.log) | 4.0 s, 87.1 s | 54 DC checks each, 0 failed |
+
+The times are the simulator's own `[PHASE] total` read back out of each
+log, not a wall clock, so `--summary-only` reproduces them and a reader
+can find the line each came from.
+
+`uvm_ms_runs/` sits *beside* the cases rather than inside them because
+`refresh.sh` begins each case with `rm -rf` and rebuilds it from the run
+directory -- the same reason the case write-ups live under `docs/`.
+These logs are not produced by a demo run at all: they come from running
+the published environment, which is the point of them.
+
+Two things the script does that `tee` would not. It **refuses any log
+without the simulator's own `$finish` line**, because a run cut short by
+`--max-time` or a wall-clock guard exits 0 and prints no scoreboard,
+which reads as a pass. And it counts `UVM_ERROR` *event* lines rather
+than lines beginning `UVM_ERROR`, because the report summary's own tally
+is written `UVM_ERROR :    0` and makes a clean run look like one error
+-- while the system environment prints no summary at all, its `$finish`
+pre-empting `report_phase`, so an empty tally is not zero either. Those
+two traps pull in opposite directions, which is why both are named here.
+
+One thing it needs that the generated scripts do not supply: `UVM_SRC`.
+The block-level `run_*.sh` are generated with no default for it, so
+running one with the variable unset fails on `/uvm_pkg.sv not found` --
+a path beginning with a slash because the variable was empty.
+
 ## Every file, and what is in it
 
 The first four cases share one file naming scheme, so a file does the same

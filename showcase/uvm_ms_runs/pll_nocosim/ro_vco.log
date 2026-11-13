@@ -1,0 +1,119 @@
+=== running UVM-MS VCO testbench for ro_vco_rnm on xezim ===
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 50000000 ns
+------------------------------
+[PHASE] compilation: 361.4ms
+[EVENT-EDGE] ARMED mode ON: 0 input signals, 0 fanout edges
+[EVENT-EDGE] measure (timestamp): 2 edge blocks, 0 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=0.00
+[EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
+[xezim][warning] a #delay evaluated to a pathological real value 9.2000e18 at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41590 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro] at time 0 — the process is parked far in the future, so a clock driven by it will appear to stop. This usually means the delay expression produced NaN/inf or IEEE-754 bit garbage.
+UVM_INFO /home/vraje/iverilog-unified/uvm-core/src/base/uvm_root.svh(476) @ 0: reporter [UVM/RELNOTES] 
+  ***********       IMPORTANT RELEASE NOTES         ************
+
+  This implementation of the UVM Library deviates from the 1800.2-2020
+  standard.  See the DEVIATIONS.md file contained in the release
+  for more details.
+
+----------------------------------------------------------------
+Accellera:1800.2:UVM:2020.3.1
+
+All copyright owners for this kit are listed in NOTICE.txt
+All Rights Reserved Worldwide
+----------------------------------------------------------------
+
+      (Specify +UVM_NO_RELNOTES to turn off this notice)
+
+UVM_INFO top_ro_vco_ms.sv(90) @ 0: reporter [TOP_MS] UVM-MS VCO testbench for ro_vco_rnm: goldens are ngspice frequency measurements
+UVM_WARNING /home/vraje/iverilog-unified/uvm-core/src/base/uvm_root.svh(551) @ 0: reporter [NO_DPI_USED] We are thinking of removing support for UVM_NO_DPI.  Please try this test without it and evaluate the impact
+UVM_INFO @ 0: reporter [RNTST] Running test ro_vco_ms_test...
+UVM_INFO /home/vraje/iverilog-unified/uvm-core/src/base/uvm_traversal.svh(349) @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
+UVM_WARNING /home/vraje/iverilog-unified/uvm-core/src/base/uvm_traversal.svh(315) @ 0: reporter [NO_VISIT_CHECK] Because UVM_REGEX_NO_DPI is defined, no uvm component name constraints will be checked
+UVM_INFO ro_vco_ms_env.svh(69) @ 250472560: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 0.4950 V -> 8.04479e+08 Hz (golden 8.04473e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 525176294: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 0.7837 V -> 7.35328e+08 Hz (golden 7.35322e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 829643977: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 1.0725 V -> 6.63451e+08 Hz (golden 6.63446e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 1177684245: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 1.3613 V -> 5.80391e+08 Hz (golden 5.80386e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 1600799251: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 1.6500 V -> 4.77407e+08 Hz (golden 4.77403e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 2061216006: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 1.7500 V -> 4.38733e+08 Hz (golden 4.38729e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 2566385034: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 1.8500 V -> 3.99865e+08 Hz (golden 3.99862e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 3118488422: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 1.9387 V -> 3.65872e+08 Hz (golden 3.65869e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 3677094302: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 1.9500 V -> 3.61614e+08 Hz (golden 3.61611e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 4300259958: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 2.0500 V -> 3.24151e+08 Hz (golden 3.24148e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 5086199389: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 2.2275 V -> 2.57014e+08 Hz (golden 2.57012e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 6564675766: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 2.5162 V -> 1.36626e+08 Hz (golden 1.36625e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 9288380111: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 2.6606 V -> 7.41634e+07 Hz (golden 7.41628e+07 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 14051517489: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 2.7328 V -> 4.2409e+07 Hz (golden 4.24088e+07 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 26118693067: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] breakpoint 2.8050 V -> 1.67396e+07 Hz (golden 1.67395e+07 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 26381089422: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 0.6394 V -> 7.69903e+08 Hz (golden 7.69945e+08 Hz)
+UVM_INFO ro_vco_ms_scoreboard.svh(73) @ 26381089422: uvm_test_top.tb.sb [VCO_CHECK] outside the measured operating band 1.6500..2.0500 V: 0.6394 V is 0.005% of period (ngspice 7.69945e+08 Hz, model 7.69903e+08 Hz). Reported, not failed.
+UVM_INFO ro_vco_ms_env.svh(69) @ 26669909923: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 0.9281 V -> 6.99389e+08 Hz (golden 7.00185e+08 Hz)
+UVM_INFO ro_vco_ms_scoreboard.svh(73) @ 26669909923: uvm_test_top.tb.sb [VCO_CHECK] outside the measured operating band 1.6500..2.0500 V: 0.9281 V is 0.114% of period (ngspice 7.00185e+08 Hz, model 6.99389e+08 Hz). Reported, not failed.
+UVM_INFO ro_vco_ms_env.svh(69) @ 26994707537: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 1.2169 V -> 6.21921e+08 Hz (golden 6.24035e+08 Hz)
+UVM_INFO ro_vco_ms_scoreboard.svh(73) @ 26994707537: uvm_test_top.tb.sb [VCO_CHECK] outside the measured operating band 1.6500..2.0500 V: 1.2169 V is 0.340% of period (ngspice 6.24035e+08 Hz, model 6.21921e+08 Hz). Reported, not failed.
+UVM_INFO ro_vco_ms_env.svh(69) @ 27376632078: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 1.5056 V -> 5.28899e+08 Hz (golden 5.3119e+08 Hz)
+UVM_INFO ro_vco_ms_scoreboard.svh(73) @ 27376632078: uvm_test_top.tb.sb [VCO_CHECK] outside the measured operating band 1.6500..2.0500 V: 1.5056 V is 0.433% of period (ngspice 5.3119e+08 Hz, model 5.28899e+08 Hz). Reported, not failed.
+UVM_INFO ro_vco_ms_env.svh(69) @ 27817612046: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 1.7000 V -> 4.5807e+08 Hz (golden 4.58144e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 28296866975: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 1.7944 V -> 4.21485e+08 Hz (golden 4.21453e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 28778623671: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 1.8000 V -> 4.19299e+08 Hz (golden 4.19264e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 29309205068: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 1.9000 V -> 3.80714e+08 Hz (golden 3.80624e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 29898327100: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 2.0000 V -> 3.42882e+08 Hz (golden 3.42813e+08 Hz)
+UVM_INFO ro_vco_ms_env.svh(69) @ 30546548046: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 2.0831 V -> 3.11622e+08 Hz (golden 3.11795e+08 Hz)
+UVM_INFO ro_vco_ms_scoreboard.svh(73) @ 30546548046: uvm_test_top.tb.sb [VCO_CHECK] outside the measured operating band 1.6500..2.0500 V: 2.0831 V is 0.056% of period (ngspice 3.11795e+08 Hz, model 3.11622e+08 Hz). Reported, not failed.
+UVM_INFO ro_vco_ms_env.svh(69) @ 31572844500: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 2.3719 V -> 1.9682e+08 Hz (golden 1.98928e+08 Hz)
+UVM_INFO ro_vco_ms_scoreboard.svh(73) @ 31572844500: uvm_test_top.tb.sb [VCO_CHECK] outside the measured operating band 1.6500..2.0500 V: 2.3719 V is 1.071% of period (ngspice 1.98928e+08 Hz, model 1.9682e+08 Hz). Reported, not failed.
+UVM_INFO ro_vco_ms_env.svh(69) @ 33489425455: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 2.5884 V -> 1.05395e+08 Hz (golden 1.05101e+08 Hz)
+UVM_INFO ro_vco_ms_scoreboard.svh(73) @ 33489425455: uvm_test_top.tb.sb [VCO_CHECK] outside the measured operating band 1.6500..2.0500 V: 2.5884 V is 0.279% of period (ngspice 1.05101e+08 Hz, model 1.05395e+08 Hz). Reported, not failed.
+UVM_INFO ro_vco_ms_env.svh(69) @ 36955070654: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 2.6967 V -> 5.82862e+07 Hz (golden 5.82466e+07 Hz)
+UVM_INFO ro_vco_ms_scoreboard.svh(73) @ 36955070654: uvm_test_top.tb.sb [VCO_CHECK] outside the measured operating band 1.6500..2.0500 V: 2.6967 V is 0.068% of period (ngspice 5.82466e+07 Hz, model 5.82862e+07 Hz). Reported, not failed.
+UVM_INFO ro_vco_ms_env.svh(69) @ 43785317219: uvm_test_top.tb.agent.monitor [ro_vco_ms_monitor] held-out 2.7689 V -> 2.95743e+07 Hz (golden 2.80995e+07 Hz)
+UVM_INFO ro_vco_ms_scoreboard.svh(73) @ 43785317219: uvm_test_top.tb.sb [VCO_CHECK] outside the measured operating band 1.6500..2.0500 V: 2.7689 V is 4.987% of period (ngspice 2.80995e+07 Hz, model 2.95743e+07 Hz). Reported, not failed.
+UVM_INFO ro_vco_ms_scoreboard.svh(111) @ 43785317219: uvm_test_top.tb.sb [SB_SUMMARY] vco breakpoint checks=15 failed=0 | worst 0.001% of period
+[PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=4556076
+[PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=58 insns=5636766 ns_per_insn=0.0 fallbacks=58
+[FUSE] array-read-NBA fusions (static sites): 0
+[FUSE] packed-loop NBA copies (static sites): 0
+[FUSE] packed blocking fills (dynamic executions): 0
+[FUSE] const-operand ALU fusions (static sites): Add=0 Eq=0 CaseEq=0 Xor=0 total=0
+[FUSE] Move-into-assign forwards (static sites): 0
+[FUSE] provably-unsigned scrubs elided (static sites): 0
+[FUSE] AddC2 superinstructions (static sites): 0
+[PROF] fallback_reason                      Assertion: count=      58 total=     0.7ms avg=   12.6µs
+[PROF] settle_dc=0.0ms(94) settle_ca=0.0ms(0) settle_ab=0.0ms(0)
+[PROF] engine=event
+[PROF] clock_tree: roots=0 entries=0 eager_evals=0
+[PROF] settle_calls=80074 settle_iters=79947 max_iters=1 entry_evals=94 unresolved_entries=1/3
+[PROF] settle_writes=87 (92.6% of evals changed a signal, 7 quiet) dep_edges=58 (0.7 per write)
+[PROF] two_state_evals=0 (0 entries lowered)
+[PROF] simulation_loop=160713.5ms iters=1138555 avg=141.16µs/iter
+[COV] assertions: 2 sites (assert=2, assume=0, cover=0) — 58 passes, 0 fails
+[COV] coverage: 0 covergroup instances, 0 samples, 0 unique coverpoint values, 0 unique cross tuples
+[COV] wrote coverage DB to xezim_cov.json
+UVM_INFO ro_vco_ms_scoreboard.svh(114) @ 43785317219: uvm_test_top.tb.sb [SB_SUMMARY] vco held-out checks=5 failed=0 | worst 0.024% at 1.9000 V (tol 2.000%), judged inside the measured band 1.6500..2.0500 V
+UVM_INFO ro_vco_ms_scoreboard.svh(124) @ 43785317219: uvm_test_top.tb.sb [SB_SUMMARY] vco outside the band: 9 point(s) reported, worst 4.987% at 2.7689 V -- where the loop does not go
+UVM_INFO /home/vraje/iverilog-unified/uvm-core/src/base/uvm_report_server.svh(1010) @ 43785317219: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+
+** Report counts by severity
+UVM_INFO :   45
+UVM_WARNING :    2
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[NO_DPI_USED]     1
+[NO_VISIT_CHECK]     1
+[RNTST]     1
+[SB_SUMMARY]     3
+[TOP_MS]     1
+[UVM/COMP/NAMECHECK]     1
+[UVM/RELNOTES]     1
+[VCO_CHECK]     9
+[ro_vco_ms_monitor]    29
+
+[PHASE] simulation: 160714.0ms
+[PHASE] total: 161075.5ms
+------------------------------
+------------------------------
+Simulation finished at time 43785317219
+($finish called)

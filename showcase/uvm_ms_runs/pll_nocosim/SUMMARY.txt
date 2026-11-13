@@ -1,0 +1,32 @@
+UVM-MS environments of pll_nocosim, run from the sources published in ../../pll_nocosim/env/.
+Summary rebuilt from the logs beside it by showcase/run_uvm_ms.sh --summary-only
+at 2026-11-13T18:40:35Z; every figure below is read out of one of them.
+xezim: xezim version 0.10.5 (git 531e42af)
+UVM:   /home/vraje/iverilog-unified/uvm-core/src
+
+The time is the simulator's own [PHASE] total from each log, not wall clock.
+
+  inv1       finished      3985.0ms  UVM_ERROR=0 UVM_FATAL=0
+    [SB_SUMMARY] dc checks=54 failed=0 | worst err 0.000001 V at in = 1.567500 V (tol 0.006600 V)
+    [SB_SUMMARY] ac checks=0 (no AC golden was generated for this model)
+    [SB_SUMMARY]     2
+
+  inv2       finished     87086.3ms  UVM_ERROR=0 UVM_FATAL=0
+    [SB_SUMMARY] dc checks=54 failed=0 | worst err 0.000000 V at in = 0.082500 V (tol 0.006600 V)
+    [SB_SUMMARY] ac checks=0 (no AC golden was generated for this model)
+    [SB_SUMMARY]     2
+
+  ro_vco     finished    161075.5ms  UVM_ERROR=0 UVM_FATAL=0
+    [SB_SUMMARY] vco breakpoint checks=15 failed=0 | worst 0.001% of period
+    [SB_SUMMARY] vco held-out checks=5 failed=0 | worst 0.024% at 1.9000 V (tol 2.000%), judged inside the measured band 1.6500..2.0500 V
+    [SB_SUMMARY] vco outside the band: 9 point(s) reported, worst 4.987% at 2.7689 V -- where the loop does not go
+    [SB_SUMMARY]     3
+
+  rtl_loop   finished    251845.9ms  UVM_ERROR=0 UVM_FATAL=0
+    [SB_SUMMARY] rate checks=3 failed=0 | worst +0.0088% against 2.000% [SPEC]
+    [SB_SUMMARY] control-window checks=3 failed=0 | the specification states 1.7500..1.9500 V [SPEC]
+    [SB_SUMMARY] tuning-curve checks=3 failed=0 | worst 0.89 mV from where the MEASURED curve puts that frequency [MEASURED]
+    [SB_SUMMARY] finite checks=3 failed=0 [MEASURED]
+    [SB_SUMMARY] no transistors were simulated here: a loop settling somewhere plausible and wrong passes all of the above
+    [SB_SUMMARY]     5
+
