@@ -1,6 +1,6 @@
 `timescale 1fs/1fs
 //======================================================================
-// inv2_ms_pkg -- the mixed-signal agent for inv2_rnm.
+// inv2_ms_pkg -- the mixed-signal agent for inv2.
 //
 // Item / driver / monitor / agent / sequencer / sequences.  The golden
 // table lives here too, so the sequence item and the scoreboard read the

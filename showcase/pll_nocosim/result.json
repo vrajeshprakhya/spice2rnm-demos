@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-11-12T03:09:54.715367+00:00",
+    "timestamp_utc": "2026-11-13T17:38:28.530050+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -62,7 +62,7 @@
           "stage": "equivalence",
           "input_node": "in",
           "output_node": "out",
-          "module_name": "inv1_rnm",
+          "module_name": "inv1",
           "parsed": {
             "__omitted__": "bulk field; written to its own file",
             "chars": null
@@ -100,7 +100,7 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 395
+              "chars": 364
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
@@ -150,7 +150,7 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 244
+              "chars": 275
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
@@ -974,6 +974,16 @@
           },
           "pole_schedule": null,
           "model_form": "wiener",
+          "model_ports": {
+            "in": "in_v",
+            "out": "out_v",
+            "spare": [
+              "dd_v",
+              "ss_v",
+              "sub_v",
+              "well_v"
+            ]
+          },
           "band_hz": 24701595524.877,
           "uvm_ms_environment": null,
           "uvm_ms_files": [
@@ -990,10 +1000,10 @@
             "/home/vraje/s2r_runs/demo4b_pll/inv1/uvm_ms/run_inv1_ms.sh"
           ],
           "dc_bias": 1.65,
-          "sv_path": "/home/vraje/s2r_runs/demo4b_pll/inv1/inv1_rnm.sv",
+          "sv_path": "/home/vraje/s2r_runs/demo4b_pll/inv1/inv1.sv",
           "sv_text": {
             "__omitted__": "bulk field; written to its own file",
-            "chars": 24904
+            "chars": 25259
           },
           "equivalence": {
             "success": true,
@@ -1101,7 +1111,7 @@
           "stage": "equivalence",
           "input_node": "in",
           "output_node": "out",
-          "module_name": "inv2_rnm",
+          "module_name": "inv2",
           "parsed": {
             "__omitted__": "bulk field; written to its own file",
             "chars": null
@@ -1139,7 +1149,7 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 395
+              "chars": 426
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
@@ -1187,7 +1197,7 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 1299
+              "chars": 1683
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
@@ -2144,6 +2154,16 @@
             ]
           ],
           "model_form": "scheduled_lag",
+          "model_ports": {
+            "in": "in_v",
+            "out": "out_v",
+            "spare": [
+              "dd_v",
+              "ss_v",
+              "sub_v",
+              "well_v"
+            ]
+          },
           "band_hz": 20555605659.186844,
           "uvm_ms_environment": null,
           "uvm_ms_files": [
@@ -2160,10 +2180,10 @@
             "/home/vraje/s2r_runs/demo4b_pll/inv2/uvm_ms/run_inv2_ms.sh"
           ],
           "dc_bias": 1.65,
-          "sv_path": "/home/vraje/s2r_runs/demo4b_pll/inv2/inv2_rnm.sv",
+          "sv_path": "/home/vraje/s2r_runs/demo4b_pll/inv2/inv2.sv",
           "sv_text": {
             "__omitted__": "bulk field; written to its own file",
-            "chars": 29213
+            "chars": 29564
           },
           "equivalence": {
             "success": true,
@@ -2428,8 +2448,8 @@
         "success": true,
         "stage": "equivalence",
         "netlist": "/home/vraje/s2r_runs/demo4b_pll/ro_vco/vco_char.cir",
-        "module_name": "ro_vco_rnm",
-        "sv_path": "/home/vraje/s2r_runs/demo4b_pll/ro_vco/ro_vco_rnm.sv",
+        "module_name": "ro_vco",
+        "sv_path": "/home/vraje/s2r_runs/demo4b_pll/ro_vco/ro_vco.sv",
         "tuning": {
           "success": true,
           "control_source": "vctrl",
@@ -2517,9 +2537,9 @@
         "holdout_ps": 1774.5080741033687,
         "intrinsic_jitter": {
           "n_cycles": 200,
-          "mean_period_s": 2.5045595142025357e-09,
-          "rms_s": 1.1736758913873797e-11,
-          "pk_pk_s": 6.254381370471727e-11,
+          "mean_period_s": 2.5051545094559213e-09,
+          "rms_s": 1.2616310337829319e-11,
+          "pk_pk_s": 6.695364177037924e-11,
           "rel_uncertainty": 0.05,
           "control_v": 1.8499999999999999,
           "sources": [
@@ -2529,7 +2549,7 @@
         "isf_jitter": {
           "usable": false,
           "measured": false,
-          "why_not": "the declared source is worth 11.74 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.711 ps -- 0.00148 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00148 of its period. Sixteen transients would refine a number no reader could see move"
+          "why_not": "the declared source is worth 12.62 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.99 ps -- 0.0016 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.0016 of its period. Sixteen transients would refine a number no reader could see move"
         },
         "supply_sensitivity": {
           "source": "VBIAS2",
@@ -2565,8 +2585,8 @@
               "source": "vctrl",
               "replay_node": "cont",
               "model_port": "cont",
-              "worst_ratio": 0.9557913522050754,
-              "worst_sigma_v": 0.005,
+              "worst_ratio": 0.9521378761097212,
+              "worst_sigma_v": 0.05,
               "tol_frac": 0.25,
               "floor_spice_s": 5.0452312476854353e-14,
               "floor_model_s": 4.142837625474882e-23,
@@ -2583,33 +2603,33 @@
                 },
                 {
                   "sigma_v": 0.005,
-                  "spice_rms_s": 2.7057657731486717e-12,
-                  "model_rms_s": 2.5861475270679802e-12,
+                  "spice_rms_s": 2.5444037133787635e-12,
+                  "model_rms_s": 2.4257196867667796e-12,
                   "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 0.9557913522050754,
+                  "ratio": 0.9533548760411212,
                   "judged": true,
-                  "note": "model 2.586 ps against reference 2.706 ps over 200 cycles"
+                  "note": "model 2.426 ps against reference 2.544 ps over 200 cycles"
                 },
                 {
                   "sigma_v": 0.02,
-                  "spice_rms_s": 1.003529960793777e-11,
-                  "model_rms_s": 1.0242945781893368e-11,
-                  "spice_cycles": 199,
+                  "spice_rms_s": 1.0277453324660126e-11,
+                  "model_rms_s": 9.919765342206865e-12,
+                  "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 1.0206915769401994,
+                  "ratio": 0.9651968273507008,
                   "judged": true,
-                  "note": "model 10.24 ps against reference 10.04 ps over 199 cycles"
+                  "note": "model 9.92 ps against reference 10.28 ps over 200 cycles"
                 },
                 {
                   "sigma_v": 0.05,
-                  "spice_rms_s": 2.2848249379863763e-11,
-                  "model_rms_s": 2.287895192055805e-11,
+                  "spice_rms_s": 2.601704054691699e-11,
+                  "model_rms_s": 2.4771809729002044e-11,
                   "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 1.0013437589980678,
+                  "ratio": 0.9521378761097212,
                   "judged": true,
-                  "note": "model 22.88 ps against reference 22.85 ps over 200 cycles"
+                  "note": "model 24.77 ps against reference 26.02 ps over 200 cycles"
                 }
               ],
               "errors": []
@@ -2621,8 +2641,8 @@
               "source": "VBIAS2",
               "replay_node": "dd",
               "model_port": "vdd",
-              "worst_ratio": 0.9102233143147216,
-              "worst_sigma_v": 0.02,
+              "worst_ratio": 0.9489171373663321,
+              "worst_sigma_v": 0.05,
               "tol_frac": 0.25,
               "floor_spice_s": 5.0452312476854353e-14,
               "floor_model_s": 4.142837625474882e-23,
@@ -2639,41 +2659,41 @@
                 },
                 {
                   "sigma_v": 0.005,
-                  "spice_rms_s": 2.614213916957385e-12,
-                  "model_rms_s": 2.5406906397619465e-12,
+                  "spice_rms_s": 2.9281632946156037e-12,
+                  "model_rms_s": 2.8299411714338013e-12,
                   "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 0.9718755696622523,
+                  "ratio": 0.9664560636483572,
                   "judged": true,
-                  "note": "model 2.541 ps against reference 2.614 ps over 200 cycles"
+                  "note": "model 2.83 ps against reference 2.928 ps over 200 cycles"
                 },
                 {
                   "sigma_v": 0.02,
-                  "spice_rms_s": 1.1428165595175116e-11,
-                  "model_rms_s": 1.0402182764577767e-11,
+                  "spice_rms_s": 1.1617579129835217e-11,
+                  "model_rms_s": 1.1867848209473958e-11,
                   "spice_cycles": 199,
                   "model_cycles": 200,
-                  "ratio": 0.9102233143147216,
+                  "ratio": 1.0215422745859353,
                   "judged": true,
-                  "note": "model 10.4 ps against reference 11.43 ps over 199 cycles"
+                  "note": "model 11.87 ps against reference 11.62 ps over 199 cycles"
                 },
                 {
                   "sigma_v": 0.05,
-                  "spice_rms_s": 3.0706849851980004e-11,
-                  "model_rms_s": 3.052670889200717e-11,
-                  "spice_cycles": 200,
+                  "spice_rms_s": 2.6844764119424477e-11,
+                  "model_rms_s": 2.54734567214787e-11,
+                  "spice_cycles": 199,
                   "model_cycles": 200,
-                  "ratio": 0.9941335252283711,
+                  "ratio": 0.9489171373663321,
                   "judged": true,
-                  "note": "model 30.53 ps against reference 30.71 ps over 200 cycles"
+                  "note": "model 25.47 ps against reference 26.84 ps over 199 cycles"
                 }
               ],
               "errors": []
             }
           ],
           "source": "VBIAS2",
-          "worst_ratio": 0.9102233143147216,
-          "worst_sigma_v": 0.02,
+          "worst_ratio": 0.9489171373663321,
+          "worst_sigma_v": 0.05,
           "worst_path": "supply",
           "tol_frac": 0.25,
           "points": [
@@ -2689,33 +2709,33 @@
             },
             {
               "sigma_v": 0.005,
-              "spice_rms_s": 2.614213916957385e-12,
-              "model_rms_s": 2.5406906397619465e-12,
+              "spice_rms_s": 2.9281632946156037e-12,
+              "model_rms_s": 2.8299411714338013e-12,
               "spice_cycles": 200,
               "model_cycles": 200,
-              "ratio": 0.9718755696622523,
+              "ratio": 0.9664560636483572,
               "judged": true,
-              "note": "model 2.541 ps against reference 2.614 ps over 200 cycles"
+              "note": "model 2.83 ps against reference 2.928 ps over 200 cycles"
             },
             {
               "sigma_v": 0.02,
-              "spice_rms_s": 1.1428165595175116e-11,
-              "model_rms_s": 1.0402182764577767e-11,
+              "spice_rms_s": 1.1617579129835217e-11,
+              "model_rms_s": 1.1867848209473958e-11,
               "spice_cycles": 199,
               "model_cycles": 200,
-              "ratio": 0.9102233143147216,
+              "ratio": 1.0215422745859353,
               "judged": true,
-              "note": "model 10.4 ps against reference 11.43 ps over 199 cycles"
+              "note": "model 11.87 ps against reference 11.62 ps over 199 cycles"
             },
             {
               "sigma_v": 0.05,
-              "spice_rms_s": 3.0706849851980004e-11,
-              "model_rms_s": 3.052670889200717e-11,
-              "spice_cycles": 200,
+              "spice_rms_s": 2.6844764119424477e-11,
+              "model_rms_s": 2.54734567214787e-11,
+              "spice_cycles": 199,
               "model_cycles": 200,
-              "ratio": 0.9941335252283711,
+              "ratio": 0.9489171373663321,
               "judged": true,
-              "note": "model 30.53 ps against reference 30.71 ps over 200 cycles"
+              "note": "model 25.47 ps against reference 26.84 ps over 199 cycles"
             }
           ],
           "errors": []
@@ -2730,6 +2750,9 @@
           "worst_pct_holdout_band": 0.02365193957708041,
           "worst_ps_holdout": 1774.7815897689843,
           "n_compared": 29,
+          "swing_hi_v": 3.3,
+          "swing_ref_v": 3.3,
+          "swing_err_pct": 0.0,
           "points": [
             [
               0.49499999999999994,
@@ -2941,28 +2964,28 @@
           "errors": []
         },
         "uvm_ms_files": [
-          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/uvm_ms/ro_vco_ms_types_pkg.sv",
-          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/uvm_ms/ro_vco_ms_proxy_pkg.sv",
-          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/uvm_ms/ro_vco_dms.sv",
-          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/uvm_ms/ro_vco_ms_pkg.sv",
-          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/uvm_ms/ro_vco_ms_scoreboard.svh",
-          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/uvm_ms/ro_vco_ms_env.svh",
-          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/uvm_ms/ro_vco_ms_test.svh",
-          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/uvm_ms/top_ro_vco_ms.sv",
-          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/uvm_ms/run_ro_vco_ms.sh"
+          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/ro_vco_ms_types_pkg.sv",
+          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/ro_vco_ms_proxy_pkg.sv",
+          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/ro_vco_dms.sv",
+          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/ro_vco_ms_pkg.sv",
+          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/ro_vco_ms_scoreboard.svh",
+          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/ro_vco_ms_env.svh",
+          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/ro_vco_ms_test.svh",
+          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/top_ro_vco_ms.sv",
+          "/home/vraje/s2r_runs/demo4b_pll/ro_vco/run_ro_vco_ms.sh"
         ],
         "warnings": [
           "refinement pass 1: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
           "refinement pass 1: the worst held-out error did not improve (3.286% -> 6.694%). Subdividing is not converging here, which is what a curve bending faster than the grid can follow looks like -- each new midpoint lands somewhere harder. More passes would not fix it; a different range or a different interpolant would.",
           "refinement pass 2: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
           "intrinsic jitter: the top-level deck declares transient noise on dd, which this block is wired to, so it was restored onto VBIAS2 for the measurement -- extraction had rebuilt that rail as a plain DC source and the condition would otherwise not be measured at all",
-          "intrinsic jitter at 1.85 V: 11.74 ps rms over 200 cycles (62.54 ps peak-to-peak, mean period 2505 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
+          "intrinsic jitter at 1.85 V: 12.62 ps rms over 200 cycles (66.95 ps peak-to-peak, mean period 2505 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
           "supply sensitivity at 1.85 V control: 450.6 MHz/V from 'VBIAS2' (nominal 3.3 V, 3 points). For scale, 100 mV of droop is worth 45.06 MHz here -- a model without this input cannot show that at all.",
-          "ISF: not measured -- the declared source is worth 11.74 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.711 ps -- 0.00148 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00148 of its period. Sixteen transients would refine a number no reader could see move",
-          "model jitter: none emitted, and none is wanted. The 11.74 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
+          "ISF: not measured -- the declared source is worth 12.62 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.99 ps -- 0.0016 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.0016 of its period. Sixteen transients would refine a number no reader could see move",
+          "model jitter: none emitted, and none is wanted. The 12.62 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
           "held-out frequency error is 0.024% inside the measured operating band 1.6500..2.0500 V (5 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.987% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed.",
-          "jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.96 at 0.005 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
-          "jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 0.91 at 0.02 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+          "jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.95 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+          "jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 0.95 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
           "jitter transfer: run because the top-level deck declares transient noise on dd, which this block is wired to, so this design is asking for noise to be simulated -- the block's own fragment shows a plain DC source there because extraction rebuilt it -- 2 path(s) exercised (control, supply)"
         ],
         "errors": []
@@ -3039,7 +3062,8 @@
           "last": 300.0
         },
         "dc_gain_to_out": null,
-        "sv_path": "/home/vraje/s2r_runs/demo4b_pll/lpfilt/lpfilt_rc_rnm.sv",
+        "sv_path": "/home/vraje/s2r_runs/demo4b_pll/lpfilt/lpfilt.sv",
+        "module_name": "lpfilt",
         "equivalence": {
           "success": true,
           "checked": true,
@@ -3067,8 +3091,8 @@
         "success": true,
         "stage": "equivalence",
         "netlist": "/home/vraje/s2r_runs/demo4b_pll/cpump/cp_char.cir",
-        "module_name": "cpump_cp_rnm",
-        "sv_path": "/home/vraje/s2r_runs/demo4b_pll/cpump/cpump_cp_rnm.sv",
+        "module_name": "cpump",
+        "sv_path": "/home/vraje/s2r_runs/demo4b_pll/cpump/cpump.sv",
         "char": {
           "success": true,
           "controls": [
@@ -3608,20 +3632,20 @@
       "block 'lpfilt' is not a transfer function: only resistors and capacitors (6), so its state space is exact and needs no fitting. Skipped by the hierarchical path; run the RC path, which extracts a state space from the topology rather than measuring it",
       "block 'lpfilt' (rc): no DC path to ground: a constant injected current ramps the output without settling. That is what a charge pump into a capacitive filter does, and it is why this is modelled as a state space rather than a DC gain",
       "block 'lpfilt' (rc): equivalence PASS -- the emitted model tracks SPICE to 0.019% of the output's own 1.353 V excursion (rms 0.008%), under a 0.004359 A step into 'dra' over 3.556e-06 s",
-      "block 'lpfilt': 3-state current-driven network (c1, int1, vout), current into 'dra' and voltage out of 'vout' by topology (no capacitance on 'dra') -- exact from the topology, nothing fitted -> /home/vraje/s2r_runs/demo4b_pll/lpfilt/lpfilt_rc_rnm.sv",
-      "block 'cpump': 4 control state(s) measured as I(V) onto 'dra', 0.549% held out -> /home/vraje/s2r_runs/demo4b_pll/cpump/cpump_cp_rnm.sv",
+      "block 'lpfilt': 3-state current-driven network (c1, int1, vout), current into 'dra' and voltage out of 'vout' by topology (no capacitance on 'dra') -- exact from the topology, nothing fitted -> /home/vraje/s2r_runs/demo4b_pll/lpfilt/lpfilt.sv",
+      "block 'cpump': 4 control state(s) measured as I(V) onto 'dra', 0.549% held out -> /home/vraje/s2r_runs/demo4b_pll/cpump/cpump.sv",
       "block 'ro_vco': control port 'cont' is net 'vout', which a spec DECLARES as 1.7500..1.9500 V, not measured (the specification's 'Control voltage' row reads | Control voltage    | 1.75 | 1.85 | 1.95 | V    |) -- 8.7% of the 0.495..2.805 V being swept. Adding 5 measured points across 1.6500..2.0500 V (the band plus margin for acquisition); the full range is still swept, because the loop leaves the band on its way in and a table that stopped at the edge would clamp there.",
       "block 'ro_vco' (vco): refinement pass 1: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
       "block 'ro_vco' (vco): refinement pass 1: the worst held-out error did not improve (3.286% -> 6.694%). Subdividing is not converging here, which is what a curve bending faster than the grid can follow looks like -- each new midpoint lands somewhere harder. More passes would not fix it; a different range or a different interpolant would.",
       "block 'ro_vco' (vco): refinement pass 2: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
       "block 'ro_vco' (vco): intrinsic jitter: the top-level deck declares transient noise on dd, which this block is wired to, so it was restored onto VBIAS2 for the measurement -- extraction had rebuilt that rail as a plain DC source and the condition would otherwise not be measured at all",
-      "block 'ro_vco' (vco): intrinsic jitter at 1.85 V: 11.74 ps rms over 200 cycles (62.54 ps peak-to-peak, mean period 2505 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
+      "block 'ro_vco' (vco): intrinsic jitter at 1.85 V: 12.62 ps rms over 200 cycles (66.95 ps peak-to-peak, mean period 2505 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
       "block 'ro_vco' (vco): supply sensitivity at 1.85 V control: 450.6 MHz/V from 'VBIAS2' (nominal 3.3 V, 3 points). For scale, 100 mV of droop is worth 45.06 MHz here -- a model without this input cannot show that at all.",
-      "block 'ro_vco' (vco): ISF: not measured -- the declared source is worth 11.74 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.711 ps -- 0.00148 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00148 of its period. Sixteen transients would refine a number no reader could see move",
-      "block 'ro_vco' (vco): model jitter: none emitted, and none is wanted. The 11.74 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
+      "block 'ro_vco' (vco): ISF: not measured -- the declared source is worth 12.62 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.99 ps -- 0.0016 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.0016 of its period. Sixteen transients would refine a number no reader could see move",
+      "block 'ro_vco' (vco): model jitter: none emitted, and none is wanted. The 12.62 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
       "block 'ro_vco' (vco): held-out frequency error is 0.024% inside the measured operating band 1.6500..2.0500 V (5 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.987% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed.",
-      "block 'ro_vco' (vco): jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.96 at 0.005 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
-      "block 'ro_vco' (vco): jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 0.91 at 0.02 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+      "block 'ro_vco' (vco): jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.95 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+      "block 'ro_vco' (vco): jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 0.95 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
       "block 'ro_vco' (vco): jitter transfer: run because the top-level deck declares transient noise on dd, which this block is wired to, so this design is asking for noise to be simulated -- the block's own fragment shows a plain DC source there because extraction rebuilt it -- 2 path(s) exercised (control, supply)",
       "block 'ro_vco' characterized on the VCO path: 15-point tuning curve, 4.986% held-out error",
       "block 'inv1': input port 'in' is net 'xvco.outm1', which the deck itself gives as 0.0000..3.3000 V (a complementary pair drives it between 0 V and 3.3 V), derived and not measured -- 100% of the 3.3 V rail. The comparison below is judged over the whole range, which is what this block uses.",
@@ -3635,8 +3659,7 @@
   },
   "spec": {
     "notes": [
-      "read as: Document states \"PLL \u2014 400 MHz ring-oscillator phase-locked loop\", \"Multiplies a 10 MHz reference up to 400 MHz\" with Output typ 400 MHz and Reference typ 10 MHz; the analog half is a \"seven-stage differential ring\" whose \"behaviour is a frequency, not a gain\" \u2192 oscillator/vco environment. \"20 mV rms of wideband noise is specified on it\" \u2192 supply noise 0.02 V rms. Control voltage range \"Min 1.75 ... Max 1.95\" V is \"the one that matters\" \u2192 swing_lo/hi. \"No small-signal specification ... Do not verify any of them against a frequency response\" and lock/control-voltage verdicts \u2192 timing metric.",
-      "the document states 20 mV rms of supply noise as a condition to work under. That is a property of this block's environment, so it belongs in the stimulus rather than in the model"
+      "no model credentials: set ANTHROPIC_API_KEY for Claude's own API, or AWS_REGION with AWS credentials for Amazon Bedrock; the spec cannot be read and every choice stays as it was"
     ]
   }
 }

@@ -8,13 +8,20 @@
 // saturated and the true gain has collapsed.
 // H(s) = -5.53475 * (1+s/-2.30789e+11) / (1+s/1.33618e+10)
 
-module inv1_rnm(input wreal in_val, output wreal out_val);
+module inv1 (
+  input  wreal dd_v,   // unused: not a signal path for this block: the fit is from in to out
+  input  wreal ss_v,   // unused: not a signal path for this block: the fit is from in to out
+  input  wreal sub_v,   // unused: not a signal path for this block: the fit is from in to out
+  input  wreal well_v,   // unused: not a signal path for this block: the fit is from in to out
+  input  wreal in_v,
+  output wreal out_v
+);
 
   // A net cannot be assigned procedurally, so the body computes into
   // this variable and one continuous assignment drives the port --
   // the net/variable step the separate boundary file used to perform.
-  real out_val__d;
-  assign out_val = out_val__d;
+  real out_v__d;
+  assign out_v = out_v__d;
 
   localparam real WP_0 = 1.3361808e+10;
   localparam real FF_0 = -0.05789624948;
@@ -467,7 +474,7 @@ module inv1_rnm(input wreal in_val, output wreal out_val);
   always #(TSTEP) begin : wiener_step
     real dt, f, k1, k2, k3, k4;
     dt = DT_SECONDS;
-    f  = static_curve(in_val);
+    f  = static_curve(in_v);
     // Same reason as the scheduled form: open at the DC solution
     // for the stimulus's OWN starting value, which is what SPICE's
     // t=0 operating point solves for.
@@ -481,7 +488,7 @@ module inv1_rnm(input wreal in_val, output wreal out_val);
     k4 = -WP_0*(x + dt*k3) + f;
     x  = x + (dt/6.0)*(k1 + 2.0*k2 + 2.0*k3 + k4);
     yv = FF_0*f + BX_0*x;
-    out_val__d = yv;
+    out_v__d = yv;
   end
 
 
@@ -501,20 +508,20 @@ module inv1_rnm(input wreal in_val, output wreal out_val);
   localparam real DOMAIN_EPS = 0.066; // 2% of the span, see model_assertions.py
   bit domain_reported = 1'b0;
 
-  always @(in_val) begin : domain_check
-    a_input_domain: assert (in_val >= DOMAIN_LO - DOMAIN_EPS && in_val <= DOMAIN_HI + DOMAIN_EPS)
+  always @(in_v) begin : domain_check
+    a_input_domain: assert (in_v >= DOMAIN_LO - DOMAIN_EPS && in_v <= DOMAIN_HI + DOMAIN_EPS)
     else if (!domain_reported) begin
       domain_reported = 1'b1;
       $warning("%m: input %0.6g V is outside the characterized range %0.6g..%0.6g V. static_curve clamps there, so this model keeps running and returns the endpoint value -- it is not extrapolating, and it is no longer evidence. Reported once.",
-               in_val, DOMAIN_LO, DOMAIN_HI);
+               in_v, DOMAIN_LO, DOMAIN_HI);
     end
   end
 
   bit nan_reported = 1'b0;
 
-  always @(out_val) begin : output_health
+  always @(out_v) begin : output_health
     // NaN is the one value that is not equal to itself.
-    a_output_finite: assert (out_val == out_val)
+    a_output_finite: assert (out_v == out_v)
     else if (!nan_reported) begin
       nan_reported = 1'b1;
       $error("%m: output is NaN -- the integration diverged. Reported once.");

@@ -1,6 +1,6 @@
 `timescale 1fs/1fs
 //======================================================================
-// top -- UVM-MS testbench for ro_vco_rnm.
+// top -- UVM-MS testbench for ro_vco.
 //
 // The control voltage rides the environment's nettype net into the DMS
 // wrapper's `interconnect` port, so the analog boundary is the same one the
@@ -88,7 +88,7 @@ module top;
 
   initial begin
     `uvm_ms_info("TOP_MS",
-                 "UVM-MS VCO testbench for ro_vco_rnm: goldens are ngspice frequency measurements",
+                 "UVM-MS VCO testbench for ro_vco: goldens are ngspice frequency measurements",
                  UVM_LOW)
     proxy_h = new("proxy");
     uvm_config_db #(ro_vco_ms_proxy)::set(null, "*", "proxy", proxy_h);

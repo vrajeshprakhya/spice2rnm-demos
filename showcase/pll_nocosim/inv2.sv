@@ -17,13 +17,20 @@
 // 50% crossings. Without it this model is symmetric about
 // its own threshold and returns exactly 50.000% duty.
 
-module inv2_rnm(input wreal in_val, output wreal out_val);
+module inv2 (
+  input  wreal dd_v,   // unused: not a signal path for this block: the fit is from in to out
+  input  wreal ss_v,   // unused: not a signal path for this block: the fit is from in to out
+  input  wreal sub_v,   // unused: not a signal path for this block: the fit is from in to out
+  input  wreal well_v,   // unused: not a signal path for this block: the fit is from in to out
+  input  wreal in_v,
+  output wreal out_v
+);
 
   // A net cannot be assigned procedurally, so the body computes into
   // this variable and one continuous assignment drives the port --
   // the net/variable step the separate boundary file used to perform.
-  real out_val__d;
-  assign out_val = out_val__d;
+  real out_v__d;
+  assign out_v = out_v__d;
 
   localparam int  NW = 33;
   localparam real TSTEP = 209.088; // femtoseconds, for #(...) only
@@ -555,17 +562,17 @@ module inv2_rnm(input wreal in_val, output wreal out_val);
     // Open at the DC solution for the stimulus's OWN first
     // value, which is what SPICE's t=0 operating point solves.
     if (!primed) begin
-      y = static_curve(in_val);
+      y = static_curve(in_v);
       primed = 1'b1;
     end
     // The target and the rate are both functions of the INPUT,
     // so they are constant across the four RK4 stages; only y
     // advances. That keeps the step explicit and cheap.
-    tgt = static_curve(in_val);
+    tgt = static_curve(in_v);
     // Direction is decided once per step, from the sign of
     // the error, and held across the four RK4 stages -- the
     // same treatment tgt and w already get.
-    w   = wp_of(in_val) * ((tgt > y) ? K_RISE : K_FALL);
+    w   = wp_of(in_v) * ((tgt > y) ? K_RISE : K_FALL);
     k1  = w * (tgt - y);
     k2  = w * (tgt - (y + 0.5*dt*k1));
     k3  = w * (tgt - (y + 0.5*dt*k2));
@@ -582,7 +589,7 @@ module inv2_rnm(input wreal in_val, output wreal out_val);
     dtap = dhead - (dir_up ? ND_RISE : ND_FALL);
     while (dtap < 0) dtap = dtap + NDEPTH;
     while (dtap >= NDEPTH) dtap = dtap - NDEPTH;
-    out_val__d = dbuf[dtap];
+    out_v__d = dbuf[dtap];
     dhead = (dhead + 1) % NDEPTH;
   end
 
@@ -603,20 +610,20 @@ module inv2_rnm(input wreal in_val, output wreal out_val);
   localparam real DOMAIN_EPS = 0.066; // 2% of the span, see model_assertions.py
   bit domain_reported = 1'b0;
 
-  always @(in_val) begin : domain_check
-    a_input_domain: assert (in_val >= DOMAIN_LO - DOMAIN_EPS && in_val <= DOMAIN_HI + DOMAIN_EPS)
+  always @(in_v) begin : domain_check
+    a_input_domain: assert (in_v >= DOMAIN_LO - DOMAIN_EPS && in_v <= DOMAIN_HI + DOMAIN_EPS)
     else if (!domain_reported) begin
       domain_reported = 1'b1;
       $warning("%m: input %0.6g V is outside the characterized range %0.6g..%0.6g V. static_curve clamps there, so this model keeps running and returns the endpoint value -- it is not extrapolating, and it is no longer evidence. Reported once.",
-               in_val, DOMAIN_LO, DOMAIN_HI);
+               in_v, DOMAIN_LO, DOMAIN_HI);
     end
   end
 
   bit nan_reported = 1'b0;
 
-  always @(out_val) begin : output_health
+  always @(out_v) begin : output_health
     // NaN is the one value that is not equal to itself.
-    a_output_finite: assert (out_val == out_val)
+    a_output_finite: assert (out_v == out_v)
     else if (!nan_reported) begin
       nan_reported = 1'b1;
       $error("%m: output is NaN -- the integration diverged. Reported once.");

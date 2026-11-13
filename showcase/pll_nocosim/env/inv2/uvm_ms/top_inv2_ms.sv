@@ -1,6 +1,6 @@
 `timescale 1fs/1fs
 //======================================================================
-// top -- UVM-MS testbench for inv2_rnm.
+// top -- UVM-MS testbench for inv2.
 //
 // The MS bridge drives the stimulus net and senses the response net; the
 // DMS wrapper carries both into the generated RNM.  Both modules declare
@@ -57,7 +57,7 @@ module top;
 
   initial begin
     `uvm_ms_info("TOP_MS",
-                 "UVM-MS testbench for inv2_rnm: bridge instantiated, DC goldens from ngspice",
+                 "UVM-MS testbench for inv2: bridge instantiated, DC goldens from ngspice",
                  UVM_LOW)
     run_test("inv2_ms_test");
   end

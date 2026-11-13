@@ -29,7 +29,7 @@ resolve() {
 }
 
 MODELS=()
-for f in ams_node_pkg.sv cpump_cp_rnm.sv lpfilt_rc_rnm.sv ro_vco_rnm.sv cpump_iface.sv lpfilt_iface.sv ro_vco_iface.sv netlist_top.sv; do
+for f in netlist_top.sv cpump.sv lpfilt.sv ro_vco.sv; do
   p="$(resolve "$f")" || exit 1
   MODELS+=("$p")
 done
