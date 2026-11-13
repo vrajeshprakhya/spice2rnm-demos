@@ -168,7 +168,7 @@ lpf2/
 | Looking for | Open |
 |---|---|
 | a model with **wreal** ports | [`lpf2/rc_lpf2_rnm.sv`](lpf2/rc_lpf2_rnm.sv) — what `--model-ports wreal` emits, and the default here |
-| a model with plain **`real`** ports | [`lpf2_house/rc_lpf2_rnm.sv`](lpf2_house/rc_lpf2_rnm.sv), and [`pll_cosim/ro_vco_rnm.sv`](pll_cosim/ro_vco_rnm.sv) whose output is a `logic` clock rather than an analog node |
+| a model with plain **`real`** ports | [`lpf2_house/rc_lpf2_rnm.sv`](lpf2_house/rc_lpf2_rnm.sv) |
 | a model with **UDN** ports, on a library's own nettype | [`lpf2_house/rc_lpf2_rnm_ng_anet.sv`](lpf2_house/rc_lpf2_rnm_ng_anet.sv) |
 | a **UDN declaration** the tool generated | [`lpf2/rc_lpf2_ms_types_pkg.sv`](lpf2/rc_lpf2_ms_types_pkg.sv) |
 | a **UDN declaration** a customer already had | [`house_lib/ng_ams_pkg.sv`](house_lib/ng_ams_pkg.sv) |
@@ -185,11 +185,11 @@ lpf2/
 | a model asserting **its own validity range** | [`lpf2/rc_lpf2_rnm.sv`](lpf2/rc_lpf2_rnm.sv) — `a_input_domain`, at the end |
 | the same idea for **discrete settings** | [`pi/pi_therm_rnm.sv`](pi/pi_therm_rnm.sv) — `a_code_range`; a delay line has no amplitude domain |
 | what a **conformed** run script compiles | [`lpf2_house/run_rc_lpf2_ms.sh`](lpf2_house/run_rc_lpf2_ms.sh) — the house package, not a generated one |
-| an **interface wrapper**, and why it is separate | [`pll_cosim/ro_vco_iface.sv`](pll_cosim/ro_vco_iface.sv) — re-presents the measured core at the subcircuit's own ports, so the netlist's `xvco` card instantiates it unchanged |
-| a wrapper doing **real boundary work** | [`pll_cosim/cpump_iface.sv`](pll_cosim/cpump_iface.sv) — carries conductance out beside current, because pump and filter form an algebraic loop |
-| an **oscillator** model (a frequency, not a gain) | [`pll_cosim/ro_vco_rnm.sv`](pll_cosim/ro_vco_rnm.sv) — 15-point measured tuning curve |
-| a **switched current** model, per control state | [`pll_cosim/cpump_cp_rnm.sv`](pll_cosim/cpump_cp_rnm.sv) — one I(V) table per state, high-Z state included |
-| an **RC state space** taken from topology, nothing fitted | [`pll_cosim/lpfilt_rc_rnm.sv`](pll_cosim/lpfilt_rc_rnm.sv) |
+| a model **pin-compatible with its subcircuit** | [`pll_cosim/ro_vco.sv`](pll_cosim/ro_vco.sv) — module `ro_vco`, the `.subckt`'s own pins in its own order, so the netlist's `xvco` card instantiates it unchanged; the squared-up clock is an internal signal and `aout` carries the voltage, swinging to whatever supply the pin is given |
+| **boundary work inside the model** | [`pll_cosim/cpump.sv`](pll_cosim/cpump.sv) — carries conductance out beside current, because pump and filter form an algebraic loop, and reads the deck's two gate pins as the control its tables are indexed by |
+| an **oscillator** model (a frequency, not a gain) | [`pll_cosim/ro_vco.sv`](pll_cosim/ro_vco.sv) — 15-point measured tuning curve |
+| a **switched current** model, per control state | [`pll_cosim/cpump.sv`](pll_cosim/cpump.sv) — one I(V) table per state, high-Z state included |
+| an **RC state space** taken from topology, nothing fitted | [`pll_cosim/lpfilt.sv`](pll_cosim/lpfilt.sv) |
 | a **composed system** on the design's own testbench | [`pll_cosim/netlist_top.sv`](pll_cosim/netlist_top.sv) with [`pll_cosim/env/cosim/uvm_ms/`](pll_cosim/env/cosim/uvm_ms/) |
 | a loop closed in **SystemVerilog only** | [`pll_nocosim/loop/pll_analog_rtl_loop.sv`](pll_nocosim/loop/pll_analog_rtl_loop.sv) |
 | how that loop's **wiring was worked out** | [`pll_nocosim/loop/rtl_loop_derivation.json`](pll_nocosim/loop/rtl_loop_derivation.json) — every field with its source; `.alternate.json` is the pairing not used |

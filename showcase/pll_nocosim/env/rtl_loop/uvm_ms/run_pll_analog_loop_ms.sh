@@ -33,7 +33,7 @@ cd "$ROOT"
 # and in a curated copy that flattens it.
 SEARCH=${SEARCH:-"../analog ../../cpump ../../lpfilt ../../ro_vco . .. ../.. ../../.. ../../../.. ../../analog ../../../analog"}
 ANALOG=""
-for f in ams_node_pkg.sv cpump_cp_rnm.sv lpfilt_rc_rnm.sv ro_vco_rnm.sv cpump_iface.sv lpfilt_iface.sv ro_vco_iface.sv netlist_top.sv; do
+for f in netlist_top.sv cpump.sv lpfilt.sv ro_vco.sv; do
   found=""
   for d in $SEARCH; do [ -f "$d/$f" ] && { found="$d/$f"; break; }; done
   [ -n "$found" ] || { echo "ERROR: $f not found on: $SEARCH" >&2

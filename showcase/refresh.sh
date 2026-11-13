@@ -145,8 +145,14 @@ place_block_models() {  # dest-case-dir, block...
   local dst=$1 blk; shift
   for blk in "$@"; do
     [ -d "$dst/env/$blk/uvm_ms" ] || continue
-    [ -f "$dst/${blk}_rnm.sv" ] || continue
-    cp "$dst/${blk}_rnm.sv" "$dst/env/$blk/"
+    # A CELL IS <block>.sv, which is also exactly what the environment's
+    # run script asks for: run_inv2_ms.sh names ../inv2.sv. A run made
+    # before cells wrote <block>_rnm.sv instead, and is still curated.
+    if [ -f "$dst/$blk.sv" ]; then
+      cp "$dst/$blk.sv" "$dst/env/$blk/"
+    elif [ -f "$dst/${blk}_rnm.sv" ]; then
+      cp "$dst/${blk}_rnm.sv" "$dst/env/$blk/"
+    fi
   done
   return 0
 }
@@ -159,11 +165,20 @@ curate_pll() {  # src-dir, dest-name
   fi
   rm -rf "$dst"
   mkdir -p "$dst"
-  local n=0 f
-  # One model per block, from wherever the block wrote it.
+  local n=0 f d blk
+  # One model per block, from wherever the block wrote it. A cell is
+  # <block>/<block>.sv and carries the boundary inside it; a run made
+  # before cells wrote a core plus a <block>_iface.sv wrapper beside it,
+  # under <block>/<block>_*_rnm.sv. Both are read, for the same reason
+  # the cosim/loop pair below is read both ways.
   for f in "$src"/*/*_rnm.sv; do
     [ -f "$f" ] || continue
     cp "$f" "$dst/"; n=$((n + 1))
+  done
+  for d in "$src"/*/; do
+    blk=$(basename "$d")
+    [ -f "$d$blk.sv" ] || continue
+    cp "$d$blk.sv" "$dst/"; n=$((n + 1))
   done
   # The composed analog top and the interfaces it instantiates: the thing
   # the RTL actually binds to, which no single block file is.
@@ -209,6 +224,16 @@ curate_pll() {  # src-dir, dest-name
   # complete-looking directory with no environment in it.
   for want in netlist_top.sv result.json; do
     [ -f "$dst/$want" ] || { echo "curation for $2 has no $want"; exit 1; }
+  done
+  # THE MODELS, NAMED. netlist_top.sv instantiates these three by name,
+  # so a case that published the top without them is a case that cannot
+  # compile -- and a file count cannot see it, which is why the count
+  # below is not what asks. Either spelling satisfies this: <block>.sv
+  # for a cell, <block>_*_rnm.sv for a run made before them.
+  for want in cpump lpfilt ro_vco; do
+    [ -f "$dst/$want.sv" ] || ls "$dst/$want"_*rnm.sv >/dev/null 2>&1 || {
+      echo "curation for $2 has no model for block $want, which" \
+           "netlist_top.sv instantiates"; exit 1; }
   done
   place_block_models "$dst" inv1 inv2 ro_vco
   # The oscillator's, named rather than counted, in whichever of the two
@@ -261,10 +286,18 @@ curate_nocosim() {  # src-dir, dest-name
   [ -d "$src" ] || { echo "  $2: no run at $src -- skipped"; return 0; }
   rm -rf "$dst"; mkdir -p "$dst"
 
-  # The models, and the top that composes them.
+  # The models, and the top that composes them. A cell is
+  # <block>/<block>.sv; a pre-cells run wrote <block>/<block>_*_rnm.sv
+  # with a wrapper beside it. Both spellings, as above.
+  local d blk
   for f in "$src"/*/*_rnm.sv "$src"/rtl_loop/analog/*.sv "$src"/result.json; do
     [ -f "$f" ] || continue
     cp "$f" "$dst/"; n=$((n + 1))
+  done
+  for d in "$src"/*/; do
+    blk=$(basename "$d")
+    [ -f "$d$blk.sv" ] || continue
+    cp "$d$blk.sv" "$dst/"; n=$((n + 1))
   done
   # The loop harness: one SystemVerilog file and the script that runs it.
   for f in "$src"/rtl_loop/loop/*; do

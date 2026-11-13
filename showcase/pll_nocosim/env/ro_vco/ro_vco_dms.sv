@@ -1,6 +1,6 @@
 `timescale 1fs/1fs
 //======================================================================
-// ro_vco_dms -- mixed-signal wrapper around ro_vco_rnm.
+// ro_vco_dms -- mixed-signal wrapper around ro_vco.
 //
 // The control input arrives on the environment's nettype net (IEEE
 // 1800-2017 6.6.7) through an `interconnect` port (6.6.8), exactly as in
@@ -27,10 +27,16 @@ module ro_vco_dms import ro_vco_ms_types_pkg::*; (
   // environment covers one supply, and which one is written down.
   real vdd_r = 3.3;
 
-  ro_vco_rnm u_rnm (
-    .cont (cont_r),
-    .vdd  (vdd_r),
-    .clk  (clk)
+  // the cell's output pin: a voltage, not an edge
+  wreal aout_v;
+
+  ro_vco u_rnm (
+    .aout_v (aout_v),
+    .cont_v (cont_r),
+    .dd_v  (vdd_r)
   );
+
+  // the clock lives inside the cell now
+  always_comb clk = u_rnm.clk;
 
 endmodule : ro_vco_dms

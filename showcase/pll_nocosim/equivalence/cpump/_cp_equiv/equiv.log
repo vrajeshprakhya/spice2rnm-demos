@@ -52,14 +52,14 @@ CPEQ-DONE
 ------------------------------
 Simulation finished at time 46
 ($finish called)
-[PHASE] compilation: 13.4ms
+[PHASE] compilation: 8.2ms
 [EVENT-EDGE] ARMED mode ON: 0 input signals, 0 fanout edges
 [EVENT-EDGE] measure (timestamp): 0 edge blocks, 0 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=0.00
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
 [PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
 [PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=0
 [PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
-[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=0 insns=205886 ns_per_insn=0.0 fallbacks=0
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=0 insns=201984 ns_per_insn=0.0 fallbacks=0
 [FUSE] array-read-NBA fusions (static sites): 0
 [FUSE] packed-loop NBA copies (static sites): 0
 [FUSE] packed blocking fills (dynamic executions): 0
@@ -67,13 +67,14 @@ Simulation finished at time 46
 [FUSE] Move-into-assign forwards (static sites): 0
 [FUSE] provably-unsigned scrubs elided (static sites): 4
 [FUSE] AddC2 superinstructions (static sites): 0
-[PROF] settle_dc=0.0ms(93) settle_ca=0.0ms(0) settle_ab=0.0ms(296)
+[PROF] settle_dc=0.0ms(99) settle_ca=0.0ms(0) settle_ab=0.0ms(296)
 [PROF] engine=event
 [PROF] clock_tree: roots=0 entries=0 eager_evals=0
-[PROF] settle_calls=194 settle_iters=194 max_iters=1 entry_evals=389 unresolved_entries=0/4
-[PROF] settle_writes=191 (49.1% of evals changed a signal, 198 quiet) dep_edges=100 (0.5 per write)
-[PROF] two_state_evals=0 (0 entries lowered)
-[PROF] simulation_loop=4.6ms iters=47 avg=98.71µs/iter
-[PHASE] simulation: 5.0ms
-[PHASE] total: 18.5ms
+[PROF] settle_calls=194 settle_iters=194 max_iters=1 entry_evals=395 unresolved_entries=0/5
+[PROF] settle_writes=194 (49.1% of evals changed a signal, 201 quiet) dep_edges=108 (0.6 per write)
+[PROF] two_state_evals=5 (1 entries lowered)
+[PROF] two_state_bail warn_x=0 forced_write=0 x_read=1 run_abort=0
+[PROF] simulation_loop=4.2ms iters=47 avg=88.57µs/iter
+[PHASE] simulation: 4.5ms
+[PHASE] total: 12.8ms
 ------------------------------

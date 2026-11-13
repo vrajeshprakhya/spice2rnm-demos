@@ -2,7 +2,7 @@
 //======================================================================
 // inv2_dms -- the mixed-signal wrapper around the generated RNM.
 //
-// The RNM (inv2_rnm) keeps the plain `real` ports spice2rnm has
+// The RNM (inv2) keeps the plain `real` ports spice2rnm has
 // always emitted: a `real` port is a VARIABLE, so nothing can share it
 // and no bridge can attach.  This wrapper is the I/O layer that turns it
 // into a net-connected mixed-signal block -- the same relationship
@@ -26,6 +26,9 @@ module inv2_dms import inv2_ms_types_pkg::*; (
   // ports connect straight through. Nothing to convert to a
   // variable and back: the discipline lives in the model, and
   // what the environment drives IS the deliverable.
-  inv2_rnm u_rnm (.in_val(ain), .out_val(aout));
+  // declared by the subcircuit, unread by the model
+  wreal dd_v, ss_v, sub_v, well_v;
+
+  inv2 u_rnm (.in_v(ain), .out_v(aout), .dd_v(dd_v), .ss_v(ss_v), .sub_v(sub_v), .well_v(well_v));
 
 endmodule : inv2_dms
