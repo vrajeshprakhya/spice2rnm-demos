@@ -58,5 +58,58 @@
     "start_hz": 1000000.0,
     "stop_hz": 10000000000.0,
     "points_per_decade": 20
-  }
+  },
+  "bands": [
+    {
+      "name": "equaliser",
+      "upper_hz": 300000000.0,
+      "reason": [
+        "The equalisation band: up to 300 MHz, where this deck's zero",
+        "and pole live and where the fitted model is expected to be",
+        "exact. Moved here from sparam_compare.BANDS unchanged."
+      ]
+    },
+    {
+      "name": "below_step_ceiling",
+      "upper_hz": 2083000000.0,
+      "reason": [
+        "Up to 2.083 GHz, which is where ten of the model's own",
+        "integration steps make one period. A FIXED NUMBER, written",
+        "down once from a measured run and never re-derived from the",
+        "model under test: a bar whose band moves with the model it",
+        "judges can absorb any regression. The ceiling check reports",
+        "separately if a model's own ceiling drifts away from it."
+      ]
+    }
+  ],
+  "bars": {
+    "equaliser": {
+      "db": 0.25,
+      "phase_deg": 1.0,
+      "group_delay_s": 4e-11
+    },
+    "below_step_ceiling": {
+      "db": 0.25,
+      "phase_deg": 20.0,
+      "group_delay_s": 4e-11
+    }
+  },
+  "bars_comment": [
+    "Moved here from sparam_compare.BARS with no digit changed, and with",
+    "what each one was measured at when it was set:",
+    "  equaliser          db 0.25          measured 0.0788 dB at 251 MHz, 3.2x",
+    "                     phase_deg 1.0    measured 0.272 deg at 100 MHz, 3.7x",
+    "                     group_delay_s 40p  measured 15.6 ps at 1.58 MHz, 2.6x",
+    "  below_step_ceiling db 0.25          measured 0.0788 dB at 251 MHz, 3.2x",
+    "                     phase_deg 20.0   measured 10.96 deg at 1.58 GHz, 1.8x",
+    "                     group_delay_s 40p  measured 24.3 ps at 1.58 GHz, 1.6x",
+    "The margins are in line with the 3.85x the repository's existing",
+    "time-domain CTLE golden carries (0.038997 against a 0.15 threshold)."
+  ],
+  "passive": false,
+  "passive_comment": [
+    "This block is an amplifier: its largest singular value may exceed 1",
+    "and a passivity check would fail it for working. The verdict says so",
+    "rather than applying one."
+  ]
 }

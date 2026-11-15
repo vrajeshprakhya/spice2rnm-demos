@@ -1,0 +1,111 @@
+SerDes receiver input pad network - S-parameter port setup
+* The passive companion to netlists/ctle_rx.cir: the network that sits
+* between the package ball and the equaliser's gates. Resistors and
+* capacitors only, nothing active, no transistor model card at all.
+*
+* WHY IT IS HERE. The CTLE is an amplifier, so a passivity check would
+* fail it for working and the verdict says so rather than applying one.
+* That leaves the passivity and reciprocity checks with nothing real to
+* run against. This deck is that something: a network whose largest
+* singular value MUST come back at or below 1, and whose S21 and S12
+* MUST be equal, because an R-C network cannot do otherwise. A check
+* that is never exercised on real numbers is a check nobody should
+* trust.
+*
+* PROVENANCE. Written for this demonstration. The capacitances are the
+* same ones the CTLE deck's header computes and uses:
+*   CPAD  150 fF   pad and package-side metal, per side
+*   CESD  100 fF   ESD clamp capacitance, per side, AS A CAPACITOR --
+*                  the clamp's diodes are off at this bias and their
+*                  junction capacitance is the only thing they
+*                  contribute to a small-signal sweep. Modelling them as
+*                  diodes would make this deck active-capable and the
+*                  passivity check meaningless.
+*   RT    50 ohm   on-die termination, per side. In the CTLE deck the
+*                  same two resistors go to a 0.9 V common-mode source,
+*                  which is an ideal source and therefore an AC ground;
+*                  here they go to ground directly, so the AC network is
+*                  identical and this deck needs no source at all.
+*   RRT   8 ohm    series resistance of a short on-chip route, about
+*   CRT   20 fF    200 um of upper-level metal, as one lumped section.
+*                  One section, not a ladder: the route's own time
+*                  constant is 8*20e-15 = 160 fs, a pole at 995 GHz,
+*                  two decades above the sweep, so a distributed model
+*                  would add arithmetic and no behaviour.
+*
+* WHAT IS NOT HERE. The CTLE's gate capacitance (26.7 fF, computed in
+* that deck's header) is the LOAD on this network, not part of it, so it
+* is represented by the gate-side ports' reference impedance rather than
+* by a capacitor. See the port map for why that reference is 750 ohm and
+* what that choice cannot do.
+*
+* PORT MAP (netlists/rx_pad_ports.json):
+*   port 1  padp    50 ohm      port 3  gatep   750 ohm
+*   port 2  padn    50 ohm      port 4  gaten   750 ohm
+*   differential pairs (1,2) and (3,4); differential references are
+*   2*z0, so 100 ohm at the pad and 1500 ohm at the gates.
+*
+* HAND CALCULATION
+*   Low frequency, per side: the port's 50 ohm drives the 50 ohm
+*   termination, so the pad sits at a matched 50 ohm and
+*   SDD11 -> 0 (a perfect match) as f -> 0.
+*
+*   The pad's shunt capacitance is CPAD + CESD = 250 fF per side, which
+*   is 125 fF differentially. Against the 100 ohm differential
+*   reference its reactance equals 100 ohm at
+*     f = 1/(2*pi*100*125e-15) = 12.7 GHz
+*   so the match degrades through the band and is about -10 dB at 8 GHz
+*   (computed in the CTLE deck's header, same capacitance).
+*
+*   Pad to gate, low frequency: a resistive divider of the port's 50 ohm
+*   against the 50 ohm termination, then 8 ohm of route into a 750 ohm
+*   reference. The transmission is lossy on purpose -- a terminated
+*   receiver input throws half the incident wave into its own
+*   termination, and that is what makes this network strictly passive
+*   rather than marginally so.
+*
+*   Passivity: every element dissipates or stores. The largest singular
+*   value of S is therefore <= 1 at every frequency, and strictly below
+*   it wherever the 50 ohm terminations and the 8 ohm route are carrying
+*   current.
+*
+*   Reciprocity: the network contains no gyrator, no controlled source
+*   and no transistor, so S21 = S12 exactly, to the simulator's
+*   numerical floor rather than to a tolerance.
+*
+* There are no port sources in this deck and no .control block that
+* needs one: the tool adds the ports from the port map, and a passive
+* network has no operating point to measure. `bias natural` on a deck
+* with no DC sources resolves to 0 V at every port, which is correct
+* here -- there is nothing to bias.
+
+.param CPAD=150f
+.param CESD=100f
+.param RT=50
+.param RRT=8
+.param CRT=20f
+
+* ---- pad side: ports 1 and 2 land on padp / padn ----
+CPAD1 padp 0 {CPAD}
+CPAD2 padn 0 {CPAD}
+
+* ESD clamp capacitance, as capacitors (see the note above).
+CESD1 padp 0 {CESD}
+CESD2 padn 0 {CESD}
+
+* On-die termination, 100 ohm differential as 2 x 50 ohm to the AC
+* ground the CTLE deck's common-mode source provides.
+RT1 padp 0 {RT}
+RT2 padn 0 {RT}
+
+* ---- short on-chip route, one lumped section per side ----
+RRT1 padp gatep {RRT}
+RRT2 padn gaten {RRT}
+CRT1 gatep 0 {CRT}
+CRT2 gaten 0 {CRT}
+
+* ---- gate side: ports 3 and 4 land on gatep / gaten ----
+* Nothing else is here. The CTLE's gate capacitance is the load and
+* lives in the port reference, not in this network.
+
+.end

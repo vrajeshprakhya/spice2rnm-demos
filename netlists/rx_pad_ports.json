@@ -1,0 +1,138 @@
+{
+  "comment": [
+    "Port map for netlists/rx_pad.cir, the receiver's input pad network.",
+    "",
+    "z0 pad = 50 ohm: the package side of the ball is a 50 ohm",
+    "single-ended, 100 ohm differential environment, and the deck's own",
+    "RT1/RT2 terminate it to the same number, so the match is good at",
+    "low frequency and degrades with the pad capacitance.",
+    "",
+    "z0 gate = 750 ohm, AND THIS IS A CHOICE WITH A LIMIT. The load this",
+    "network actually drives is the CTLE's gate, which is a capacitance:",
+    "26.7 fF, computed in ctle_rx.cir's header. A port reference is a",
+    "REAL impedance, so no number can equal a capacitive load at every",
+    "frequency, and anyone reading these S-parameters should know that",
+    "before they use them.",
+    "",
+    "750 ohm is the magnitude of that gate impedance at 7.80 GHz:",
+    "  1/(2*pi*7.80e9*26.7e-15) = 764 ohm, rounded to 750.",
+    "7.80 GHz is where the CTLE this network feeds peaks, so the",
+    "reference is right at the one frequency the output is bought for,",
+    "and progressively wrong away from it -- too low below (the real",
+    "gate is a higher impedance there, so the measurement loads the node",
+    "more than the CTLE does) and too high above.",
+    "",
+    "The alternative considered and rejected: put the 26.7 fF in the",
+    "deck and make the gate ports nearly transparent with a very high",
+    "reference. That would fold the load into the network under test, so",
+    "the published S-parameters would no longer be the pad network's --",
+    "they would be the pad network plus one particular load, and could",
+    "not be cascaded with any other.",
+    "",
+    "bias natural on a deck with no DC sources: there is no operating",
+    "point to measure and every port resolves to 0 V, which is correct.",
+    "A passive R-C network has the same small-signal behaviour at every",
+    "bias."
+  ],
+  "deck": "netlists/rx_pad.cir",
+  "bias": "natural",
+  "passive": true,
+  "passive_comment": [
+    "Resistors and capacitors only: no transistor card, no controlled",
+    "source, no gyrator. So the passivity and reciprocity checks apply,",
+    "and they are not expected to be close calls --",
+    "  passivity:   largest singular value of S must be <= 1, and",
+    "               strictly below it wherever the two 50 ohm",
+    "               terminations and the 8 ohm route carry current;",
+    "  reciprocity: S21 and S12 must be equal to the simulator's",
+    "               numerical floor, not to a tolerance.",
+    "Both are run on the transistor-side 4-port AND on the model's own",
+    "measured SDD21/SDD12, because a model that passed the first and",
+    "failed the second would be a model that invented gain."
+  ],
+  "ports": [
+    {
+      "num": 1,
+      "net": "padp",
+      "z0": 50.0,
+      "role": "in+"
+    },
+    {
+      "num": 2,
+      "net": "padn",
+      "z0": 50.0,
+      "role": "in-"
+    },
+    {
+      "num": 3,
+      "net": "gatep",
+      "z0": 750.0,
+      "role": "out+"
+    },
+    {
+      "num": 4,
+      "net": "gaten",
+      "z0": 750.0,
+      "role": "out-"
+    }
+  ],
+  "mixed_mode": {
+    "differential_in": [
+      1,
+      2
+    ],
+    "differential_out": [
+      3,
+      4
+    ]
+  },
+  "sweep": {
+    "start_hz": 1000000.0,
+    "stop_hz": 20000000000.0,
+    "points_per_decade": 20
+  },
+  "bands_comment": [
+    "PROPOSED, and not yet read by the tool (step 3a). This network has",
+    "no zero and no peaking: it is a low-pass whose only corner is the",
+    "pad capacitance. Two bands, for the flat part and the part where the",
+    "pad capacitance has taken hold."
+  ],
+  "bands": [
+    {
+      "name": "flat",
+      "upper_hz": 2000000000.0,
+      "reason": [
+        "Below 2 GHz the pad capacitance is a small perturbation: 125 fF",
+        "differential has a reactance of 637 ohm at 2 GHz against the",
+        "100 ohm reference, so the network is essentially its resistors."
+      ]
+    },
+    {
+      "name": "pad_dominated",
+      "upper_hz": 20000000000.0,
+      "reason": [
+        "From 2 GHz the pad capacitance sets the response. Its reactance",
+        "crosses the 100 ohm differential reference at 12.7 GHz, inside",
+        "this band, which is why the match degrades through it."
+      ]
+    },
+    {
+      "name": "below_step_ceiling",
+      "upper_hz": null,
+      "reason": [
+        "To be FIXED as a number from the first measured run: the",
+        "model's own ten-steps-per-period ceiling, written down once and",
+        "then never re-derived from the model under test."
+      ]
+    }
+  ],
+  "bars": {
+    "flat": {},
+    "pad_dominated": {},
+    "below_step_ceiling": {}
+  },
+  "bars_comment": [
+    "Empty on purpose: report-only until the per-band numbers are",
+    "measured and the bars are approved (step 5)."
+  ]
+}

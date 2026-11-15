@@ -1,0 +1,127 @@
+{
+  "comment": [
+    "Port map for netlists/ctle_rx.cir, the 16 Gb/s receiver CTLE. The",
+    "tool turns this into port sources on the named nets, for both the",
+    ".sp sweep and the .ac characterisation the model is fitted from, so",
+    "the two see the same terminations.",
+    "",
+    "z0 in = 50 ohm: the receiver input is terminated to 100 ohm",
+    "differential by RT1/RT2 in the deck, which 2 x 50 ohm ports match.",
+    "Unlike the ideal deck, the match here is NOT perfect: 250 fF of pad",
+    "and ESD capacitance per side pulls it down with frequency, which is",
+    "the point of this case.",
+    "",
+    "z0 out = RD = 500 ohm: the output IS a 500 ohm load node. The port's",
+    "reference is set equal to the load the drains see so that the",
+    "measurement does not invent a load the circuit does not have. It is",
+    "not transparent either -- the node sees RD || z0 = 250 ohm while it",
+    "is measured, and the deck's header computes the output pole from",
+    "that 250 ohm rather than from RD alone.",
+    "",
+    "Differential references are 2*z0: 100 ohm in, 1000 ohm out.",
+    "",
+    "bias natural: each port's DC is the net's own operating-point",
+    "voltage, so no DC current flows through its z0 and the sweep",
+    "linearises about the operating point the .op above measures. Here",
+    "that matters twice over, because RD2 carries the deliberate 1%",
+    "mismatch and the two drains sit 10 mV apart (0.800 V and 0.790 V).",
+    "A port written DC 0, or both ports written to the same number, would",
+    "push current through the loads and move the bias."
+  ],
+  "deck": "netlists/ctle_rx.cir",
+  "bias": "natural",
+  "passive": false,
+  "passive_comment": [
+    "This block is an amplifier. Its largest singular value may exceed 1",
+    "and a passivity check would fail it for working, so none is applied;",
+    "the passive companion netlists/rx_pad.cir is what exercises that",
+    "check on real numbers."
+  ],
+  "ports": [
+    {
+      "num": 1,
+      "net": "inp",
+      "z0": 50.0,
+      "role": "in+"
+    },
+    {
+      "num": 2,
+      "net": "inn",
+      "z0": 50.0,
+      "role": "in-"
+    },
+    {
+      "num": 3,
+      "net": "outp",
+      "z0": 500.0,
+      "role": "out+"
+    },
+    {
+      "num": 4,
+      "net": "outn",
+      "z0": 500.0,
+      "role": "out-"
+    }
+  ],
+  "mixed_mode": {
+    "differential_in": [
+      1,
+      2
+    ],
+    "differential_out": [
+      3,
+      4
+    ]
+  },
+  "sweep": {
+    "start_hz": 1000000.0,
+    "stop_hz": 20000000000.0,
+    "points_per_decade": 20
+  },
+  "bands_comment": [
+    "PROPOSED, and not yet read by the tool: moving BANDS out of",
+    "sparam_compare.py into this file is step 3a of the task, and the",
+    "second edge cannot be fixed until the first measured run reports the",
+    "model's own step. Edges are fixed numbers and are never re-derived",
+    "from the model under test; the ceiling check reports separately when",
+    "the model's ten-steps-per-period ceiling sits below an edge."
+  ],
+  "bands": [
+    {
+      "name": "equaliser",
+      "upper_hz": 2000000000.0,
+      "reason": [
+        "Up to the degeneration zero at 1.9945 GHz. Below it the response",
+        "is the DC gain and a single rising asymptote, which is the part",
+        "a fitted model should reproduce most exactly."
+      ]
+    },
+    {
+      "name": "peaking",
+      "upper_hz": 10000000000.0,
+      "reason": [
+        "The zero against the two output poles: 8.600 GHz and",
+        "11.368 GHz. This is the band the part is bought for -- 10 GHz is",
+        "just past the 8 GHz Nyquist of 16 Gb/s NRZ."
+      ]
+    },
+    {
+      "name": "below_step_ceiling",
+      "upper_hz": null,
+      "reason": [
+        "To be FIXED as a number from the first measured run, as demo 5's",
+        "2.083 GHz edge was: the model's own ten-steps-per-period ceiling,",
+        "written down once and then never re-derived."
+      ]
+    }
+  ],
+  "bars": {
+    "equaliser": {},
+    "peaking": {},
+    "below_step_ceiling": {}
+  },
+  "bars_comment": [
+    "Empty on purpose: report-only until the per-band numbers are",
+    "measured and the bars are approved (step 5)."
+  ]
+}

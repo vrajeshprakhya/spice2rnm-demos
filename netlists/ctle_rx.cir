@@ -1,0 +1,219 @@
+16 Gb/s SerDes receiver CTLE - S-parameter port setup
+* A GHz-rate continuous-time linear equalizer, written for this
+* demonstration. It is NOT a port of work/ctle.cir: that deck's zero sits
+* near 100 MHz and its match is perfect by construction, so the three
+* figures a receiver is actually judged on -- input match, bandwidth and
+* mode conversion -- all come back trivial. Measured on it: SDD11 exactly
+* zero at every frequency, SDC21 exactly zero, SCD21 -331 dB. True
+* statements about that deck, and useless ones about a receiver.
+*
+* PROVENANCE. Every device value here was chosen by the hand calculation
+* written below, then CHECKED against a plain .ac sweep of this file with
+* the ports attached, and the measured figures are quoted beside the
+* predicted ones. Nothing is taken from a vendor PDK or a measured part,
+* and nothing is fitted. The transistor card is the same LEVEL=1 NMOS the
+* repository's other CTLE uses, with an oxide thickness and the two
+* overlap capacitances added, because the high-frequency behaviour this
+* demonstration is about does not exist without them.
+*
+* WHAT IT IS. A single-stage source-degenerated differential pair. One
+* stage, real poles and zeros only, no inductive peaking and no second
+* stage -- deliberately, because tf_fit fits real poles and zeros, and a
+* deck whose response needed complex poles would be a deck the shipped
+* model cannot represent. The peaking here is the degeneration zero
+* working against the two output poles, which is real arithmetic.
+*
+* ------------------------------------------------------------------
+* DESIGN TARGETS, THE HAND CALCULATION, AND WHAT WAS MEASURED
+*
+*   Operating point, per side.  PREDICTED / MEASURED by .op
+*     ID    = 2 mA                                  / 2.0000 mA
+*     W/L   = 20u/0.18u = 111.11
+*     Vov   = sqrt(2*ID/(KP*W/L)) = 0.42426 V
+*     gm    = 2*ID/Vov = 9.4281 mS                  / 9.4622 mS
+*     Vgs   = VTO + Vov = 0.82426 V
+*     source node = 0.9 - Vgs = 75.74 mV            / 77.26 mV
+*     drain node  = VDD - ID*RD = 0.800 V           / 0.79999 V
+*     The 0.36% gm difference and the 1.5 mV on the source node are
+*     LAMBDA's channel-length modulation, which the square-law hand
+*     formula above leaves out. Everything below uses the MEASURED
+*     gm = 9.4622 mS, because that is what the circuit has.
+*     Vds = 0.724 V > Vov = 0.424 V, so both devices are saturated with
+*     margin, and the 1% load mismatch below does not change that.
+*
+*   Degeneration. RS and CS sit BETWEEN the two sources, so the
+*   differential half circuit sees RS/2 in parallel with 1/(s*2*CS):
+*     Rs_half = RS/2  = 350 ohm
+*     Cs_half = 2*CS  = 228 fF
+*     N = 1 + gm*Rs_half = 1 + 3.3118 = 4.3118
+*
+*   TARGET: degeneration zero near 2 GHz.
+*     fz  = 1/(2*pi*Rs_half*Cs_half) = 1/(2*pi*350*228e-15)
+*         = 1.9945 GHz                                       MET
+*
+*   First pole, the degeneration pole:
+*     fp1 = fz * N = 1.9945e9 * 4.3118 = 8.600 GHz
+*
+*   Second pole, the output pole. The output node is loaded by RD to an
+*   AC ground AND by the port's own reference impedance, which the port
+*   map sets equal to RD -- so while it is being measured the node sees
+*   RD || z0 = 250 ohm, and the hand calculation has to use that, not RD.
+*     CL_total = CL + CGDO*W = 50 fF + 6 fF = 56 fF
+*     fp2 = 1/(2*pi*250*56e-15) = 11.368 GHz
+*
+*   TARGET: peaking around 6-8 GHz.
+*     Measured peak 7.80 GHz.                                MET
+*
+*   TARGET: 6-10 dB of high-frequency boost over DC.
+*     The ASYMPTOTIC shelf is 20*log10(N) = 12.69 dB, and that is NOT
+*     what a reader measures: fp1 and fp2 cut the response before the
+*     shelf is reached. The first version of this deck put fp2 at
+*     7.4 GHz and measured 3.5 dB of boost against this same 12.7 dB
+*     shelf -- the hand formula was right about the shelf and wrong
+*     about the circuit. With fp1 = 8.6 GHz and fp2 = 11.4 GHz:
+*     measured boost, DC to peak = 6.75 dB.                  MET
+*
+*   TARGET: usable to about 10 GHz.
+*     Measured -4.76 dB at 10 GHz against a -4.47 dB peak, so 10 GHz is
+*     within 0.3 dB of the peak; the response is still within 3 dB of it
+*     at 17.0 GHz.                                           MET
+*
+*   Gain, port to port, as measured:  DC -11.22 dB, peak -4.47 dB.
+*   Gate-referred those are -5.22 dB and +1.55 dB, because the input
+*   port's own 50 ohm sits in series with the 50 ohm on-die termination
+*   and halves the drive at the gate -- a flat 6.02 dB that belongs to
+*   the measurement, not to the equaliser. The S-parameter conversion
+*   factor k = 2 sqrt(Zd_in/Zd_out) accounts for the reference
+*   impedances; the divider is why a gate-referred hand calculation and
+*   a port-to-port measurement differ by 6 dB here.
+*
+*   Input pole, out of band on purpose:
+*     Cin = CPAD + CESD + Cgs = 150 + 100 + 26.7 = 276.7 fF
+*       where Cgs = (2/3)*W*L*Cox + CGSO*W = 20.7 + 6.0 = 26.7 fF
+*       and   Cox = 3.9*8.854e-12/TOX = 8.633e-3 F/m^2
+*     driven from the port's 50 ohm in parallel with the 50 ohm
+*     termination, so 25 ohm:
+*     fp3 = 1/(2*pi*25*276.7e-15) = 23.0 GHz
+*     Above the sweep, so it does not shape the band, but it is real and
+*     the fit will see it.
+*
+*   WHICH DATA RATE THIS SUITS. Peaking at 7.8 GHz and flat to 10 GHz.
+*   Taking Nyquist at 8 GHz, that is 16 Gb/s NRZ.
+*
+* ------------------------------------------------------------------
+* WHERE THE CAPACITANCE COMES FROM, and why it is split two ways.
+*
+* IN THE CARD: TOX, CGSO and CGDO. These give the gate its intrinsic
+* channel capacitance and its overlap capacitance, which is what makes
+* the input a real load instead of a perfect open, and what gives the
+* drain a Miller path back to the gate. A LEVEL=1 device with none of
+* them specified is an ideal transconductor, and a port on one measures
+* nothing a receiver would recognise. KP is given explicitly, so TOX
+* sets capacitance only and does not change the transconductance.
+*
+* NOT IN THE CARD: CJ. Junction capacitance in LEVEL=1 is computed from
+* the AD/AS drain and source areas, and a schematic-level deck has no
+* credible number for those -- they are a layout result. Putting a
+* made-up area in the card would hide a guess inside a model parameter.
+* The drain junction and the on-chip route capacitance are therefore
+* lumped into the explicit CL1/CL2 below, where the number is visible
+* and a reader can change it.
+*
+* ------------------------------------------------------------------
+* DEMO ADDITIONS, each labelled below:
+*   - the on-die input termination (2 x 50 ohm), the same idea as
+*     netlists/ctle_sp.cir: without it a port on a MOSFET gate reflects
+*     almost everything and SDD11 says nothing;
+*   - the pad and ESD capacitance, which is what makes SDD11 degrade
+*     with frequency the way a real receiver's does;
+*   - ONE DELIBERATE MISMATCH: RD2 is 1% high. It is there so SCD21 and
+*     SDC21 come back small but non-zero, which is what a real
+*     differential receiver has and what the ideal deck cannot show.
+*
+* PORT MAP (netlists/ctle_rx_ports.json):
+*   port 1  inp    50 ohm       port 3  outp   500 ohm
+*   port 2  inn    50 ohm       port 4  outn   500 ohm
+*   differential pairs (1,2) and (3,4); differential references are 2*z0,
+*   so 100 ohm in and 1000 ohm out.
+*
+* The port sources are NOT in this deck. The tool adds them from the port
+* map so that the .sp sweep and the .ac characterisation the model is
+* fitted from get the same terminations from the same one place. The
+* .control block at the bottom exists only so this file can be run by
+* hand for review; every deck the tool writes drops it.
+
+.param VDD=1.8
+.param ISS=4m
+.param RD=500
+.param RDM=505
+.param RS=700
+.param CS=114f
+.param CL=50f
+.param CPAD=150f
+.param CESD=100f
+
+VDD vdd 0 DC {VDD}
+
+* Differential small-signal AC stimulus, DC bias 0.9 V. These two cards
+* become ports 1 and 2: the tool appends `portnum` and `z0` to them
+* rather than adding a second source beside them, because an ideal
+* source left in parallel with a port short-circuits the port's
+* reference impedance.
+VIP inp 0 DC 0.9 AC 0.5
+VIN inn 0 DC 0.9 AC -0.5
+
+* ---------------------------------------------------------- DEMO ADDITION
+* On-die input termination: 100 ohm differential as 2 x 50 ohm to the
+* input common mode. At 0.9 V on both sides it carries no DC current, so
+* the gate bias is exactly 0.9 V. VCM is an ideal source, so it is an AC
+* ground and each gate sees 50 ohm to it.
+VCM cm 0 DC 0.9
+RT1 inp cm 50
+RT2 inn cm 50
+
+* Pad and ESD capacitance, 250 fF per side. This is the term that makes
+* the input match degrade with frequency: at 8 GHz the differential half
+* of it, 125 fF, has a reactance of 159 ohm against the 100 ohm
+* differential reference, which is a match of about -10 dB rather than
+* the perfect one an ideal deck reports.
+CPAD1 inp 0 {CPAD}
+CPAD2 inn 0 {CPAD}
+CESD1 inp 0 {CESD}
+CESD2 inn 0 {CESD}
+* ------------------------------------------------------ END DEMO ADDITION
+
+* Differential pair
+M1 outp inp s1 0 NMOS_RX W=20u L=0.18u
+M2 outn inn s2 0 NMOS_RX W=20u L=0.18u
+
+* Source degeneration network: parallel RS/CS between the two sources.
+* RS sets the DC gain reduction, CS shorts it out above fz.
+RS1 s1 s2 {RS}
+CS1 s1 s2 {CS}
+
+* Per-side tail current sources (ISS/2 each), ideal, as in the other
+* CTLE deck: a real tail would add its own pole, and this demonstration
+* is about the equaliser's poles, not the bias circuit's.
+I1 s1 0 DC {ISS/2}
+I2 s2 0 DC {ISS/2}
+
+* Load resistors. RD2 is the labelled 1% mismatch.
+RD1 vdd outp {RD}
+RD2 vdd outn {RDM}
+
+* Output load: drain junction plus on-chip route, lumped (see the note
+* above on why this is not CJ in the card).
+CL1 outp 0 {CL}
+CL2 outn 0 {CL}
+
+.model NMOS_RX NMOS (LEVEL=1 VTO=0.4 KP=200u LAMBDA=0.01
++ TOX=4e-9 CGSO=3e-10 CGDO=3e-10)
+
+* For running this file by hand only. The tool writes its own analysis
+* and its own port sources; render_netlist drops every .control block.
+.control
+op
+print v(s1) v(outp) v(outn) @m1[gm] @m1[id]
+.endc
+
+.end
