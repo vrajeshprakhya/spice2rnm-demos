@@ -1,20 +1,20 @@
 # The PLL's digital half
 
-Demo 4 and demo 4b both run `netlists/pll_analog.cir`, which is analog
+Demo 4a and demo 4b both run `netlists/pll_analog.cir`, which is analog
 only. These are the other side of it, and they live here so that running
 either demo needs nothing but this repo and a toolchain.
 
 | file | what it is | read by |
 |---|---|---|
-| `pfd.sv` | the phase-frequency detector, plain RTL | demo 4, demo 4b |
-| `divn.sv` | the feedback divider, `NDIV` as a parameter | demo 4, demo 4b |
-| `tb_pll.sv` | the co-simulation testbench | demo 4 only |
+| `pfd.sv` | the phase-frequency detector, plain RTL | demo 4a, demo 4b |
+| `divn.sv` | the feedback divider, `NDIV` as a parameter | demo 4a, demo 4b |
+| `tb_pll.sv` | the co-simulation testbench | demo 4a only |
 
 ## tb_pll.sv is the golden, and nothing in it is generated
 
 It couples ngspice and SystemVerilog in lockstep over ten DPI calls at a
 100 ps tick: the VCO, charge pump and filter stay transistors, the
-detector and divider are the same RTL a design would already have. Demo 4
+detector and divider are the same RTL a design would already have. Demo 4a
 uses it three times over, and each use depends on it being hand-written:
 
 - the **golden probe** runs it against the transistors before anything is
@@ -47,4 +47,4 @@ df272f9eeccd7c05bf70c04448ae2920e37a6b8be2611aaa3f9b145e8d38aa35  tb_pll.sv
 
 Set `PLL_SRC` to point either demo somewhere else if you want to run it
 against your own copies. `ams_bridge.so` and a shared `libngspice` are
-still builds demo 4 needs, and are not vendored here.
+still builds demo 4a needs, and are not vendored here.

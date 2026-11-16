@@ -9,10 +9,10 @@ one question.
 | `demo_1_lpf.sh` | two-pole RC low-pass | the baseline: verified model in under a minute, holding up on binary data, with a running UVM-MS environment |
 | `demo_2_dcc.sh` | duty-cycle corrector | level-dependent dynamics: a block that defeats fixed-response modelling, verified by what it does to duty |
 | `demo_3_pi.sh` | phase interpolator | a block with no amplitude transfer at all, verified by phase per code |
-| `demo_4_pll.sh` | phase-locked loop | three characterisation problems in one netlist, composed and checked against the transistors on the design's own co-simulation testbench |
+| `demo_4a_pll_cosim.sh` | phase-locked loop | three characterisation problems in one netlist, composed and checked against the transistors on the design's own co-simulation testbench |
 | `demo_4b_pll_nocosim.sh` | the same PLL | the same circuit with no co-simulation anywhere: operating bands read off the deck and the specification instead of probed, and the loop closed around the customer's RTL in pure SystemVerilog |
 
-The last two are the same circuit from opposite ends. Demo 4 starts from a
+The last two are the same circuit from opposite ends. Demo 4a starts from a
 co-simulation that already runs and uses it as the reference. Demo 4b starts
 where most designs actually are -- an analog netlist, some RTL, a
 specification in English, and nothing wiring them together -- and needs no
@@ -84,7 +84,7 @@ install.
 
 ```
 demo_1_lpf.sh  demo_2_dcc.sh  demo_3_pi.sh
-demo_4_pll.sh  demo_4b_pll_nocosim.sh
+demo_4a_pll_cosim.sh  demo_4b_pll_nocosim.sh
 netlists/
   rc_lpf2.cir    the two-pole filter: demo 1's input
   dcc.cir        the duty-cycle corrector: demo 2
@@ -94,7 +94,7 @@ netlists/
 rtl/
   pll/           the PLL's digital half: pfd.sv and divn.sv, the RTL
                  both PLL demos instantiate, and tb_pll.sv, the
-                 co-simulation testbench demo 4 runs as its golden
+                 co-simulation testbench demo 4a runs as its golden
 harness/
   prbs_vcd.py    PRBS through the LPF model, scored and dumped to VCD
   demo_dcc.py    threshold sweep -> the corrector's actuator characteristic
