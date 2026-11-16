@@ -44,7 +44,7 @@ Places to verify the numbers:
   end and prints the headline figures the paper quotes.
 - [`../demo_4b_pll_nocosim.sh`](../demo_4b_pll_nocosim.sh) is the source
   of the no-co-simulation figures in case study 4. It is **not** in
-  `run_all.sh` --- it costs about as long again as demo 4 --- so it is
+  `run_all.sh` --- it costs about as long again as demo 4a --- so it is
   run on its own.
 - [`../showcase/`](../showcase/) holds the generated artifacts themselves
   — models, verification environments, and evidence files — with

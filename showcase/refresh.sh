@@ -160,7 +160,7 @@ place_block_models() {  # dest-case-dir, block...
 curate_pll() {  # src-dir, dest-name
   local src="$RUNS/$1" dst="$HERE/$2"
   if [ ! -d "$src" ]; then
-    echo "  $2: SKIPPED -- no run at $src (demo 4 needs the co-simulation)"
+    echo "  $2: SKIPPED -- no run at $src (demo 4a needs the co-simulation)"
     return 0
   fi
   rm -rf "$dst"

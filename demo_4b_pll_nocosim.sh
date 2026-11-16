@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # DEMO 4b -- the same PLL, with NO CO-SIMULATION ANYWHERE.
 #
-# Demo 4 models the analog half of a co-simulation that already runs. This
+# Demo 4a models the analog half of a co-simulation that already runs. This
 # one starts from the situation almost every design is actually in: the
 # analog netlist exists, the RTL exists, a specification exists in English,
 # and nothing has ever wired them together. There is no testbench spanning
 # the two halves, no DPI bridge, and no shared libngspice -- so there is
-# also no golden probe, which in demo 4 is the FIRST thing that runs.
+# also no golden probe, which in demo 4a is the FIRST thing that runs.
 #
 # What this demo is for is the two questions that raises:
 #
@@ -34,7 +34,7 @@ UVM_MS_LIB="${UVM_MS_LIB:-$HOME/uvm_ms_demo/ms}"
 UVM_SRC="${UVM_SRC:-$HOME/iverilog-unified/uvm-core/src}"
 XEZIM="${XEZIM:-$HOME/xezim/target/release/xezim}"
 OUT="$HOME/s2r_runs/demo4b_pll"
-# START FROM EMPTY, for the reason demos 1-4 do: a previous run's files
+# START FROM EMPTY, for the reason demos 1-4a do: a previous run's files
 # linger otherwise, and the day the tool stops emitting one of them a
 # stale copy gets published beside today's model. Guarded to this run
 # directory, which is a variable a reader may edit.
@@ -83,7 +83,7 @@ if [ "$miss" = "1" ]; then
   exit 1
 fi
 echo
-say "And what demo 4 needs that this one does NOT:"
+say "And what demo 4a needs that this one does NOT:"
 say ""
 say "  tb_pll.sv        a testbench spanning both halves   -- not read here"
 say "  ams_bridge.so    the DPI bridge                     -- not built"
@@ -96,7 +96,7 @@ beat
 
 # The deck this demo runs is published in netlists/: the ams-cosim
 # example with ONE line added, 20 mV rms on its supply, the operating
-# condition the specification states. Demo 4 and demo 4b run the same
+# condition the specification states. Demo 4a and demo 4b run the same
 # file. ASSERTED, not assumed -- a deck without that card would leave a
 # quiet circuit behind while every line below still described a noisy
 # one.
@@ -116,7 +116,7 @@ fi
 cd "$S2R" || exit 1
 
 hr "1. What breaks when the halves are not connected"
-say "Demo 4's first act is a golden probe: the co-simulation runs against"
+say "Demo 4a's first act is a golden probe: the co-simulation runs against"
 say "the TRANSISTORS before anything is characterised, and measures the"
 say "voltage band each block actually works over. It has to be first,"
 say "because that band is a property of the CLOSED loop -- it exists only"
@@ -394,7 +394,7 @@ echo
 grep -aE "^  [a-z0-9_]+ +not generated -- " "$OUT.log" \
   | fold -s -w 70 | sed 's/^/    /'
 echo
-say "And there is NO system environment in this flow. In demo 4 its"
+say "And there is NO system environment in this flow. In demo 4a its"
 say "goldens are the per-window statistics of the TRANSISTOR run, reduced"
 say "by the same functions the co-simulation's own verdict uses. Here"
 say "there is no transistor run, so there is nothing for it to carry --"
@@ -541,7 +541,7 @@ say "there first."
 beat
 
 hr "Summary"
-# READ FROM THE RUN, NOT TYPED, for the reason demos 1-4 are: a summary
+# READ FROM THE RUN, NOT TYPED, for the reason demos 1-4a are: a summary
 # that cannot disagree with its own output is marking its own homework.
 models=$(find "$OUT" -maxdepth 2 -name '*_rnm.sv' | wc -l)
 verdict=$(grep -aoE '\[rtl-loop\] VERDICT [A-Z]+' "$OUT.log" | tail -1 | awk '{print $3}')
@@ -586,7 +586,7 @@ say "Scope, precisely: this holds lock from the initial condition the deck"
 say "states, at one operating point, one corner, one reference rate. It is"
 say "NOT evidence about the transistors -- none were simulated in the loop,"
 say "and a loop that settles somewhere plausible and wrong still settles."
-say "Demo 4 is the one that compares against transistors; it costs a"
+say "Demo 4a is the one that compares against transistors; it costs a"
 say "co-simulation to do it."
 say ""
 say "run: $OUT/result.json   log: $OUT.log"

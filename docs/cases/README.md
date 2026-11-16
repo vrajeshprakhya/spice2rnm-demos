@@ -63,7 +63,7 @@ DEMO_PAUSE=1 ./demo_2_dcc.sh    # pause between acts, for presenting live
 
 [`../../run_all.sh`](../../run_all.sh) chains the first four.
 `demo_4b_pll_nocosim.sh` is run on its own, because it costs about as long
-again as demo 4. Prerequisites and path overrides are in the
+again as demo 4a. Prerequisites and path overrides are in the
 [repository README](../../README.md).
 
 The co-simulation case needs more installed than the others. Being the analog

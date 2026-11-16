@@ -2,7 +2,7 @@
 
 **Netlist** [`../../netlists/pll_analog.cir`](../../netlists/pll_analog.cir) ·
 **RTL** [`../../rtl/pll/`](../../rtl/pll/) ·
-**Run it** `./demo_4_pll.sh` ·
+**Run it** `./demo_4a_pll_cosim.sh` ·
 **Generated output** [`../../showcase/pll_cosim/`](../../showcase/pll_cosim/) ·
 **Whitepaper** §6 to §6.3
 

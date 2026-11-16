@@ -2,7 +2,7 @@
 # Run all four demos and summarise. Useful before presenting, and as the
 # check that a change to spice2rnm did not move anything the demos claim.
 #
-# Demo 4 is not self-contained: it models the analog half of a
+# Demo 4a is not self-contained: it models the analog half of a
 # co-simulation, so it needs the other half -- the RTL, the DPI bridge, and
 # a SHARED libngspice, which is a different ngspice build from the binary
 # the others use. It checks for those and exits 1 naming what is missing, so
@@ -22,7 +22,7 @@ FILTER="${1:-}"
 LOGDIR="${TMPDIR:-/tmp}/spice2rnm_demos"
 mkdir -p "$LOGDIR"
 
-DEMOS=(demo_1_lpf.sh demo_2_dcc.sh demo_3_pi.sh demo_4_pll.sh
+DEMOS=(demo_1_lpf.sh demo_2_dcc.sh demo_3_pi.sh demo_4a_pll_cosim.sh
        demo_5_sparams_ctle.sh)
 total=0
 ran=0
@@ -107,10 +107,10 @@ if ran_this demo_3_pi.sh && [ -f "$L" ]; then
   field "$L" DNL       'DNL worst *: [-+0-9.]+ ps *\([-+0-9.]+ LSB\)'
 fi
 
-L="$LOGDIR/demo_4_pll.out"
-if ran_this demo_4_pll.sh && [ -f "$L" ]; then
+L="$LOGDIR/demo_4a_pll_cosim.out"
+if ran_this demo_4a_pll_cosim.sh && [ -f "$L" ]; then
   echo
-  echo '  demo 4  PLL'
+  echo '  demo 4a PLL'
   field "$L" equivalence 'equivalence  : [0-9]+ pass, [0-9]+ fail'
   field "$L" floor       'floor        : [A-Z]+'
   field "$L" system      'system       : [A-Z]+ -- [0-9]+ boundary signal\(s\), [0-9]+ failed'
