@@ -27,6 +27,11 @@ PYPLOT="${PYPLOT:-$HOME/.s2r-plots/bin/python3}"
 OUT="$HOME/s2r_runs/ctle_sparams"
 NETLIST="$HERE/netlists/ctle_sp.cir"
 PORTMAP="$HERE/netlists/ctle_sp_ports.json"
+# The pass/fail bands and bars. They were constants in the tool, then
+# fields in the port map; they are an acceptance criterion, so they live
+# in the document that is reviewed with the design. Without this file
+# the run still measures and compares everything and says NOT JUDGED.
+SPEC="$HERE/specs/ctle_sp_spec.md"
 
 case "$OUT" in
   "$HOME"/s2r_runs/?*) rm -rf "$OUT" ;;
@@ -42,7 +47,7 @@ beat(){ [ "${DEMO_PAUSE:-0}" = "1" ] && { printf '\n  [enter] '; read -r _; }; r
 # stops at the first absence makes a reader fix one thing, re-run, and
 # find the next.
 missing=0
-for f in "$NGSPICE" "$XEZIM" "$NETLIST" "$PORTMAP" "$S2R"; do
+for f in "$NGSPICE" "$XEZIM" "$NETLIST" "$PORTMAP" "$SPEC" "$S2R"; do
   [ -e "$f" ] || { echo "missing: $f"; missing=1; }
 done
 if ! "$NGSPICE" -v 2>&1 | grep -qi 'ngspice-[0-9]'; then
@@ -78,28 +83,51 @@ sed -n '/^VIP/,/^RD2/p' "$NETLIST" | sed 's/^/    /'
 echo
 say "CLAIMED:     SDD21, the differential transmission, is modelled."
 say "NOT CLAIMED: SDD11, SDD22, SCD21, SDC21 are measured and reported."
+echo
+say "AND THE INPUTS ARE THREE THINGS PER PORT, nothing else: the net,"
+say "its reference impedance, and its role. This demo used to pass seven"
+say "flags across two runs and a port map with nine kinds of setting;"
+say "the rest was a repeat of something else, derivable from a"
+say "measurement, or a limit that belongs in the specification:"
+echo
+sed -n '/"ports": \[/,/\]/p' "$PORTMAP" | sed 's/^/    /'
 beat
 
-hr "1. The transistors' S-parameters"
-say "ngspice's own .sp analysis, four RF ports, 81 points to 10 GHz."
+hr "1. One command, and the transistors' S-parameters"
+say "ONE RUN DOES ALL OF IT: measure the transistors through ngspice's"
+say "own .sp analysis, characterise and generate the model under the SAME"
+say "ports, simulate the generated SystemVerilog, and compare. It used to"
+say "be two runs -- one to measure, one to verify -- and the second"
+say "re-measured anyway, so the first was a strict subset of it."
+echo
+say "  python3 -m spice2rnm $(basename "$NETLIST") \\"
+say "      --sparam-ports $(basename "$PORTMAP") \\"
+say "      --spec $(basename "$SPEC") \\"
+say "      --out-dir \$OUT"
+echo
 say "Each port is biased at its net's own operating point, so no DC"
 say "current flows through its reference impedance and the sweep"
-say "linearises about the point the design actually has."
+say "linearises about the point the design actually has. That is not on"
+say "the command line either: it is the only correct choice, so it is"
+say "the default."
 echo
+T0=$(date +%s)
 python3 -m spice2rnm "$NETLIST" \
-  --sparam-ports "$PORTMAP" --sparam-measure \
-  --out-dir "$OUT/measure" --ngspice-bin "$NGSPICE" 2>&1 | sed 's/^/    /'
-rc=${PIPESTATUS[0]}
-if [ "$rc" -ne 0 ]; then
-  say ""; say "THE MEASUREMENT FAILED (exit $rc). Nothing below would be"
-  say "from this run, so stopping rather than reporting stale numbers."
+  --sparam-ports "$PORTMAP" --spec "$SPEC" \
+  --out-dir "$OUT" --ngspice-bin "$NGSPICE" --xezim-bin "$XEZIM" \
+  > "$OUT/verify.log" 2>&1
+rc=$?
+if [ ! -f "$OUT/verdict.txt" ]; then
+  say ""; say "THE RUN PRODUCED NO VERDICT (exit $rc). Last lines:"
+  tail -14 "$OUT/verify.log" | sed 's/^/    /'
   exit 1
 fi
+sed -n '/\[1\/4\]/,/\[2\/4\]/p' "$OUT/verify.log" | sed 's/^/    /'
 echo
 say "The four-port file is Touchstone 2.0, because version 1 carries one"
 say "reference impedance for a whole file and these ports are 50/50/1k/1k:"
 echo
-sed -n '/\[Version\]/,/\[Network Data\]/p' "$OUT/measure/ctle_sp.s4p" | sed 's/^/    /'
+sed -n '/\[Version\]/,/\[Network Data\]/p' "$OUT/ctle_sp.s4p" | sed 's/^/    /'
 beat
 
 hr "2. Characterise under the same ports, and generate the model"
@@ -109,17 +137,9 @@ say "node: ngspice applies it in the DC solution and in a plain .ac run,"
 say "not only in .sp, so a model fitted without them would be a model of"
 say "a different circuit."
 say ""
-say "This one command does acts 2, 3 and 4: it re-measures the"
-say "transistors, fits and generates the model under those ports,"
-say "simulates the generated SystemVerilog, and compares. One run, so"
+say "This is the same run as act 1 -- the ports are applied once, so"
 say "both sides of the comparison come from one set of terminations."
 echo
-T0=$(date +%s)
-python3 -m spice2rnm "$NETLIST" \
-  --sparam-ports "$PORTMAP" --sparam-verify \
-  --out-dir "$OUT" --ngspice-bin "$NGSPICE" --xezim-bin "$XEZIM" \
-  > "$OUT/verify.log" 2>&1
-rc=$?
 sed -n '/\[2\/4\]/,/\[3\/4\]/p' "$OUT/verify.log" | sed 's/^/    /'
 if [ "$rc" -ne 0 ] && ! grep -q 'VERDICT: PASS' "$OUT/verify.log"; then
   say ""; say "THE RUN FAILED (exit $rc). Last lines:"
@@ -148,8 +168,14 @@ say "measured as zero."
 beat
 
 hr "4. The comparison"
+say "The bands and the bars are read from the specification, by text,"
+say "with no model: a limit that moved with whether an API key was set"
+say "would not be a limit. Each band cites the line it came from."
+echo
 sed -n '/against the agreed bars/,/^$/p' "$OUT/verdict.txt" | sed 's/^/    /'
 grep -E '^VERDICT' "$OUT/verdict.txt" | sed 's/^/    /'
+echo
+grep -aE "judged against:" "$OUT/verify.log" | cut -c1-200 | sed 's/^/    /'
 echo
 say "Worst over the whole sweep, including where the model cannot"
 say "represent the response at all:"
@@ -174,6 +200,15 @@ say "SDD11 and the two mode-conversion terms are exactly zero here"
 say "because this deck is perfectly symmetric and its 100 ohm"
 say "termination IS the differential reference. True measurements, and"
 say "uninformative ones -- which is itself worth saying out loud."
+echo
+say "And whether a passivity check applies is MEASURED, not declared."
+say "The port map used to carry \"passive\": false and the verdict read"
+say "\"this block is an amplifier\" because a JSON file said so. The"
+say "largest singular value of the S-matrix says it instead:"
+echo
+sed -n '/passivity and reciprocity/,/REPORTED, NOT BARRED/p' \
+  "$OUT/verdict.txt" | sed 's/^/    /'
+
 echo
 say "elapsed: $(( $(date +%s) - T0 )) s"
 say ""

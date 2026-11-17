@@ -172,7 +172,7 @@ say "  python3 -m spice2rnm \\"
 say "      $NETLIST \\"
 say "      $PLL/pfd.sv $PLL/divn.sv \\"
 say "      --hierarchical --emit-assertions \\"
-say "      --spec $SPEC \\"
+say "      --spec $SPEC --derive-pll-loop \\"
 say "      --emit-uvm-ms --uvm-ms-lib $UVM_MS_LIB \\"
 say "      --out-dir $OUT"
 echo
@@ -285,11 +285,21 @@ if [ "$REUSE" = "1" ]; then
   mins="?"
 else
   t0=$(date +%s)
+  # --derive-pll-loop IS DEPRECATED, and this demo is why it still
+  # exists. The tool no longer guesses a loop's topology from port
+  # shapes: a wiring is STATED, in an `## Integration` section of the
+  # specification, and a run with no such section builds the per-block
+  # models and says so. Acts 8 to 10 below are written around the
+  # derivation -- they read rtl_loop/rtl_loop_derivation.json and their
+  # argument is that nothing tells the tool the topology -- so moving
+  # this demo onto the stated wiring is a rewrite of what those acts
+  # CLAIM, not a flag change. Until that is done, the flag keeps this
+  # demo running exactly as it has.
   python3 -m spice2rnm \
     "$NETLIST" \
     "$PLL/pfd.sv" "$PLL/divn.sv" \
     --hierarchical --emit-assertions \
-    --spec "$SPEC" \
+    --spec "$SPEC" --derive-pll-loop \
     --emit-uvm-ms --uvm-ms-lib "$UVM_MS_LIB" \
     --out-dir "$OUT" \
     --ngspice-bin "$NGSPICE" --xezim-bin "$XEZIM" \

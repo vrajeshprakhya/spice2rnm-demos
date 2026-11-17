@@ -1,115 +1,35 @@
 {
   "comment": [
-    "Port map for netlists/ctle_sp.cir. The tool turns this into port",
-    "sources on the named nets, for both the .sp sweep and the .ac",
-    "characterisation the model is fitted from, so the two see the",
-    "same terminations.",
+    "Port map for netlists/ctle_sp.cir: which nets are ports, what each",
+    "is referenced to, and what each one is. Nothing else.",
+    "",
+    "Everything this file used to carry is derived now, or read from the",
+    "specification, and the tool refuses a stated value that disagrees",
+    "with what it derives. The port NUMBERS come from this list's order,",
+    "which is the only order ngspice accepts anyway; the differential",
+    "pairing comes from the roles; the deck is the netlist on the command",
+    "line; the bias is natural, which is the only correct choice; and",
+    "passivity is the largest singular value of the measured S-matrix.",
+    "The pass/fail bands and bars live in specs/ctle_sp_spec.md, because",
+    "a limit is a decision somebody signs and belongs in the document",
+    "reviewed with the design rather than in the measurement setup.",
+    "",
     "z0 in = 50 ohm: the receiver input is terminated to 100 ohm",
     "differential by RT1/RT2 in the deck, which 2 x 50 ohm ports match.",
     "z0 out = RD = 1000 ohm: the output IS a 1 kohm load node. A 50 ohm",
     "port there would load the node to 47.6 ohm and measure a circuit",
     "nobody builds, 26.4 dB down on this one.",
     "Differential references are 2*z0: 100 ohm in, 2000 ohm out.",
-    "bias natural: each port's DC is the net's own operating-point",
-    "voltage, so no DC current flows through its z0 and the sweep",
-    "linearises about the operating point work/ctle.cir has. Measured",
-    "on a source follower, a port written DC 0 instead moved the node",
-    "from 243.8 mV to 7.7 mV and S21 by 7.8 dB."
+    "",
+    "bias natural is the default and is not written here. Measured on a",
+    "source follower, a port written DC 0 instead moved the node from",
+    "243.8 mV to 7.7 mV and S21 by 7.8 dB, so the sweep would linearise",
+    "about an operating point the design does not have."
   ],
-  "deck": "netlists/ctle_sp.cir",
-  "bias": "natural",
   "ports": [
-    {
-      "num": 1,
-      "net": "inp",
-      "z0": 50.0,
-      "role": "in+"
-    },
-    {
-      "num": 2,
-      "net": "inn",
-      "z0": 50.0,
-      "role": "in-"
-    },
-    {
-      "num": 3,
-      "net": "outp",
-      "z0": 1000.0,
-      "role": "out+"
-    },
-    {
-      "num": 4,
-      "net": "outn",
-      "z0": 1000.0,
-      "role": "out-"
-    }
-  ],
-  "mixed_mode": {
-    "differential_in": [
-      1,
-      2
-    ],
-    "differential_out": [
-      3,
-      4
-    ]
-  },
-  "sweep": {
-    "start_hz": 1000000.0,
-    "stop_hz": 10000000000.0,
-    "points_per_decade": 20
-  },
-  "bands": [
-    {
-      "name": "equaliser",
-      "upper_hz": 300000000.0,
-      "reason": [
-        "The equalisation band: up to 300 MHz, where this deck's zero",
-        "and pole live and where the fitted model is expected to be",
-        "exact. Moved here from sparam_compare.BANDS unchanged."
-      ]
-    },
-    {
-      "name": "below_step_ceiling",
-      "upper_hz": 2083000000.0,
-      "reason": [
-        "Up to 2.083 GHz, which is where ten of the model's own",
-        "integration steps make one period. A FIXED NUMBER, written",
-        "down once from a measured run and never re-derived from the",
-        "model under test: a bar whose band moves with the model it",
-        "judges can absorb any regression. The ceiling check reports",
-        "separately if a model's own ceiling drifts away from it."
-      ]
-    }
-  ],
-  "bars": {
-    "equaliser": {
-      "db": 0.25,
-      "phase_deg": 1.0,
-      "group_delay_s": 4e-11
-    },
-    "below_step_ceiling": {
-      "db": 0.25,
-      "phase_deg": 20.0,
-      "group_delay_s": 4e-11
-    }
-  },
-  "bars_comment": [
-    "Moved here from sparam_compare.BARS with no digit changed, and with",
-    "what each one was measured at when it was set:",
-    "  equaliser          db 0.25          measured 0.0788 dB at 251 MHz, 3.2x",
-    "                     phase_deg 1.0    measured 0.272 deg at 100 MHz, 3.7x",
-    "                     group_delay_s 40p  measured 15.6 ps at 1.58 MHz, 2.6x",
-    "  below_step_ceiling db 0.25          measured 0.0788 dB at 251 MHz, 3.2x",
-    "                     phase_deg 20.0   measured 10.96 deg at 1.58 GHz, 1.8x",
-    "                     group_delay_s 40p  measured 24.3 ps at 1.58 GHz, 1.6x",
-    "The margins are in line with the 3.85x the repository's existing",
-    "time-domain CTLE golden carries (0.038997 against a 0.15 threshold)."
-  ],
-  "passive": false,
-  "passive_comment": [
-    "This block is an amplifier: its largest singular value may exceed 1",
-    "and a passivity check would fail it for working. The verdict says so",
-    "rather than applying one."
+    {"net": "inp",  "z0": 50,   "role": "in+"},
+    {"net": "inn",  "z0": 50,   "role": "in-"},
+    {"net": "outp", "z0": 1000, "role": "out+"},
+    {"net": "outn", "z0": 1000, "role": "out-"}
   ]
 }
