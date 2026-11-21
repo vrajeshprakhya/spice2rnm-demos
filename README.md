@@ -11,6 +11,7 @@ one question.
 | `demo_3_pi.sh` | phase interpolator | a block with no amplitude transfer at all, verified by phase per code |
 | `demo_4a_pll_cosim.sh` | phase-locked loop | three characterisation problems in one netlist, composed and checked against the transistors on the design's own co-simulation testbench |
 | `demo_4b_pll_nocosim.sh` | the same PLL | the same circuit with no co-simulation anywhere: operating bands read off the deck and the specification instead of probed, and the loop closed around the customer's RTL in pure SystemVerilog |
+| `demo_4c_pll_knob_noise.sh` | the same PLL, noise on the knob | demo 4a with the shake moved from the supply to the loop filter's resistors: the filter model carries that noise, each source is replay-checked, and the loop is checked against the transistors again |
 
 The last two are the same circuit from opposite ends. Demo 4a starts from a
 co-simulation that already runs and uses it as the reference. Demo 4b starts
@@ -84,13 +85,16 @@ install.
 
 ```
 demo_1_lpf.sh  demo_2_dcc.sh  demo_3_pi.sh
-demo_4a_pll_cosim.sh  demo_4b_pll_nocosim.sh
+demo_4a_pll_cosim.sh  demo_4b_pll_nocosim.sh  demo_4c_pll_knob_noise.sh
 netlists/
   rc_lpf2.cir    the two-pole filter: demo 1's input
   dcc.cir        the duty-cycle corrector: demo 2
   pi_therm.cir   the phase interpolator: demo 3
   pll_analog.cir the PLL deck demos 4 and 4b run -- ams-cosim's example
                  plus the 20 mV supply-noise card it is run with
+  pll_analog_knob.cir  demo 4c's deck: the same PLL, quiet supply,
+                 thermal noise (1000x, a stress case) on the loop
+                 filter's three resistors
 rtl/
   pll/           the PLL's digital half: pfd.sv and divn.sv, the RTL
                  both PLL demos instantiate, and tb_pll.sv, the

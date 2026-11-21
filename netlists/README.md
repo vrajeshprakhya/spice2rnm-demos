@@ -10,6 +10,7 @@ the demos read them from here, so what is published is what ran.
 | `dcc.cir` | demo 2 | a comparator-based duty-cycle corrector |
 | `pi_therm.cir` | demo 3 | a thermometer-coded phase interpolator, 8 codes |
 | `pll_analog.cir` | demos 4 and 4b | the analog half of a 400 MHz ring-oscillator PLL: charge pump, loop filter, seven-stage differential ring with its output buffers |
+| `pll_analog_knob.cir` | demo 4c | the same PLL with the noise moved from the supply to the knob: a quiet rail, and thermal noise on the loop filter's three resistors at 1000x its real size, a stress case stated in the deck |
 
 **Provenance of the PLL deck.** It is `examples/pll/pll_analog.cir` from
 [ams-cosim](https://github.com/vrajeshprakhya/ams-cosim) with exactly
