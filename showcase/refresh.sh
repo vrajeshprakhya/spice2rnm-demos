@@ -86,6 +86,19 @@ curate_waveforms() {  # case, dest-name
   local dst="$HERE/$2/waveforms"
   python3 "$DEMOS/harness/wave_bundle.py" "$1" --out "$RUNS/$1_wave" \
     | sed 's/^/  /' || { echo "wave_bundle.py failed for $1"; exit 1; }
+  # The UVM-MS run as waveforms, into the same folder (after wave_bundle,
+  # which starts the folder empty). It re-runs the generated environment
+  # with a recording, so it takes minutes, not seconds.
+  if python3 "$DEMOS/harness/uvm_wave.py" --cases | tr ' ' '\n' | grep -qx "$1"; then
+    python3 "$DEMOS/harness/uvm_wave.py" "$1" --out "$RUNS/$1_wave" \
+      | sed 's/^/  /' || { echo "uvm_wave.py failed for $1"; exit 1; }
+  fi
+  # vcd2fst stamps the date inside every .fst, so a re-curated file whose
+  # waveform did not change would still be new bytes, and a new 0.2 MB in
+  # history each time. Keep the old file when only that date differs.
+  local keep
+  keep=$(mktemp -d)
+  cp "$dst"/*.fst "$keep/" 2>/dev/null || true
   rm -rf "$dst"
   mkdir -p "$dst"
   cp "$RUNS/$1_wave"/*.svg "$RUNS/$1_wave"/*.html "$RUNS/$1_wave"/README.txt "$dst/"
@@ -97,10 +110,17 @@ curate_waveforms() {  # case, dest-name
     [ -e "$f" ] || continue
     if [ "$(stat -c %s "$f")" -le 1048576 ]; then
       cp "$f" "${f%.fst}.gtkw" "$dst/"
+      local old="$keep/$(basename "$f")"
+      if [ -f "$old" ] && command -v fst2vcd >/dev/null \
+         && cmp -s <(fst2vcd -f "$old" 2>/dev/null | sed '/^\$date/,/\$end/d') \
+                   <(fst2vcd -f "$f" 2>/dev/null | sed '/^\$date/,/\$end/d'); then
+        cp "$old" "$dst/"   # same waveform: keep the committed bytes
+      fi
     else
       big="$big $(basename "$f") $(basename "${f%.fst}.gtkw")"
     fi
   done
+  rm -rf "$keep"
   if [ -n "$big" ]; then
     printf '%s\n' "" \
       "Not in this folder (over 1 MB, so kept out of git history): download" \

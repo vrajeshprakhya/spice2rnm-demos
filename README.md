@@ -107,6 +107,10 @@ harness/
   wave_bundle.py a run's waveforms for someone else: pictures, zoomable
                  pages, .fst + GTKWave layouts (demo 1 calls it)
   wave_page.py   the zoomable page: data inside, nothing to install
+  uvm_wave.py    act 6's UVM-MS run re-run with a recording, drawn with
+                 every scoreboard check (about 2 minutes)
+  uvm_phase_split.py  separates the AC phase checks' built-in offset
+                 from the model's own phase error
 specs/
   rc_lpf2_spec.md  the filter's specification, in English
   dcc_spec.md      the duty-cycle corrector's -- demo 2 reads it
@@ -123,9 +127,13 @@ plot to zoom in:
 
 - [PRBS7 at 160 Mb/s through the two-pole filter](https://vrajeshprakhya.github.io/spice2rnm-demos/lpf2/lpf2_prbs.html)
 - [the pipeline's own sweep with a chirp on top](https://vrajeshprakhya.github.io/spice2rnm-demos/lpf2/lpf2_chirp.html)
+- [the UVM-MS run (demo 1, act 6), every scoreboard check on the waveform](https://vrajeshprakhya.github.io/spice2rnm-demos/lpf2/lpf2_uvm.html)
 
-Each page overlays the circuit (ngspice) and the generated model (xezim)
-with their difference underneath, and carries every point the run wrote.
+The first two overlay the circuit (ngspice) and the generated model (xezim)
+with their difference underneath. The third draws the verification run:
+what the UVM-MS environment drove into the model, what came out, and at
+each check what ngspice says the reading should be. Every page carries
+every point its run wrote.
 The same pages are committed in
 [`showcase/lpf2/waveforms/`](showcase/lpf2/waveforms/) beside still
 pictures of them, explained in
