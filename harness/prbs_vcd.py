@@ -89,6 +89,8 @@ for t, v in pts:
     if clean and t <= clean[-1][0]: t = clean[-1][0] + 1e-15
     clean.append((t, v))
 pts = clean
+# The stimulus as data, so wave_bundle.py can draw it beside the outputs.
+(OUT / "stim.txt").write_text("".join(f"{t:.12e} {v:.9g}\n" for t, v in pts))
 
 # --- ngspice reference ----------------------------------------------------
 pwl = " ".join(f"{t:.12e} {v:.9g}" for t, v in pts)
@@ -160,7 +162,15 @@ tb += [f"    #({2*UI*1e15:.6f});", "    $fclose(logfile);",
 (OUT / "tb_prbs.sv").write_text("\n".join(tb) + "\n")
 
 print("running xezim ...", flush=True)
-r = subprocess.run([str(XEZIM), str(RNM), str(OUT / "tb_prbs.sv")],
+# Remove the last run's dump first. The check below asks only whether a VCD
+# EXISTS, so a file left over from an earlier run passes it -- which is how
+# this harness went on printing "vcd: 2.8 MB" over a 1 September dump for
+# months after xezim stopped writing one.
+VCD.unlink(missing_ok=True)
+# --wave: xezim compiles $dumpfile/$dumpvars in only when asked (an active
+# dump costs speed, so it is off by default). Without it the testbench's
+# dump calls do nothing and no VCD is written.
+r = subprocess.run([str(XEZIM), "--wave", str(RNM), str(OUT / "tb_prbs.sv")],
                    capture_output=True, text=True, timeout=1800)
 if not VCD.exists():
     print("no vcd:\n", r.stdout[-2000:], r.stderr[-2000:]); raise SystemExit(1)

@@ -140,6 +140,18 @@ say "  It answers the obvious question about the row above -- that one was"
 say "  measured at a single rate. It comes from harness/prbs_sweep2.py,"
 say "  which is a dozen ngspice runs and so is not part of the demo."
 say ""
-say "waveforms: gtkwave $HOME/s2r_runs/lpf2_vcd/tb_prbs.vcd"
-say "  (set spice_ref / out_val / err to Data Format -> Analog -> Interpolated)"
+hr "Waveforms"
+say "The circuit and the model, side by side, built from THIS run's files:"
+echo
+python3 "$HARNESS/wave_bundle.py" lpf2 2>&1 | sed 's/^/  /'
+echo
+say "Pictures (any browser):  lpf2_prbs.svg  lpf2_chirp.svg"
+say "Zoom, nothing installed: lpf2_prbs.html  lpf2_chirp.html"
+say "  (open in a browser, drag across the plot; the data is inside)"
+say "Zoom in GTKWave:         cd ~/s2r_runs/lpf2_wave &&"
+say "                         gtkwave lpf2_prbs.fst lpf2_prbs.gtkw"
+say "  (opens with every trace already drawn as a curve; no setup)"
+say ""
+say "Every internal signal of the model, for debugging:"
+say "  gtkwave $HOME/s2r_runs/lpf2_vcd/tb_prbs.vcd"
 echo

@@ -76,6 +76,44 @@ curate() {  # src-dir, dest-name
   echo "  $2: $n files"
 }
 
+# The picture a reader sees first: the circuit and the model drawn on top
+# of each other. Built from the run's own files by harness/wave_bundle.py,
+# which also writes the waveform files (FST) a reader can open and zoom.
+# Only the pictures and their README are published: the SVGs are about
+# 100 KB each, while the chirp's waveform file is 7 MB and, like the
+# traces in equivalence/, is rebuilt by one command rather than committed.
+curate_waveforms() {  # case, dest-name
+  local dst="$HERE/$2/waveforms"
+  python3 "$DEMOS/harness/wave_bundle.py" "$1" --out "$RUNS/$1_wave" \
+    | sed 's/^/  /' || { echo "wave_bundle.py failed for $1"; exit 1; }
+  rm -rf "$dst"
+  mkdir -p "$dst"
+  cp "$RUNS/$1_wave"/*.svg "$RUNS/$1_wave"/*.html "$RUNS/$1_wave"/README.txt "$dst/"
+  # Waveform files go in git only while small: each refresh that changes
+  # one adds its full size to history forever. Bigger ones ride on a
+  # GitHub Release instead, and the README says so.
+  local f big=""
+  for f in "$RUNS/$1_wave"/*.fst; do
+    [ -e "$f" ] || continue
+    if [ "$(stat -c %s "$f")" -le 1048576 ]; then
+      cp "$f" "${f%.fst}.gtkw" "$dst/"
+    else
+      big="$big $(basename "$f") $(basename "${f%.fst}.gtkw")"
+    fi
+  done
+  if [ -n "$big" ]; then
+    printf '%s\n' "" \
+      "Not in this folder (over 1 MB, so kept out of git history): download" \
+      "them from the repository's Releases page, tag waveforms-$1-<date>:" \
+      " $big" >> "$dst/README.txt"
+  fi
+  local n p
+  n=$(ls "$dst"/*.svg 2>/dev/null | wc -l)
+  p=$(ls "$dst"/*.html 2>/dev/null | wc -l)
+  [ "$n" -ge 1 ] && [ "$p" -ge 1 ] || { echo "waveform curation for $2 found no pictures or pages"; exit 1; }
+  echo "  $2/waveforms: $n pictures, $p zoomable pages"
+}
+
 # The house-style case is not one of the demos: it is the same circuit as
 # lpf2, generated a second time against the sample library in house_lib/,
 # so the two directories can be diffed. Generated here rather than in a
@@ -521,6 +559,9 @@ want pll_cosim && curate_pll demo4_pll pll_cosim
 want pll_nocosim && curate_nocosim demo4b_pll pll_nocosim
 want ctle_sparams && curate_sparams ctle_sparams ctle_sparams
 
+echo "curating waveform pictures:"
+want lpf2 && curate_waveforms lpf2 lpf2
+
 echo "curating equivalence evidence:"
 want lpf2 && curate_equivalence "$HOME/s2r_runs/lpf2"     lpf2  equivalence
 want dcc2 && curate_equivalence "$HOME/s2r_runs/dcc2"     dcc2  equivalence
@@ -544,7 +585,8 @@ want pll_nocosim && curate_equivalence "$HOME/s2r_runs/demo4b_pll" pll_nocosim \
 # happened; the generators were fixed, and this keeps them fixed.
 leaks=$(grep -rln "/home/$(id -un)" "$HERE"/lpf2 "$HERE"/dcc2 "$HERE"/pi \
           "$HERE"/lpf2_house "$HERE"/pll_cosim "$HERE"/pll_nocosim \
-          --include='*.sv' --include='*.svh' --include='*.sh' 2>/dev/null || true)
+          --include='*.sv' --include='*.svh' --include='*.sh' \
+          --include='*.svg' --include='*.html' 2>/dev/null || true)
 if [ -n "$leaks" ]; then
   echo "REFUSING to stamp: local paths leaked into generated files:"
   echo "$leaks" | sed 's/^/    /'

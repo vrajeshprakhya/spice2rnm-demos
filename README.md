@@ -104,6 +104,9 @@ harness/
   demo_dcc.py    threshold sweep -> the corrector's actuator characteristic
   dcc_vcd.py     clock in / clock out, SPICE and model on one set of axes
   demo_pi.py     per-code phase measurement across the interpolator
+  wave_bundle.py a run's waveforms for someone else: pictures, zoomable
+                 pages, .fst + GTKWave layouts (demo 1 calls it)
+  wave_page.py   the zoomable page: data inside, nothing to install
 specs/
   rc_lpf2_spec.md  the filter's specification, in English
   dcc_spec.md      the duty-cycle corrector's -- demo 2 reads it
@@ -115,14 +118,39 @@ through `$HARNESS`, so the tree relocates as a unit.
 
 ## Waveforms
 
-Several acts emit VCDs worth opening:
+The quickest look needs nothing installed. Open a page and drag across the
+plot to zoom in:
+
+- [PRBS7 at 160 Mb/s through the two-pole filter](https://vrajeshprakhya.github.io/spice2rnm-demos/lpf2/lpf2_prbs.html)
+- [the pipeline's own sweep with a chirp on top](https://vrajeshprakhya.github.io/spice2rnm-demos/lpf2/lpf2_chirp.html)
+
+Each page overlays the circuit (ngspice) and the generated model (xezim)
+with their difference underneath, and carries every point the run wrote.
+The same pages are committed in
+[`showcase/lpf2/waveforms/`](showcase/lpf2/waveforms/) beside still
+pictures of them, explained in
+[the filter's case study](docs/cases/01-two-pole-filter.md#waveforms-worth-opening).
+
+Demo 1 ends by building all of this, plus waveform files (`.fst`) and
+GTKWave layouts that open them already drawn as curves, in a folder you can
+hand to someone, `~/s2r_runs/lpf2_wave/`:
+
+```sh
+cd ~/s2r_runs/lpf2_wave && gtkwave lpf2_prbs.fst lpf2_prbs.gtkw
+```
+
+The PRBS `.fst` is small enough to sit in the showcase; the chirp's (7 MB)
+is on the [Releases page](https://github.com/vrajeshprakhya/spice2rnm-demos/releases)
+with the rest of the folder. The other demos do not build such a folder
+yet.
+
+The raw dumps are still written, for debugging:
 
 ```sh
 gtkwave ~/s2r_runs/lpf2_vcd/tb_prbs.vcd
 gtkwave ~/s2r_runs/dcc2_vcd/tb_dcc.vcd
 ```
 
-Reals render as decimal numbers until you tell GTKWave otherwise. For each of
-`spice_ref`, `out_val` and `err`: right-click → Data Format → Analog →
-Interpolated. `err` on its own with autoscale is where the residual becomes
-visible.
+In those, reals render as decimal numbers until you tell GTKWave otherwise.
+For each of `spice_ref`, `out_val` and `err`: right-click → Data Format →
+Analog → Interpolated.
