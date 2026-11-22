@@ -127,7 +127,11 @@ tb += [f"    #({PERIOD*1e15:.6f});", "    $finish;", "  end", "endmodule"]
 (OUT / "tb_dcc.sv").write_text("\n".join(tb) + "\n")
 
 print("running xezim ...", flush=True)
-r = subprocess.run([str(XEZIM), str(RNM), str(OUT / "tb_dcc.sv"),
+# Same two fixes as prbs_vcd.py: drop the last run's dump so a stale file
+# cannot pass the existence check below, and pass --wave, without which
+# xezim ignores $dumpfile/$dumpvars and writes no VCD at all.
+VCD.unlink(missing_ok=True)
+r = subprocess.run([str(XEZIM), "--wave", str(RNM), str(OUT / "tb_dcc.sv"),
                     "-o", str(OUT / "model.txt")],
                    capture_output=True, text=True, timeout=1800)
 if not VCD.exists():

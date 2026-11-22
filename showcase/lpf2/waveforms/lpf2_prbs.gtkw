@@ -1,0 +1,52 @@
+[*] PRBS7 at 160 Mb/s through the two-pole RC filter
+[*] Open with:  gtkwave lpf2_prbs.fst lpf2_prbs.gtkw
+[dumpfile] "lpf2_prbs.fst"
+[timestart] 0
+[size] 1400 860
+*-27.652940 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] lpf2.
+[signals_width] 180
+[sst_expanded] 0
+@200
+-stimulus
+[color] 4
+@8420
+lpf2.vin
+@20000
+-
+-
+-
+@200
+-circuit (ngspice)
+[color] 3
+@10420
+lpf2.vout_circuit
+@20000
+-
+-
+-
+-
+-
+@200
+-model (xezim)
+[color] 2
+@10420
+lpf2.vout_model
+@20000
+-
+-
+-
+-
+-
+@200
+-model - circuit
+[color] 7
+@10420
+lpf2.error
+@20000
+-
+-
+-
+-
+[pattern_trace] 1
+[pattern_trace] 0

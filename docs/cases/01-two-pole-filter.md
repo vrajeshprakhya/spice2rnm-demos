@@ -127,11 +127,66 @@ the two directories; only the boundary changes. That is the subject of
 
 ## Waveforms worth opening
 
+Binary data first, because the model was never fitted to it. Each bit is a
+step on the input; the filter is too slow to finish one step before the
+next arrives, so the output wanders between the rails, carrying a memory of
+the last few bits (inter-symbol interference). The thick blue line is the
+circuit as ngspice solves it, the thin red line is the generated model, and
+the strip underneath is their difference:
+
+![PRBS7 at 160 Mb/s: the circuit and the model overlaid](../../showcase/lpf2/waveforms/lpf2_prbs.svg)
+
+The shaded first 416 ns is not scored. ngspice starts the circuit already
+settled, while the model starts from rest at mid-scale, so that stretch
+compares two starting points rather than two filters. After it, the two
+agree to 0.97% rms of the output swing.
+
+The pipeline's own check is the slow sweep with a chirp on top, below. Its
+whole-run figures (2.90% rms, worst point 49.8%) are almost entirely that
+same start-up: from 416 ns on they are 0.11% rms and 0.99% at the worst
+point. The two boxed stretches are where the settled model is furthest from
+the circuit, and both are where the stimulus steps just outside the 0 to
+1.8 V range the model was measured over (it reaches −0.018 V and 1.815 V).
+Look at the shape of the red line there: sharp corners in A, spikes in B. A
+filter built from resistors and capacitors cannot make either. The model
+keeps its filter and its range limit in two separate lanes and adds them at
+the output, so whatever the input pushes past the edge of the range is
+taken straight off the output, instantly and unsmoothed. The error in each
+box is exactly that excess (to within 0.2 mV in A), so those millivolts
+come from where the model applies its range limit, not from its filter,
+and they only happen outside the measured range:
+
+![The sweep with a chirp on top: whole run, and the two worst stretches](../../showcase/lpf2/waveforms/lpf2_chirp.svg)
+
+To zoom in yourself with nothing installed, open
+[the PRBS page](https://vrajeshprakhya.github.io/spice2rnm-demos/lpf2/lpf2_prbs.html)
+or [the chirp page](https://vrajeshprakhya.github.io/spice2rnm-demos/lpf2/lpf2_chirp.html)
+and drag across the plot. Each page holds every point the run wrote, has a
+button for each box above, and reads out all four traces at whatever
+instant you hover over. Hover inside box A and the readout shows the
+stimulus above 1.8 V by the same millivolts as the error. "Hide stimulus"
+fits the axis to the circuit and the model alone, which shows how the
+model moves: in steps about 0.3 ns apart, one per solver step. The pages
+are also in [`../../showcase/lpf2/waveforms/`](../../showcase/lpf2/waveforms/)
+to download and open offline.
+
+In GTKWave, run demo 1 (or `python3 harness/wave_bundle.py lpf2` after
+it), then:
+
 ```sh
-gtkwave ~/s2r_runs/lpf2_vcd/tb_prbs.vcd
+cd ~/s2r_runs/lpf2_wave
+gtkwave lpf2_prbs.fst lpf2_prbs.gtkw     # or lpf2_chirp.fst lpf2_chirp.gtkw
 ```
 
-Reals render as decimal numbers until you tell GTKWave otherwise. For each of
-`spice_ref`, `out_val` and `err`: right-click → Data Format → Analog →
-Interpolated. `err` on its own with autoscale is where the residual becomes
-visible.
+The `.gtkw` file opens with the four traces (`vin`, `vout_circuit`,
+`vout_model`, `error`) already drawn as curves and the whole run in view,
+so there is nothing to set up. The PRBS files are in the showcase folder;
+the chirp's are on the
+[Releases page](https://github.com/vrajeshprakhya/spice2rnm-demos/releases).
+The folder's `README.txt` says how each score was taken.
+
+For debugging rather than reading, the PRBS run also keeps a dump of every
+signal inside the model, including its RK4 stages:
+`gtkwave ~/s2r_runs/lpf2_vcd/tb_prbs.vcd`. Real numbers there show as
+decimal text until you right-click each one → Data Format → Analog →
+Interpolated.
