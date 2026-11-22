@@ -190,3 +190,51 @@ signal inside the model, including its RK4 stages:
 `gtkwave ~/s2r_runs/lpf2_vcd/tb_prbs.vcd`. Real numbers there show as
 decimal text until you right-click each one → Data Format → Analog →
 Interpolated.
+
+## The verification run, drawn
+
+Demo 1's sixth act runs the generated UVM-MS environment and prints its
+scoreboard: 49 DC checks and 15 AC checks against ngspice, none failed.
+[The UVM-MS page](https://vrajeshprakhya.github.io/spice2rnm-demos/lpf2/lpf2_uvm.html)
+draws the run those verdicts came from. The input climbs a staircase of 41
+levels, waiting at each until the output stops moving, then carries small
+sines (3.6 mV on 0.9 V) at ten frequencies from 199.5 kHz to 50.1 MHz.
+At every check the page marks what the model read and what ngspice says it
+should have read, and hovering shows the scoreboard's own log line. It is
+built by `python3 harness/uvm_wave.py lpf2`, which re-runs the environment
+with three lines added to a copy of its top module to record the nets; the
+AC gains it re-measures from that recording agree with the scoreboard's to
+within 0.0001 dB.
+
+Two things the drawing shows that the summary does not.
+
+**Every phase check starts about 2.8° off.** The bridge plays each sine as
+a staircase, 64 steps per cycle. It reads the output at the end of each
+step but scores the reading against the drive's phase at the step's start,
+and that pairing alone reads as a lead of about 360°/128 = 2.8°, whatever
+is being measured. Drive the ideal circuit (the netlist's own resistors and
+capacitors, solved exactly) through the same staircase, read it the same
+way, and it misses ngspice by that much:
+
+| frequency | ngspice | ideal circuit, read by the bridge | model, read by the bridge |
+|---|---|---|---|
+| 199.5 kHz | −3.42° | −1.18° | −1.19° |
+| 707.9 kHz | −12.04° | −9.27° | −9.34° |
+| 7.94 MHz | −81.16° | −78.35° | −79.21° |
+| 28.2 MHz | −129.36° | −126.53° | −129.61° |
+| 50.1 MHz | −148.03° | −145.07° | −150.72° |
+
+So the scoreboard's worst phase error, 2.70° at 707.9 kHz, is almost all
+testbench: there the model is 0.07° from the ideal circuit read the same
+way.
+
+**The model's own phase error is a delay of one time step.** Measured
+against the ideal circuit read the same way, the model falls behind by an
+amount that grows in proportion to frequency, which is what a fixed delay
+does: 0.30 to 0.31 ns from 4.5 MHz up, the model's own time step
+(0.304 ns). At 50.1 MHz that is 5.64°. The scoreboard reports 2.68° there,
+because the bench's lead cancels part of the model's lag, so the largest
+real phase error is 70% of the 8° tolerance, not the 34% the summary's
+worst case suggests. Every check still passes, and the same delay is
+likely part of the PRBS residual above. `python3 harness/uvm_phase_split.py`
+reproduces the table from the recorded run.

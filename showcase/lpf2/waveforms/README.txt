@@ -36,6 +36,13 @@ Files: lpf2_chirp.fst, lpf2_chirp.gtkw, lpf2_chirp.svg, lpf2_chirp.html (7.2 MB 
 Every trace and number above comes from one demo run's own output
 files; nothing was re-simulated to make this folder.
 
+The UVM-MS run (act 6), as waveforms
+------------------------------------
+lpf2_uvm.html: open it in any browser. It shows what the UVM-MS environment drove into the model, what came out, and at every scoreboard check what ngspice says the reading should be.
+Verdicts: 49 DC checks and 15 AC checks against ngspice, 0 failed. Worst error: 34% of its tolerance.
+Recorded by re-running the generated environment with three lines added to a copy of top_rc_lpf2_ms.sv; the checks are that run's own log lines. AC gains re-measured from the recording agree with the scoreboard's to within 7.7e-05 dB.
+Caution: the bridge reads each AC sample at the end of a drive step but scores it against the phase at the step's start, a lead of about 2.8 deg included in every phase error.
+
 Not in this folder (over 1 MB, so kept out of git history): download
 them from the repository's Releases page, tag waveforms-lpf2-<date>:
   lpf2_chirp.fst lpf2_chirp.gtkw
