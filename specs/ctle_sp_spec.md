@@ -25,7 +25,7 @@ The small-signal response is a zero and a pole set by the degeneration:
 | Band               | Up to     | Gain error | Phase error | Group delay error |
 |--------------------|-----------|------------|-------------|-------------------|
 | equaliser          | 300 MHz   | 0.25 dB    | 1 deg       | 40 ps             |
-| below_step_ceiling | 2.083 GHz | 0.25 dB    | 20 deg      | 40 ps             |
+| whole_sweep        | 10 GHz    | 0.25 dB    | 20 deg      | 40 ps             |
 
 Each band is judged from 0 Hz up to its own edge. Above the last edge
 the figures are reported and not judged.
@@ -35,30 +35,40 @@ numbers rather than derived at run time:
 
 * **equaliser, 300 MHz.** The zero is at 99 MHz and the pole at 166 MHz,
   so everything the block exists to do happens below this.
-* **below_step_ceiling, 2.083 GHz.** This is where ten of the model's
-  own 48.01 ps integration steps stop fitting in a period. Above it the
-  model cannot represent the response at all -- at 10 GHz a period is
-  two of its steps -- and what a measurement finds there depends on how
-  finely it is driven, which is itself the evidence. A bar whose own
+* **whole_sweep, 10 GHz.** The top of the swept band, 1 MHz to 10 GHz,
+  which is also the top of what the transistors were measured at. This
+  band used to end at 2.083 GHz, where ten of the model's then 48.01 ps
+  integration steps stopped fitting in a period; above that the model
+  could not represent the response at all. The step is now sized from
+  this table instead: a block with a zero is given the longest step
+  that keeps its half-step hold lag within half of each phase and
+  group-delay limit. At 20 deg up to 10 GHz that is 5.556 ps, ten of
+  which fit in a period up to 18 GHz, so every frequency judged here is
+  one the model can represent. An edge drawn at the model's own ceiling
+  would now move whenever this table moved the step, and a bar whose
   band moves with the model it judges can absorb any regression by
-  re-drawing itself, so this number is fixed and committed. A run
-  reports separately when the model under test has a different ceiling;
-  it never moves the edge.
+  re-drawing itself. The edge is therefore tied to the measurement, not
+  to the model, and is fixed and committed.
 
 What each limit was measured at when it was set, which is what makes it
 a limit rather than a wish:
 
 | Band | Metric | Limit | Measured | Margin |
 |------|--------|-------|----------|--------|
-| equaliser | gain | 0.25 dB | 0.0788 dB at 251 MHz | 3.2x |
-| equaliser | phase | 1 deg | 0.272 deg at 100 MHz | 3.7x |
-| equaliser | group delay | 40 ps | 15.6 ps at 1.58 MHz | 2.6x |
-| below_step_ceiling | gain | 0.25 dB | 0.0788 dB at 251 MHz | 3.2x |
-| below_step_ceiling | phase | 20 deg | 10.96 deg at 1.58 GHz | 1.8x |
-| below_step_ceiling | group delay | 40 ps | 24.3 ps at 1.58 GHz | 1.6x |
+| equaliser | gain | 0.25 dB | 0.0076 dB at 158 MHz | 33x |
+| equaliser | phase | 1 deg | 0.266 deg at 251 MHz | 3.8x |
+| equaliser | group delay | 40 ps | 6.05 ps at 15.8 MHz | 6.6x |
+| whole_sweep | gain | 0.25 dB | 0.0168 dB at 10 GHz | 15x |
+| whole_sweep | phase | 20 deg | 9.79 deg at 10 GHz | 2.0x |
+| whole_sweep | group delay | 40 ps | 6.05 ps at 15.8 MHz | 6.6x |
 
-The margins are in line with the 3.85x the tool's own time-domain CTLE
-golden carries (0.038997 measured against a 0.15 threshold).
+Measured on the 5.556 ps step this table asks for, when the second band
+was redrawn to 10 GHz. The tightest margin, 2.0x on phase at 10 GHz, is
+the step rule doing what it says: half of the 20 deg is left to the hold
+lag and half to everything else.
+
+The other margins are wider than the 3.85x the time-domain CTLE golden
+carries (0.038997 measured against a 0.15 threshold).
 
 ## Passivity
 

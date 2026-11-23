@@ -109,9 +109,12 @@
       "name": "below_step_ceiling",
       "upper_hz": null,
       "reason": [
-        "To be FIXED as a number from the first measured run, as demo 5's",
-        "2.083 GHz edge was: the model's own ten-steps-per-period ceiling,",
-        "written down once and then never re-derived."
+        "To be FIXED as a number from the first measured run, and tied to",
+        "the measurement rather than to the model. Demo 5 first drew this",
+        "edge at the model's own ten-steps-per-period ceiling (2.083 GHz),",
+        "but a model with a zero now gets its step from the spec's bars, so",
+        "an edge drawn at its ceiling would move with them. Demo 5 now",
+        "judges up to the top of its sweep, 10 GHz, instead."
       ]
     }
   ],

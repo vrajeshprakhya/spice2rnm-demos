@@ -120,9 +120,10 @@
       "name": "below_step_ceiling",
       "upper_hz": null,
       "reason": [
-        "To be FIXED as a number from the first measured run: the",
-        "model's own ten-steps-per-period ceiling, written down once and",
-        "then never re-derived from the model under test."
+        "To be FIXED as a number from the first measured run, and tied to",
+        "the measurement rather than to the model: a model with a zero",
+        "gets its step from the spec's bars, so an edge drawn at its own",
+        "ten-steps-per-period ceiling would move whenever the bars did."
       ]
     }
   ],

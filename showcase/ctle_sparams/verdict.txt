@@ -3,7 +3,7 @@ SDD21: the generated model against the transistors
 how the model was measured:
   21 frequencies simulated, 1e+06 to 1e+10 Hz, drive 0.001 V about 0.9 V
   settling 1e-06 s before each measurement (5 time constants of the slowest fitted pole)
-  8 periods integrated, 64 to 108004 samples per period (the step is capped at the model's own 9.259e-12 s, so a response faster than one step is still visible)
+  8 periods integrated, 64 to 179986 samples per period (the step is capped at the model's own 5.556e-12 s, so a response faster than one step is still visible)
   the integer-femtosecond step moves each frequency by at most 320 ppm, and the reported frequency is the one driven
   2.44249e-05 s of model time simulated
   note: rounding the step to whole femtoseconds moved a frequency by 320 ppm; the reported frequency is the one driven, but a comparison against another sweep's grid is that far off
@@ -16,29 +16,23 @@ the conversion between a voltage response and an S-parameter:
 compared over 21 frequencies, 21 of them in band (where the transistors' |SDD21| exceeds -40 dB)
 
 over the WHOLE swept band, reported:
-  worst |magnitude error|     0.1438 dB       at 10 GHz
-  worst |phase error|        16.5148 degrees  at 10 GHz
-  worst |group-delay error|  10.8669 ps       at 63.1 MHz
+  worst |magnitude error|     0.0168 dB       at 10 GHz
+  worst |phase error|         9.7910 degrees  at 10 GHz
+  worst |group-delay error|   6.0475 ps       at 15.85 MHz
 
 against the agreed bars, by band, from ctle_sp_spec.md:23:
   equaliser, up to 300 MHz  (13 points)
-    magnitude       0.0069 dB  at 15.85 MHz    bar 0.25     PASS
-    phase           0.2762 deg at 158.5 MHz    bar 1        PASS
-    group delay    10.8669 ps  at 63.1 MHz     bar 40       PASS
-  below_step_ceiling, up to 2.083 GHz  (17 points)
-    magnitude       0.0118 dB  at 1.585 GHz    bar 0.25     PASS
-    phase           2.6879 deg at 1.585 GHz    bar 20       PASS
-    group delay    10.8669 ps  at 63.1 MHz     bar 40       PASS
+    magnitude       0.0076 dB  at 158.5 MHz    bar 0.25     PASS
+    phase           0.2661 deg at 251.2 MHz    bar 1        PASS
+    group delay     6.0475 ps  at 15.85 MHz    bar 40       PASS
+  whole_sweep, up to 10 GHz  (21 points)
+    magnitude       0.0168 dB  at 10 GHz       bar 0.25     PASS
+    phase           9.7910 deg at 10 GHz       bar 20       PASS
+    group delay     6.0475 ps  at 15.85 MHz    bar 40       PASS
 
 VERDICT: PASS
 
-above 2.083 GHz the model cannot represent the response and these figures are REPORTED, NOT BARRED:
-  worst |magnitude error|     0.1438 dB       at 10 GHz
-  worst |phase error|        16.5148 degrees  at 10 GHz
-  worst |group-delay error|   5.0909 ps       at 3.981 GHz
-  a period up there is a handful of the model's own integration steps, so what a measurement finds depends on how finely it is driven.
-
-the model under test integrates on a step whose ten-steps-per-period ceiling is 10.8 GHz, against the 2.083 GHz this band's edge was drawn at. THAT HAS MOVED: the band edge is a fixed number on purpose, so re-drawing it is a decision rather than a side effect
+the model under test integrates on a step whose ten-steps-per-period ceiling is 18 GHz, at or above the 10 GHz the last band is judged to, so every judged frequency gets at least ten steps a period
 
 measured, not modelled:
   SDD11  input differential match          exactly zero at every frequency
@@ -61,7 +55,7 @@ passivity and reciprocity, derived from the measured S-matrix:
     No bar, and the reason is physical: R, L and C make a reciprocal network and a transistor does not, so a
     limit here would fail every correct amplifier. A figure near zero on a deck of printed passives, though, is
     the claim that the measurement is of what the caller thinks -- which is why it is printed rather than dropped.
-  passivity, SHIPPED MODEL: worst |SDD21| 0.744347914 at 3.981 GHz against 1 + 1e-06   PASS
+  passivity, SHIPPED MODEL: worst |SDD21| 0.742897496 at 3.981 GHz against 1 + 1e-06   PASS
   reciprocity is NOT measured on the shipped model at all, and the reason is structural rather than a shortcut. The model
   is measured by driving its input and reading its output; an RNM port carries one real value in one direction, so the
   model's SDD12 is a slot left at zero rather than a measurement. Comparing a measurement against a placeholder would

@@ -55,7 +55,7 @@
       "ports": "1=inp 50 ohm (in+), 2=inn 50 ohm (in-), 3=outp 1000 ohm (out+), 4=outn 1000 ohm (out-)",
       "bias": "natural",
       "sweep": "1e+06 to 1e+10 Hz, 20 per decade",
-      "tool": "0.2.0 git 20ea7cb"
+      "tool": "0.2.0 git 067f697"
     },
     "ports": [
       "inp",
@@ -8851,18 +8851,18 @@
       ],
       "describe": "fitted from SDD21 of ctle_sp.s4p, k = 0.4472"
     },
-    "wall_s": 45.9289205679961,
+    "wall_s": 88.61077143400325,
     "drive": 0.001,
     "offset": 0.9,
-    "settle_s": 1.0000090360000001e-06,
-    "sim_time_s": 2.4424882101e-05,
+    "settle_s": 1.000002216e-06,
+    "sim_time_s": 2.4424871707e-05,
     "params": {
       "dc_bias": 0.9,
-      "dt_seconds": 9.259259259e-12,
-      "tstep": 9259.26
+      "dt_seconds": 5.555555556e-12,
+      "tstep": 5555.56
     },
-    "step_ceiling_hz": 10800000000.302399,
-    "convention_ratio": 1.000786097100777
+    "step_ceiling_hz": 17999999998.56,
+    "convention_ratio": 1.0007861041959512
   },
   "comparison": {
     "k": 0.4472135954999579,
@@ -8915,96 +8915,96 @@
       -2.5706110954714134
     ],
     "model_sdd21_db": [
-      -6.998029025506801,
-      -6.997604963239878,
-      -6.996540135388804,
-      -6.993868112188136,
-      -6.987171619571987,
-      -6.9703988923984825,
-      -6.928885575170681,
-      -6.828739012255448,
-      -6.597049677827701,
-      -6.11881374169236,
-      -5.314719211135998,
-      -4.331876802669535,
-      -3.5026886794238776,
-      -2.9970654009729474,
-      -2.752149855799692,
-      -2.646305925059671,
-      -2.6118370003209646,
-      -2.5827895677512953,
-      -2.5644804882398553,
-      -2.628101537172433,
-      -2.714433278263156
+      -6.9980289639273074,
+      -6.997604813062362,
+      -6.996539774437366,
+      -6.9938670439818935,
+      -6.9871686147001535,
+      -6.97044058856304,
+      -6.9290242626927965,
+      -6.828616780025421,
+      -6.597179704722171,
+      -6.118064291000027,
+      -5.314376569034599,
+      -4.32916985389903,
+      -3.502445687833935,
+      -2.9954286281099685,
+      -2.7477420413302225,
+      -2.640594499279249,
+      -2.6084553192326503,
+      -2.585240708941119,
+      -2.5814221132076005,
+      -2.585721756720829,
+      -2.5874355489746144
     ],
     "db_error": [
-      0.00682527557566992,
-      0.006824817625721735,
-      0.006823738702482984,
-      0.006820747082803003,
-      0.006813312454941212,
-      0.006843207123963246,
-      0.006899872607132984,
-      0.006537499309689387,
-      0.006411419815991692,
-      0.005448360432904309,
-      0.005119079027856799,
-      0.0049198590767316475,
-      0.004355347100366114,
-      0.004058437043009455,
-      0.0009055773304988968,
-      -0.0015085545797002275,
-      -0.011818807942571397,
-      -0.0008771660243791501,
-      0.01017883687873633,
-      -0.056336902796688904,
-      -0.14382218279174275
+      0.0068253371551634245,
+      0.006824967803237492,
+      0.006824099653920612,
+      0.006821815289045574,
+      0.006816317326774346,
+      0.006801510959405732,
+      0.0067611850850175514,
+      0.006659731539715885,
+      0.0062813929215215225,
+      0.006197811125237429,
+      0.005461721129255359,
+      0.00762680784723635,
+      0.00459833869030879,
+      0.005695209905988374,
+      0.005313391799968592,
+      0.004202871200721603,
+      -0.008437126854257126,
+      -0.0033283072142027414,
+      -0.006762788089008875,
+      -0.013957122345084727,
+      -0.016824453503200942
     ],
     "phase_error_deg": [
-      -0.0035208599383338424,
-      -0.005580577683758747,
-      -0.008841528671212018,
-      -0.014036263510121216,
-      -0.02225341634911615,
-      -0.01807674579322338,
-      -0.02935693458803712,
-      -0.046193348365676457,
-      -0.006558098649549038,
-      -0.14449008986224499,
-      -0.17120838044854736,
-      -0.27618773111427686,
-      -0.0056390332086095896,
-      -0.6246706365144519,
-      -1.0255681636813563,
-      -1.655962725029326,
-      -2.6879277840193367,
-      -3.723434161140517,
-      -6.5369529417526735,
-      -10.500689676819917,
-      -16.514839859413996
+      -0.002162526106047835,
+      -0.0034289659549529006,
+      -0.005434082830447551,
+      -0.008619541477798975,
+      -0.013648128292089723,
+      -0.02166062316698003,
+      -0.03441430841252213,
+      -0.05454560735171299,
+      -0.045353247976350985,
+      -0.0724033758382916,
+      -0.20898892791407775,
+      -0.17586940760017455,
+      -0.2661126818607329,
+      -0.40874005297467875,
+      -0.6189603471403018,
+      -0.00209916084560291,
+      -1.494253332473221,
+      -2.3091248644279574,
+      -3.6503990149625736,
+      -6.190668655244821,
+      -9.79096896416408
     ],
     "group_delay_error_s": [
-      9.782022221506387e-12,
-      9.777986092486759e-12,
-      9.790954703081078e-12,
-      9.814287220863675e-12,
-      4.794139151710335e-12,
-      1.4493791804682842e-13,
-      5.2364591293831234e-12,
-      1.9426370134013976e-13,
-      1.770929294874738e-12,
-      1.086690212449494e-11,
-      3.1618457878912563e-12,
-      -7.943769808648224e-14,
-      -4.4293044970529496e-13,
-      9.026314380006979e-12,
-      4.7679761780089525e-12,
-      4.8053370647519024e-12,
-      4.205406185269201e-12,
-      3.960446599759314e-12,
-      5.090873246404734e-12,
-      4.650501036182324e-12,
-      4.526840585449281e-12
+      6.014582712385504e-12,
+      6.012200411963181e-12,
+      6.013956268064159e-12,
+      6.013481562094042e-12,
+      6.011274805096453e-12,
+      6.041047966929885e-12,
+      6.047489052652152e-12,
+      3.0263433444181583e-12,
+      1.8275519451013836e-13,
+      5.955804675643534e-12,
+      5.6950168492328945e-12,
+      8.173662570917619e-14,
+      2.701265746751723e-12,
+      2.6235939168267632e-12,
+      -2.586118342111441e-13,
+      -1.0533392536568548e-13,
+      5.289664986236021e-12,
+      2.4782181566246775e-12,
+      2.727228765880987e-12,
+      2.9064291884145727e-12,
+      2.7099399022974675e-12
     ],
     "bands": [
       {
@@ -9016,8 +9016,8 @@
             "label": "magnitude",
             "unit": "dB",
             "scale": 1.0,
-            "worst": 0.006899872607132984,
-            "at_hz": 15848931.9,
+            "worst": 0.00762680784723635,
+            "at_hz": 158489319.0,
             "limit": 0.25,
             "ok": true
           },
@@ -9025,8 +9025,8 @@
             "label": "phase",
             "unit": "deg",
             "scale": 1.0,
-            "worst": 0.27618773111427686,
-            "at_hz": 158489319.0,
+            "worst": 0.2661126818607329,
+            "at_hz": 251188643.0,
             "limit": 1.0,
             "ok": true
           },
@@ -9034,24 +9034,24 @@
             "label": "group delay",
             "unit": "ps",
             "scale": 1000000000000.0,
-            "worst": 1.086690212449494e-11,
-            "at_hz": 63095734.4,
+            "worst": 6.047489052652152e-12,
+            "at_hz": 15848931.9,
             "limit": 4e-11,
             "ok": true
           }
         }
       },
       {
-        "band": "below_step_ceiling",
-        "f_max_hz": 2083000000.0,
-        "points": 17,
+        "band": "whole_sweep",
+        "f_max_hz": 10000000000.0,
+        "points": 21,
         "metrics": {
           "db": {
             "label": "magnitude",
             "unit": "dB",
             "scale": 1.0,
-            "worst": 0.011818807942571397,
-            "at_hz": 1584893190.0,
+            "worst": 0.016824453503200942,
+            "at_hz": 10000000000.0,
             "limit": 0.25,
             "ok": true
           },
@@ -9059,8 +9059,8 @@
             "label": "phase",
             "unit": "deg",
             "scale": 1.0,
-            "worst": 2.6879277840193367,
-            "at_hz": 1584893190.0,
+            "worst": 9.79096896416408,
+            "at_hz": 10000000000.0,
             "limit": 20.0,
             "ok": true
           },
@@ -9068,8 +9068,8 @@
             "label": "group delay",
             "unit": "ps",
             "scale": 1000000000000.0,
-            "worst": 1.086690212449494e-11,
-            "at_hz": 63095734.4,
+            "worst": 6.047489052652152e-12,
+            "at_hz": 15848931.9,
             "limit": 4e-11,
             "ok": true
           }
@@ -9109,7 +9109,7 @@
       "phase_deg": 1.0,
       "group_delay_s": 4e-11
     },
-    "below_step_ceiling": {
+    "whole_sweep": {
       "db": 0.25,
       "phase_deg": 20.0,
       "group_delay_s": 4e-11
@@ -9121,8 +9121,8 @@
       300000000.0
     ],
     [
-      "below_step_ceiling",
-      2083000000.0
+      "whole_sweep",
+      10000000000.0
     ]
   ],
   "verdict": [
@@ -9131,7 +9131,7 @@
     "how the model was measured:",
     "  21 frequencies simulated, 1e+06 to 1e+10 Hz, drive 0.001 V about 0.9 V",
     "  settling 1e-06 s before each measurement (5 time constants of the slowest fitted pole)",
-    "  8 periods integrated, 64 to 108004 samples per period (the step is capped at the model's own 9.259e-12 s, so a response faster than one step is still visible)",
+    "  8 periods integrated, 64 to 179986 samples per period (the step is capped at the model's own 5.556e-12 s, so a response faster than one step is still visible)",
     "  the integer-femtosecond step moves each frequency by at most 320 ppm, and the reported frequency is the one driven",
     "  2.44249e-05 s of model time simulated",
     "  note: rounding the step to whole femtoseconds moved a frequency by 320 ppm; the reported frequency is the one driven, but a comparison against another sweep's grid is that far off",
@@ -9144,29 +9144,23 @@
     "compared over 21 frequencies, 21 of them in band (where the transistors' |SDD21| exceeds -40 dB)",
     "",
     "over the WHOLE swept band, reported:",
-    "  worst |magnitude error|     0.1438 dB       at 10 GHz",
-    "  worst |phase error|        16.5148 degrees  at 10 GHz",
-    "  worst |group-delay error|  10.8669 ps       at 63.1 MHz",
+    "  worst |magnitude error|     0.0168 dB       at 10 GHz",
+    "  worst |phase error|         9.7910 degrees  at 10 GHz",
+    "  worst |group-delay error|   6.0475 ps       at 15.85 MHz",
     "",
     "against the agreed bars, by band, from ctle_sp_spec.md:23:",
     "  equaliser, up to 300 MHz  (13 points)",
-    "    magnitude       0.0069 dB  at 15.85 MHz    bar 0.25     PASS",
-    "    phase           0.2762 deg at 158.5 MHz    bar 1        PASS",
-    "    group delay    10.8669 ps  at 63.1 MHz     bar 40       PASS",
-    "  below_step_ceiling, up to 2.083 GHz  (17 points)",
-    "    magnitude       0.0118 dB  at 1.585 GHz    bar 0.25     PASS",
-    "    phase           2.6879 deg at 1.585 GHz    bar 20       PASS",
-    "    group delay    10.8669 ps  at 63.1 MHz     bar 40       PASS",
+    "    magnitude       0.0076 dB  at 158.5 MHz    bar 0.25     PASS",
+    "    phase           0.2661 deg at 251.2 MHz    bar 1        PASS",
+    "    group delay     6.0475 ps  at 15.85 MHz    bar 40       PASS",
+    "  whole_sweep, up to 10 GHz  (21 points)",
+    "    magnitude       0.0168 dB  at 10 GHz       bar 0.25     PASS",
+    "    phase           9.7910 deg at 10 GHz       bar 20       PASS",
+    "    group delay     6.0475 ps  at 15.85 MHz    bar 40       PASS",
     "",
     "VERDICT: PASS",
     "",
-    "above 2.083 GHz the model cannot represent the response and these figures are REPORTED, NOT BARRED:",
-    "  worst |magnitude error|     0.1438 dB       at 10 GHz",
-    "  worst |phase error|        16.5148 degrees  at 10 GHz",
-    "  worst |group-delay error|   5.0909 ps       at 3.981 GHz",
-    "  a period up there is a handful of the model's own integration steps, so what a measurement finds depends on how finely it is driven.",
-    "",
-    "the model under test integrates on a step whose ten-steps-per-period ceiling is 10.8 GHz, against the 2.083 GHz this band's edge was drawn at. THAT HAS MOVED: the band edge is a fixed number on purpose, so re-drawing it is a decision rather than a side effect",
+    "the model under test integrates on a step whose ten-steps-per-period ceiling is 18 GHz, at or above the 10 GHz the last band is judged to, so every judged frequency gets at least ten steps a period",
     "",
     "measured, not modelled:",
     "  SDD11  input differential match          exactly zero at every frequency",
@@ -9189,7 +9183,7 @@
     "    No bar, and the reason is physical: R, L and C make a reciprocal network and a transistor does not, so a",
     "    limit here would fail every correct amplifier. A figure near zero on a deck of printed passives, though, is",
     "    the claim that the measurement is of what the caller thinks -- which is why it is printed rather than dropped.",
-    "  passivity, SHIPPED MODEL: worst |SDD21| 0.744347914 at 3.981 GHz against 1 + 1e-06   PASS",
+    "  passivity, SHIPPED MODEL: worst |SDD21| 0.742897496 at 3.981 GHz against 1 + 1e-06   PASS",
     "  reciprocity is NOT measured on the shipped model at all, and the reason is structural rather than a shortcut. The model",
     "  is measured by driving its input and reading its output; an RNM port carries one real value in one direction, so the",
     "  model's SDD12 is a slot left at zero rather than a measurement. Comparing a measurement against a placeholder would",
@@ -9205,8 +9199,8 @@
         300000000.0
       ],
       [
-        "below_step_ceiling",
-        2083000000.0
+        "whole_sweep",
+        10000000000.0
       ]
     ],
     "bars": {
@@ -9215,7 +9209,7 @@
         "phase_deg": 1.0,
         "group_delay_s": 4e-11
       },
-      "below_step_ceiling": {
+      "whole_sweep": {
         "db": 0.25,
         "phase_deg": 20.0,
         "group_delay_s": 4e-11
@@ -9225,7 +9219,7 @@
     "bars_from": "ctle_sp_spec.md:23",
     "cites": {
       "equaliser": "ctle_sp_spec.md:27",
-      "below_step_ceiling": "ctle_sp_spec.md:28"
+      "whole_sweep": "ctle_sp_spec.md:28"
     },
     "unstated": [],
     "judged": true,
@@ -9258,8 +9252,8 @@
         300000000.0
       ],
       [
-        "below_step_ceiling",
-        2083000000.0
+        "whole_sweep",
+        10000000000.0
       ]
     ],
     "bars": {
@@ -9268,7 +9262,7 @@
         "phase_deg": 1.0,
         "group_delay_s": 4e-11
       },
-      "below_step_ceiling": {
+      "whole_sweep": {
         "db": 0.25,
         "phase_deg": 20.0,
         "group_delay_s": 4e-11
@@ -9276,7 +9270,7 @@
     },
     "lines": {
       "equaliser": 27,
-      "below_step_ceiling": 28
+      "whole_sweep": 28
     },
     "unstated": [],
     "notes": [],
@@ -9297,120 +9291,120 @@
     "passed": true
   },
   "sweep_cost": {
-    "wall_s": 45.9289205679961,
+    "wall_s": 88.61077143400325,
     "points": 21,
-    "dt_seconds": 9.259259259e-12,
+    "dt_seconds": 5.555555556e-12,
     "model_periods": 8.0,
-    "total_steps": 4609087.654449054,
+    "total_steps": 7681785.097785457,
     "by_point": [
       {
-        "freq_hz": 999990.9640816485,
-        "steps": 972008.7830192163,
-        "share": 0.21088962846713424
+        "freq_hz": 999997.7840049106,
+        "steps": 1620003.5897903994,
+        "share": 0.21088894953041867
       },
       {
-        "freq_hz": 1584876.9419287173,
-        "steps": 653153.7112022883,
-        "share": 0.14170997823654166
+        "freq_hz": 1584882.5433403882,
+        "steps": 1088585.0797529132,
+        "share": 0.14170991063870506
       },
       {
-        "freq_hz": 2511873.4815143934,
-        "steps": 451967.3445726551,
-        "share": 0.0980600453836847
+        "freq_hz": 2511870.9514040784,
+        "steps": 753278.2573797378,
+        "share": 0.09806031381910131
       },
       {
-        "freq_hz": 3980944.4926160844,
-        "steps": 325034.89877710096,
-        "share": 0.07052044203658217
+        "freq_hz": 3981013.4956516745,
+        "steps": 541717.3338766627,
+        "share": 0.07051971995842889
       },
       {
-        "freq_hz": 6309324.9260821575,
-        "steps": 244941.14146285836,
-        "share": 0.05314308596982787
+        "freq_hz": 6309528.190139096,
+        "steps": 408226.6554873418,
+        "share": 0.053142160356064554
       },
       {
-        "freq_hz": 10000434.218853783,
-        "steps": 194397.22440544312,
-        "share": 0.04217694237552536
+        "freq_hz": 9999755.60597299,
+        "steps": 324003.91821407963,
+        "share": 0.04217820650925071
       },
       {
-        "freq_hz": 15849550.990145225,
-        "steps": 162513.56117255037,
-        "share": 0.0352593774205356
+        "freq_hz": 15847988.126433728,
+        "steps": 270863.6673383309,
+        "share": 0.03526051092166283
       },
       {
-        "freq_hz": 25119695.348334815,
-        "steps": 142396.2974919871,
-        "share": 0.030894682021188072
+        "freq_hz": 25116606.356671482,
+        "steps": 237332.98510101336,
+        "share": 0.03089555123970246
       },
       {
-        "freq_hz": 39809444.92616084,
-        "steps": 129704.36817963174,
-        "share": 0.028141007050371647
+        "freq_hz": 39809376.78022557,
+        "steps": 216172.78126270618,
+        "share": 0.028140956628040212
       },
       {
-        "freq_hz": 63092692.75574749,
-        "steps": 121695.11323540748,
-        "share": 0.02640329765001058
+        "freq_hz": 63097792.42908518,
+        "steps": 202822.1164637742,
+        "share": 0.026402992778624432
       },
       {
-        "freq_hz": 99996690.10955738,
-        "steps": 116641.26187526595,
-        "share": 0.025306800525408672
+        "freq_hz": 99992000.6399488,
+        "steps": 194401.55086444787,
+        "share": 0.025306819754758684
       },
       {
-        "freq_hz": 158482021.16559088,
-        "steps": 113452.69838717667,
-        "share": 0.024615001252506707
+        "freq_hz": 158495082.8485497,
+        "steps": 189085.85422487312,
+        "share": 0.02461483259657755
       },
       {
-        "freq_hz": 251196953.48334816,
-        "steps": 111440.50805112034,
-        "share": 0.024178431048832234
+        "freq_hz": 251206797.4549737,
+        "steps": 185732.72782514137,
+        "share": 0.024178329055141796
       },
       {
-        "freq_hz": 398101850.3774006,
-        "steps": 110171.27477108479,
-        "share": 0.02390305479756689
+        "freq_hz": 398107397.4326054,
+        "steps": 183617.51326531058,
+        "share": 0.023902974494593027
       },
       {
-        "freq_hz": 630991262.0330033,
-        "steps": 109370.25000306236,
-        "share": 0.02372926231886469
+        "freq_hz": 630910049.8923668,
+        "steps": 182282.81614541734,
+        "share": 0.023729226192225387
       },
       {
-        "freq_hz": 1000034001.1560394,
-        "steps": 108864.94651504823,
-        "share": 0.023619630320973223
+        "freq_hz": 999920006.3994881,
+        "steps": 181440.51406548472,
+        "share": 0.023619576928517735
       },
       {
-        "freq_hz": 1584946809.1850839,
-        "steps": 108546.1045950393,
-        "share": 0.023550453524194114
+        "freq_hz": 1584811169.7491243,
+        "steps": 180909.02446552724,
+        "share": 0.02355038863527705
       },
       {
-        "freq_hz": 2512057877.8135047,
-        "steps": 108344.91701103366,
-        "share": 0.023506803327216098
+        "freq_hz": 2512007395.349772,
+        "steps": 180573.6455855541,
+        "share": 0.023506729658137764
       },
       {
         "freq_hz": 3980891719.745223,
-        "steps": 108218.01269103012,
-        "share": 0.023479269826116148
+        "steps": 180362.12686557102,
+        "share": 0.0234791945582501
       },
       {
         "freq_hz": 6310581583.198708,
-        "steps": 108137.88878702787,
-        "share": 0.023461885929343233
+        "steps": 180228.5870255817,
+        "share": 0.023461810598885264
       },
       {
         "freq_hz": 10003201024.327785,
-        "steps": 108087.34824302644,
-        "share": 0.02345092051757619
+        "steps": 180144.35278558842,
+        "share": 0.023450845147636495
       }
     ],
-    "lowest_share": 0.21088962846713424,
-    "three_lowest_share": 0.45065965208736064
+    "lowest_share": 0.21088894953041867,
+    "three_lowest_share": 0.450659173988225
   },
   "passivity": {
     "checked": true,
@@ -9431,7 +9425,7 @@
   "model_passivity": {
     "checked": true,
     "tol": 1e-06,
-    "worst": 0.7443479139503705,
+    "worst": 0.7428974956842544,
     "worst_hz": 3981071710.0,
     "passed": true
   },
@@ -9441,7 +9435,7 @@
   ],
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-11-23T05:16:07.239398+00:00",
+    "timestamp_utc": "2026-11-23T21:03:32.049676+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",

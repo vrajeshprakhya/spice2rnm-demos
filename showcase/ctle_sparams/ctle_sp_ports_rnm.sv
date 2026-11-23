@@ -5,7 +5,7 @@
 // poles (Hz): [165754190.54900464]
 // fit quality: rms_error_db=7.512e-09  max_error_db=1.604e-08
 // transfer function: fitted from SDD21 of ctle_sp.s4p, k = 0.4472
-// integration step: 9.25926e-12 s, shortened from 4.80093e-11 s so the half-step hold lag of a block
+// integration step: 5.55556e-12 s, shortened from 4.80093e-11 s so the half-step hold lag of a block
 // with a zero stays within the specification's phase and group-delay limits (hold_step_limit)
 
 module ctle_sp_ports_rnm(input wreal in_val, output wreal out_val);
@@ -20,8 +20,8 @@ module ctle_sp_ports_rnm(input wreal in_val, output wreal out_val);
   localparam real WZ_0 = 624999999.1;
   localparam bit HAS_ZERO_0 = 1;
   localparam real OVERALL_MULT = -1.663384364;
-  localparam real TSTEP = 9259.26; // femtoseconds, for #(...) only
-  localparam real DT_SECONDS = 9.259259259e-12; // same interval, in real seconds, for RK4 math
+  localparam real TSTEP = 5555.56; // femtoseconds, for #(...) only
+  localparam real DT_SECONDS = 5.555555556e-12; // same interval, in real seconds, for RK4 math
   localparam real DC_BIAS = 0.9;
   localparam real GAIN_DC = -0.9982245489; // H(0), subtracted off the dynamic
                                             // path so it isn't double-counted

@@ -56,9 +56,10 @@ What it does not claim is in `verdict.txt` next to what it does: the
 input match, the output match and both mode-conversion terms are
 measured from the transistors and printed, because an S-parameter port
 carries two travelling waves and a real-number net carries one value per
-tick — a reflection coefficient has nowhere to live in it. Above the
-model's own integration-step ceiling the figures are reported and
-deliberately not barred.
+tick, so a reflection coefficient has nowhere to live in it. The bars
+cover the whole measured sweep, up to 10 GHz: the model's integration
+step is sized from those bars, so ten of its steps fit in every period
+it is judged at.
 
 The two PLL cases are the same circuit answered two ways, and the
 difference is what each is for.
