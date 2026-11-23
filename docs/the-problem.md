@@ -94,7 +94,7 @@ The arithmetic is identical in every case. Only the port declarations differ.
 One detail: a net cannot be assigned inside procedural code, so a model with
 net ports drives its output through a single continuous assignment. We
 measured whether that matters. It does not. The filter scores
-`rms_error_norm` 0.029008790476737805 against SPICE with either port type,
+`rms_error_norm` 0.0007249666017660382 against SPICE with either port type,
 identical to every digit.
 
 ### A UVM-MS verification environment
@@ -133,7 +133,7 @@ open-source simulators.
 
 | Circuit | What is compared | Worst vs pass/fail limit | Environment |
 |---|---|---|---|
-| two-pole filter | waveform, unseen input | 0.0097 vs 0.15 | 64 checks, 0 failed |
+| two-pole filter | waveform, unseen input | 0.0067 vs 0.15 | 64 checks, 0 failed |
 | duty-cycle corrector | where its edges land | 0.428 vs 1.0 pp | 60 checks, 0 failed |
 | phase interpolator | edge position per code | 1.83 vs 6.25 ps | 9 checks, 0 failed |
 | PLL, SV–SPICE co-sim | system vs SPICE circuit | 4.158 mV, 47% of limit | 5 blocks, 0 failed |

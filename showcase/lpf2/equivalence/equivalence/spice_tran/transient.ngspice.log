@@ -1,6 +1,6 @@
 # command : /home/vraje/ngspice-install/bin/ngspice -b /home/vraje/s2r_runs/lpf2/equivalence/spice_tran/transient.cir
-# started : 2026-11-22T00:40:18.047877+00:00
-# finished: 2026-11-22T00:40:32.056786+00:00
+# started : 2026-11-23T04:21:15.957536+00:00
+# finished: 2026-11-23T04:21:23.354611+00:00
 # exit    : 0
 
 --- stdout ---
@@ -24,61 +24,35 @@ mid                                          0
 vout                                         0
 vin#branch                                   0
 
- Reference value :  3.67304e-07
- Reference value :  7.50425e-07
- Reference value :  1.07984e-06
- Reference value :  1.37789e-06
- Reference value :  1.65129e-06
- Reference value :  1.90469e-06
- Reference value :  2.13762e-06
- Reference value :  2.34691e-06
- Reference value :  2.54249e-06
- Reference value :  2.72974e-06
- Reference value :  2.91594e-06
- Reference value :  3.10190e-06
- Reference value :  3.26368e-06
- Reference value :  3.42766e-06
- Reference value :  3.58853e-06
- Reference value :  3.74944e-06
- Reference value :  3.90736e-06
- Reference value :  4.06355e-06
- Reference value :  4.21262e-06
- Reference value :  4.35962e-06
- Reference value :  4.50283e-06
- Reference value :  4.64093e-06
- Reference value :  4.76913e-06
- Reference value :  4.88139e-06
- Reference value :  4.97965e-06
- Reference value :  5.07740e-06
- Reference value :  5.16442e-06
- Reference value :  5.23815e-06
- Reference value :  5.31041e-06
- Reference value :  5.39522e-06
- Reference value :  5.49267e-06
- Reference value :  5.59436e-06
- Reference value :  5.70320e-06
- Reference value :  5.81664e-06
- Reference value :  5.92243e-06
- Reference value :  6.02805e-06
- Reference value :  6.13738e-06
- Reference value :  6.24397e-06
- Reference value :  6.35189e-06
- Reference value :  6.45703e-06
- Reference value :  6.56322e-06
- Reference value :  6.64422e-06
- Reference value :  6.72317e-06
- Reference value :  6.80778e-06
- Reference value :  6.90217e-06
- Reference value :  6.99555e-06
- Reference value :  7.09115e-06
- Reference value :  7.18957e-06
- Reference value :  7.28147e-06
- Reference value :  7.36686e-06
- Reference value :  7.45471e-06
- Reference value :  7.54522e-06
- Reference value :  7.63460e-06
- Reference value :  7.72323e-06
- Reference value :  7.80726e-06
+ Reference value :  7.29953e-07
+ Reference value :  1.28972e-06
+ Reference value :  1.76948e-06
+ Reference value :  2.20586e-06
+ Reference value :  2.59914e-06
+ Reference value :  2.93940e-06
+ Reference value :  3.25899e-06
+ Reference value :  3.55991e-06
+ Reference value :  3.86006e-06
+ Reference value :  4.11877e-06
+ Reference value :  4.37561e-06
+ Reference value :  4.61545e-06
+ Reference value :  4.85864e-06
+ Reference value :  5.06842e-06
+ Reference value :  5.25492e-06
+ Reference value :  5.47749e-06
+ Reference value :  5.69386e-06
+ Reference value :  5.88716e-06
+ Reference value :  6.08993e-06
+ Reference value :  6.27800e-06
+ Reference value :  6.47035e-06
+ Reference value :  6.65214e-06
+ Reference value :  6.82851e-06
+ Reference value :  6.99123e-06
+ Reference value :  7.16337e-06
+ Reference value :  7.33546e-06
+ Reference value :  7.49458e-06
+ Reference value :  7.65943e-06
+ Reference value :  7.81962e-06
 No. of Data Rows : 276355
 Note: Simulation executed from .control section
 

@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-18T05:52:54.478954+00:00",
+    "timestamp_utc": "2026-11-23T03:43:33.239687+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -9,7 +9,7 @@
       "/home/vraje/spice2rnm/spice2rnm/__main__.py",
       "work/rc_lpf2.cir",
       "--out-dir",
-      "/home/vraje/spice2rnm-demos/showcase/lpf2_house",
+      "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house",
       "--input-node",
       "vin",
       "--output-node",
@@ -19,11 +19,12 @@
       "--emit-uvm-ms",
       "--emit-assertions",
       "--style-from",
-      "/home/vraje/spice2rnm-demos/showcase/house_lib",
+      "/home/vraje/spice2rnm-demos-wave/showcase/house_lib",
       "--model-ports",
       "house"
     ],
     "cwd": "/home/vraje/spice2rnm",
+    "license": "",
     "netlist": "work/rc_lpf2.cir",
     "ngspice_bin": "/home/vraje/ngspice-install/bin/ngspice",
     "xezim_bin": "/home/vraje/xezim/target/release/xezim"
@@ -74,7 +75,21 @@
       },
       "netlist_used": {
         "__omitted__": "bulk field; written to its own file",
-        "chars": 908
+        "chars": 918
+      }
+    },
+    "cost": {
+      "pipeline": {
+        "what": "the whole pipeline for this block",
+        "wall_s": 18.0149,
+        "cpu_s": 8.1749,
+        "scale": {}
+      },
+      "ac_sweep": {
+        "what": "the .ac characterization sweep alone",
+        "wall_s": 0.0159,
+        "cpu_s": 0.0114,
+        "scale": {}
       }
     },
     "tf": {
@@ -87,6 +102,10 @@
       "rms_error_db": 1.417442508426416e-08,
       "max_error_db": 5.8104447475670895e-08
     },
+    "tf_source": "",
+    "tf_crosscheck": null,
+    "measured_fit": null,
+    "input_delay_s": null,
     "dc_sweep": {
       "success": true,
       "x": {
@@ -121,7 +140,7 @@
       },
       "netlist_used": {
         "__omitted__": "bulk field; written to its own file",
-        "chars": 813
+        "chars": 818
       }
     },
     "dc_fit": {
@@ -140,19 +159,21 @@
     },
     "pole_schedule": null,
     "model_form": "additive",
+    "model_ports": null,
     "band_hz": null,
     "uvm_ms_environment": null,
+    "uvm_ms_files": [],
     "dc_bias": 0.9,
-    "sv_path": "/home/vraje/spice2rnm-demos/showcase/lpf2_house/rc_lpf2_rnm.sv",
+    "sv_path": "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/rc_lpf2_rnm.sv",
     "sv_text": {
       "__omitted__": "bulk field; written to its own file",
-      "chars": 5284
+      "chars": 5931
     },
     "equivalence": {
       "success": true,
       "checked": true,
-      "rms_error_norm": 0.029008790476737805,
-      "max_error_norm": 0.4975716838333135,
+      "rms_error_norm": 0.0007249666017660382,
+      "max_error_norm": 0.005609264797393875,
       "threshold": 0.15,
       "timing": null,
       "spice_t": {
@@ -199,18 +220,39 @@
         ],
         "n_nonfinite": 0,
         "min": 0.0,
-        "max": 1.80802012,
+        "max": 1.79912703,
         "first": 0.0,
-        "last": 0.000894687823
+        "last": 0.00622990682
       },
       "metric": "rms_voltage",
+      "cost": {
+        "spice": {
+          "what": "ngspice transient, the reference",
+          "wall_s": 7.5977,
+          "cpu_s": 7.5178,
+          "scale": {
+            "span_s": 7.846455721513268e-06,
+            "points": 39479,
+            "step_s": 4.968752831577084e-11
+          }
+        },
+        "model": {
+          "what": "xezim, the generated model",
+          "wall_s": 0.6317,
+          "cpu_s": 0.6247,
+          "scale": {
+            "span_s": 7.846455721513268e-06,
+            "elaborates": 1
+          }
+        }
+      },
       "timing_threshold_pp": null,
       "norm_mode": "composite_excursion",
       "norm_value": 1.8087846,
       "n_compared": 276350,
       "stim_min": -0.017988476486080717,
       "stim_max": 1.8146546792023766,
-      "compare_csv_path": "/home/vraje/spice2rnm-demos/showcase/lpf2_house/equivalence/waveform_compare.csv",
+      "compare_csv_path": "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/equivalence/waveform_compare.csv",
       "vcd_path": null,
       "warnings": [
         "replaced value spec of input source 'VIN' with PWL stimulus"
@@ -222,22 +264,29 @@
     ],
     "errors": []
   },
+  "style": {
+    "notes": [
+      "adopting nettype ng_anet (resolver ng_sum) from package ng_ams_pkg [/home/vraje/spice2rnm-demos-wave/showcase/house_lib/ng_ams_pkg.sv:19]. The generated environment's analog nets use it and its types package is not emitted. Single-driver nets, so any sane resolver behaves identically there.",
+      "the library's timescale is 1ns/1ps [/home/vraje/spice2rnm-demos-wave/showcase/house_lib/ng_ams_pkg.sv:1]. Generated files keep 1fs/1fs: their delays are computed real femtosecond values, and timescale is per compilation unit, so the two interoperate unchanged.",
+      "no model credentials: set ANTHROPIC_API_KEY for Claude's own API, or AWS_REGION with AWS credentials for Amazon Bedrock; conventions read mechanically (first declared nettype wins ties)"
+    ]
+  },
   "uvm_ms": {
     "notes": [
       "ac check: 10 points, 1.995e+05 Hz to 5.012e+07 Hz (model step 3.04e-10 s caps it at 5.146e+07 Hz)",
       "house style: environment nets use ng_anet from ng_ams_pkg; rc_lpf2_ms_types_pkg.sv not emitted; the run script compiles ../house_lib/ng_ams_pkg.sv (override with HOUSE_NET_SRC)"
     ],
     "files": [
-      "/home/vraje/spice2rnm-demos/showcase/lpf2_house/rc_lpf2_bridge.sv",
-      "/home/vraje/spice2rnm-demos/showcase/lpf2_house/rc_lpf2_bridge_core.sv",
-      "/home/vraje/spice2rnm-demos/showcase/lpf2_house/rc_lpf2_dms.sv",
-      "/home/vraje/spice2rnm-demos/showcase/lpf2_house/rc_lpf2_ms_pkg.sv",
-      "/home/vraje/spice2rnm-demos/showcase/lpf2_house/rc_lpf2_ms_scoreboard.svh",
-      "/home/vraje/spice2rnm-demos/showcase/lpf2_house/rc_lpf2_ms_tb.svh",
-      "/home/vraje/spice2rnm-demos/showcase/lpf2_house/rc_lpf2_ms_test.svh",
-      "/home/vraje/spice2rnm-demos/showcase/lpf2_house/rc_lpf2_proxy_pkg.sv",
-      "/home/vraje/spice2rnm-demos/showcase/lpf2_house/run_rc_lpf2_ms.sh",
-      "/home/vraje/spice2rnm-demos/showcase/lpf2_house/top_rc_lpf2_ms.sv"
+      "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/rc_lpf2_bridge.sv",
+      "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/rc_lpf2_bridge_core.sv",
+      "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/rc_lpf2_dms.sv",
+      "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/rc_lpf2_ms_pkg.sv",
+      "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/rc_lpf2_ms_scoreboard.svh",
+      "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/rc_lpf2_ms_tb.svh",
+      "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/rc_lpf2_ms_test.svh",
+      "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/rc_lpf2_proxy_pkg.sv",
+      "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/run_rc_lpf2_ms.sh",
+      "/home/vraje/spice2rnm-demos-wave/showcase/lpf2_house/top_rc_lpf2_ms.sv"
     ],
     "model_form": "additive",
     "ac_omitted": false

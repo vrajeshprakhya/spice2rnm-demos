@@ -56,7 +56,7 @@ oscillator reports its held-back frequency error directly.
 
 **An input the model has never seen.** The filter is built from a frequency
 sweep. It is then tested with a pseudo-random bit sequence it was never shown
-(0.0097). A model that had merely memorised the data it was built from would
+(0.0067). A model that had merely memorised the data it was built from would
 be caught there.
 
 **The report says what range the answer covers.** A comparison proves nothing
@@ -127,7 +127,7 @@ out of the repository.
 
 | Case | Scored on | Published verdict |
 |---|---|---|
-| Filter | rms voltage | 0.0290 against 0.15 |
+| Filter | rms voltage | 0.0007 against 0.15 |
 | Duty corrector | rms voltage | 0.0769 against 0.15 |
 | Phase interpolator | phase per code | worst 1.832 ps at code 2, tolerance 6.251 ps |
 | Phase-locked loop | five routes, then the whole system | five block verdicts, and the system over 116,018 samples |

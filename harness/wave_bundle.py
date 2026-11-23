@@ -133,8 +133,13 @@ def lpf2_chirp(run):
     rng = re.search(r"\(xin < ([0-9.eE+-]+)\) \? [0-9.eE+-]+ : \(\(xin > "
                     r"([0-9.eE+-]+)\)", src)
     in_range = (float(rng.group(1)), float(rng.group(2))) if rng else None
+    # Does the model hold an out-of-range input at the edge BEFORE its
+    # filter (spice2rnm #76, IN_LO/IN_HI on the cascade's input), or let
+    # the excess past it (earlier models)? The pictures' wording follows.
+    clamp_filtered = bool(re.search(r"u_dev\s*=.*IN_LO", src))
     return {
         "in_range": in_range,
+        "clamp_filtered": clamp_filtered,
         "stim": "chirp",
         "title": "Full-range sweep with a chirp on top, through the two-pole RC filter",
         "what": ("the pipeline's own equivalence stimulus: a slow sweep "
@@ -202,12 +207,11 @@ def lpf2_prbs(vdir):
             "rms": rms, "max": mx, "threshold": 0.15,
             "verdict": "PASS" if rms <= 0.15 else "FAIL",
             "norm": exc,
-            "how": ("rms of (model - circuit) on 4000 points from %.0f ns, "
-                    "divided by the circuit's swing (%.4f V). Before %.0f ns "
-                    "the model is still waking up from rest while ngspice "
-                    "starts already settled, so that stretch compares two "
-                    "starting points, not two filters, and is not scored"
-                    % (settle * 1e9, exc, settle * 1e9)),
+            # What happens before `settle` is said in main(), from the
+            # data: whether the model starts settled or wakes from rest.
+            "how": ("rms of (model - circuit) on 4000 points from %.0f ns "
+                    "(10 time constants of the slower pole), divided by the "
+                    "circuit's swing (%.4f V)" % (settle * 1e9, exc)),
             "settle": settle,
         },
         "source": str(vdir),
@@ -492,6 +496,20 @@ def score_line(sc):
             % (sc["rms"] * 100, sc["max"] * 100, sc["verdict"]))
 
 
+def startup_visible(d, err):
+    """Is there a start-up worth drawing and explaining? A model that
+    opens settled at the stimulus's first value (spice2rnm #77) has
+    none; one that opens at its bias does, and it dwarfs the settled
+    error. Decided from the data, so the words follow the model."""
+    st = d["score"].get("settle") or 0.0
+    # The first nanosecond is left out: until its first step (0.3 ns on
+    # rc_lpf2) a model's output is still the simulator's initial 0 V, one
+    # step long, which is not a start-up and would read as one.
+    early = [abs(e) for t, e in err if 1e-9 <= t < st]
+    late = [abs(e) for t, e in err if t >= st]
+    return bool(early and late and max(early) > 3 * max(late))
+
+
 def plot_prbs(d, err, path):
     W, H, L, R = 1000, 560, 78, 24
     c, m, vin = d["circuit"], d["model"], d["vin"]
@@ -506,7 +524,7 @@ def plot_prbs(d, err, path):
     lim = max(abs(e) for t, e in errm if t >= st) * 1.25
     bot = Panel(L, 410, W - L - R, 100, t0, t1, -lim, lim, ts, tu)
     shade = ""
-    if st:
+    if st and d.get("startup_visible"):
         for p in (top, bot):
             shade += ('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" '
                       'fill="#eef1f4"/>' % (p.x, p.y, p.X(st) - p.x, p.h))
@@ -586,19 +604,25 @@ def plot_chirp(d, err, path):
     over = Panel(L, 108, W2, 230, 0, t_end, *span([c, m, vin], 0, t_end), ts, tu)
     oerr = Panel(L, 356, W2, 80, 0, t_end, -lim, lim, ts, tu)
     shade = ""
-    for p in (over, oerr):
-        shade += ('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" '
-                  'fill="#eef1f4"/>' % (p.x, p.y, max(2.0, p.X(st) - p.x), p.h))
+    visible = d.get("startup_visible")
+    if visible:
+        for p in (over, oerr):
+            shade += ('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" '
+                      'fill="#eef1f4"/>' % (p.x, p.y, max(2.0, p.X(st) - p.x), p.h))
     first = max(errm[:2000], key=lambda p: abs(p[1]))
     d["score"]["startup"] = (interp(m, first[0]), interp(c, first[0]),
                              catch_up_time(err, d["score"]["norm"]))
     body = [
         '<text x="%d" y="28" class="title">%s</text>' % (L, d["title"]),
         '<text x="%d" y="48" class="sub">%s</text>' % (L, score_line(d["score"])),
-        '<text x="%d" y="66" class="sub">After start-up (from %.0f ns): rms '
-        '%.2f%%, worst point %.2f%%. The whole-run figures above include the '
-        'model waking up from rest.</text>' % (L, st * 1e9, s_rms * 100,
-                                               s_max * 100),
+        ('<text x="%d" y="66" class="sub">After start-up (from %.0f ns): rms '
+         '%.2f%%, worst point %.2f%%. The whole-run figures above include the '
+         'model waking up from rest.</text>' % (L, st * 1e9, s_rms * 100,
+                                                s_max * 100)
+         if visible else
+         '<text x="%d" y="66" class="sub">The model opens settled at the '
+         'stimulus\'s first value, as ngspice does, so the whole run is '
+         'scored.</text>' % L),
         legend(L, 86, [("stimulus", C_VIN, 1.2, 1), ("circuit (ngspice)",
                        C_CIRCUIT, 6, 0.45), ("model (xezim)", C_MODEL, 1.6, 1)]),
         shade,
@@ -617,23 +641,24 @@ def plot_chirp(d, err, path):
         over.path(c, C_CIRCUIT, 6, 0.45),
         over.path(m, C_MODEL, 1.6),
         oerr.path(errm, C_ERR, 1.2),
-        '<text x="%.1f" y="%.1f" class="note">start-up: the model begins at '
-        '%.2f V while the circuit sits at %.2f V (off this scale)</text>'
-        % (oerr.X(st) + 6, oerr.y + 14, interp(m, first[0]),
-           interp(c, first[0])),
-    ]
+    ] + (['<text x="%.1f" y="%.1f" class="note">start-up: the model begins at '
+          '%.2f V while the circuit sits at %.2f V (off this scale)</text>'
+          % (oerr.X(st) + 6, oerr.y + 14, interp(m, first[0]),
+             interp(c, first[0]))] if visible else [])
     pw = (W2 - G) / 2
     for k, (a, b) in enumerate(wins):
         x = L + k * (pw + G)
         zs, zu = tunit(b - a)
         vw = [v for t, v in vin if a <= t <= b]
         rng = d.get("in_range")
+        what = ("held at the edge, then filtered" if d.get("clamp_filtered")
+                else "the clamp skips the filter")
         if rng and max(vw) > rng[1]:
-            where = ("input reaches %.3f V, past the measured %g V: the "
-                     "clamp skips the filter" % (max(vw), rng[1]))
+            where = ("input reaches %.3f V, past the measured %g V: %s"
+                     % (max(vw), rng[1], what))
         elif rng and min(vw) < rng[0]:
-            where = ("input dips to %.3f V, below the measured %g V: the "
-                     "clamp skips the filter" % (min(vw), rng[0]))
+            where = ("input dips to %.3f V, below the measured %g V: %s"
+                     % (min(vw), rng[0], what))
         else:
             where = "inside the measured range"
         d.setdefault("windows", []).append(where != "inside the measured range")
@@ -694,34 +719,61 @@ def main():
         wave, note = to_fst(vcd)
         write_gtkw(out / (stem + ".gtkw"), wave.name, a.case, t_last,
                    d["title"])
+        d["startup_visible"] = startup_visible(d, err)
         PLOTS[d["stim"]](d, err, out / (stem + ".svg"))
         sc = d["score"]
+        visible = d["startup_visible"]
+        how = sc["how"]
+        if d["stim"] == "prbs":
+            how += (". Before %.0f ns the model is still waking up from rest "
+                    "while ngspice starts already settled, so that stretch "
+                    "compares two starting points, not two filters, and is "
+                    "not scored" % (sc["settle"] * 1e9) if visible else
+                    ". The model opens settled at the stimulus's first value "
+                    "as ngspice does, so the first %.0f ns are left out only "
+                    "to match the window prbs_vcd.py and prbs_sweep2.py score"
+                    % (sc["settle"] * 1e9))
+        lo_hi = (d["in_range"] + (min(v for _, v in d["vin"]),
+                                  max(v for _, v in d["vin"]))
+                 if d.get("in_range") else None)
         notes = [
             "Stimulus: %s." % d["what"],
             "Score: %s." % score_line(sc),
-            "How it was scored: %s." % sc["how"],
+            "How it was scored: %s." % how,
         ] + ([
             "After start-up (from %.0f ns): rms %.2f%%, worst point %.2f%%. "
-            "The model's output begins at mid-scale (%.2f V, while the "
-            "circuit sits at %.2f V) and takes until %.0f ns to come within "
-            "1%% of the circuit, and the whole-run figures include that."
+            "The model's output begins at %.2f V while the circuit sits at "
+            "%.2f V, and takes until %.0f ns to come within 1%% of the "
+            "circuit; the whole-run figures include that."
             % (sc["settle"] * 1e9, sc["settled"][0] * 100,
                sc["settled"][1] * 100, sc["startup"][0], sc["startup"][1],
-               sc["startup"][2] * 1e9)] if "settled" in sc else []) + ([
-            "The two stretches where the settled model is furthest from the "
-            "circuit (A and B in the picture) are both where the stimulus "
-            "steps outside the %g..%g V input range the model was "
-            "characterised over (it reaches %.3f..%.3f V). There the model "
-            "adds clamp(input) - input straight onto its output, outside "
-            "its filter (rc_lpf2_rnm.sv, final_out = static_out + "
-            "(dynamic_out - GAIN_DC*u_dev)), so the output jumps by the "
-            "input's excess instantly, sharp corners included, which no RC "
-            "filter can do. The error in those stretches is that excess, "
-            "sample for sample: a property of where the model applies its "
-            "clamp, not of its filter, and only outside the measured range."
-            % (d["in_range"] + (min(v for _, v in d["vin"]),
-                                max(v for _, v in d["vin"])))]
-            if d.get("windows") and all(d["windows"]) else [])
+               sc["startup"][2] * 1e9)] if "settled" in sc and visible else []) + ([
+            ("The two stretches where the model is furthest from the circuit "
+             "(A and B in the picture) are both where the stimulus steps "
+             "outside the %g..%g V input range the model was characterised "
+             "over (it reaches %.3f..%.3f V). There the model holds its input "
+             "at the edge of that range, the furthest it was measured, and "
+             "filters it as usual, while the circuit keeps following the "
+             "input; the error is that excess, smoothed by the filter, and "
+             "only outside the measured range." % lo_hi)
+            if d.get("clamp_filtered") else
+            ("The two stretches where the settled model is furthest from the "
+             "circuit (A and B in the picture) are both where the stimulus "
+             "steps outside the %g..%g V input range the model was "
+             "characterised over (it reaches %.3f..%.3f V). There the model "
+             "adds clamp(input) - input straight onto its output, outside "
+             "its filter (rc_lpf2_rnm.sv, final_out = static_out + "
+             "(dynamic_out - GAIN_DC*u_dev)), so the output jumps by the "
+             "input's excess instantly, sharp corners included, which no RC "
+             "filter can do. The error in those stretches is that excess, "
+             "sample for sample: a property of where the model applies its "
+             "clamp, not of its filter, and only outside the measured range."
+             % lo_hi)]
+            if lo_hi and d.get("windows") and all(d["windows"]) else [])
+        if not visible:
+            # The web page shades and offers an "After start-up" view only
+            # when there is a start-up to see.
+            sc["settle"] = 0.0
         page = out / (stem + ".html")
         write_page(page, d, err, [n for n in notes if not n.startswith("Score:")],
                    {"vin": C_VIN, "circuit": C_CIRCUIT, "model": C_MODEL,

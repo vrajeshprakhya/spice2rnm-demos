@@ -19,8 +19,11 @@ updates the figures without touching the prose.
 import re
 from pathlib import Path
 
-RUNS = Path("/home/vraje/s2r_runs")
-TEX = Path("/home/vraje/spice2rnm-demos/whitepaper/spice2rnm-demos.tex")
+RUNS = Path.home() / "s2r_runs"
+# The .tex next to this script, not a fixed checkout: run from a second
+# checkout (a worktree, a CI clone), a fixed path rewrote the FIRST
+# checkout's paper and left this one's untouched.
+TEX = Path(__file__).resolve().parent / "spice2rnm-demos.tex"
 
 
 def read_csv(path, cols):
@@ -247,10 +250,20 @@ def boundary(path, net):
     return out
 
 
-m = boundary(RUNS / "demo4_pll/cosim/model/boundary.log", "vout")
-g = boundary(RUNS / "demo4_pll/cosim/golden/boundary.log", "vout")
-worst = max(abs(a[1] - b[1]) for a, b in zip(m, g)) * 1e3
-figs["pll"] = fig(
+def _boundary_or_none(path, net):
+    # A run directory that no longer holds this log (the PLL demo not
+    # re-run since it was cleaned) leaves the PUBLISHED figure as it is,
+    # said out loud, rather than crashing or drawing an empty plot.
+    return boundary(path, net) if Path(path).exists() else []
+
+
+m = _boundary_or_none(RUNS / "demo4_pll/cosim/model/boundary.log", "vout")
+g = _boundary_or_none(RUNS / "demo4_pll/cosim/golden/boundary.log", "vout")
+if not (m and g):
+    print("pll: no boundary log under %s; the published figure is kept"
+          % (RUNS / "demo4_pll/cosim"))
+else:
+  figs["pll"] = fig(
     "    \\addplot[black,mark=*,mark size=1.5pt] coordinates {%s};\n"
     "    \\addplot[red,dashed,mark=o,mark size=2.4pt] coordinates {%s};"
     % (" ".join("(%.4g,%.6g)" % (t * 1e6, v) for t, v in g),

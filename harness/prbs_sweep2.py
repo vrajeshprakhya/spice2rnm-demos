@@ -14,6 +14,11 @@ changed nothing, which is what ruled the integration step out.
 This version holds the simulated DURATION constant (bit count scales with
 rate) and opens the comparison after 10 tau, so startup is a fixed, small
 fraction at every rate and what remains is tracking error.
+
+Since spice2rnm #77 the RNM opens at the operating point of the stimulus's
+first value, as ngspice does, so the mismatched start described above no
+longer exists; the 10 tau window is kept so the figures stay comparable.
+Measured with that model: 0.53% to 0.96% rms from 5 to 320 Mb/s.
 """
 import subprocess, math, re
 from pathlib import Path

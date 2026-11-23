@@ -17,26 +17,26 @@ the conversion between a voltage response and an S-parameter:
 compared over 21 frequencies, 21 of them in band (where the transistors' |SDD21| exceeds -40 dB)
 
 over the WHOLE swept band, reported:
-  worst |magnitude error|     1.9084 dB       at 10 GHz
-  worst |phase error|       101.2910 degrees  at 10 GHz
-  worst |group-delay error|  37.3937 ps       at 10 GHz
+  worst |magnitude error|     1.9947 dB       at 10 GHz
+  worst |phase error|       101.2912 degrees  at 10 GHz
+  worst |group-delay error|  37.3894 ps       at 10 GHz
 
-against the agreed bars, by band:
+against the agreed bars, by band, from ctle_sp_spec.md:23:
   equaliser, up to 300 MHz  (13 points)
-    magnitude       0.0788 dB  at 251.2 MHz    bar 0.25     PASS
-    phase           0.2722 deg at 100 MHz      bar 1        PASS
-    group delay    15.6304 ps  at 1.585 MHz    bar 40       PASS
+    magnitude       0.0068 dB  at 2.512 MHz    bar 0.25     PASS
+    phase           0.0208 deg at 158.5 MHz    bar 1        PASS
+    group delay     7.3012 ps  at 251.2 MHz    bar 40       PASS
   below_step_ceiling, up to 2.083 GHz  (17 points)
-    magnitude       0.0788 dB  at 251.2 MHz    bar 0.25     PASS
-    phase          10.9649 deg at 1.585 GHz    bar 20       PASS
-    group delay    24.2764 ps  at 1.585 GHz    bar 40       PASS
+    magnitude       0.0782 dB  at 1.585 GHz    bar 0.25     PASS
+    phase          10.9996 deg at 1.585 GHz    bar 20       PASS
+    group delay    24.2006 ps  at 1.585 GHz    bar 40       PASS
 
 VERDICT: PASS
 
 above 2.083 GHz the model cannot represent the response and these figures are REPORTED, NOT BARRED:
-  worst |magnitude error|     1.9084 dB       at 10 GHz
-  worst |phase error|       101.2910 degrees  at 10 GHz
-  worst |group-delay error|  37.3937 ps       at 10 GHz
+  worst |magnitude error|     1.9947 dB       at 10 GHz
+  worst |phase error|       101.2912 degrees  at 10 GHz
+  worst |group-delay error|  37.3894 ps       at 10 GHz
   a period up there is a handful of the model's own integration steps, so what a measurement finds depends on how finely it is driven.
 
 the model under test integrates on a step whose ten-steps-per-period ceiling is 2.083 GHz, against the 2.083 GHz this band's edge was drawn at
@@ -50,5 +50,23 @@ measured, not modelled:
   carries one real value per tick, so a reflection coefficient has nowhere to live in it. They are measured from the
   transistors and printed so that what the model does not cover is visible rather than absent.
 
-no passivity check is applied here. This block is an amplifier: its largest singular value may exceed 1, and a passivity
-check would fail it for working. The passivity check in this tool's tests runs against a passive RC fixture instead.
+passivity and reciprocity, derived from the measured S-matrix:
+  largest singular value 0.743839168 at 10 GHz, smallest over the sweep 0.446443889
+  that is at or below 1 + 1e-06, so no combination of incident waves gets power gain through these references
+  and the passivity check APPLIES. The tolerance is for the simulator's own arithmetic rather than the physics:
+  a network of R and C is passive exactly, so a few parts in a million either way is rounding, not gain.
+  passivity, transistor side: 0.743839168 against 1 + 1e-06   PASS
+    (the margin to 1 is 0.256160832, which is the network's own loss and not the tolerance)
+  reciprocity, transistor side: worst |S(i,j) - S(j,i)| / |S| = 1.000e+00 at 1 MHz   REPORTED, NOT BARRED
+    absolute worst 3.719e-01, and the ratio is the figure because what counts as small depends on how large the entries are.
+    No bar, and the reason is physical: R, L and C make a reciprocal network and a transistor does not, so a
+    limit here would fail every correct amplifier. A figure near zero on a deck of printed passives, though, is
+    the claim that the measurement is of what the caller thinks -- which is why it is printed rather than dropped.
+  passivity, SHIPPED MODEL: worst |SDD21| 0.735343943 at 1 GHz against 1 + 1e-06   PASS
+  reciprocity is NOT measured on the shipped model at all, and the reason is structural rather than a shortcut. The model
+  is measured by driving its input and reading its output; an RNM port carries one real value in one direction, so the
+  model's SDD12 is a slot left at zero rather than a measurement. Comparing a measurement against a placeholder would
+  report a failure that means nothing. The transistor side above is where reciprocity is observable, and it is observed
+  there.
+note: fitted from SDD21 of ctle_sp.s4p, k = 0.4472
+note: H(0) = -0.998225 is an EXTRAPOLATION: the lowest frequency measured is 1 MHz, where |SDD21| is -7.005 dB. That value becomes the model's GAIN_DC, so it is the model's slow gain, and nothing in the file measured it

@@ -113,13 +113,26 @@ echo
     UVM_SRC="$HOME/iverilog-unified/uvm-core/src" \
     timeout 3600 bash run_rc_lpf2_ms.sh 2>&1 \
     | grep -E "SB_SUMMARY|UVM_ERROR|UVM_FATAL|compiling|running|COMPILE FAILED|^ERROR" \
-    | head -12 | sed 's/^/    /' )
+    | head -12 | tee "$OUT/uvm_ms_summary.log" | sed 's/^/    /' )
 echo
-say "41 DC goldens and 10 AC goldens, plus a constrained-random tail, zero"
-say "failures -- worst magnitude error under 0.07 dB against a 0.25 dB"
-say "tolerance, worst phase 2.7 degrees against 8. (The random tail draws a"
-say "different count on each simulator, so the printed totals run a little"
-say "above the golden counts and are not a fixed number.)"
+# Read off the run above, not quoted: this paragraph used to say "under
+# 0.07 dB ... 2.7 degrees against 8" in so many words, and it went on
+# saying it after spice2rnm #78/#79/#82 moved all three numbers.
+UVMS="$OUT/uvm_ms_summary.log"
+DC_N=$(grep -oE 'dc checks=[0-9]+' "$UVMS" | head -1 | cut -d= -f2)
+DC_F=$(grep -oE 'dc checks=[0-9]+ failed=[0-9]+' "$UVMS" | head -1 | sed 's/.*failed=//')
+AC_N=$(grep -oE 'ac checks=[0-9]+' "$UVMS" | head -1 | cut -d= -f2)
+AC_F=$(grep -oE 'ac checks=[0-9]+ failed=[0-9]+' "$UVMS" | head -1 | sed 's/.*failed=//')
+W_DB=$(grep -oE 'worst [0-9.]+ dB' "$UVMS" | head -1 | awk '{print $2}')
+T_DB=$(grep -oE 'tol [0-9.]+ dB' "$UVMS" | head -1 | awk '{print $2}')
+W_DEG=$(grep -oE 'worst [0-9.]+ deg' "$UVMS" | head -1 | awk '{print $2}')
+T_DEG=$(grep -oE 'tol [0-9.]+ deg' "$UVMS" | head -1 | awk '{print $2}')
+say "${DC_N:-?} DC checks (${DC_F:-?} failed) and ${AC_N:-?} AC checks (${AC_F:-?} failed): 41 DC"
+say "goldens and 10 AC goldens plus a constrained-random tail -- worst"
+say "magnitude error ${W_DB:-?} dB against a ${T_DB:-?} dB tolerance, worst phase"
+say "${W_DEG:-?} degrees against ${T_DEG:-?}. (The random tail draws a different count on"
+say "each simulator, so the totals run a little above the golden counts and"
+say "are not a fixed number.)"
 say ""
 say "One detail of the AC section worth knowing: the testbench synthesises"
 say "its excitation at a sampling rate matched to the model's own time step,"
@@ -129,12 +142,14 @@ say "-- so the generator refuses to emit one."
 beat
 
 hr "Summary"
-say "chirp  (real-valued) : rms 0.029    threshold 0.15"
+CHIRP_RMS=$(grep -oE 'rms_error_norm=[0-9.eE+-]+' "$OUT/equivalence/waveform_compare.csv" 2>/dev/null \
+  | head -1 | cut -d= -f2 | xargs printf '%.4f' 2>/dev/null)
+say "chirp  (real-valued) : rms ${CHIRP_RMS:-n/a}   threshold 0.15  <- measured this run"
 say "PRBS   (binary)      : rms ${PRBS_RMS:-n/a}   threshold 0.15  <- measured this run"
 say ""
 say "One more figure, which this run does NOT measure:"
 say ""
-say "  PRBS 5 -> 320 Mb/s : flat at ~1%, 64x past the filter's own corner"
+say "  PRBS 5 -> 320 Mb/s : 0.5% to 1.0% rms, 64x past the filter's own corner"
 say ""
 say "  It answers the obvious question about the row above -- that one was"
 say "  measured at a single rate. It comes from harness/prbs_sweep2.py,"

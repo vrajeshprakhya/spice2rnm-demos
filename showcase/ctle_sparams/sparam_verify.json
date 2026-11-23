@@ -1,7 +1,7 @@
 {
-  "netlist": "/home/vraje/spice2rnm-demos/netlists/ctle_sp.cir",
+  "netlist": "/home/vraje/spice2rnm-demos-wave/netlists/ctle_sp.cir",
   "deck": "/home/vraje/s2r_runs/ctle_sparams/ctle_sp_ports.cir",
-  "port_map": "/home/vraje/spice2rnm-demos/netlists/ctle_sp_ports.json",
+  "port_map": "/home/vraje/spice2rnm-demos-wave/netlists/ctle_sp_ports.json",
   "ports": [
     {
       "num": 1,
@@ -50,12 +50,12 @@
     "method": "ngspice .sp analysis",
     "source": "",
     "provenance": {
-      "deck": "netlists/ctle_sp.cir",
-      "port_map": "/home/vraje/spice2rnm-demos/netlists/ctle_sp_ports.json",
+      "deck": "",
+      "port_map": "/home/vraje/spice2rnm-demos-wave/netlists/ctle_sp_ports.json",
       "ports": "1=inp 50 ohm (in+), 2=inn 50 ohm (in-), 3=outp 1000 ohm (out+), 4=outn 1000 ohm (out-)",
       "bias": "natural",
       "sweep": "1e+06 to 1e+10 Hz, 20 per decade",
-      "tool": "git 2775a83"
+      "tool": "0.2.0 git 87bbe6f"
     },
     "ports": [
       "inp",
@@ -8812,26 +8812,57 @@
     "sv": "/home/vraje/s2r_runs/ctle_sparams/model/ctle_sp_ports_rnm.sv",
     "module": "ctle_sp_ports_rnm",
     "form": null,
-    "gain": -0.9982245488992001,
+    "gain": -0.998224548863269,
     "zeros_hz": [
-      99471839.48259123
+      99471839.28299165
     ],
     "poles_hz": [
-      165754190.89521554
+      165754190.54900464
     ],
-    "fit_rms_error_db": 1.679448956358671e-08,
-    "fit_max_error_db": 3.965814970863235e-08,
+    "fit_rms_error_db": 7.512121042123347e-09,
+    "fit_max_error_db": 1.6044897238956524e-08,
+    "tf_source": "fitted from SDD21 of ctle_sp.s4p, k = 0.4472",
+    "measured_fit": {
+      "source": "SDD21 of ctle_sp.s4p",
+      "k": 0.4472135954999579,
+      "tau_s": 0.0,
+      "n_points": 81,
+      "n_in_band": 81,
+      "floor_db": -40.0,
+      "h0": -0.998224548863269,
+      "lowest_hz": 1000000.0,
+      "lowest_db": -7.004854301082471,
+      "extrapolated_h0": true,
+      "phase_explained": 0.0,
+      "phase_residual_deg": 3.130574555143539e-08,
+      "passive_overshoot_db": 0.0,
+      "zeros_hz": [
+        99471839.28299165
+      ],
+      "poles_hz": [
+        165754190.54900464
+      ],
+      "rms_error_db": 7.512121042123347e-09,
+      "max_error_db": 1.6044897238956524e-08,
+      "errors": [],
+      "notes": [
+        "the measured S-matrix is passive and the fitted |k H| stays at or below 1 across the band (worst 0.743822730 at 10 GHz)",
+        "H(0) = -0.998225 is an EXTRAPOLATION: the lowest frequency measured is 1 MHz, where |SDD21| is -7.005 dB. That value becomes the model's GAIN_DC, so it is the model's slow gain, and nothing in the file measured it"
+      ],
+      "describe": "fitted from SDD21 of ctle_sp.s4p, k = 0.4472"
+    },
+    "wall_s": 5.8762308289879,
     "drive": 0.001,
     "offset": 0.9,
     "settle_s": 1.0000066400000001e-06,
     "sim_time_s": 2.4424705678e-05,
     "params": {
       "dc_bias": 0.9,
-      "dt_seconds": 4.800932701e-11,
+      "dt_seconds": 4.800932711e-11,
       "tstep": 48009.3
     },
-    "step_ceiling_hz": 2082928593.8369997,
-    "convention_ratio": 1.0007871143275473
+    "step_ceiling_hz": 2082928589.4984083,
+    "convention_ratio": 1.0007860994903481
   },
   "comparison": {
     "k": 0.4472135954999579,
@@ -8884,96 +8915,96 @@
       -2.5706110954714134
     ],
     "model_sdd21_db": [
-      -6.998020196931941,
-      -6.997582574591248,
-      -6.996481360650323,
-      -6.993726186758674,
-      -6.986815923881565,
-      -6.969552631632153,
-      -6.9268024982797485,
-      -6.823262671517639,
-      -6.584808329327798,
-      -6.092927522854911,
-      -5.272199061397448,
-      -4.2698032417801315,
-      -3.4282028269025484,
-      -2.9303030796931484,
-      -2.677770218385112,
-      -2.584682931461387,
-      -2.5921854452220865,
-      -2.7076263443835495,
-      -2.981420177812508,
-      -3.9099634249033572,
-      -4.479022755480174
+      -6.998029004767553,
+      -6.997604701093726,
+      -6.996536986999432,
+      -6.993865623381433,
+      -6.987165318765436,
+      -6.970425089747327,
+      -6.928961611017748,
+      -6.828487579201685,
+      -6.596829606312049,
+      -6.117873911185363,
+      -5.315771321183743,
+      -4.331904336902031,
+      -3.5029308307292046,
+      -3.011480480292017,
+      -2.761934980682896,
+      -2.6701896075559284,
+      -2.6782170055829964,
+      -2.7938339369509393,
+      -3.067717922097957,
+      -3.996322770538694,
+      -4.565325542999713
     ],
     "db_error": [
-      0.006834104150529541,
-      0.006847206274351869,
-      0.006882513440963578,
-      0.006962672512265122,
-      0.00716900814536281,
-      0.007689467890292789,
-      0.008982949498065551,
-      0.012013840047497837,
-      0.018652768315894797,
-      0.03133457927035366,
-      0.047639228766406916,
-      0.06699341996613484,
-      0.07884119962169533,
-      0.07082075832280843,
-      0.0752852147450791,
-      0.06011443901858371,
-      0.007832747156306663,
-      -0.12571394265663338,
-      -0.40676085269391615,
-      -1.338198790527613,
-      -1.9084116600087606
+      0.006825296314917573,
+      0.006825079771873632,
+      0.006826887091854417,
+      0.006823235889505952,
+      0.006819613261491497,
+      0.006817009775118343,
+      0.006823836760066371,
+      0.00678893236345246,
+      0.006631491331643424,
+      0.006388190939901506,
+      0.004066968980111163,
+      0.004892324844234963,
+      0.004113195795039104,
+      -0.010356642276060146,
+      -0.008879547552704814,
+      -0.025392237075957613,
+      -0.0781988132046032,
+      -0.21192153522402313,
+      -0.4930585969793655,
+      -1.4245581361629496,
+      -1.9947144475282998
     ],
     "phase_error_deg": [
-      0.005615964464226408,
-      0.008905436341194672,
-      0.014125786512153127,
-      0.022325161623967915,
-      0.035306306172287805,
-      0.055562116602288825,
-      0.08672868494053887,
-      0.13170428976420112,
-      0.18956465193369354,
-      0.24829233135042728,
-      0.2722458998165962,
-      0.23512908087829487,
-      0.18982368209546507,
-      -0.9104611745320597,
-      -2.74267782166379,
-      -5.883736438802373,
-      -10.964911692850109,
-      -19.142950927517234,
-      -31.735347846651052,
-      -51.611391593581146,
-      -101.29095618498891
+      -0.0001371492558916998,
+      -0.00021139750754173292,
+      -0.0003183165686380107,
+      -0.0005440444494695384,
+      -0.0008511076022728048,
+      -0.0013927612770032738,
+      -0.0021844307440233024,
+      -0.004067870022481657,
+      -0.0075609525375739395,
+      -0.009854250970477096,
+      -0.012604086987010987,
+      -0.020818316307725127,
+      -0.004522589546269273,
+      -1.0436500994145206,
+      -2.827216237935687,
+      -5.93916157839368,
+      -10.999597591823573,
+      -19.16438500383049,
+      -31.74767617163556,
+      -51.617316143192056,
+      -101.29120143682283
     ],
     "group_delay_error_s": [
-      -1.5622376934266453e-11,
-      -1.5630362518877697e-11,
-      -1.5588656516979192e-11,
-      -1.5496041987929187e-11,
-      -1.539323503857342e-11,
-      -1.5074409703683256e-11,
-      -1.428924391415402e-11,
-      -1.2495469300038103e-11,
-      -9.417805129315004e-12,
-      -4.99308064611788e-12,
-      -4.2352946384023455e-13,
-      1.6060136343501298e-12,
-      8.880309268556868e-12,
-      2.1210896972422126e-11,
-      2.2548041890824705e-11,
-      2.3831812430082578e-11,
-      2.427635682548878e-11,
-      2.4236025859267115e-11,
-      2.377071139323789e-11,
-      2.900437565453757e-11,
-      3.739372354064357e-11
+      3.5262018271302166e-13,
+      3.40150688685832e-13,
+      3.6154785838169127e-13,
+      4.033875900404326e-13,
+      3.8232289205911417e-13,
+      3.9542983072392905e-13,
+      4.488655413323703e-13,
+      6.015407122579417e-13,
+      5.107740680109202e-13,
+      2.478136959788816e-13,
+      2.7782629742291893e-13,
+      5.0282432220595125e-14,
+      7.301187430825917e-12,
+      2.0277402911143936e-11,
+      2.2107417601729115e-11,
+      2.3659348555300676e-11,
+      2.4200603751166563e-11,
+      2.4205018078402162e-11,
+      2.3757200133866002e-11,
+      2.8998037919270224e-11,
+      3.738944874289273e-11
     ],
     "bands": [
       {
@@ -8985,8 +9016,8 @@
             "label": "magnitude",
             "unit": "dB",
             "scale": 1.0,
-            "worst": 0.07884119962169533,
-            "at_hz": 251188643.0,
+            "worst": 0.006826887091854417,
+            "at_hz": 2511886.43,
             "limit": 0.25,
             "ok": true
           },
@@ -8994,8 +9025,8 @@
             "label": "phase",
             "unit": "deg",
             "scale": 1.0,
-            "worst": 0.2722458998165962,
-            "at_hz": 100000000.0,
+            "worst": 0.020818316307725127,
+            "at_hz": 158489319.0,
             "limit": 1.0,
             "ok": true
           },
@@ -9003,8 +9034,8 @@
             "label": "group delay",
             "unit": "ps",
             "scale": 1000000000000.0,
-            "worst": 1.5630362518877697e-11,
-            "at_hz": 1584893.19,
+            "worst": 7.301187430825917e-12,
+            "at_hz": 251188643.0,
             "limit": 4e-11,
             "ok": true
           }
@@ -9019,8 +9050,8 @@
             "label": "magnitude",
             "unit": "dB",
             "scale": 1.0,
-            "worst": 0.07884119962169533,
-            "at_hz": 251188643.0,
+            "worst": 0.0781988132046032,
+            "at_hz": 1584893190.0,
             "limit": 0.25,
             "ok": true
           },
@@ -9028,7 +9059,7 @@
             "label": "phase",
             "unit": "deg",
             "scale": 1.0,
-            "worst": 10.964911692850109,
+            "worst": 10.999597591823573,
             "at_hz": 1584893190.0,
             "limit": 20.0,
             "ok": true
@@ -9037,7 +9068,7 @@
             "label": "group delay",
             "unit": "ps",
             "scale": 1000000000000.0,
-            "worst": 2.427635682548878e-11,
+            "worst": 2.4200603751166563e-11,
             "at_hz": 1584893190.0,
             "limit": 4e-11,
             "ok": true
@@ -9045,8 +9076,33 @@
         }
       }
     ],
+    "judged": true,
     "passed": true
   },
+  "cross_check": {
+    "rel_tol": 0.05,
+    "k_tol": 0.001,
+    "k_residual": 5.697556034233381e-09,
+    "k_residual_of": "the model's source against the deck's .ac",
+    "agree": true,
+    "lines": [
+      "pole        1.65754e+08 Hz against  1.65754e+08 Hz, 2.09e-07% apart  [ok]",
+      "zero        9.94718e+07 Hz against  9.94718e+07 Hz, 2.01e-07% apart  [ok]"
+    ],
+    "ac_gain": -0.9982245488992001,
+    "ac_zeros_hz": [
+      99471839.48259123
+    ],
+    "ac_poles_hz": [
+      165754190.89521554
+    ]
+  },
+  "route": "netlist",
+  "touchstone": null,
+  "touchstone_spec": null,
+  "transmission_from": "the netlist .sp",
+  "against_other": null,
+  "measurements_differ": [],
   "bars": {
     "equaliser": {
       "db": 0.25,
@@ -9089,26 +9145,26 @@
     "compared over 21 frequencies, 21 of them in band (where the transistors' |SDD21| exceeds -40 dB)",
     "",
     "over the WHOLE swept band, reported:",
-    "  worst |magnitude error|     1.9084 dB       at 10 GHz",
-    "  worst |phase error|       101.2910 degrees  at 10 GHz",
-    "  worst |group-delay error|  37.3937 ps       at 10 GHz",
+    "  worst |magnitude error|     1.9947 dB       at 10 GHz",
+    "  worst |phase error|       101.2912 degrees  at 10 GHz",
+    "  worst |group-delay error|  37.3894 ps       at 10 GHz",
     "",
-    "against the agreed bars, by band:",
+    "against the agreed bars, by band, from ctle_sp_spec.md:23:",
     "  equaliser, up to 300 MHz  (13 points)",
-    "    magnitude       0.0788 dB  at 251.2 MHz    bar 0.25     PASS",
-    "    phase           0.2722 deg at 100 MHz      bar 1        PASS",
-    "    group delay    15.6304 ps  at 1.585 MHz    bar 40       PASS",
+    "    magnitude       0.0068 dB  at 2.512 MHz    bar 0.25     PASS",
+    "    phase           0.0208 deg at 158.5 MHz    bar 1        PASS",
+    "    group delay     7.3012 ps  at 251.2 MHz    bar 40       PASS",
     "  below_step_ceiling, up to 2.083 GHz  (17 points)",
-    "    magnitude       0.0788 dB  at 251.2 MHz    bar 0.25     PASS",
-    "    phase          10.9649 deg at 1.585 GHz    bar 20       PASS",
-    "    group delay    24.2764 ps  at 1.585 GHz    bar 40       PASS",
+    "    magnitude       0.0782 dB  at 1.585 GHz    bar 0.25     PASS",
+    "    phase          10.9996 deg at 1.585 GHz    bar 20       PASS",
+    "    group delay    24.2006 ps  at 1.585 GHz    bar 40       PASS",
     "",
     "VERDICT: PASS",
     "",
     "above 2.083 GHz the model cannot represent the response and these figures are REPORTED, NOT BARRED:",
-    "  worst |magnitude error|     1.9084 dB       at 10 GHz",
-    "  worst |phase error|       101.2910 degrees  at 10 GHz",
-    "  worst |group-delay error|  37.3937 ps       at 10 GHz",
+    "  worst |magnitude error|     1.9947 dB       at 10 GHz",
+    "  worst |phase error|       101.2912 degrees  at 10 GHz",
+    "  worst |group-delay error|  37.3894 ps       at 10 GHz",
     "  a period up there is a handful of the model's own integration steps, so what a measurement finds depends on how finely it is driven.",
     "",
     "the model under test integrates on a step whose ten-steps-per-period ceiling is 2.083 GHz, against the 2.083 GHz this band's edge was drawn at",
@@ -9122,22 +9178,281 @@
     "  carries one real value per tick, so a reflection coefficient has nowhere to live in it. They are measured from the",
     "  transistors and printed so that what the model does not cover is visible rather than absent.",
     "",
-    "no passivity check is applied here. This block is an amplifier: its largest singular value may exceed 1, and a passivity",
-    "check would fail it for working. The passivity check in this tool's tests runs against a passive RC fixture instead."
+    "passivity and reciprocity, derived from the measured S-matrix:",
+    "  largest singular value 0.743839168 at 10 GHz, smallest over the sweep 0.446443889",
+    "  that is at or below 1 + 1e-06, so no combination of incident waves gets power gain through these references",
+    "  and the passivity check APPLIES. The tolerance is for the simulator's own arithmetic rather than the physics:",
+    "  a network of R and C is passive exactly, so a few parts in a million either way is rounding, not gain.",
+    "  passivity, transistor side: 0.743839168 against 1 + 1e-06   PASS",
+    "    (the margin to 1 is 0.256160832, which is the network's own loss and not the tolerance)",
+    "  reciprocity, transistor side: worst |S(i,j) - S(j,i)| / |S| = 1.000e+00 at 1 MHz   REPORTED, NOT BARRED",
+    "    absolute worst 3.719e-01, and the ratio is the figure because what counts as small depends on how large the entries are.",
+    "    No bar, and the reason is physical: R, L and C make a reciprocal network and a transistor does not, so a",
+    "    limit here would fail every correct amplifier. A figure near zero on a deck of printed passives, though, is",
+    "    the claim that the measurement is of what the caller thinks -- which is why it is printed rather than dropped.",
+    "  passivity, SHIPPED MODEL: worst |SDD21| 0.735343943 at 1 GHz against 1 + 1e-06   PASS",
+    "  reciprocity is NOT measured on the shipped model at all, and the reason is structural rather than a shortcut. The model",
+    "  is measured by driving its input and reading its output; an RNM port carries one real value in one direction, so the",
+    "  model's SDD12 is a slot left at zero rather than a measurement. Comparing a measurement against a placeholder would",
+    "  report a failure that means nothing. The transistor side above is where reciprocity is observable, and it is observed",
+    "  there.",
+    "note: fitted from SDD21 of ctle_sp.s4p, k = 0.4472",
+    "note: H(0) = -0.998225 is an EXTRAPOLATION: the lowest frequency measured is 1 MHz, where |SDD21| is -7.005 dB. That value becomes the model's GAIN_DC, so it is the model's slow gain, and nothing in the file measured it"
   ],
-  "notes": [],
+  "criteria": {
+    "bands": [
+      [
+        "equaliser",
+        300000000.0
+      ],
+      [
+        "below_step_ceiling",
+        2083000000.0
+      ]
+    ],
+    "bars": {
+      "equaliser": {
+        "db": 0.25,
+        "phase_deg": 1.0,
+        "group_delay_s": 4e-11
+      },
+      "below_step_ceiling": {
+        "db": 0.25,
+        "phase_deg": 20.0,
+        "group_delay_s": 4e-11
+      }
+    },
+    "bands_from": "ctle_sp_spec.md:23",
+    "bars_from": "ctle_sp_spec.md:23",
+    "cites": {
+      "equaliser": "ctle_sp_spec.md:27",
+      "below_step_ceiling": "ctle_sp_spec.md:28"
+    },
+    "unstated": [],
+    "judged": true,
+    "notes": [],
+    "errors": []
+  },
+  "inputs_from": {
+    "requested": true,
+    "provenance": {
+      "ports": "/home/vraje/spice2rnm-demos-wave/netlists/ctle_sp_ports.json",
+      "sweep": "the default"
+    },
+    "sweep": {
+      "start_hz": 1000000.0,
+      "stop_hz": 10000000000.0,
+      "points_per_decade": 20
+    },
+    "notes": [
+      "deprecated: the ports come from /home/vraje/spice2rnm-demos-wave/netlists/ctle_sp_ports.json. A port's net, role and reference impedance belong in the specification, under \"## S-parameter ports\", beside the operating conditions and the acceptance limits that are already read from it",
+      "no specification section, port map field or flag states the S-parameter sweep, so the default 1e+06 to 1e+10 Hz at 20 points per decade is used -- recorded as a DEFAULT, because a sweep nobody stated and a sweep that happens to match this one are the same numbers and different facts"
+    ],
+    "errors": []
+  },
+  "bands_from": "ctle_sp_spec.md:23",
+  "bars_from": "ctle_sp_spec.md:23",
+  "acceptance": {
+    "bands": [
+      [
+        "equaliser",
+        300000000.0
+      ],
+      [
+        "below_step_ceiling",
+        2083000000.0
+      ]
+    ],
+    "bars": {
+      "equaliser": {
+        "db": 0.25,
+        "phase_deg": 1.0,
+        "group_delay_s": 4e-11
+      },
+      "below_step_ceiling": {
+        "db": 0.25,
+        "phase_deg": 20.0,
+        "group_delay_s": 4e-11
+      }
+    },
+    "lines": {
+      "equaliser": 27,
+      "below_step_ceiling": 28
+    },
+    "unstated": [],
+    "notes": [],
+    "source": "/home/vraje/spice2rnm-demos-wave/specs/ctle_sp_spec.md",
+    "heading_line": 23
+  },
+  "port_map_notes": [],
+  "band_reasons": {},
+  "pending_bands": [],
+  "passive_declared": null,
+  "passive_measured": true,
+  "sigma_max": {
+    "checked": true,
+    "tol": 1e-06,
+    "worst_sigma": 0.743839168046301,
+    "worst_hz": 10000000000.0,
+    "min_sigma": 0.44644388917971517,
+    "passed": true
+  },
+  "sweep_cost": {
+    "wall_s": 5.8762308289879,
+    "points": 21,
+    "dt_seconds": 4.800932711e-11,
+    "model_periods": 8.0,
+    "total_steps": 888921.6382103965,
+    "by_point": [
+      {
+        "freq_hz": 999993.3600440893,
+        "steps": 187464.81781298184,
+        "share": 0.21089015021660582
+      },
+      {
+        "freq_hz": 1584896.5671379676,
+        "steps": 125968.32765732134,
+        "share": 0.14170914762624578
+      },
+      {
+        "freq_hz": 2511897.1928707385,
+        "steps": 87167.44457616706,
+        "share": 0.09805976233366887
+      },
+      {
+        "freq_hz": 3981062.3570796126,
+        "steps": 62686.16298463259,
+        "share": 0.07051933521478253
+      },
+      {
+        "freq_hz": 6309570.389176068,
+        "steps": 47239.19172630121,
+        "share": 0.05314213277719795
+      },
+      {
+        "freq_hz": 9999933.600440893,
+        "steps": 37492.96356259637,
+        "share": 0.042178030043321164
+      },
+      {
+        "freq_hz": 15848782.330129186,
+        "steps": 31343.43617339652,
+        "share": 0.03526006660890611
+      },
+      {
+        "freq_hz": 25118717.337817863,
+        "steps": 27463.29347584976,
+        "share": 0.030895066893792438
+      },
+      {
+        "freq_hz": 39810521.02895228,
+        "steps": 25015.108860999826,
+        "share": 0.028140960671585166
+      },
+      {
+        "freq_hz": 63095694.33719929,
+        "steps": 23470.401353850597,
+        "share": 0.026403228749276378
+      },
+      {
+        "freq_hz": 99999770.000529,
+        "steps": 22495.770905629757,
+        "share": 0.025306809890373365
+      },
+      {
+        "freq_hz": 158488652.2125016,
+        "steps": 21880.81989970636,
+        "share": 0.024615015496481193
+      },
+      {
+        "freq_hz": 251187173.37817863,
+        "steps": 21492.81112888316,
+        "share": 0.024178521711039826
+      },
+      {
+        "freq_hz": 398109457.8067672,
+        "steps": 21247.988201599273,
+        "share": 0.023903106064980435
+      },
+      {
+        "freq_hz": 630956226.7808108,
+        "steps": 21093.522216624962,
+        "share": 0.02372933823401022
+      },
+      {
+        "freq_hz": 1000000000.0,
+        "steps": 20996.058488602303,
+        "share": 0.023619695579547587
+      },
+      {
+        "freq_hz": 1584846333.2995234,
+        "steps": 20934.566437417416,
+        "share": 0.023550519570615366
+      },
+      {
+        "freq_hz": 2512057877.8135047,
+        "steps": 20895.75797847503,
+        "share": 0.0235068616627929
+      },
+      {
+        "freq_hz": 3980891719.745223,
+        "steps": 20871.28273437699,
+        "share": 0.023479328027603958
+      },
+      {
+        "freq_hz": 6310581583.198708,
+        "steps": 20855.829737122935,
+        "share": 0.023461944046170944
+      },
+      {
+        "freq_hz": 10003201024.327785,
+        "steps": 20846.082297861227,
+        "share": 0.02345097858100201
+      }
+    ],
+    "lowest_share": 0.21089015021660582,
+    "three_lowest_share": 0.45065906017652047
+  },
+  "passivity": {
+    "checked": true,
+    "tol": 1e-06,
+    "worst_sigma": 0.743839168046301,
+    "worst_hz": 10000000000.0,
+    "min_sigma": 0.44644388917971517,
+    "passed": true
+  },
+  "reciprocity": {
+    "checked": true,
+    "rel_tol": 1e-09,
+    "worst_abs": 0.37191136472184105,
+    "worst_rel": 1.0,
+    "worst_hz": 1000000.0,
+    "passed": false
+  },
+  "model_passivity": {
+    "checked": true,
+    "tol": 1e-06,
+    "worst": 0.7353439432003361,
+    "worst_hz": 1000000000.0,
+    "passed": true
+  },
+  "notes": [
+    "fitted from SDD21 of ctle_sp.s4p, k = 0.4472",
+    "H(0) = -0.998225 is an EXTRAPOLATION: the lowest frequency measured is 1 MHz, where |SDD21| is -7.005 dB. That value becomes the model's GAIN_DC, so it is the model's slow gain, and nothing in the file measured it"
+  ],
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-11-12T05:10:04.282805+00:00",
+    "timestamp_utc": "2026-11-23T03:43:12.784568+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
     "argv": [
-      "/home/vraje/spice2rnm-sparam/spice2rnm/__main__.py",
-      "/home/vraje/spice2rnm-demos/netlists/ctle_sp.cir",
+      "/home/vraje/spice2rnm/spice2rnm/__main__.py",
+      "/home/vraje/spice2rnm-demos-wave/netlists/ctle_sp.cir",
       "--sparam-ports",
-      "/home/vraje/spice2rnm-demos/netlists/ctle_sp_ports.json",
-      "--sparam-verify",
+      "/home/vraje/spice2rnm-demos-wave/netlists/ctle_sp_ports.json",
+      "--spec",
+      "/home/vraje/spice2rnm-demos-wave/specs/ctle_sp_spec.md",
       "--out-dir",
       "/home/vraje/s2r_runs/ctle_sparams",
       "--ngspice-bin",
@@ -9145,7 +9460,8 @@
       "--xezim-bin",
       "/home/vraje/xezim/target/release/xezim"
     ],
-    "cwd": "/home/vraje/spice2rnm-sparam",
+    "cwd": "/home/vraje/spice2rnm",
+    "license": "",
     "mode": "sparam-verify"
   }
 }

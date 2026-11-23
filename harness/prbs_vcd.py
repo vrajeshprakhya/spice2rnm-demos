@@ -38,11 +38,13 @@ TAU = 1 / (2 * math.pi * POLE0)
 print(f"{RATE/1e6:.0f} Mb/s, UI={UI*1e9:.2f} ns, {N_BITS} bits -> {T_END*1e9:.0f} ns")
 print(f"filter tau = {TAU*1e9:.1f} ns  ({TAU/UI:.1f} UI) -- so ISI should be plainly visible")
 
-# Score from 10 tau, the same settle prbs_sweep2.py uses. The model opens from
-# zero state while ngspice opens from its DC operating point, so the first
-# decade of tau compares two different initial conditions rather than two
-# responses -- scoring through it reported 0.0972 where the settled figure is
-# 0.0097, and the difference is entirely that transient.
+# Score from 10 tau, the same settle prbs_sweep2.py uses. Until spice2rnm #77
+# the model opened from zero state while ngspice opens from its DC operating
+# point, so the first decade of tau compared two different initial conditions
+# rather than two responses -- scoring through it reported 0.0972 where the
+# settled figure was 0.0097. The model now opens at the operating point too;
+# the window is kept so this figure stays comparable with earlier runs and
+# with prbs_sweep2.py.
 SETTLE = 10 * TAU
 LOG_DT = min(UI / 20.0, 2e-10)
 
