@@ -28,12 +28,12 @@ about what the block is for, no declared corner frequency.
 
 | | |
 |---|---|
-| Chirp (swept-tone) equivalence | 0.0290 against a 0.15 threshold, **pass** |
-| PRBS (independent stimulus) | 0.0097 normalised, **pass** |
+| Chirp (swept-tone) equivalence | 0.0007 against a 0.15 threshold, **pass** |
+| PRBS (independent stimulus) | 0.0067 normalised, **pass** |
 | UVM-MS, DC section | 49 checks, 0 failed |
 | UVM-MS, AC section | 15 checks, 0 failed |
-| worst magnitude | 0.0674 dB of a 0.25 dB tolerance |
-| worst phase | 2.70° of an 8.00° tolerance |
+| worst magnitude | 0.0927 dB of a 0.25 dB tolerance |
+| worst phase | 0.39° of a 4.00° tolerance |
 
 A *chirp* is a single sine wave whose frequency slides steadily upward during
 the run, so one transient run exercises the block at every frequency in the
@@ -42,7 +42,7 @@ two levels on a shift-register pattern, with sharp edges and energy spread
 across the band. Neither resembles the other.
 
 The two scores are different metrics, scored against different limits, so
-0.0097 being smaller than 0.0290 does not mean the PRBS agreement is three
+0.0007 being smaller than 0.0067 does not mean the chirp agreement is ten
 times better. Read each against its own limit.
 
 ## The model says what it found
@@ -121,8 +121,10 @@ recreates it rather than committed. See
 
 [`../../showcase/lpf2_house/`](../../showcase/lpf2_house/) is the same filter
 generated against a hand-written model library instead of against the tool's
-own conventions. The model file and the scoreboard are byte-identical between
-the two directories; only the boundary changes. That is the subject of
+own conventions. The scoreboard is byte-identical between the two
+directories, and the model files differ only in their port declarations
+(`wreal` nets in one, `real` variables in the other), which leaves the score
+identical to every digit; only the boundary changes. That is the subject of
 [joining-a-model-library.md](../joining-a-model-library.md).
 
 ## Waveforms worth opening
@@ -136,25 +138,25 @@ the strip underneath is their difference:
 
 ![PRBS7 at 160 Mb/s: the circuit and the model overlaid](../../showcase/lpf2/waveforms/lpf2_prbs.svg)
 
-The shaded first 416 ns is not scored. ngspice starts the circuit already
-settled, while the model starts from rest at mid-scale, so that stretch
-compares two starting points rather than two filters. After it, the two
-agree to 0.97% rms of the output swing.
+Both start where ngspice starts: the model opens settled at the stimulus's
+first value, as ngspice's operating point does, so the two traces lie on
+each other from the first nanosecond. The score is taken from 416 ns (ten
+time constants), the window `prbs_sweep2.py` uses, and there the two agree
+to 0.67% rms of the output swing. (Until spice2rnm #77 the model opened at
+its 0.9 V bias and the first 416 ns had to be left out for that reason.)
 
-The pipeline's own check is the slow sweep with a chirp on top, below. Its
-whole-run figures (2.90% rms, worst point 49.8%) are almost entirely that
-same start-up: from 416 ns on they are 0.11% rms and 0.99% at the worst
-point. The two boxed stretches are where the settled model is furthest from
-the circuit, and both are where the stimulus steps just outside the 0 to
-1.8 V range the model was measured over (it reaches −0.018 V and 1.815 V).
-Look at the shape of the red line there: sharp corners in A, spikes in B. A
-filter built from resistors and capacitors cannot make either. The model
-keeps its filter and its range limit in two separate lanes and adds them at
-the output, so whatever the input pushes past the edge of the range is
-taken straight off the output, instantly and unsmoothed. The error in each
-box is exactly that excess (to within 0.2 mV in A), so those millivolts
-come from where the model applies its range limit, not from its filter,
-and they only happen outside the measured range:
+The pipeline's own check is the slow sweep with a chirp on top, below:
+0.07% rms and 0.56% at the worst point, over the whole run. The two boxed
+stretches are where the model is furthest from the circuit, and both are
+where the stimulus steps just outside the 0 to 1.8 V range the model was
+measured over (it reaches −0.018 V and 1.815 V). There the model holds its
+input at the edge of that range, the furthest it was measured, and filters
+it like any other input, while the circuit keeps following the input: the
+red line levels off smoothly a few millivolts short of the blue one. The
+error in each box (10.1 mV in A, 5.3 mV in B) is the input's excess passed
+through the filter, and it only happens outside the measured range. (Until
+spice2rnm #76 that excess skipped the filter and landed on the output
+instantly, as sharp corners and spikes no RC filter can make.)
 
 ![The sweep with a chirp on top: whole run, and the two worst stretches](../../showcase/lpf2/waveforms/lpf2_chirp.svg)
 
@@ -164,7 +166,7 @@ or [the chirp page](https://vrajeshprakhya.github.io/spice2rnm-demos/lpf2/lpf2_c
 and drag across the plot. Each page holds every point the run wrote, has a
 button for each box above, and reads out all four traces at whatever
 instant you hover over. Hover inside box A and the readout shows the
-stimulus above 1.8 V by the same millivolts as the error. "Hide stimulus"
+stimulus above 1.8 V while the model holds at the edge. "Hide stimulus"
 fits the axis to the circuit and the model alone, which shows how the
 model moves: in steps about 0.3 ns apart, one per solver step. The pages
 are also in [`../../showcase/lpf2/waveforms/`](../../showcase/lpf2/waveforms/)
@@ -204,37 +206,41 @@ should have read, and hovering shows the scoreboard's own log line. It is
 built by `python3 harness/uvm_wave.py lpf2`, which re-runs the environment
 with three lines added to a copy of its top module to record the nets; the
 AC gains it re-measures from that recording agree with the scoreboard's to
-within 0.0001 dB.
+within 0.0002 dB.
 
-Two things the drawing shows that the summary does not.
-
-**Every phase check starts about 2.8° off.** The bridge plays each sine as
-a staircase, 64 steps per cycle. It reads the output at the end of each
-step but scores the reading against the drive's phase at the step's start,
-and that pairing alone reads as a lead of about 360°/128 = 2.8°, whatever
-is being measured. Drive the ideal circuit (the netlist's own resistors and
-capacitors, solved exactly) through the same staircase, read it the same
-way, and it misses ngspice by that much:
+The phase checks can be taken at face value. The bridge plays each sine as
+a staircase, 64 steps per cycle, and reads the output at the middle of each
+step, where the held value stands for the sine. Drive the ideal circuit
+(the netlist's own resistors and capacitors, solved exactly) through the
+same staircase, read it the same way, and set it beside ngspice and the
+model:
 
 | frequency | ngspice | ideal circuit, read by the bridge | model, read by the bridge |
 |---|---|---|---|
-| 199.5 kHz | −3.42° | −1.18° | −1.19° |
-| 707.9 kHz | −12.04° | −9.27° | −9.34° |
-| 7.94 MHz | −81.16° | −78.35° | −79.21° |
-| 28.2 MHz | −129.36° | −126.53° | −129.61° |
-| 50.1 MHz | −148.03° | −145.07° | −150.72° |
+| 199.5 kHz | −3.42° | −3.03° | −3.03° |
+| 707.9 kHz | −12.04° | −12.00° | −12.00° |
+| 7.94 MHz | −81.16° | −81.16° | −81.16° |
+| 28.2 MHz | −129.36° | −129.34° | −129.33° |
+| 50.1 MHz | −148.03° | −147.90° | −147.86° |
 
-So the scoreboard's worst phase error, 2.70° at 707.9 kHz, is almost all
-testbench: there the model is 0.07° from the ideal circuit read the same
-way.
-
-**The model's own phase error is a delay of one time step.** Measured
-against the ideal circuit read the same way, the model falls behind by an
-amount that grows in proportion to frequency, which is what a fixed delay
-does: 0.30 to 0.31 ns from 4.5 MHz up, the model's own time step
-(0.304 ns). At 50.1 MHz that is 5.64°. The scoreboard reports 2.68° there,
-because the bench's lead cancels part of the model's lag, so the largest
-real phase error is 70% of the 8° tolerance, not the 34% the summary's
-worst case suggests. Every check still passes, and the same delay is
-likely part of the PRBS residual above. `python3 harness/uvm_phase_split.py`
+The model is within 0.04° of the ideal circuit at every checked frequency.
+The scoreboard's worst phase error, 0.39° at 199.5 kHz, is the staircase
+itself: the ideal circuit reads the same there, because at the bottom of
+the band the circuit is fast enough to follow the individual steps. The
+worst gain error, 0.0927 dB at 50.1 MHz, sits where the bridge's step
+(0.31 ns) is almost the model's own (0.30 ns), so where in each model step
+the reading lands drifts slowly. `python3 harness/uvm_phase_split.py`
 reproduces the table from the recorded run.
+
+This page is how two problems were found and fixed. When it was first
+drawn, every phase check carried a 2.8° lead of the bridge's own (it read
+at the end of each step), and the model trailed by one whole time step;
+the two partly cancelled, so the scoreboard showed 2.68° at 50.1 MHz where
+the model was 5.64° behind. spice2rnm #79 moved the read to the middle of
+the step and #78 made the model publish its output for the right instant,
+and the phase tolerance went from 8° to 4° (#82).
+
+One residual is not explained yet. Shifting the PRBS model 0.3 to 0.45 ns
+earlier still lowers its error (0.67% to 0.50% rms). The AC checks put the
+model's own delay under 0.03 ns, so that offset sits in how the PRBS run is
+driven or logged, not in the model; it has not been chased further.

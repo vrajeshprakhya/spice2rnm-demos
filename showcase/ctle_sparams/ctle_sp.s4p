@@ -1,11 +1,12 @@
 !ctle_sp, transistor level
+!ports from /home/vraje/spice2rnm-demos-wave/netlists/ctle_sp_ports.json, sweep from the default
+!limits from ctle_sp_spec.md:23
 ! ports: 1=inp (50 ohm)  2=inn (50 ohm)  3=outp (1000 ohm)  4=outn (1000 ohm)
 ! measured by ngspice .sp analysis
-! deck      netlists/ctle_sp.cir
-! port_map  /home/vraje/spice2rnm-demos/netlists/ctle_sp_ports.json
+! port_map  /home/vraje/spice2rnm-demos-wave/netlists/ctle_sp_ports.json
 ! bias      natural
 ! sweep     1e+06 to 1e+10 Hz, 20 per decade
-! tool      git 2775a83
+! tool      0.2.0 git 87bbe6f
 [Version] 2.0
 # HZ S RI R 50
 [Number of Ports] 4

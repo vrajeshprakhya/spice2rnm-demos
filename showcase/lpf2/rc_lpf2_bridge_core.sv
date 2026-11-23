@@ -30,7 +30,9 @@ module rc_lpf2_bridge_core import rc_lpf2_ms_types_pkg::*; #(
   parameter real SETTLE_EPS      = 0.00018,
   // Samples per cycle used to synthesise the AC excitation and to
   // correlate the response.  64 keeps the staircase error on the drive
-  // below ~0.1% and the phase quantisation at 360/64/2 = 2.8 degrees.
+  // below ~0.1%.  Each response sample is read at the MIDDLE of its
+  // drive step (see measure_ac), which removes the 360/64/2 = 2.8 degree
+  // lead that reading at the step's end used to add to every phase.
   parameter int  AC_SAMPLES_PER_CYCLE = 64,
   // Whole cycles discarded before correlating, and then correlated over.
   // Discarding lets the sinusoidal steady state establish; correlating
@@ -206,14 +208,30 @@ module rc_lpf2_bridge_core import rc_lpf2_ms_types_pkg::*; #(
     end
 
     // Correlate over whole cycles.
+    //
+    // READ AT THE MIDDLE OF THE STEP. The drive is a staircase: each value
+    // is held for one step, so the sine it stands for is centred half a
+    // step later than the step starts. Reading at the step's END and
+    // scoring against theta (the phase at its START) put the reading a
+    // whole step after the instant it was scored as, and the two together
+    // read as a lead of 360/(2*AC_SAMPLES_PER_CYCLE) = 2.8 degrees on
+    // EVERY check, before the model contributed anything. Measured on
+    // rc_lpf2's ideal RC ladder (solved exactly, read this way): +2.2 to
+    // +3.0 degrees against ngspice's .ac at all ten checked frequencies,
+    // and the scoreboard's worst phase error on that model, 2.70 degrees,
+    // was almost all of it. Read at the middle, the same ideal ladder
+    // lands within 0.4 degrees of ngspice everywhere (what remains is the
+    // staircase's own steps, which the circuit partly passes at the
+    // lowest frequencies), and the sums above mean what they say.
     acc_i = 0.0;
     acc_q = 0.0;
     total = AC_SAMPLES_PER_CYCLE * AC_MEAS_CYCLES;
     for (n = 0; n < total; n++) begin
       theta   = TWO_PI * real'(n) / real'(AC_SAMPLES_PER_CYCLE);
       drive_v = ac_bias_in + ac_ampl_in * $sin(theta);
-      #(dt_fs);
+      #(dt_fs / 2.0);
       v     = aout;
+      #(dt_fs - dt_fs / 2.0);
       acc_q = acc_q + v * $sin(theta);
       acc_i = acc_i + v * $cos(theta);
     end

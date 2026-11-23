@@ -656,9 +656,13 @@ python3 - "$HERE/STAMP" "$NOW" "$REVS" "$CURATED" "$RUNS" \
 import os, re, sys, time
 path, now, revs, curated, runs, mode, summary = sys.argv[1:8]
 curated = curated.split()
-ORDER = ["lpf2", "dcc2", "pi", "pll_cosim", "pll_nocosim", "lpf2_house"]
+# ctle_sparams was curated and announced as "stamped" but never listed
+# here, so no STAMP said which revisions produced it.
+ORDER = ["lpf2", "dcc2", "pi", "pll_cosim", "pll_nocosim", "lpf2_house",
+         "ctle_sparams"]
 RUN_OF = {"lpf2": "lpf2", "dcc2": "dcc2", "pi": "demo3_pi", "pll_cosim": "demo4_pll",
-          "pll_nocosim": "demo4b_pll", "lpf2_house": "lpf2"}
+          "pll_nocosim": "demo4b_pll", "lpf2_house": "lpf2",
+          "ctle_sparams": "ctle_sparams"}
 
 # What the previous stamp said, line by line per case, and its run summary.
 prev_lines, prev_summary, prev_whole, prev_top = {}, [], None, []
@@ -682,6 +686,9 @@ if os.path.exists(path):
 
 def run_finished(case):
     rj = os.path.join(runs, RUN_OF[case], "result.json")
+    if not os.path.exists(rj):
+        # the S-parameter demo writes its verdict, not a result.json
+        rj = os.path.join(runs, RUN_OF[case], "verdict.txt")
     if not os.path.exists(rj):
         return "run %s (no result.json)" % RUN_OF[case]
     t = time.strftime("%Y-%m-%dT%H:%MZ", time.gmtime(os.path.getmtime(rj)))

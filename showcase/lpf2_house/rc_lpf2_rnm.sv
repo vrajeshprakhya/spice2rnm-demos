@@ -20,6 +20,8 @@ module rc_lpf2_rnm(input real in_val, output real out_val);
   localparam real GAIN_DC = 1.0; // H(0), subtracted off the dynamic
                                             // path so it isn't double-counted
                                             // against static_curve's own DC gain
+  localparam real IN_LO = 0.0; // the characterized input range;
+  localparam real IN_HI = 1.8; // the cascade is fed within it
 
   function automatic real static_curve(input real xin);
     real xc;
@@ -56,7 +58,10 @@ module rc_lpf2_rnm(input real in_val, output real out_val);
   real k4_1;
   real sec_in4_1;
   real sec_out4_1;
+  real yo_0;
+  real yo_1;
   real final_out;
+  bit  primed;
   real u_dev;
   real static_out;
   real dynamic_out;
@@ -64,13 +69,22 @@ module rc_lpf2_rnm(input real in_val, output real out_val);
   initial begin
     x_0 = 0.0;
     x_1 = 0.0;
+    primed = 1'b0;
   end
 
   always #(TSTEP) begin : rk4_step
     real dt;
     dt = DT_SECONDS;
 
-    u_dev = in_val - DC_BIAS;
+    u_dev = ((in_val) < IN_LO ? IN_LO : ((in_val) > IN_HI ? IN_HI : (in_val))) - DC_BIAS;
+
+    if (!primed) begin
+      x_0 = (u_dev) / WP_0;
+      sec_out1_0 = HAS_ZERO_0 ? ((WZ_0-WP_0)*x_0 + (u_dev)) : x_0;
+      x_1 = sec_out1_0 / WP_1;
+      sec_out1_1 = HAS_ZERO_1 ? ((WZ_1-WP_1)*x_1 + sec_out1_0) : x_1;
+      primed = 1'b1;
+    end
 
     // k1
         sec_in1_0 = u_dev;
@@ -107,7 +121,11 @@ module rc_lpf2_rnm(input real in_val, output real out_val);
     // combine and advance state
     x_0 = x_0 + (dt/6.0)*(k1_0 + 2.0*k2_0 + 2.0*k3_0 + k4_0);
     x_1 = x_1 + (dt/6.0)*(k1_1 + 2.0*k2_1 + 2.0*k3_1 + k4_1);
-    dynamic_out = OVERALL_MULT * (sec_out1_1);
+
+    // the output from the advanced state
+    yo_0 = HAS_ZERO_0 ? ((WZ_0-WP_0)*x_0 + u_dev) : x_0;
+    yo_1 = HAS_ZERO_1 ? ((WZ_1-WP_1)*x_1 + yo_0) : x_1;
+    dynamic_out = OVERALL_MULT * (yo_1);
     static_out = static_curve(in_val);
     final_out = static_out + (dynamic_out - GAIN_DC*u_dev);
     out_val = final_out;

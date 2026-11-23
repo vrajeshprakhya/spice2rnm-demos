@@ -147,7 +147,7 @@ NUM = r"(-?[0-9.]+(?:e[-+]?\d+)?)"
 
 
 def read_log(path):
-    checks, summary, ac_phase_fail = [], [], {}
+    checks, summary, ac_phase = [], [], {}
     for line in Path(path).read_text(errors="replace").splitlines():
         if "[SB_SUMMARY]" in line:
             # not UVM's "report counts by id" line, which also names it
@@ -178,8 +178,10 @@ def read_log(path):
         else:  # AC_PHASE is only printed when it fails
             g = re.match(r"f = %s Hz: ngspice %s deg, model %s deg"
                          % (NUM, NUM, NUM), rest)
-            ac_phase_fail[t] = (float(g.group(2)), float(g.group(3)))
-    return checks, summary, ac_phase_fail
+            # (ngspice, model, verdict). Only failures were logged before
+            # spice2rnm #74; passes are too since.
+            ac_phase[t] = (float(g.group(2)), float(g.group(3)), verdict)
+    return checks, summary, ac_phase
 
 
 def read_tables(pkg, core):
@@ -214,7 +216,12 @@ def read_tables(pkg, core):
             "spc": int(param("AC_SAMPLES_PER_CYCLE")),
             "meas_cycles": int(param("AC_MEAS_CYCLES")),
             "settle_cycles": int(param("AC_SETTLE_CYCLES")),
-            "settle_step": param("SETTLE_STEP_FS") * 1e-15}
+            "settle_step": param("SETTLE_STEP_FS") * 1e-15,
+            # Since spice2rnm #74 the bridge reads each AC sample at the
+            # middle of its drive step (#(dt_fs / 2.0); v = aout), which
+            # removes the 2.8 degree lead reading at the end used to add.
+            "midstep": bool(re.search(r"#\(dt_fs\s*/\s*2(\.0)?\);\s*\n\s*v\s*=\s*aout",
+                                      csrc))}
 
 
 # --------------------------------------------------------------------------
@@ -237,16 +244,20 @@ def held(tr, t, eps=1e-18):
 
 def lockin(out, chk, tb):
     """Re-measure one AC check exactly as the bridge core does: one
-    sample per 1/spc of a cycle over meas_cycles, the last one at the
-    moment the check was logged, multiplied by sin and cos of the drive's
-    phase at that sample and averaged."""
+    sample per 1/spc of a cycle over meas_cycles, multiplied by sin and
+    cos of the drive's phase at the start of that sample's step and
+    averaged. Where in the step the sample is taken follows the bridge:
+    at its END on a bridge from before spice2rnm #74 (the last sample at
+    the moment the check was logged), at its MIDDLE since (the last one
+    half a step before)."""
     spc, n = tb["spc"], tb["spc"] * tb["meas_cycles"]
     period = 1.0 / chk["f"]
     dt = period / spc
+    off = dt / 2 if tb.get("midstep") else 0.0
     t_end = chk["t"]
     acc_i = acc_q = acc_m = 0.0
     for k in range(n):
-        v = held(out, t_end - (n - 1 - k) * dt)
+        v = held(out, t_end - off - (n - 1 - k) * dt)
         th = 2 * math.pi * k / spc
         acc_q += v * math.sin(th)
         acc_i += v * math.cos(th)
@@ -254,7 +265,7 @@ def lockin(out, chk, tb):
     amp = 2 * math.hypot(acc_i, acc_q) / n
     return {"db": 20 * math.log10(amp / tb["ac_ampl"]),
             "deg": math.degrees(math.atan2(acc_i, acc_q)),
-            "mean": acc_m / n, "t0": t_end - (n - 1) * dt, "dt": dt,
+            "mean": acc_m / n, "t0": t_end - off - (n - 1) * dt, "dt": dt,
             "period": period}
 
 
@@ -314,7 +325,9 @@ def main():
         if rc:
             raise SystemExit("the UVM-MS run exited %d; see %s"
                              % (rc, run / "uvm.log"))
-    checks, summary, phase_fail = read_log(run / "uvm.log")
+    checks, summary, phase_log = read_log(run / "uvm.log")
+    phase_fails = {t for t, v in phase_log.items() if v[2] == "FAIL"}
+    logged_phases = any(v[2] == "PASS" for v in phase_log.values())
     if not checks or not summary:
         raise SystemExit("%s has no scoreboard checks or summary: the run did "
                          "not finish" % (run / "uvm.log"))
@@ -357,7 +370,7 @@ def main():
             i = min(range(len(tb["ac_freq"])),
                     key=lambda j: abs(tb["ac_freq"][j] - c["f"]))
             gold_deg = tb["ac_phase"][i]
-            model_deg = phase_fail.get(c["t"], (None, mm["deg"]))[1]
+            model_deg = phase_log.get(c["t"], (None, mm["deg"]))[1]
             err_deg = abs(wrap180(model_deg - gold_deg))
             amp = tb["ac_ampl"] * 10 ** (c["gold_db"] / 20)
             ph = math.radians(gold_deg)
@@ -379,7 +392,7 @@ def main():
                       c["gold_db"], c["model_db"], abs(c["err_db"]),
                       tb["tol_db"], gold_deg, model_deg, err_deg,
                       tb["tol_deg"],
-                      "FAIL" if c["verdict"] == "FAIL" or c["t"] in phase_fail
+                      "FAIL" if c["verdict"] == "FAIL" or c["t"] in phase_fails
                       else "PASS"))
             c.update({"ratio_db": r_db, "ratio_deg": r_deg, "gold_deg": gold_deg,
                       "model_deg": model_deg, "t0": t0})
@@ -427,7 +440,7 @@ def main():
                         "b": wc["t"], "vin": False})
 
     # --- words ------------------------------------------------------------
-    fails = sum(c["verdict"] == "FAIL" for c in checks) + len(phase_fail)
+    fails = sum(c["verdict"] == "FAIL" for c in checks) + len(phase_fails)
     score = ("%d DC checks and %d AC checks against ngspice, %d failed. "
              "Worst error: %.0f%% of its tolerance."
              % (n_dc, n_ac, fails, 100 * worst[0]))
@@ -470,15 +483,26 @@ def main():
         "anything, and every phase error above includes it. A model that "
         "lags a little (as a sampled model does) can therefore look better "
         "than it is, because the two cancel."
-        % (tb["spc"], 2 * tb["spc"], 360.0 / (2 * tb["spc"])) if acs else "",
+        % (tb["spc"], 2 * tb["spc"], 360.0 / (2 * tb["spc"]))
+        if acs and not tb["midstep"] else "",
+        "How the phase checks read. The bridge holds each drive value for "
+        "one step (1/%d of a cycle) and reads the output at the MIDDLE of "
+        "the step, where the held value stands for the sine, so the reading "
+        "and the drive phase it is scored against describe the same instant "
+        "(spice2rnm #74: reading at the step's end used to add a lead of "
+        "360°/%d = %.1f° to every check)."
+        % (tb["spc"], 2 * tb["spc"], 360.0 / (2 * tb["spc"]))
+        if acs and tb["midstep"] else "",
         "How this page was made: the generated environment was re-run "
         "unchanged except for three lines added to a copy of top_%s_ms.sv "
         "that record its stimulus and response nets. Every check above is "
-        "that run's own log line. The AC phases are not in the log when a "
-        "check passes, so this page re-measures each AC window from the "
-        "recording the same way the bridge does; its gains agree with the "
-        "scoreboard's to within %.1e dB, which is also the check that the "
-        "recording is what the scoreboard saw." % (name, worst_dev_db),
+        "that run's own log line%s. This page also re-measures each AC "
+        "window from the recording the way the bridge does; its gains agree "
+        "with the scoreboard's to within %.1e dB, which is the check that "
+        "the recording is what the scoreboard saw."
+        % (name, " (phases included)" if logged_phases else
+           "; a passing AC phase is not in this run's log, so the phases "
+           "above are the page's own re-measurement", worst_dev_db),
     ]
     spec = {
         "title": case["title"], "score": score,
@@ -534,10 +558,13 @@ def main():
             "lines added to a copy of top_%s_ms.sv; the checks are that "
             "run's own log lines. AC gains re-measured from the recording "
             "agree with the scoreboard's to within %.1e dB." % (name, worst_dev_db),
-            "Caution: the bridge reads each AC sample at the end of a drive "
-            "step but scores it against the phase at the step's start, a "
-            "lead of about %.1f deg included in every phase error."
-            % (360.0 / (2 * tb["spc"])), ""]))
+            ("The bridge reads each AC sample at the middle of its drive "
+             "step, so the phases carry no read bias of their own."
+             if tb["midstep"] else
+             "Caution: the bridge reads each AC sample at the end of a drive "
+             "step but scores it against the phase at the step's start, a "
+             "lead of about %.1f deg included in every phase error."
+             % (360.0 / (2 * tb["spc"]))), ""]))
     print("  %-22s %6.2f MB   %s" % (page.name, size / 1e6, score))
     print("  AC re-measured from the recording: within %.1e dB of the "
           "scoreboard" % worst_dev_db)
