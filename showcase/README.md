@@ -195,6 +195,7 @@ lpf2/
 | an **RC state space** taken from topology, nothing fitted | [`pll_cosim/lpfilt.sv`](pll_cosim/lpfilt.sv) |
 | a **composed system** on the design's own testbench | [`pll_cosim/netlist_top.sv`](pll_cosim/netlist_top.sv) with [`pll_cosim/env/cosim/uvm_ms/`](pll_cosim/env/cosim/uvm_ms/) |
 | a loop closed in **SystemVerilog only** | [`pll_nocosim/loop/pll_analog_rtl_loop.sv`](pll_nocosim/loop/pll_analog_rtl_loop.sv) |
+| that loop **as waveforms**, holding lock | [`pll_nocosim/waveforms/`](pll_nocosim/waveforms/): the loop re-run with a recording, plus its inverters and loop filter drawn against the circuit; zoomable pages, nothing to install |
 | how that loop's **wiring was worked out** | [`pll_nocosim/loop/rtl_loop_derivation.json`](pll_nocosim/loop/rtl_loop_derivation.json) — every field with its source; `.alternate.json` is the pairing not used |
 | a **system-level UVM-MS** environment with full stimulus | [`pll_nocosim/env/rtl_loop/uvm_ms/`](pll_nocosim/env/rtl_loop/uvm_ms/) — sequence, driver, scoreboard; checks tagged `[SPEC]` or `[MEASURED]` |
 | the **specification** a run read, and the customer's RTL | [`pll_nocosim/rtl/`](pll_nocosim/rtl/) — `pll_spec.md`, `pfd.sv`, `divn.sv` |

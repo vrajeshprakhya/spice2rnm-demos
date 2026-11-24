@@ -56,10 +56,12 @@ li span { display: block; font-size: 13px; color: var(--muted); }
 <body>
 <main>
 <h1>spice2rnm demo waveforms</h1>
-<p>Each page overlays a circuit, solved by ngspice from its netlist, on
+<p>Most pages overlay a circuit, solved by ngspice from its netlist, on
 the model spice2rnm generated from that netlist, with their difference
-underneath. Drag across a plot to zoom in. The data is inside each page,
-so it works offline once loaded and installs nothing.</p>
+underneath. Two draw a whole run instead: the filter's UVM-MS
+verification, and the PLL holding lock on models and RTL alone, with no
+circuit beside it. Drag across a plot to zoom in. The data is inside each
+page, so it works offline once loaded and installs nothing.</p>
 <ul>
 $rows</ul>
 <p>How each figure was measured, and the circuits themselves, are in the

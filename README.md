@@ -109,6 +109,8 @@ harness/
   wave_page.py   the zoomable page: data inside, nothing to install
   uvm_wave.py    act 6's UVM-MS run re-run with a recording, drawn with
                  every scoreboard check (about 2 minutes)
+  pll_wave.py    demo 4b's PLL loop re-run with a recording, plus its
+                 inverters and loop filter, circuit vs model
   uvm_phase_split.py  separates the AC phase checks' built-in offset
                  from the model's own phase error
 specs/
@@ -138,6 +140,21 @@ The same pages are committed in
 [`showcase/lpf2/waveforms/`](showcase/lpf2/waveforms/) beside still
 pictures of them, explained in
 [the filter's case study](docs/cases/01-two-pole-filter.md#waveforms-worth-opening).
+
+Demo 4b's PLL, where the loop runs on models and RTL alone:
+
+- [the whole loop holding lock](https://vrajeshprakhya.github.io/spice2rnm-demos/pll_nocosim/pll_nocosim_loop.html):
+  the control voltage, the oscillator's rate cycle by cycle (with the
+  jitter the netlist's supply noise puts on it), the charge pump, the
+  phase detector's pulses, the reference against the divided clock
+- its blocks, circuit against model:
+  [inverter inv1](https://vrajeshprakhya.github.io/spice2rnm-demos/pll_nocosim/pll_nocosim_inv1.html),
+  [inverter inv2](https://vrajeshprakhya.github.io/spice2rnm-demos/pll_nocosim/pll_nocosim_inv2.html),
+  [the loop filter](https://vrajeshprakhya.github.io/spice2rnm-demos/pll_nocosim/pll_nocosim_lpfilt.html)
+
+These are committed in
+[`showcase/pll_nocosim/waveforms/`](showcase/pll_nocosim/waveforms/) and
+rebuilt on every refresh by `harness/pll_wave.py`.
 
 Demo 1 ends by building all of this, plus waveform files (`.fst`) and
 GTKWave layouts that open them already drawn as curves, in a folder you can

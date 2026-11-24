@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loop filter lpfilt from demo 4b&#x27;s PLL: circuit against model</title>
+<style>
+:root {
+  --bg: #ffffff; --ink: #1f2328; --muted: #59636e; --grid: #e4e8ec;
+  --frame: #8c959f; --shade: #eef1f4; --win: rgba(122, 79, 181, 0.07);
+  --panel: #f6f8fa; --sel: rgba(91, 143, 214, 0.18); --cursor: #1f2328;
+  --fail: #cf222e;
+  --vin: #9aa4ae; --circuit: #5b8fd6; --model: #c4471d; --error: #7a4fb5;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --ink: #e6edf3; --muted: #9198a1; --grid: #21262d;
+    --frame: #3d444d; --shade: #161b22; --win: rgba(179, 146, 240, 0.09);
+    --panel: #161b22; --sel: rgba(91, 143, 214, 0.28); --cursor: #e6edf3;
+    --fail: #ff7b72;
+    --vin: #6e7681; --circuit: #4f7fc4; --model: #f0883e; --error: #b392f0;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 40px; }
+h1 { font-size: 20px; line-height: 1.3; margin: 0 0 4px; }
+.score { color: var(--muted); margin: 0 0 14px; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+button { font: inherit; font-size: 13px; padding: 4px 11px; border-radius: 6px;
+  border: 1px solid var(--frame); background: var(--panel); color: var(--ink); cursor: pointer; }
+button:hover { border-color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+.legend span { white-space: nowrap; }
+.legend i { display: inline-block; width: 22px; vertical-align: middle; margin-right: 6px; border-top: 3px solid; }
+.legend b.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; vertical-align: middle; margin-right: 6px; }
+#readout { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted);
+  min-height: 22px; margin: 4px 0 0; }
+#readout b { color: var(--ink); font-weight: 600; }
+#readout2 { font-size: 13px; color: var(--ink); min-height: 20px; margin: 0 0 4px; }
+.plot { position: relative; width: 100%; touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair; }
+.plot canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.help { font-size: 13px; color: var(--muted); margin: 6px 0 18px; }
+.notes p { margin: 8px 0; max-width: 78ch; }
+#status { color: var(--muted); }
+footer { font-size: 12.5px; color: var(--muted); margin-top: 26px;
+  border-top: 1px solid var(--grid); padding-top: 12px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Loop filter lpfilt from demo 4b&#x27;s PLL: circuit against model</h1>
+<p class="score">rms error 0.008% of the output&#x27;s 1.353 V excursion, worst single point 0.019%: PASS (spice2rnm&#x27;s own verdict)</p>
+<div class="legend">
+  <span><i style="border-color: var(--circuit); border-top-width: 6px; opacity: 0.55"></i>circuit (ngspice)</span>
+  <span><i style="border-color: var(--model); border-top-width: 3px; opacity: 1.00"></i>model (xezim)</span>
+  <span><i style="border-color: var(--error); border-top-width: 3px; opacity: 1.00"></i>error, model minus circuit</span>
+</div>
+<div class="bar" id="presets"></div>
+<div id="readout"><span id="status">unpacking the waveforms...</span></div>
+<div id="readout2"></div>
+<div class="plot" id="p-main" style="height: 320px"><canvas></canvas><canvas></canvas></div>
+<div class="plot" id="p-err" style="height: 160px"><canvas></canvas><canvas></canvas></div>
+<p class="help">Drag across the plot to zoom into that stretch. Scroll to zoom around the pointer, Shift+scroll (or the arrow keys) to slide along the run, double-click to see the whole run again. Hover to read every trace at one instant.</p>
+<div class="notes">
+<p>Stimulus: a 4.359 mA current step into &#x27;dra&#x27; for 3.56 us, the pipeline&#x27;s own check for a current-driven filter. The step is not drawn: it is a current, and every trace here is a voltage.</p>
+<p>This model was not fitted: spice2rnm read the filter&#x27;s capacitors and resistors from the netlist and wrote them as equations, so the two traces should differ only by the simulators&#x27; arithmetic. The error panel shows how little.</p>
+</div>
+<footer>Every point the demo&#x27;s equivalence check wrote is in this page (times to 1 fs, voltages to 0.1 µV). It loads nothing from the network. Built by harness/pll_wave.py in the spice2rnm demos.</footer>
+</main>
+<script type="application/json" id="meta">{"times": [{"off": 0, "n": 1000}], "traces": [{"key": "circuit", "t": 0, "off": 1000, "n": 1000, "label": "circuit", "color": "circuit", "w": 6, "a": 0.45}, {"key": "model", "t": 0, "off": 2000, "n": 1000, "label": "model", "color": "model", "w": 1.6, "a": 1}, {"key": "error", "t": 0, "off": 3000, "n": 1000, "label": "error", "color": "error", "w": 1.2, "a": 1}], "tscale": 1e-15, "vscale": 1e-07, "gap": -2147483648, "panels": [{"id": "p-main", "ylabel": "vout (V)", "keys": ["circuit", "model"], "mul": 1, "unit": "V", "sym": false, "skip": false, "ratio": false, "dec": 2, "signed": true, "h": 320}, {"id": "p-err", "ylabel": "error (mV)", "keys": ["error"], "mul": 1000.0, "unit": "mV", "sym": true, "skip": false, "ratio": false, "dec": 2, "signed": true, "h": 160}], "t0": 0.0, "t1": 3.55596e-06, "settle": 0.0, "presets": [{"label": "Whole run", "a": 0.0, "b": 3.55596e-06}, {"label": "Worst point", "a": 0.0, "b": 1.973646788e-07}], "boxes": [], "shades": [], "hlines": [], "marks": []}</script>
+<script type="text/plain" id="data">
+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
+</script>
+<script>
+(async function () {
+  "use strict";
+  const META = JSON.parse(document.getElementById("meta").textContent);
+  const statusEl = document.getElementById("status");
+  if (typeof DecompressionStream === "undefined") {
+    statusEl.textContent = "This browser is too old to unpack the waveforms " +
+      "(it needs DecompressionStream: Chrome or Edge 80+, Firefox 113+, Safari 16.4+).";
+    return;
+  }
+  let I;
+  try {
+    const b64 = document.getElementById("data").textContent.replace(/\s+/g, "");
+    const raw = atob(b64);
+    const bytes = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+    I = new Int32Array(await new Response(stream).arrayBuffer());
+  } catch (e) {
+    statusEl.textContent = "Could not unpack the waveforms: " + e;
+    return;
+  }
+  function undelta(off, n, scale) {
+    const o = new Float64Array(n);
+    let a = 0;
+    for (let i = 0; i < n; i++) {
+      const d = I[off + i];
+      if (d === META.gap) { o[i] = NaN; continue; }
+      a += d; o[i] = a * scale;
+    }
+    return o;
+  }
+  function undeltaTime(off, n, scale) {
+    // a GAP word here means the step did not fit: the next two words are
+    // its high and low halves
+    const o = new Float64Array(n);
+    let a = 0, w = off;
+    for (let i = 0; i < n; i++) {
+      const d = I[w++];
+      if (d === META.gap) { a += I[w] * 2147483648 + I[w + 1]; w += 2; }
+      else a += d;
+      o[i] = a * scale;
+    }
+    return o;
+  }
+  const T = META.times.map(x => undeltaTime(x.off, x.n, META.tscale));
+  const TR = {};
+  for (const s of META.traces)
+    TR[s.key] = { t: T[s.t], v: undelta(s.off, s.n, META.vscale), label: s.label, color: s.color, w: s.w, a: s.a };
+
+  const PANELS = META.panels.map((p, i) => Object.assign({ idx: i }, p,
+    { m: { l: 66, r: 14, t: 10, b: i === META.panels.length - 1 ? 40 : 8 } }));
+  const MARKS = META.marks;
+  const T0 = META.t0, T1 = META.t1, ST = META.settle;
+  let x0 = T0, x1 = T1, hoverT = null, hoverP = null, drag = null, queued = false, showVin = true;
+
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  function lb(a, x) { let lo = 0, hi = a.length; while (lo < hi) { const m = (lo + hi) >> 1; if (a[m] < x) lo = m + 1; else hi = m; } return lo; }
+  function at(tr, t) {
+    const a = tr.t, i = lb(a, t);
+    if (i <= 0) return tr.v[0];
+    if (i >= a.length) return tr.v[a.length - 1];
+    const ta = a[i - 1], tb = a[i];
+    return tb === ta ? tr.v[i] : tr.v[i - 1] + (tr.v[i] - tr.v[i - 1]) * (t - ta) / (tb - ta);
+  }
+  function tunit(span) {
+    if (span < 2e-9) return [1e12, "ps"];
+    if (span < 2e-6) return [1e9, "ns"];
+    return [1e6, "µs"];
+  }
+  function ticks(lo, hi, n) {
+    const raw = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 2.5, 5, 10].map(k => k * mag).find(s => s >= raw) || raw;
+    const out = [];
+    for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(v);
+    return [out, step];
+  }
+  function dec(step) {
+    // enough decimals to print every tick exactly (a 2.5 step needs one more)
+    let d = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
+    const k = step * Math.pow(10, d);
+    if (Math.abs(k - Math.round(k)) > 1e-6) d++;
+    return d;
+  }
+  const keysOf = p => p.keys.filter(k => k !== "vin" || showVin);
+  const marksOf = p => MARKS.filter(mk => mk.panel === p.idx);
+
+  for (const p of PANELS) {
+    p.box = document.getElementById(p.id);
+    [p.base, p.over] = p.box.querySelectorAll("canvas");
+  }
+  function size() {
+    const dpr = window.devicePixelRatio || 1;
+    for (const p of PANELS) {
+      p.w = p.box.clientWidth; p.h = p.box.clientHeight;
+      for (const c of [p.base, p.over]) {
+        c.width = Math.round(p.w * dpr); c.height = Math.round(p.h * dpr);
+        c.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      p.pw = p.w - p.m.l - p.m.r; p.ph = p.h - p.m.t - p.m.b;
+    }
+  }
+  const X = (p, t) => p.m.l + (t - x0) / (x1 - x0) * p.pw;
+  const toT = (p, x) => x0 + (x - p.m.l) / p.pw * (x1 - x0);
+
+  function yrange(p) {
+    if (p.ratio) {
+      // error / tolerance: 0 at the bottom, the fail line (1) always in view
+      let hi = 1.25;
+      for (const mk of marksOf(p)) if (mk.t >= x0 && mk.t <= x1) hi = Math.max(hi, mk.y * 1.1);
+      return [0, hi, false];
+    }
+    // A panel marked skip ignores the start-up when the view also holds
+    // settled data: otherwise a volt of start-up flattens the millivolts
+    // that are actually being judged. What it leaves out runs off-scale.
+    const skip = p.skip && x0 < ST && x1 > ST + 0.02 * (x1 - x0);
+    const from = skip ? ST : x0;
+    let lo = Infinity, hi = -Infinity;
+    for (const k of keysOf(p)) {
+      const tr = TR[k], i0 = Math.max(0, lb(tr.t, from) - 1), i1 = Math.min(tr.t.length - 1, lb(tr.t, x1));
+      for (let i = i0; i <= i1; i++) { const v = tr.v[i] * p.mul; if (v < lo) lo = v; if (v > hi) hi = v; }
+    }
+    for (const mk of marksOf(p)) if (mk.t >= from && mk.t <= x1) { lo = Math.min(lo, mk.y); hi = Math.max(hi, mk.y); }
+    if (!isFinite(lo)) { lo = -1; hi = 1; }
+    if (p.sym) { const mm = Math.max(Math.abs(lo), Math.abs(hi)) || 1; lo = -mm; hi = mm; }
+    if (hi - lo < 1e-9) { lo -= 0.5; hi += 0.5; }
+    const pad = (hi - lo) * 0.08;
+    return [lo - pad, hi + pad, skip];
+  }
+
+  function drawTrace(ctx, p, tr, Y) {
+    const t = tr.t, v = tr.v, mul = p.mul;
+    const i0 = Math.max(0, lb(t, x0) - 1), i1 = Math.min(t.length - 1, lb(t, x1));
+    if (i1 < i0) return;
+    ctx.save();
+    ctx.globalAlpha = tr.a; ctx.strokeStyle = css("--" + tr.color); ctx.lineWidth = tr.w;
+    ctx.lineJoin = "round"; ctx.lineCap = "round";
+    ctx.beginPath();
+    const sx = p.pw / (x1 - x0);
+    if (i1 - i0 > p.pw * 3) {
+      // More points than pixels: one vertical stroke per pixel column
+      // spanning that column's min..max, so no spike is ever thinned away.
+      let col = null, mn = 0, mx = 0, first = 0, last = 0, pen = false;
+      const flush = () => {
+        if (pen) ctx.lineTo(col, Y(first)); else ctx.moveTo(col, Y(first));
+        ctx.lineTo(col, Y(mn)); ctx.lineTo(col, Y(mx)); ctx.lineTo(col, Y(last)); pen = true;
+      };
+      for (let i = i0; i <= i1; i++) {
+        const y = v[i] * mul;
+        if (y !== y) { if (col !== null) flush(); col = null; pen = false; continue; }
+        const x = Math.floor(p.m.l + (t[i] - x0) * sx) + 0.5;
+        if (x !== col) { if (col !== null) flush(); col = x; mn = mx = first = last = y; }
+        else { if (y < mn) mn = y; if (y > mx) mx = y; last = y; }
+      }
+      if (col !== null) flush();
+    } else {
+      let pen = false;
+      for (let i = i0; i <= i1; i++) {
+        const y = v[i] * mul;
+        if (y !== y) { pen = false; continue; }
+        const x = p.m.l + (t[i] - x0) * sx;
+        if (pen) ctx.lineTo(x, Y(y)); else { ctx.moveTo(x, Y(y)); pen = true; }
+      }
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPanel(p, last) {
+    const ctx = p.base.getContext("2d"), m = p.m;
+    ctx.clearRect(0, 0, p.w, p.h);
+    const [lo, hi, skipped] = yrange(p);
+    p.Y = v => m.t + (hi - v) / (hi - lo) * p.ph;
+    const Y = p.Y;
+    const ink = css("--ink"), muted = css("--muted"), grid = css("--grid");
+    ctx.font = "11px -apple-system, Segoe UI, Helvetica, Arial, sans-serif";
+    if (ST > x0) {
+      ctx.fillStyle = css("--shade");
+      const xa = Math.max(m.l, X(p, T0)), xb = Math.min(m.l + p.pw, X(p, ST));
+      ctx.fillRect(xa, m.t, xb - xa, p.ph);
+    }
+    for (const s of META.shades) {
+      if (s.b < x0 || s.a > x1) continue;
+      const xa = Math.max(m.l, X(p, s.a)), xb = Math.min(m.l + p.pw, X(p, s.b));
+      ctx.fillStyle = css("--win"); ctx.fillRect(xa, m.t, Math.max(1, xb - xa), p.ph);
+      if (p.idx === 0 && xb - xa > 60) {
+        ctx.fillStyle = muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+        ctx.fillText(s.label, (xa + xb) / 2, m.t + 3);
+      }
+    }
+    const [yt, ys] = ticks(lo, hi, p.ratio ? 4 : (p.sym ? 4 : 6)), yd = dec(ys);
+    ctx.strokeStyle = grid; ctx.lineWidth = 1; ctx.fillStyle = muted;
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (const v of yt) {
+      const y = Math.round(Y(v)) + 0.5;
+      ctx.beginPath(); ctx.moveTo(m.l, y); ctx.lineTo(m.l + p.pw, y); ctx.stroke();
+      ctx.fillText(v.toFixed(yd), m.l - 6, y);
+    }
+    const [scale, unit] = tunit(x1 - x0);
+    const [xt, xs] = ticks(x0 * scale, x1 * scale, Math.max(3, Math.round(p.pw / 110)));
+    const xd = dec(xs);
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (const v of xt) {
+      const x = Math.round(X(p, v / scale)) + 0.5;
+      ctx.beginPath(); ctx.moveTo(x, m.t); ctx.lineTo(x, m.t + p.ph); ctx.stroke();
+      if (last) ctx.fillText(v.toFixed(xd), x, m.t + p.ph + 6);
+    }
+    if (last) ctx.fillText("time (" + unit + ")", m.l + p.pw / 2, m.t + p.ph + 22);
+    ctx.save();
+    ctx.translate(14, m.t + p.ph / 2); ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(p.ylabel, 0, 0);
+    ctx.restore();
+    ctx.save();
+    ctx.beginPath(); ctx.rect(m.l, m.t, p.pw, p.ph); ctx.clip();
+    for (const k of keysOf(p)) drawTrace(ctx, p, TR[k], Y);
+    for (const h of META.hlines) {
+      if (h.panel !== p.idx) continue;
+      const y = Math.round(Y(h.y)) + 0.5;
+      ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = css("--fail"); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(m.l, y); ctx.lineTo(m.l + p.pw, y); ctx.stroke(); ctx.restore();
+      ctx.fillStyle = css("--fail"); ctx.textAlign = "right"; ctx.textBaseline = "bottom";
+      ctx.fillText(h.label, m.l + p.pw - 4, y - 2);
+    }
+    for (const mk of marksOf(p)) {
+      if (mk.t < x0 || mk.t > x1) continue;
+      const x = X(p, mk.t), y = Y(mk.y), col = css("--" + mk.color);
+      ctx.beginPath(); ctx.arc(x, y, mk.kind === "ring" ? 4.5 : 3.2, 0, 2 * Math.PI);
+      if (mk.kind === "ring") { ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.stroke(); }
+      else { ctx.fillStyle = col; ctx.fill(); }
+    }
+    ctx.restore();
+    for (const b of META.boxes) {
+      if (b.b < x0 || b.a > x1) continue;
+      const xa = X(p, b.a), xb = X(p, b.b);
+      ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = ink;
+      ctx.beginPath(); ctx.rect(xa, m.t, xb - xa, p.ph); ctx.stroke(); ctx.restore();
+      if (p.idx === 0) { ctx.fillStyle = ink; ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.fillText(b.label, (xa + xb) / 2, m.t + 3); }
+    }
+    if (ST > x0 && X(p, ST) - m.l > 150) {
+      ctx.fillStyle = muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+      ctx.font = "italic 11.5px -apple-system, Segoe UI, Helvetica, Arial, sans-serif";
+      const msg = p.skip ? (skipped ? "start-up: runs off this scale" : "start-up") : "not scored: the model starts from rest";
+      ctx.fillText(msg, (Math.max(m.l, X(p, T0)) + Math.min(m.l + p.pw, X(p, ST))) / 2, m.t + 4);
+    }
+    ctx.strokeStyle = css("--frame"); ctx.lineWidth = 1;
+    ctx.strokeRect(m.l + 0.5, m.t + 0.5, p.pw, p.ph);
+  }
+
+  function nearestMark() {
+    if (hoverT === null || hoverP === null) return null;
+    let best = null, bd = 7;
+    for (const mk of MARKS) {
+      if (mk.t < x0 || mk.t > x1 || !mk.text) continue;
+      const d = Math.abs(X(hoverP, mk.t) - X(hoverP, hoverT));
+      if (d < bd) { bd = d; best = mk; }
+    }
+    return best;
+  }
+
+  function drawOverlay() {
+    const mk = nearestMark();
+    for (const p of PANELS) {
+      const ctx = p.over.getContext("2d"), m = p.m;
+      ctx.clearRect(0, 0, p.w, p.h);
+      if (drag) {
+        const a = Math.max(m.l, Math.min(drag.a, drag.b)), b = Math.min(m.l + p.pw, Math.max(drag.a, drag.b));
+        ctx.fillStyle = css("--sel"); ctx.fillRect(a, m.t, b - a, p.ph);
+      }
+      if (hoverT !== null && hoverT >= x0 && hoverT <= x1) {
+        const x = Math.round(X(p, hoverT)) + 0.5;
+        ctx.strokeStyle = css("--cursor"); ctx.globalAlpha = 0.5; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x, m.t); ctx.lineTo(x, m.t + p.ph); ctx.stroke(); ctx.globalAlpha = 1;
+      }
+      if (mk && p.Y) {
+        for (const o of MARKS) {
+          if (o.t !== mk.t || o.panel !== p.idx) continue;
+          ctx.beginPath(); ctx.arc(X(p, o.t), p.Y(o.y), 7, 0, 2 * Math.PI);
+          ctx.strokeStyle = css("--ink"); ctx.lineWidth = 1.5; ctx.stroke();
+        }
+      }
+    }
+  }
+
+  const readout = document.getElementById("readout"), readout2 = document.getElementById("readout2");
+  function fmtVal(k, v) {
+    const p = PANELS.find(q => q.keys.includes(k));
+    if (v !== v) return "–";
+    if (p && (p.mul !== 1 || p.unit !== "V")) {
+      const x = v * p.mul, s = p.signed ? (x >= 0 ? "+" : "−") : (x < 0 ? "−" : "");
+      return s + Math.abs(x).toFixed(p.dec) + (p.unit ? " " + p.unit : "");
+    }
+    return v.toFixed(4) + " V";
+  }
+  function showReadout() {
+    const mk = nearestMark();
+    readout2.textContent = mk ? mk.text : "";
+    if (hoverT === null) {
+      const [s, u] = tunit(x1 - x0);
+      readout.innerHTML = "showing <b>" + (x0 * s).toFixed(1) + " to " + (x1 * s).toFixed(1) + " " + u +
+        "</b> of " + (T1 * 1e9).toFixed(0) + " ns. Hover to read values.";
+      return;
+    }
+    const [s, u] = tunit(x1 - x0), fine = dec((x1 - x0) * s / 1000);
+    let h = "t = <b>" + (hoverT * s).toFixed(Math.min(fine, 4)) + " " + u + "</b>";
+    for (const k of Object.keys(TR)) h += " &nbsp; " + TR[k].label + " <b>" + fmtVal(k, at(TR[k], hoverT)) + "</b>";
+    readout.innerHTML = h;
+  }
+
+  function redraw() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      PANELS.forEach((p, i) => drawPanel(p, i === PANELS.length - 1));
+      drawOverlay(); showReadout();
+    });
+  }
+  function view(a, b) {
+    const minSpan = 20e-12, full = T1 - T0;
+    let span = Math.max(minSpan, Math.min(full, b - a));
+    let c = (a + b) / 2;
+    a = c - span / 2; b = c + span / 2;
+    if (a < T0) { b += T0 - a; a = T0; }
+    if (b > T1) { a -= b - T1; b = T1; }
+    x0 = Math.max(T0, a); x1 = Math.min(T1, b);
+    redraw();
+  }
+
+  for (const p of PANELS) {
+    const box = p.box, px = e => e.clientX - box.getBoundingClientRect().left;
+    box.addEventListener("pointerdown", e => {
+      if (e.button !== 0) return;
+      drag = { a: px(e), b: px(e) };
+      try { box.setPointerCapture(e.pointerId); } catch (err) { /* keep going without capture */ }
+    });
+    box.addEventListener("pointermove", e => {
+      const x = px(e);
+      hoverT = (x >= p.m.l && x <= p.m.l + p.pw) ? toT(p, x) : null;
+      hoverP = p;
+      if (drag) drag.b = x;
+      drawOverlay(); showReadout();
+    });
+    box.addEventListener("pointerup", () => {
+      if (drag && Math.abs(drag.b - drag.a) > 4) {
+        const a = toT(p, Math.min(drag.a, drag.b)), b = toT(p, Math.max(drag.a, drag.b));
+        drag = null; view(a, b);
+      } else { drag = null; drawOverlay(); }
+    });
+    box.addEventListener("pointerleave", () => { if (!drag) { hoverT = null; drawOverlay(); showReadout(); } });
+    box.addEventListener("dblclick", () => view(T0, T1));
+    box.addEventListener("wheel", e => {
+      e.preventDefault();
+      const span = x1 - x0;
+      if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        const d = (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) / p.pw * span;
+        view(x0 + d, x1 + d);
+      } else {
+        const tc = toT(p, px(e)), f = Math.exp(e.deltaY * 0.0015);
+        view(tc - (tc - x0) * f, tc + (x1 - tc) * f);
+      }
+    }, { passive: false });
+  }
+  document.addEventListener("keydown", e => {
+    const span = x1 - x0;
+    if (e.key === "ArrowLeft") view(x0 - span * 0.2, x1 - span * 0.2);
+    else if (e.key === "ArrowRight") view(x0 + span * 0.2, x1 + span * 0.2);
+    else if (e.key === "+" || e.key === "=") view(x0 + span * 0.25, x1 - span * 0.25);
+    else if (e.key === "-") view(x0 - span * 0.5, x1 + span * 0.5);
+    else return;
+    e.preventDefault();
+  });
+
+  const bar = document.getElementById("presets");
+  let vinBtn = null;
+  function setVin(v) {
+    showVin = v;
+    if (vinBtn) vinBtn.textContent = showVin ? "Hide stimulus" : "Show stimulus";
+  }
+  // A preset may say whether the stimulus is shown (a tone whose response
+  // is far smaller than its drive); on such a page the others show it.
+  const vinPresets = META.presets.some(pr => "vin" in pr);
+  for (const pr of META.presets) {
+    const b = document.createElement("button");
+    b.textContent = pr.label;
+    b.addEventListener("click", () => {
+      if ("vin" in pr) setVin(pr.vin); else if (vinPresets) setVin(true);
+      view(pr.a, pr.b);
+    });
+    bar.appendChild(b);
+  }
+  const out = document.createElement("button");
+  out.textContent = "Zoom out";
+  out.addEventListener("click", () => { const s = x1 - x0; view(x0 - s / 2, x1 + s / 2); });
+  bar.appendChild(out);
+  if (PANELS.some(p => p.keys.includes("vin"))) {
+    // The stimulus can swing far wider than the response; hiding it lets
+    // the volts axis fit the traces being compared.
+    vinBtn = document.createElement("button");
+    vinBtn.textContent = "Hide stimulus";
+    vinBtn.addEventListener("click", () => { setVin(!showVin); redraw(); });
+    bar.appendChild(vinBtn);
+  }
+
+  new ResizeObserver(() => { size(); redraw(); }).observe(document.querySelector("main"));
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redraw);
+  size(); redraw();
+  // For anyone who wants the numbers: in the browser console,
+  // waveforms.traces.model.t / .v are the model's times (s) and volts.
+  window.waveforms = { traces: TR, marks: MARKS, view: view, get range() { return [x0, x1]; } };
+})();
+</script>
+</body>
+</html>
