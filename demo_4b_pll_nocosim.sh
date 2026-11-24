@@ -58,6 +58,25 @@ hr()  { printf '\n\033[1m%s\033[0m\n%s\n' "$1" "$(printf '=%.0s' {1..72})"; }
 say() { printf '  %s\n' "$*"; }
 beat(){ [ "${DEMO_PAUSE:-0}" = "1" ] && { printf '\n  [enter] '; read -r _; }; return 0; }
 
+# The models this run wrote, one per block, by the names the tool writes
+# them under: a cell writes <block>/<block>.sv, a run made before cells
+# wrote <block>/<block>_*_rnm.sv (refresh.sh reads both, for the same
+# reason). Searching for *_rnm.sv alone found none of today's and printed
+# "0 emitted" beside five models. Folders starting with _ are the run's
+# own working files, not blocks.
+block_models() {
+  local d b
+  for d in "$OUT"/*/; do
+    b=$(basename "$d")
+    case "$b" in _*) continue ;; esac
+    if [ -f "$d$b.sv" ]; then
+      printf '%s\n' "$d$b.sv"
+    else
+      ls "$d"*_rnm.sv 2>/dev/null || true
+    fi
+  done | sort
+}
+
 miss=0
 need() {  # need <path> <what it is> <where it comes from>
   if [ -e "$1" ]; then
@@ -354,7 +373,7 @@ hr "5. What came out"
 say "Five models, by four different routes, none of them a transfer"
 say "function fit for the three that matter:"
 echo
-find "$OUT" -maxdepth 2 -name '*_rnm.sv' | sort | sed "s|$OUT/|    |"
+block_models | sed "s|$OUT/|    |"
 echo
 say "and the run states its own limits rather than leaving them to be"
 say "discovered -- including which block it could not reach, and which"
@@ -553,7 +572,7 @@ beat
 hr "Summary"
 # READ FROM THE RUN, NOT TYPED, for the reason demos 1-4a are: a summary
 # that cannot disagree with its own output is marking its own homework.
-models=$(find "$OUT" -maxdepth 2 -name '*_rnm.sv' | wc -l)
+models=$(block_models | wc -l)
 verdict=$(grep -aoE '\[rtl-loop\] VERDICT [A-Z]+' "$OUT.log" | tail -1 | awk '{print $3}')
 # Squeezed: these come out of a report that pads its own columns, and a
 # label printed here as well as captured there reads as "vout vout".
