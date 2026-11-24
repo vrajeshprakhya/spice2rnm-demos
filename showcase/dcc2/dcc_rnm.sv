@@ -12,22 +12,16 @@
 // schedule spanned 1.299e+10 .. 5.097e+10 rad/s
 // rise/fall asymmetry 0.8005 (rise x0.8947, fall x1.1177), from
 // the two full-swing traversals of the step schedule
-// rise/fall SKEW 9.466e-11 s, as a 54/0 step output delay --
+// rise/fall SKEW 9.466e-11 s, as a 27/0 step output delay --
 // the measured difference between the two traversals' own
 // 50% crossings. Without it this model is symmetric about
 // its own threshold and returns exactly 50.000% duty.
 
 module dcc_rnm(input wreal in_val, output wreal out_val);
 
-  // A net cannot be assigned procedurally, so the body computes into
-  // this variable and one continuous assignment drives the port --
-  // the net/variable step the separate boundary file used to perform.
-  real out_val__d;
-  assign out_val = out_val__d;
-
   localparam int  NW = 33;
-  localparam real TSTEP = 1755.39; // femtoseconds, for #(...) only
-  localparam real DT_SECONDS = 1.755385837e-12;
+  localparam real TSTEP = 3510.77; // femtoseconds, for #(...) only
+  localparam real DT_SECONDS = 3.510771675e-12;
   localparam real DC_BIAS = 0.9;
 
   real WX [0:NW-1];   // input value
@@ -91,6 +85,7 @@ module dcc_rnm(input wreal in_val, output wreal out_val);
           if (xin >= WX[i] && xin <= WX[i+1]) begin
             t = (WX[i+1] == WX[i]) ? 0.0 : (xin - WX[i]) / (WX[i+1] - WX[i]);
             wp_of = WP[i] + t * (WP[i+1] - WP[i]);
+            break;
           end
         end
       end
@@ -102,9 +97,9 @@ module dcc_rnm(input wreal in_val, output wreal out_val);
   // so the faster one carries zero. The block's COMMON
   // propagation delay is not modelled: it moves both edges
   // together and leaves every duty unchanged.
-  localparam int ND_RISE = 54;
+  localparam int ND_RISE = 27;
   localparam int ND_FALL = 0;
-  localparam int NDEPTH  = 56;
+  localparam int NDEPTH  = 29;
   real dbuf [0:NDEPTH-1];
   int  dhead, dtap;
   bit  dir_up;
@@ -120,13 +115,25 @@ module dcc_rnm(input wreal in_val, output wreal out_val);
   localparam real K_FALL = 1.11766764;
 
   real y, tgt, w;
+  real out_val__d;   // what lag_step drives; see the assign at the end
   bit  primed;
+  // The input, and the rate it alone decides. See lag_step
+  // for why it is held rather than recomputed.
+  real in_hold, wp_hold;
+  bit  in_held;
   initial begin
     y = static_curve(DC_BIAS);
     primed = 1'b0;
+    in_held = 1'b0;
     for (int i = 0; i < NDEPTH; i++) dbuf[i] = y;
     dhead = 0; dir_up = 1'b0; yprev = y;
   end
+
+  // The target, evaluated when the input changes and not on
+  // each step: the math function in static_curve must not
+  // appear in lag_step (see the generator for the measurement).
+  real tgt_c;
+  always_comb tgt_c = static_curve(in_val);
 
   always #(TSTEP) begin : lag_step
     real dt, k1, k2, k3, k4;
@@ -134,17 +141,41 @@ module dcc_rnm(input wreal in_val, output wreal out_val);
     // Open at the DC solution for the stimulus's OWN first
     // value, which is what SPICE's t=0 operating point solves.
     if (!primed) begin
-      y = static_curve(in_val);
+      y = tgt_c;
+      for (int i = 0; i < NDEPTH; i++) dbuf[i] = y;
+      yprev = y;
       primed = 1'b1;
     end
     // The target and the rate are both functions of the INPUT,
     // so they are constant across the four RK4 stages; only y
     // advances. That keeps the step explicit and cheap.
-    tgt = static_curve(in_val);
+    //
+    // AND CONSTANT BETWEEN STEPS, for the same reason read one
+    // level out: an input is piecewise constant between its own
+    // events, while this block wakes on a timer. Measured on
+    // dcc.cir, the input moved 5759 times across 289236 steps.
+    // The target comes from tgt_c, which always_comb keeps
+    // current; THIS BLOCK CALLS NO MATH FUNCTION, because one
+    // would send all of it to the simulator's interpreter. The
+    // rate's table search has none and stays here, run only
+    // when the input's own value has changed.
+    //
+    // EXACT, NOT AN APPROXIMATION: the same expressions, run
+    // when their only argument changes, so a stored run's
+    // numbers do not move.
+    if (!in_held || in_val != in_hold) begin
+      wp_hold  = wp_of(in_val);
+      in_hold  = in_val;
+      in_held  = 1'b1;
+    end
+    tgt = tgt_c;
     // Direction is decided once per step, from the sign of
     // the error, and held across the four RK4 stages -- the
-    // same treatment tgt and w already get.
-    w   = wp_of(in_val) * ((tgt > y) ? K_RISE : K_FALL);
+    // same treatment tgt and w already get. NOT cached with
+    // the rest: this factor turns on (tgt > y), and y is the
+    // state, so it can change on a step where the input did
+    // not.
+    w   = wp_hold * ((tgt > y) ? K_RISE : K_FALL);
     k1  = w * (tgt - y);
     k2  = w * (tgt - (y + 0.5*dt*k1));
     k3  = w * (tgt - (y + 0.5*dt*k2));
@@ -164,6 +195,9 @@ module dcc_rnm(input wreal in_val, output wreal out_val);
     out_val__d = dbuf[dtap];
     dhead = (dhead + 1) % NDEPTH;
   end
+
+  // Before the first step: the DC solution for the present input.
+  assign out_val = primed ? out_val__d : tgt_c;
 
 
 `ifndef SPICE2RNM_NO_ASSERT

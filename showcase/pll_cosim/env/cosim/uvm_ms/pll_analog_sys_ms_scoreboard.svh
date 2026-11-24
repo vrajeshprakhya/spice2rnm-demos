@@ -68,7 +68,7 @@ class pll_analog_sys_scoreboard extends uvm_scoreboard;
   // quantity that was already steady in the golden run, so the model's
   // had better be steady at the same value. See system_invariants.py --
   // and note that nothing here names a PLL, a DLL or anything else.
-  localparam int N_INV   = 2;
+  localparam int N_INV   = 1;
   localparam int LATE_W  = 3;   // windows at the end that must agree
   string inv_kind  [N_INV];
   string inv_node  [N_INV];
@@ -149,8 +149,8 @@ class pll_analog_sys_scoreboard extends uvm_scoreboard;
 
   function real golden_span(string node);
     case (node)
-      "aout": return 3.35740323;
-      "vout": return 0.00686087305;
+      "aout": return 3.36814667;
+      "vout": return 0.0106279149;
       "vpdn": return 3.3;
       "vpupb": return 3.3;
       default: return 1.0;
@@ -180,28 +180,27 @@ class pll_analog_sys_scoreboard extends uvm_scoreboard;
   function void build_phase(uvm_phase phase);
     inst = this;
     // ---- GOLDEN: reduced from the ngspice run of this same testbench ----
-    g_node[ 0] = "aout"; g_win[ 0] = 0; g_mean[ 0] = 1.73918482; g_rises[ 0] = 231;
-    g_node[ 1] = "aout"; g_win[ 1] = 1; g_mean[ 1] = 1.73815709; g_rises[ 1] = 231;
-    g_node[ 2] = "aout"; g_win[ 2] = 2; g_mean[ 2] = 1.73816594; g_rises[ 2] = 232;
-    g_node[ 3] = "aout"; g_win[ 3] = 3; g_mean[ 3] = 1.73595459; g_rises[ 3] = 233;
-    g_node[ 4] = "aout"; g_win[ 4] = 4; g_mean[ 4] = 1.73897905; g_rises[ 4] = 232;
-    g_node[ 5] = "vout"; g_win[ 5] = 0; g_mean[ 5] = 1.85358563; g_rises[ 5] = 0;
-    g_node[ 6] = "vout"; g_win[ 6] = 1; g_mean[ 6] = 1.85401451; g_rises[ 6] = 0;
-    g_node[ 7] = "vout"; g_win[ 7] = 2; g_mean[ 7] = 1.84984655; g_rises[ 7] = 0;
-    g_node[ 8] = "vout"; g_win[ 8] = 3; g_mean[ 8] = 1.84715364; g_rises[ 8] = 0;
-    g_node[ 9] = "vout"; g_win[ 9] = 4; g_mean[ 9] = 1.84911663; g_rises[ 9] = 0;
+    g_node[ 0] = "aout"; g_win[ 0] = 0; g_mean[ 0] = 1.7390071; g_rises[ 0] = 231;
+    g_node[ 1] = "aout"; g_win[ 1] = 1; g_mean[ 1] = 1.73539122; g_rises[ 1] = 231;
+    g_node[ 2] = "aout"; g_win[ 2] = 2; g_mean[ 2] = 1.73757241; g_rises[ 2] = 232;
+    g_node[ 3] = "aout"; g_win[ 3] = 3; g_mean[ 3] = 1.73686489; g_rises[ 3] = 233;
+    g_node[ 4] = "aout"; g_win[ 4] = 4; g_mean[ 4] = 1.7389344; g_rises[ 4] = 232;
+    g_node[ 5] = "vout"; g_win[ 5] = 0; g_mean[ 5] = 1.85560444; g_rises[ 5] = 0;
+    g_node[ 6] = "vout"; g_win[ 6] = 1; g_mean[ 6] = 1.85628011; g_rises[ 6] = 0;
+    g_node[ 7] = "vout"; g_win[ 7] = 2; g_mean[ 7] = 1.85005336; g_rises[ 7] = 0;
+    g_node[ 8] = "vout"; g_win[ 8] = 3; g_mean[ 8] = 1.84565219; g_rises[ 8] = 0;
+    g_node[ 9] = "vout"; g_win[ 9] = 4; g_mean[ 9] = 1.84825142; g_rises[ 9] = 0;
     g_node[10] = "vpdn"; g_win[10] = 0; g_mean[10] = 0.0102422623; g_rises[10] = 6;
-    g_node[11] = "vpdn"; g_win[11] = 1; g_mean[11] = 0.0330056906; g_rises[11] = 6;
-    g_node[12] = "vpdn"; g_win[12] = 2; g_mean[12] = 0.0529229177; g_rises[12] = 5;
-    g_node[13] = "vpdn"; g_win[13] = 3; g_mean[13] = 0.0301603725; g_rises[13] = 6;
+    g_node[11] = "vpdn"; g_win[11] = 1; g_mean[11] = 0.0421107087; g_rises[11] = 6;
+    g_node[12] = "vpdn"; g_win[12] = 2; g_mean[12] = 0.0751163994; g_rises[12] = 5;
+    g_node[13] = "vpdn"; g_win[13] = 3; g_mean[13] = 0.0415416451; g_rises[13] = 6;
     g_node[14] = "vpdn"; g_win[14] = 4; g_mean[14] = 0.010244912; g_rises[14] = 6;
-    g_node[15] = "vpupb"; g_win[15] = 0; g_mean[15] = 3.2334253; g_rises[15] = 6;
-    g_node[16] = "vpupb"; g_win[16] = 1; g_mean[16] = 3.2874806; g_rises[16] = 6;
+    g_node[15] = "vpupb"; g_win[15] = 0; g_mean[15] = 3.20326752; g_rises[15] = 6;
+    g_node[16] = "vpupb"; g_win[16] = 1; g_mean[16] = 3.28577341; g_rises[16] = 6;
     g_node[17] = "vpupb"; g_win[17] = 2; g_mean[17] = 3.29146405; g_rises[17] = 5;
-    g_node[18] = "vpupb"; g_win[18] = 3; g_mean[18] = 3.28975685; g_rises[18] = 6;
-    g_node[19] = "vpupb"; g_win[19] = 4; g_mean[19] = 3.2686961; g_rises[19] = 6;
+    g_node[18] = "vpupb"; g_win[18] = 3; g_mean[18] = 3.28918779; g_rises[18] = 6;
+    g_node[19] = "vpupb"; g_win[19] = 4; g_mean[19] = 3.26641945; g_rises[19] = 6;
     inv_kind[ 0] = "constant_rate"; inv_node[ 0] = "aout"; inv_value[ 0] = 400581619; inv_tol[ 0] = 8011632.38; inv_units[ 0] = "Hz"; inv_tset[ 0] = -1; inv_sbnd[ 0] = 0;
-    inv_kind[ 1] = "settled_value"; inv_node[ 1] = "vout"; inv_value[ 1] = 1.8487056; inv_tol[ 1] = 0.00185401451; inv_units[ 1] = "V"; inv_tset[ 1] = 2.89995e-06; inv_sbnd[ 1] = 0.00185401451;
   endfunction
 
   function int win_of(real t_s);
@@ -224,8 +223,8 @@ class pll_analog_sys_scoreboard extends uvm_scoreboard;
 
   function real scale_of(string node);
     case (node)
-      "aout": return 3.35740323;
-      "vout": return 0.0370802902;
+      "aout": return 3.36814667;
+      "vout": return 0.0371256021;
       "vpdn": return 3.3;
       "vpupb": return 3.3;
       default: return 1.0;
@@ -237,7 +236,7 @@ class pll_analog_sys_scoreboard extends uvm_scoreboard;
   function real mid_of(string node);
     case (node)
       "aout": return 1.65;
-      "vout": return 1.85058408;
+      "vout": return 1.85096615;
       "vpdn": return 1.65;
       "vpupb": return 1.65;
       default: return 0.0;

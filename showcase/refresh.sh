@@ -600,13 +600,33 @@ want pll_nocosim && curate_equivalence "$HOME/s2r_runs/demo4b_pll" pll_nocosim \
     inv1/equivalence inv2/equivalence lpfilt/equivalence \
     ro_vco/_vco_equiv cpump/_cp_equiv
 
+# HOW MUCH FASTER, measured here every time rather than quoted. The
+# speed-up is the reason a model exists, and a figure carried from an old
+# run drifts like any other copied number: the only one the showcase had
+# was ten days old and covered one case. harness/sim_race.py re-runs the
+# pair each equivalence check left behind (the transistor deck in ngspice,
+# the generated model in xezim, same input, same simulated time) from a
+# scratch copy, and writes <case>/timing.txt. A race that cannot finish is
+# written down as NOT TIMED in that file rather than stopping the refresh:
+# a missing speed figure is a gap, not a broken model.
+echo "racing SPICE against the model:"
+race() {  # case
+  python3 "$DEMOS/harness/sim_race.py" "$1" --runs "$RUNS" --out "$HERE/$1" \
+    | grep -E "racing|faster|SLOWER|NOT TIMED|Not raced|no run directory" \
+    | sed "s/^ */  $1: /" || true
+}
+for c in lpf2 dcc2 pi pll_cosim pll_nocosim ctle_sparams lpf2_house; do
+  if want "$c" && [ -d "$HERE/$c" ]; then race "$c"; fi
+done
+
 # No generated file may point back at this machine or at product source
 # files the customer does not have. This gate exists because both have
 # happened; the generators were fixed, and this keeps them fixed.
 leaks=$(grep -rln "/home/$(id -un)" "$HERE"/lpf2 "$HERE"/dcc2 "$HERE"/pi \
           "$HERE"/lpf2_house "$HERE"/pll_cosim "$HERE"/pll_nocosim \
           --include='*.sv' --include='*.svh' --include='*.sh' \
-          --include='*.svg' --include='*.html' 2>/dev/null || true)
+          --include='*.svg' --include='*.html' --include='timing.*' \
+          2>/dev/null || true)
 if [ -n "$leaks" ]; then
   echo "REFUSING to stamp: local paths leaked into generated files:"
   echo "$leaks" | sed 's/^/    /'

@@ -162,6 +162,8 @@ lpf2/
   top_rc_lpf2_ms.sv           top level: nets, DUT, bridge, test
   run_rc_lpf2_ms.sh           compiles and runs the whole thing
   result.json                 the run's own record: fit, verdict, warnings
+  timing.txt, timing.json     SPICE against the model on the same job:
+                              both wall-clock times and the ratio
 ```
 
 ### Where each example actually lives
@@ -255,6 +257,16 @@ record that line was taken from. Each case's `result.json` and
 `pipeline.txt` are the tool's own record of the run: the fit, the
 equivalence verdict, and every warning it raised on the way — including
 the measurements behind choices like omitting the AC section.
+
+**How much faster.** Each case's `timing.txt` races the two sides of its
+equivalence check against each other: the transistor circuit in ngspice,
+and the generated model in xezim, fed the same input over the same stretch
+of simulated time. It gives both wall-clock times and the ratio, says when
+the two sides did not simulate the same length of time, and names every
+block it could not race and why. The figures are measured on every
+refresh, on the machine and at the revisions named at the bottom of the
+file, so none is quoted here: a speed figure copied into prose goes stale
+the same way a model does.
 
 ## If you already have an RNM library
 

@@ -30,8 +30,8 @@ package ro_vco_ms_pkg;
   // good. A generated environment that contradicts the report shipped
   // beside it is worse than no environment.
   localparam bit  HAS_BAND  = 1'b1;
-  localparam real BAND_LO   = 1.79609235;
-  localparam real BAND_HI   = 1.90497823;
+  localparam real BAND_LO   = 1.79459571;
+  localparam real BAND_HI   = 1.90688878;
   localparam real TOL_FRAC  = 0.02; // of period
   localparam int  MEAS_CYC  = 200;
 
@@ -43,11 +43,11 @@ package ro_vco_ms_pkg;
       2: bp_volt = 1.072500000e+00;
       3: bp_volt = 1.361250000e+00;
       4: bp_volt = 1.650000000e+00;
-      5: bp_volt = 1.796092347e+00;
-      6: bp_volt = 1.823313817e+00;
-      7: bp_volt = 1.850535288e+00;
-      8: bp_volt = 1.877756759e+00;
-      9: bp_volt = 1.904978230e+00;
+      5: bp_volt = 1.794595712e+00;
+      6: bp_volt = 1.822668980e+00;
+      7: bp_volt = 1.850742248e+00;
+      8: bp_volt = 1.878815516e+00;
+      9: bp_volt = 1.906888783e+00;
       10: bp_volt = 1.938750000e+00;
       11: bp_volt = 2.227500000e+00;
       12: bp_volt = 2.516250000e+00;
@@ -59,22 +59,22 @@ package ro_vco_ms_pkg;
   endfunction
   function automatic real bp_freq(input int i);
     case (i)
-      0: bp_freq = 8.044728997e+08;
-      1: bp_freq = 7.353223218e+08;
-      2: bp_freq = 6.634460933e+08;
-      3: bp_freq = 5.803864125e+08;
-      4: bp_freq = 4.774034866e+08;
-      5: bp_freq = 4.207851112e+08;
-      6: bp_freq = 4.102031003e+08;
-      7: bp_freq = 3.996548638e+08;
-      8: bp_freq = 3.891564949e+08;
-      9: bp_freq = 3.787205457e+08;
-      10: bp_freq = 3.658691313e+08;
-      11: bp_freq = 2.570120606e+08;
-      12: bp_freq = 1.366253994e+08;
-      13: bp_freq = 7.416291146e+07;
-      14: bp_freq = 4.240904549e+07;
-      15: bp_freq = 1.674102819e+07;
+      0: bp_freq = 8.041529254e+08;
+      1: bp_freq = 7.349756781e+08;
+      2: bp_freq = 6.630324957e+08;
+      3: bp_freq = 5.798316422e+08;
+      4: bp_freq = 4.766900840e+08;
+      5: bp_freq = 4.206242088e+08;
+      6: bp_freq = 4.097088746e+08;
+      7: bp_freq = 3.988304867e+08;
+      8: bp_freq = 3.880063828e+08;
+      9: bp_freq = 3.772498509e+08;
+      10: bp_freq = 3.651312667e+08;
+      11: bp_freq = 2.562239746e+08;
+      12: bp_freq = 1.357029687e+08;
+      13: bp_freq = 7.325508412e+07;
+      14: bp_freq = 4.152865941e+07;
+      15: bp_freq = 1.619399219e+07;
       default: bp_freq = 0.0;
     endcase
   endfunction
@@ -88,10 +88,10 @@ package ro_vco_ms_pkg;
       2: ho_volt = 1.216875000e+00;
       3: ho_volt = 1.505625000e+00;
       4: ho_volt = 1.794375000e+00;
-      5: ho_volt = 1.809703082e+00;
-      6: ho_volt = 1.836924553e+00;
-      7: ho_volt = 1.864146023e+00;
-      8: ho_volt = 1.891367494e+00;
+      5: ho_volt = 1.808632346e+00;
+      6: ho_volt = 1.836705614e+00;
+      7: ho_volt = 1.864778882e+00;
+      8: ho_volt = 1.892852149e+00;
       9: ho_volt = 2.083125000e+00;
       10: ho_volt = 2.371875000e+00;
       11: ho_volt = 2.588437500e+00;
@@ -102,20 +102,20 @@ package ro_vco_ms_pkg;
   endfunction
   function automatic real ho_freq(input int i);
     case (i)
-      0: ho_freq = 7.699447720e+08;
-      1: ho_freq = 7.001851873e+08;
-      2: ho_freq = 6.240350265e+08;
-      3: ho_freq = 5.311900097e+08;
-      4: ho_freq = 4.214534538e+08;
-      5: ho_freq = 4.154910116e+08;
-      6: ho_freq = 4.049237259e+08;
-      7: ho_freq = 3.943985966e+08;
-      8: ho_freq = 3.839301677e+08;
-      9: ho_freq = 3.117956444e+08;
-      10: ho_freq = 1.989277558e+08;
-      11: ho_freq = 1.051007780e+08;
-      12: ho_freq = 5.824679195e+07;
-      13: ho_freq = 2.809968427e+07;
+      0: ho_freq = 7.696141080e+08;
+      1: ho_freq = 6.998110575e+08;
+      2: ho_freq = 6.235643743e+08;
+      3: ho_freq = 5.305423251e+08;
+      4: ho_freq = 4.207101050e+08;
+      5: ho_freq = 4.151630878e+08;
+      6: ho_freq = 4.042639301e+08;
+      7: ho_freq = 3.934106909e+08;
+      8: ho_freq = 3.826191481e+08;
+      9: ho_freq = 3.110543039e+08;
+      10: ho_freq = 1.980718893e+08;
+      11: ho_freq = 1.042081811e+08;
+      12: ho_freq = 5.731925687e+07;
+      13: ho_freq = 2.735560456e+07;
       default: ho_freq = 0.0;
     endcase
   endfunction

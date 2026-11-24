@@ -185,11 +185,13 @@ class inv1_ms_scoreboard extends uvm_scoreboard;
                             txn.freq, exp_db, txn.mag_db, err_db), UVM_HIGH)
       end
 
-      // Phase is checked more loosely than magnitude, and deliberately:
-      // the excitation is a 64-step staircase, so the recovered phase
-      // carries a half-sample bias of ~2.8 degrees that has nothing to do
-      // with the model. It is still worth checking -- a misplaced pole
-      // moves phase long before it moves magnitude much.
+      // Phase is checked more loosely than magnitude. The bridge reads at
+      // the middle of each staircase step, so the half-step bias a
+      // staircase carries is gone (an ideal RC ladder read this way lands
+      // within 0.4 degrees of ngspice's .ac); what remains is the
+      // staircase's own steps leaking through at the lowest frequencies.
+      // Still worth checking -- a misplaced pole moves phase long before
+      // it moves magnitude much.
       exp_deg = ac_phase_deg(idx);
       err_deg = wrap180(txn.phase_deg - exp_deg);
       if (err_deg < 0.0) err_deg = -err_deg;
@@ -202,6 +204,12 @@ class inv1_ms_scoreboard extends uvm_scoreboard;
         `uvm_error("AC_PHASE",
                    $sformatf("FAIL f = %0.6g Hz: ngspice %0.2f deg, model %0.2f deg, err %0.2f deg > tol %0.2f deg",
                              txn.freq, exp_deg, txn.phase_deg, err_deg, TOL_DEG))
+      end else begin
+        // Logged like a passing magnitude, so a run's log carries every
+        // phase it judged and not only the ones that failed.
+        `uvm_info("AC_PHASE",
+                  $sformatf("PASS f = %0.6g Hz: ngspice %0.2f deg, model %0.2f deg, err %0.2f deg",
+                            txn.freq, exp_deg, txn.phase_deg, err_deg), UVM_HIGH)
       end
       return;
     end

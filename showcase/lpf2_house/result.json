@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-11-23T03:43:33.239687+00:00",
+    "timestamp_utc": "2026-11-24T00:16:04.725326+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -81,14 +81,14 @@
     "cost": {
       "pipeline": {
         "what": "the whole pipeline for this block",
-        "wall_s": 18.0149,
-        "cpu_s": 8.1749,
+        "wall_s": 30.9087,
+        "cpu_s": 12.6493,
         "scale": {}
       },
       "ac_sweep": {
         "what": "the .ac characterization sweep alone",
-        "wall_s": 0.0159,
-        "cpu_s": 0.0114,
+        "wall_s": 0.0115,
+        "cpu_s": 0.0085,
         "scale": {}
       }
     },
@@ -228,8 +228,8 @@
       "cost": {
         "spice": {
           "what": "ngspice transient, the reference",
-          "wall_s": 7.5977,
-          "cpu_s": 7.5178,
+          "wall_s": 11.7235,
+          "cpu_s": 11.6071,
           "scale": {
             "span_s": 7.846455721513268e-06,
             "points": 39479,
@@ -238,8 +238,8 @@
         },
         "model": {
           "what": "xezim, the generated model",
-          "wall_s": 0.6317,
-          "cpu_s": 0.6247,
+          "wall_s": 0.9967,
+          "cpu_s": 0.9927,
           "scale": {
             "span_s": 7.846455721513268e-06,
             "elaborates": 1

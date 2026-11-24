@@ -1,0 +1,34 @@
+{
+  "case": "pi",
+  "measured_utc": "2026-11-24T00:19Z",
+  "cpu": "11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz",
+  "threads": 8,
+  "ngspice": "ngspice-46",
+  "run_dir": "~/s2r_runs/demo3_pi",
+  "run_finished_utc": "2026-11-23T23:33Z",
+  "races": [
+    {
+      "label": "phase interpolator, all 9 codes",
+      "spice_runs": 9,
+      "spice_seconds": 25.93102320394246,
+      "model_seconds": 0.08166543499100953,
+      "spice_samples": [
+        25.80514189999667,
+        25.93102320394246,
+        28.276576039002975
+      ],
+      "model_samples": [
+        0.07786187101737596,
+        0.08166543499100953,
+        0.09519114199792966
+      ],
+      "spice_simulated_s": 2.16e-07,
+      "model_simulated_s": 5.6236654000000005e-08,
+      "xezim_build": "531e42af-dirty",
+      "speedup": 317.52752197789897,
+      "problems": []
+    }
+  ],
+  "system": null,
+  "not_raced": {}
+}

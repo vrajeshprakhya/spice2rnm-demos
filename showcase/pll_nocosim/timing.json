@@ -1,0 +1,79 @@
+{
+  "case": "pll_nocosim",
+  "measured_utc": "2026-11-24T00:21Z",
+  "cpu": "11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz",
+  "threads": 8,
+  "ngspice": "ngspice-46",
+  "run_dir": "~/s2r_runs/demo4b_pll",
+  "run_finished_utc": "2026-11-23T23:04Z",
+  "races": [
+    {
+      "label": "inverter inv1",
+      "spice_runs": 1,
+      "spice_seconds": 1.9854342920007184,
+      "model_seconds": 0.56915802200092,
+      "spice_samples": [
+        1.9854342920007184,
+        1.7315964770095889,
+        4.59529546299018
+      ],
+      "model_samples": [
+        0.4461516129958909,
+        0.56915802200092,
+        0.8330594250001013
+      ],
+      "spice_simulated_s": 1.4107e-08,
+      "model_simulated_s": 1.410955e-08,
+      "xezim_build": "531e42af-dirty",
+      "speedup": 3.488370918538172,
+      "problems": []
+    },
+    {
+      "label": "inverter inv2",
+      "spice_runs": 1,
+      "spice_seconds": 3.3774154860002454,
+      "model_seconds": 1.139128142996924,
+      "spice_samples": [
+        3.3774154860002454,
+        3.4178177189896815,
+        2.987935359007679
+      ],
+      "model_samples": [
+        1.139128142996924,
+        1.2010034609993454,
+        1.12020519800717
+      ],
+      "spice_simulated_s": 2.11209e-08,
+      "model_simulated_s": 2.1118253000000002e-08,
+      "xezim_build": "531e42af-dirty",
+      "speedup": 2.964912689378938,
+      "problems": []
+    },
+    {
+      "label": "loop filter lpfilt",
+      "spice_runs": 1,
+      "spice_seconds": 0.03516693599522114,
+      "model_seconds": 0.028244464978342876,
+      "spice_samples": [
+        0.03156400501029566,
+        0.04391069698613137,
+        0.03516693599522114
+      ],
+      "model_samples": [
+        0.028244464978342876,
+        0.03238502301974222,
+        0.02540778400725685
+      ],
+      "spice_simulated_s": 3.5559605e-06,
+      "model_simulated_s": 3.55596e-06,
+      "xezim_build": "531e42af-dirty",
+      "speedup": 1.2450912425562402,
+      "problems": []
+    }
+  ],
+  "system": null,
+  "not_raced": {
+    "ro_vco": "oscillator: its SPICE side is the characterisation sweep, not a deck kept beside the model's run",
+    "cpump": "charge pump: the same"
+  }
+}

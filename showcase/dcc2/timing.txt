@@ -1,0 +1,25 @@
+SPICE against the model, on the same job: dcc2
+
+Each row is one race. Both sides get the same input and produce the
+same output signal. Only the thing doing the computing differs:
+ngspice solving the transistor circuit, or xezim running the
+generated model.
+
+  what                        SPICE           model           simulated time          model is
+  duty-cycle corrector (dcc)  1.05 s          0.583 s         507.7 ns each           1.81x faster
+
+Notes:
+  - duty-cycle corrector (dcc): over 3 runs SPICE took 0.917 s to 1.06 s and the model 0.555 s to 0.737 s; the table shows the median of each.
+
+How it was measured: wall clock on this machine, start to finish
+as a user would run each side (start the program, read the input,
+simulate, write the result), the two sides taking turns. Median
+of 3 runs when both finish in under 120 s, otherwise one run.
+Both read the pair the equivalence
+check left in the run directory, from a scratch copy.
+
+Measured 2026-11-24T00:18Z on 11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz, 8 threads.
+Run directory ~/s2r_runs/dcc2 (finished 2026-11-23T23:29Z).
+Simulators: ngspice-46; xezim built as 531e42af-dirty (its checkout is at d9d09b14).
+The model raced is the one in that run directory; STAMP says
+which spice2rnm revision made the run.
