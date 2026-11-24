@@ -148,7 +148,7 @@ package inv2_ms_pkg;
   localparam real AC_AMPL  = 0.00659999876;
   localparam real AC_BIAS  = 1.65;
   localparam real TOL_DB   = 0.804629045;
-  localparam real TOL_DEG  = 8;
+  localparam real TOL_DEG  = 4;
 
   function automatic real ac_freq(input int idx);
     case (idx)

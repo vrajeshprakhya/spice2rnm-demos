@@ -461,6 +461,14 @@ module inv1 (
 
   real x, yv;
   bit  primed;
+  // The input and the static curve's value there, held for the
+  // same reason the scheduled form holds its pair: the curve is
+  // a function of the input alone, the input is piecewise
+  // constant between its events, and this block wakes on a
+  // timer. Exact rather than approximate, and the compare
+  // rather than an @(input) process for the same race.
+  real in_hold, f_hold;
+  bit  in_held;
   // At DC the state settles to f/wp, which makes
   // y = FF*f + BX*f/wp = f*(wp/wz + 1 - wp/wz) = f. Starting there
   // means the model opens at its own operating point rather than
@@ -469,12 +477,18 @@ module inv1 (
     x  = static_curve(DC_BIAS) / WP_0;
     yv = static_curve(DC_BIAS);
     primed = 1'b0;
+    in_held = 1'b0;
   end
 
   always #(TSTEP) begin : wiener_step
     real dt, f, k1, k2, k3, k4;
     dt = DT_SECONDS;
-    f  = static_curve(in_v);
+    if (!in_held || in_v != in_hold) begin
+      f_hold  = static_curve(in_v);
+      in_hold = in_v;
+      in_held = 1'b1;
+    end
+    f  = f_hold;
     // Same reason as the scheduled form: open at the DC solution
     // for the stimulus's OWN starting value, which is what SPICE's
     // t=0 operating point solves for.

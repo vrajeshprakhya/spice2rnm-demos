@@ -1,0 +1,34 @@
+{
+  "case": "dcc2",
+  "measured_utc": "2026-11-24T00:18Z",
+  "cpu": "11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz",
+  "threads": 8,
+  "ngspice": "ngspice-46",
+  "run_dir": "~/s2r_runs/dcc2",
+  "run_finished_utc": "2026-11-23T23:29Z",
+  "races": [
+    {
+      "label": "duty-cycle corrector (dcc)",
+      "spice_runs": 1,
+      "spice_seconds": 1.0530358779942617,
+      "model_seconds": 0.5825179140083492,
+      "spice_samples": [
+        0.9172039490076713,
+        1.0643904040043708,
+        1.0530358779942617
+      ],
+      "model_samples": [
+        0.5550626269832719,
+        0.7371861989959143,
+        0.5825179140083492
+      ],
+      "spice_simulated_s": 5.07719e-07,
+      "model_simulated_s": 5.077174080000001e-07,
+      "xezim_build": "531e42af-dirty",
+      "speedup": 1.8077313206528591,
+      "problems": []
+    }
+  ],
+  "system": null,
+  "not_raced": {}
+}

@@ -8851,7 +8851,7 @@
       ],
       "describe": "fitted from SDD21 of ctle_sp.s4p, k = 0.4472"
     },
-    "wall_s": 88.61077143400325,
+    "wall_s": 88.47553657801473,
     "drive": 0.001,
     "offset": 0.9,
     "settle_s": 1.000002216e-06,
@@ -9291,7 +9291,7 @@
     "passed": true
   },
   "sweep_cost": {
-    "wall_s": 88.61077143400325,
+    "wall_s": 88.47553657801473,
     "points": 21,
     "dt_seconds": 5.555555556e-12,
     "model_periods": 8.0,
@@ -9435,7 +9435,7 @@
   ],
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-11-23T21:03:32.049676+00:00",
+    "timestamp_utc": "2026-11-24T00:15:30.175948+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",

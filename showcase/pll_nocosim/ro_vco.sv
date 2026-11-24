@@ -38,10 +38,37 @@ module ro_vco #(
   // Measured, at the control voltage this block was characterized around.
   parameter real VDD_NOM  = 3.3,   // volts
   parameter real DFDV_SUP = 4.506279646e+08,  // Hz per volt of supply
-  // Sub-steps per half cycle. 16 tracks a fast-moving input; 1 restores
-  // the one-event-per-half-cycle scheduling, which is right when nothing
-  // on this block's inputs moves within a cycle.
+  // Sub-steps per half cycle. CHOSEN WHEN THIS FILE WAS GENERATED, from
+  // the tuning table, the supply slope and the interval of any noise the
+  // deck declares -- not from the ports at t = 0, which is what this
+  // model used to do and which IEEE 1800 leaves unordered. The reasoning,
+  // with the numbers it was made from:
+  //   the deck declares 100 ps noise on dd. The fastest half period this
+  //   model can produce is 524.6 ps -- the table's 804.5 MHz plus 450.6
+  //   MHz/V over 10% of the 3.3 V nominal, no specification range being
+  //   given -- so tracking that noise at 2 samples per interval wants 10.5
+  //   sub-steps, and the next power of two is 16 (step 32.78 ps).
   parameter int  SUB = 16,
+  // THE FASTEST HALF PERIOD THIS MODEL CAN PRODUCE, in femtoseconds: the
+  // tuning table's highest frequency plus the supply term at its assumed
+  // margin. The table is clamped, so the tuning part cannot exceed it;
+  // the supply part is linear in DFDV_SUP and can, which is why a margin
+  // is carried rather than the nominal.
+  parameter real T_HALF_MIN_FS = 524559.868446,
+  // THE SUB-STEP. A constant, and written as an expression of the two
+  // parameters above rather than as a number, so that overriding SUB at
+  // instantiation rescales the step with it -- which is what the
+  // jitter-transfer bench does when it replays at a finer interval than
+  // the deck declares. Checked against xezim: a real parameter defined
+  // from another parameter evaluates correctly, and a named override of
+  // SUB rescales it (32800.0 fs at SUB=16, 8200.0 fs at SUB=64).
+  // DT_FS is FIXED IN ABSOLUTE TIME, so slower operation costs
+  // proportionally more sub-steps: on this table's 48.1x span that is
+  // 18.9 sub-steps per half cycle at 804 MHz and 912.2 at 16.7 MHz,
+  // against a flat 16 under the old t=0 reading. The lock point near
+  // 400 MHz needs about 38, which is what the old value happened to
+  // give, so the cost is unchanged where these demos actually run.
+  parameter real DT_FS = T_HALF_MIN_FS / SUB,
   // RMS PERIOD JITTER, as a fraction of the period. Zero unless a
   // measurement asked for it -- see the header note above the table.
   parameter real JITTER_FRAC = 0.000000000e+00,
@@ -202,10 +229,16 @@ module ro_vco #(
   // rms of a uniform quantiser, which is the sub-step and not the circuit.
   //
   // COST, stated because it is the trade: SUB events per half cycle
-  // instead of one. Set SUB to 1 for the cheap scheduling where the inputs
-  // are known to move slowly.
+  // instead of one. SUB comes out as 1 by itself when the deck declares
+  // nothing that moves within a cycle, which is the cheap scheduling and
+  // is exact there -- the integrating and sampling forms agree when the
+  // input is constant.
   real phase_clk;
-  real dt_fs, incr, frac, thr;
+  // hp_fs is the half period in effect THIS sub-step. It was inlined into
+  // the incr expression before; it is a variable now because the step
+  // guard below has to compare against it.
+  real hp_fs, incr, frac, thr;
+  bit  __step_warned;
 
   // SUB=1 CANNOT SCHEDULE A RANDOMISED THRESHOLD, and the failure is
   // quiet enough to be worth refusing. At one sub-step per half cycle the
@@ -223,24 +256,62 @@ module ro_vco #(
   initial begin
     phase_clk = 0.0;
     __jrng = JITTER_SEED;
+    __step_warned = 1'b0;
     thr = __next_thr();
-    dt_fs = half_period_fs(cont_v, dd_v) / SUB;
+    // NO STEP IS COMPUTED HERE. It used to be -- from the ports, once,
+    // at t = 0 -- and that made the model's time resolution depend on an
+    // ordering the standard does not define. DT_FS is a constant chosen
+    // when this file was written; see the parameter above.
     forever begin
-      incr = 2.0 * (1.0e15 / (2.0 * half_period_fs(cont_v, dd_v)))
-             * (dt_fs * 1.0e-15);
+      hp_fs = half_period_fs(cont_v, dd_v);
+      // THE MODEL IS BEING RUN FASTER THAN IT WAS CHARACTERIZED FOR.
+      // T_HALF_MIN_FS is the fastest half period the tuning table and the
+      // supply margin allow, so a half period below it means a supply
+      // further from nominal than the margin assumed, or a table whose
+      // ends were clamped past.
+      //
+      // Compared against T_HALF_MIN_FS and NOT against 2*DT_FS, which was
+      // wrong in both directions: DT_FS = T_HALF_MIN_FS/SUB, so at SUB=1
+      // it warned below 2*T_HALF_MIN_FS -- for this ring, anything above
+      // 476 MHz, where the model is correct -- and at SUB=16 it stayed
+      // silent until an eighth of the characterized minimum, so running
+      // 2x past characterization (262.6 ps here) was never reported, which
+      // is the case this message describes. This threshold fires at
+      // 952.1 MHz for every SUB.
+      //
+      // It still precedes the negative-fraction $fatal below, which needs
+      // hp_fs < DT_FS, for every SUB >= 2. At SUB = 1 the two coincide
+      // exactly, because DT_FS == T_HALF_MIN_FS there: no margin, by
+      // arithmetic rather than by choice.
+      if (!__step_warned && hp_fs < T_HALF_MIN_FS) begin
+        __step_warned = 1'b1;
+        $warning("%m: half period %0.6g fs is shorter than the characterized minimum T_HALF_MIN_FS = %0.6g fs (SUB=%0d, DT_FS=%0.6g fs). The model is being driven faster than the tuning table and assumed supply margin cover, so its frequency is an extrapolation. Reported once.", hp_fs, T_HALF_MIN_FS, SUB, DT_FS);
+      end
+      incr = 2.0 * (1.0e15 / (2.0 * hp_fs))
+             * (DT_FS * 1.0e-15);
       if (phase_clk + incr >= thr) begin
         frac = (thr - phase_clk) / incr;
-        #(dt_fs * frac);
+        // A NEGATIVE FRACTION MEANS THE PHASE CARRIED PAST THE LAST EDGE
+        // ALREADY EXCEEDED THIS THRESHOLD, and `#(DT_FS * frac)` would
+        // then be a negative delay. It is what a step longer than the
+        // half period produced, and choosing DT_FS from the fastest half
+        // period the table allows is what prevents it. So this is a
+        // $fatal and not a clamp: a clamp would carry on quietly from a
+        // generator that got the step wrong, and the whole point of
+        // moving the choice to generation time is that it is checkable.
+        if (frac < 0.0)
+          $fatal(1, "%m: negative sub-step fraction %0.6g (phase %0.6g, threshold %0.6g, incr %0.6g). DT_FS = %0.6g fs is longer than this half period, %0.6g fs -- which the generated step is chosen to prevent, so this is a generator bug and not a stimulus the model should tolerate.", frac, phase_clk, thr, incr, DT_FS, hp_fs);
+        #(DT_FS * frac);
         clk = ~clk;
         phase_clk = 0.0;
         // Redrawn per half cycle, so the perturbations accumulate and the
         // edge times random-walk -- which is what a free-running
         // oscillator does.
         thr = __next_thr();
-        #(dt_fs * (1.0 - frac));
+        #(DT_FS * (1.0 - frac));
         phase_clk = incr * (1.0 - frac);
       end else begin
-        #(dt_fs);
+        #(DT_FS);
         phase_clk = phase_clk + incr;
       end
     end

@@ -1,0 +1,25 @@
+SPICE against the model, on the same job: lpf2
+
+Each row is one race. Both sides get the same input and produce the
+same output signal. Only the thing doing the computing differs:
+ngspice solving the transistor circuit, or xezim running the
+generated model.
+
+  what                          SPICE           model           simulated time          model is
+  RC low-pass filter (rc_lpf2)  11.5 s          0.954 s         7.846 us each           12x faster
+
+Notes:
+  - RC low-pass filter (rc_lpf2): over 3 runs SPICE took 11.1 s to 11.6 s and the model 0.928 s to 0.976 s; the table shows the median of each.
+
+How it was measured: wall clock on this machine, start to finish
+as a user would run each side (start the program, read the input,
+simulate, write the result), the two sides taking turns. Median
+of 3 runs when both finish in under 120 s, otherwise one run.
+Both read the pair the equivalence
+check left in the run directory, from a scratch copy.
+
+Measured 2026-11-24T00:18Z on 11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz, 8 threads.
+Run directory ~/s2r_runs/lpf2 (finished 2026-11-23T23:26Z).
+Simulators: ngspice-46; xezim built as 531e42af-dirty (its checkout is at d9d09b14).
+The model raced is the one in that run directory; STAMP says
+which spice2rnm revision made the run.

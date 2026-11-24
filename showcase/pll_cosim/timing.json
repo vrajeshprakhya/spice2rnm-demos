@@ -1,0 +1,83 @@
+{
+  "case": "pll_cosim",
+  "measured_utc": "2026-11-24T00:20Z",
+  "cpu": "11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz",
+  "threads": 8,
+  "ngspice": "ngspice-46",
+  "run_dir": "~/s2r_runs/demo4_pll",
+  "run_finished_utc": "2026-11-24T00:11Z",
+  "races": [
+    {
+      "label": "inverter inv1",
+      "spice_runs": 1,
+      "spice_seconds": 3.4178563710011076,
+      "model_seconds": 1.1107140610110946,
+      "spice_samples": [
+        3.4178563710011076,
+        2.39254216599511,
+        3.5444052970269695
+      ],
+      "model_samples": [
+        1.1218435539922211,
+        1.1107140610110946,
+        1.089609702990856
+      ],
+      "spice_simulated_s": 1.93035e-08,
+      "model_simulated_s": 1.9304168000000003e-08,
+      "xezim_build": "531e42af-dirty",
+      "speedup": 3.0771703456151416,
+      "problems": []
+    },
+    {
+      "label": "inverter inv2",
+      "spice_runs": 1,
+      "spice_seconds": 2.6620490000059363,
+      "model_seconds": 1.197490935010137,
+      "spice_samples": [
+        3.642331226001261,
+        2.555793119012378,
+        2.6620490000059363
+      ],
+      "model_samples": [
+        1.0672522060049232,
+        1.2556351659877691,
+        1.197490935010137
+      ],
+      "spice_simulated_s": 2.32436e-08,
+      "model_simulated_s": 2.3243324000000002e-08,
+      "xezim_build": "531e42af-dirty",
+      "speedup": 2.2230222561003363,
+      "problems": []
+    },
+    {
+      "label": "loop filter lpfilt",
+      "spice_runs": 1,
+      "spice_seconds": 0.031128911999985576,
+      "model_seconds": 0.027101804997073486,
+      "spice_samples": [
+        0.047265342000173405,
+        0.02976501698140055,
+        0.031128911999985576
+      ],
+      "model_samples": [
+        0.027610277000349015,
+        0.027101804997073486,
+        0.024741895002080128
+      ],
+      "spice_simulated_s": 3.5559605e-06,
+      "model_simulated_s": 3.55596e-06,
+      "xezim_build": "531e42af-dirty",
+      "speedup": 1.148591837456839,
+      "problems": []
+    }
+  ],
+  "system": {
+    "label": "whole PLL, co-simulated",
+    "model_seconds": 12.421118583995849,
+    "golden_seconds": 151.53551110698027
+  },
+  "not_raced": {
+    "ro_vco": "oscillator: its SPICE side is the characterisation sweep, not a deck kept beside the model's run",
+    "cpump": "charge pump: the same, its SPICE side is the characterisation sweep"
+  }
+}

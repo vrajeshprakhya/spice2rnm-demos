@@ -1,5 +1,5 @@
 === xezim 0.10.5 ===
-git 531e42a (2026-09-11T07:58:43-07:00)
+git 531e42af-dirty (2026-09-11T07:58:43-07:00)
 Max time: 1000000 ns
 ------------------------------
 CPEQ 0 0.150000 9.074533865e-03
@@ -52,7 +52,7 @@ CPEQ-DONE
 ------------------------------
 Simulation finished at time 46
 ($finish called)
-[PHASE] compilation: 8.2ms
+[PHASE] compilation: 24.9ms
 [EVENT-EDGE] ARMED mode ON: 0 input signals, 0 fanout edges
 [EVENT-EDGE] measure (timestamp): 0 edge blocks, 0 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=0.00
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
@@ -74,7 +74,7 @@ Simulation finished at time 46
 [PROF] settle_writes=194 (49.1% of evals changed a signal, 201 quiet) dep_edges=108 (0.6 per write)
 [PROF] two_state_evals=5 (1 entries lowered)
 [PROF] two_state_bail warn_x=0 forced_write=0 x_read=1 run_abort=0
-[PROF] simulation_loop=4.2ms iters=47 avg=88.57µs/iter
-[PHASE] simulation: 4.5ms
-[PHASE] total: 12.8ms
+[PROF] simulation_loop=6.9ms iters=47 avg=146.69µs/iter
+[PHASE] simulation: 7.7ms
+[PHASE] total: 32.7ms
 ------------------------------

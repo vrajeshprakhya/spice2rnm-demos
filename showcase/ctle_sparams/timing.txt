@@ -1,0 +1,3 @@
+SPICE against the model: ctle_sparams
+
+Not raced. SPICE answers this question in the frequency domain, one small-signal solve per frequency, while the model has to be run in time until each tone settles. The two are different calculations, so a ratio of their run times would not mean 'the model is N times faster' at anything a user would do.

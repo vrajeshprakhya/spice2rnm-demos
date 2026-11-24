@@ -1,13 +1,13 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-20T18:53:03.723414+00:00",
+    "timestamp_utc": "2026-11-23T23:33:57.043328+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
     "argv": [
       "/home/vraje/spice2rnm/spice2rnm/__main__.py",
-      "work/pi_therm.cir",
+      "/home/vraje/spice2rnm-demos-wave/netlists/pi_therm.cir",
       "--out-dir",
       "/home/vraje/s2r_runs/demo3_pi",
       "--output-node",
@@ -23,13 +23,14 @@
       "/home/vraje/uvm_ms_demo/ms",
       "--emit-assertions"
     ],
-    "cwd": "/home/vraje/spice2rnm"
+    "cwd": "/home/vraje/spice2rnm",
+    "license": ""
   },
   "result_type": "CodePhasePipelineResult",
   "result": {
     "success": true,
     "stage": "code_phase",
-    "netlist": "work/pi_therm.cir",
+    "netlist": "/home/vraje/spice2rnm-demos-wave/netlists/pi_therm.cir",
     "output_node": "vout",
     "period": 2e-09,
     "n_codes": 9,

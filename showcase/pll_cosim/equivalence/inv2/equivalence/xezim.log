@@ -1,19 +1,19 @@
 # command : /home/vraje/xezim/target/release/xezim /home/vraje/s2r_runs/demo4_pll/inv2/inv2.sv /home/vraje/s2r_runs/demo4_pll/inv2/equivalence/tb_equiv.sv
-# started : 2026-11-13T17:26:04.839521+00:00
-# finished: 2026-11-13T17:26:04.839547+00:00
+# started : 2026-11-24T00:08:45.241490+00:00
+# finished: 2026-11-24T00:08:45.241508+00:00
 # exit    : 0
 
 --- stdout ---
 === xezim 0.10.5 ===
-git 531e42a (2026-09-11T07:58:43-07:00)
+git 531e42af-dirty (2026-09-11T07:58:43-07:00)
 Max time: 100000 ns
 ------------------------------
 ------------------------------
-Simulation finished at time 23254842
+Simulation finished at time 23243324
 ($finish called)
 
 --- stderr ---
-[PHASE] compilation: 582.2ms
+[PHASE] compilation: 73.9ms
 [EVENT-EDGE] ARMED mode ON: 0 input signals, 0 fanout edges
 [EVENT-EDGE] measure (timestamp): 2 edge blocks, 0 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=0.00
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
@@ -22,25 +22,26 @@ Note: $dumpvars ignored — this run has no waveform support. Re-run with `--wav
 [PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
 [PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=0
 [PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
-[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=104400 insns=799966 ns_per_insn=0.0 fallbacks=104400
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=55264 insns=11278484 ns_per_insn=0.0 fallbacks=61025
 [FUSE] array-read-NBA fusions (static sites): 0
 [FUSE] packed-loop NBA copies (static sites): 0
 [FUSE] packed blocking fills (dynamic executions): 0
-[FUSE] const-operand ALU fusions (static sites): Add=0 Eq=0 CaseEq=0 Xor=0 total=0
+[FUSE] const-operand ALU fusions (static sites): Add=7 Eq=0 CaseEq=0 Xor=0 total=7
 [FUSE] Move-into-assign forwards (static sites): 0
 [FUSE] provably-unsigned scrubs elided (static sites): 0
 [FUSE] AddC2 superinstructions (static sites): 0
-[PROF] fallback_reason                      Assertion: count=  104400 total=   224.2ms avg=    2.1µs
-[PROF] settle_dc=0.0ms(197284) settle_ca=0.0ms(0) settle_ab=0.0ms(138937)
+[PROF] fallback_reason               Expr_Call_impure: count=    5761 total=   505.7ms avg=   87.8µs
+[PROF] fallback_reason                      Assertion: count=   55264 total=   109.0ms avg=    2.0µs
+[PROF] settle_dc=0.0ms(104530) settle_ca=0.0ms(0) settle_ab=0.0ms(55266)
 [PROF] engine=event
 [PROF] clock_tree: roots=0 entries=0 eager_evals=0
-[PROF] settle_calls=337023 settle_iters=237579 max_iters=1 entry_evals=336221 unresolved_entries=0/3
-[PROF] settle_writes=335964 (99.9% of evals changed a signal, 257 quiet) dep_edges=197282 (0.6 per write)
+[PROF] settle_calls=56733 settle_iters=55266 max_iters=2 entry_evals=159796 unresolved_entries=0/4
+[PROF] settle_writes=154836 (96.9% of evals changed a signal, 4960 quiet) dep_edges=105331 (0.7 per write)
 [PROF] two_state_evals=0 (0 entries lowered)
-[PROF] simulation_loop=27437.3ms iters=147426 avg=186.11µs/iter
-[COV] assertions: 2 sites (assert=2, assume=0, cover=0) — 104399 passes, 0 fails
+[PROF] simulation_loop=1011.0ms iters=56682 avg=17.84µs/iter
+[COV] assertions: 2 sites (assert=2, assume=0, cover=0) — 55263 passes, 0 fails
 [COV] coverage: 0 covergroup instances, 0 samples, 0 unique coverpoint values, 0 unique cross tuples
 [COV] wrote coverage DB to xezim_cov.json
-[PHASE] simulation: 27437.8ms
-[PHASE] total: 28020.0ms
+[PHASE] simulation: 1011.3ms
+[PHASE] total: 1085.2ms
 ------------------------------

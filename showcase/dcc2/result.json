@@ -1,24 +1,25 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-09-23T05:05:51.398666+00:00",
+    "timestamp_utc": "2026-11-23T23:29:15.239414+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
     "argv": [
       "/home/vraje/spice2rnm/spice2rnm/__main__.py",
-      "/home/vraje/spice2rnm-demos/netlists/dcc.cir",
+      "/home/vraje/spice2rnm-demos-wave/netlists/dcc.cir",
       "--out-dir",
       "/home/vraje/s2r_runs/dcc2",
       "--ngspice-bin",
       "/home/vraje/ngspice-install/bin/ngspice",
       "--spec",
-      "/home/vraje/spice2rnm-demos/specs/dcc_spec.md",
+      "/home/vraje/spice2rnm-demos-wave/specs/dcc_spec.md",
       "--emit-uvm-ms",
       "--emit-assertions"
     ],
     "cwd": "/home/vraje/spice2rnm",
-    "netlist": "/home/vraje/spice2rnm-demos/netlists/dcc.cir",
+    "license": "",
+    "netlist": "/home/vraje/spice2rnm-demos-wave/netlists/dcc.cir",
     "ngspice_bin": "/home/vraje/ngspice-install/bin/ngspice",
     "xezim_bin": "/home/vraje/xezim/target/release/xezim"
   },
@@ -71,6 +72,20 @@
         "chars": 2864
       }
     },
+    "cost": {
+      "pipeline": {
+        "what": "the whole pipeline for this block",
+        "wall_s": 43.8488,
+        "cpu_s": 5.9462,
+        "scale": {}
+      },
+      "ac_sweep": {
+        "what": "the .ac characterization sweep alone",
+        "wall_s": 0.0221,
+        "cpu_s": 0.0148,
+        "scale": {}
+      }
+    },
     "tf": {
       "gain": -26.61696552975084,
       "zeros_hz": [],
@@ -80,6 +95,10 @@
       "rms_error_db": 0.02685949946841744,
       "max_error_db": 0.13937831892004482
     },
+    "tf_source": "",
+    "tf_crosscheck": null,
+    "measured_fit": null,
+    "input_delay_s": null,
     "dc_sweep": {
       "success": true,
       "x": {
@@ -268,6 +287,7 @@
       ]
     ],
     "model_form": "scheduled_lag",
+    "model_ports": null,
     "band_hz": 119488199.11681677,
     "uvm_ms_environment": null,
     "uvm_ms_files": [],
@@ -275,13 +295,13 @@
     "sv_path": "/home/vraje/s2r_runs/dcc2/dcc_rnm.sv",
     "sv_text": {
       "__omitted__": "bulk field; written to its own file",
-      "chars": 8218
+      "chars": 9608
     },
     "equivalence": {
       "success": true,
       "checked": true,
-      "rms_error_norm": 0.07687720775304299,
-      "max_error_norm": 0.9987805724191321,
+      "rms_error_norm": 0.07446434161109415,
+      "max_error_norm": 0.9983494845025879,
       "threshold": 0.15,
       "timing": null,
       "spice_t": {
@@ -329,10 +349,31 @@
         "n_nonfinite": 0,
         "min": -1.5151e-06,
         "max": 1.79994137,
-        "first": 0.0,
+        "first": 1.79994137,
         "last": 1.79994137
       },
       "metric": "rms_voltage",
+      "cost": {
+        "spice": {
+          "what": "ngspice transient, the reference",
+          "wall_s": 1.447,
+          "cpu_s": 1.4137,
+          "scale": {
+            "span_s": 5.077193985420394e-07,
+            "points": 5759,
+            "step_s": 2.2040258662182646e-11
+          }
+        },
+        "model": {
+          "what": "xezim, the generated model",
+          "wall_s": 0.8718,
+          "cpu_s": 0.8676,
+          "scale": {
+            "span_s": 5.077193985420394e-07,
+            "elaborates": 1
+          }
+        }
+      },
       "timing_threshold_pp": null,
       "norm_mode": "composite_excursion",
       "norm_value": 1.80219764952,
@@ -357,17 +398,18 @@
     ],
     "errors": []
   },
+  "spec": {
+    "notes": [
+      "no model credentials: set ANTHROPIC_API_KEY for Claude's own API, or AWS_REGION with AWS credentials for Amazon Bedrock; the spec cannot be read and every choice stays as it was"
+    ]
+  },
   "uvm_ms": {
     "notes": [
-      "spec: the phase environment needs a discrete control setting to sweep and this block has 0, so it was refused. A spec that rules out small-signal verification is saying NOT dc_ac, which is not the same as saying phase.",
-      "spec conflict: the spec says this block operates up to 4e+08 Hz, but the fitted model is only valid below 1.195e+08 Hz -- 3.3x lower. The duty check is held at the band: a model checked above the range it was fitted over fails for reasons that are nothing to do with the model. Either the spec's range is outside what this characterization covers, or the characterization needs to be run wider.",
-      "spec assertions: the document states no operating limit narrower than the characterized range; nothing to add beyond the measured checks",
-      "spec: accepted kind, metric, clock_max_hz, clock_min_hz, input_duty_min, input_duty_max, duty_tolerance_pp, swing_lo, swing_hi",
-      "duty goldens: clocked at 5e+07, 1.195e+08 Hz, from the spec's stated operating range rather than from the fitted poles",
-      "duty goldens: the circuit carries a -104.2 ps rise/fall skew, measured as the output duty moving with clock rate at a fixed input duty. That is 1.246 pp at 1.195e+08 Hz and scales in proportion to the clock. The generated model forms are symmetric -- a symmetric static curve driving a symmetric lag returns exactly 50.000% for a 50% input -- so this skew is a floor on the duty error that no amount of fitting removes.",
-      "duty goldens: 6 point(s) measured in ngspice, 5e+07..1.195e+08 Hz, input duty 35%..65%, output duty 33.86%..64.59%",
+      "spec: no model credentials: set ANTHROPIC_API_KEY for Claude's own API, or AWS_REGION with AWS credentials for Amazon Bedrock; the spec cannot be read and every choice stays as it was",
+      "duty goldens: the circuit carries a -73.7 ps rise/fall skew, measured as the output duty moving with clock rate at a fixed input duty. That is 0.218 pp at 2.954e+07 Hz and scales in proportion to the clock. The generated model forms are symmetric -- a symmetric static curve driving a symmetric lag returns exactly 50.000% for a 50% input -- so this skew is a floor on the duty error that no amount of fitting removes.",
+      "duty goldens: 6 point(s) measured in ngspice, 1.477e+07..2.954e+07 Hz, input duty 40%..60%, output duty 39.74%..59.85%",
       "ac check: omitted: this model's small-signal gain at the bias is the static curve's local slope rather than H(0), so an ngspice .ac sweep is not a valid golden for it. The DC operating points are, and the large-signal behaviour is what the transient equivalence check covers.",
-      "duty check: 6 point(s), 5e+07..1.195e+08 Hz, input duty 35%..65%; golden output duty spans 30.725 pp, tolerance 1.000 pp"
+      "duty check: 6 point(s), 1.477e+07..2.954e+07 Hz, input duty 40%..60%; golden output duty spans 20.108 pp, tolerance 0.500 pp"
     ],
     "files": [
       "/home/vraje/s2r_runs/dcc2/dcc_bridge.sv",

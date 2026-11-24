@@ -148,7 +148,7 @@ package dcc_ms_pkg;
   localparam real AC_AMPL  = 0.0036;
   localparam real AC_BIAS  = 0.9;
   localparam real TOL_DB   = 0.25;
-  localparam real TOL_DEG  = 8;
+  localparam real TOL_DEG  = 4;
 
   function automatic real ac_freq(input int idx);
     case (idx)
@@ -185,52 +185,52 @@ package dcc_ms_pkg;
   localparam int  DUTY_N       = 6;
   localparam real DUTY_VLO     = 0;
   localparam real DUTY_VHI     = 1.8;
-  localparam real TOL_DUTY_PP  = 1;
+  localparam real TOL_DUTY_PP  = 0.5;
 
   function automatic real duty_freq(input int idx);
     case (idx)
-      0: duty_freq = 50000000.0;
-      1: duty_freq = 50000000.0;
-      2: duty_freq = 50000000.0;
-      3: duty_freq = 119488199.0;
-      4: duty_freq = 119488199.0;
-      5: duty_freq = 119488199.0;
+      0: duty_freq = 14771939.0;
+      1: duty_freq = 14771939.0;
+      2: duty_freq = 14771939.0;
+      3: duty_freq = 29543878.1;
+      4: duty_freq = 29543878.1;
+      5: duty_freq = 29543878.1;
       default: duty_freq = 0.0;
     endcase
   endfunction
 
   function automatic real duty_in(input int idx);
     case (idx)
-      0: duty_in = 0.35;
+      0: duty_in = 0.4;
       1: duty_in = 0.5;
-      2: duty_in = 0.65;
-      3: duty_in = 0.35;
+      2: duty_in = 0.6;
+      3: duty_in = 0.4;
       4: duty_in = 0.5;
-      5: duty_in = 0.65;
+      5: duty_in = 0.6;
       default: duty_in = 0.0;
     endcase
   endfunction
 
   function automatic real duty_gold(input int idx);
     case (idx)
-      0: duty_gold = 0.645870833;
-      1: duty_gold = 0.495883773;
-      2: duty_gold = 0.345889475;
-      3: duty_gold = 0.638649005;
-      4: duty_gold = 0.488641966;
-      5: duty_gold = 0.338621417;
+      0: duty_gold = 0.598522092;
+      1: duty_gold = 0.498550548;
+      2: duty_gold = 0.39857502;
+      3: duty_gold = 0.597520128;
+      4: duty_gold = 0.497424082;
+      5: duty_gold = 0.397439257;
       default: duty_gold = 0.0;
     endcase
   endfunction
 
   function automatic real duty_vth(input int idx);
     case (idx)
-      0: duty_vth = 0.90289415;
-      1: duty_vth = 0.902867917;
-      2: duty_vth = 0.90283594;
-      3: duty_vth = 0.907802266;
-      4: duty_vth = 0.907792417;
-      5: duty_vth = 0.907765805;
+      0: duty_vth = 0.901061142;
+      1: duty_vth = 0.900817917;
+      2: duty_vth = 0.90083408;
+      3: duty_vth = 0.901651284;
+      4: duty_vth = 0.90173688;
+      5: duty_vth = 0.901579281;
       default: duty_vth = 0.0;
     endcase
   endfunction

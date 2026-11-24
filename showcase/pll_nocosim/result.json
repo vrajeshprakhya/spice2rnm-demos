@@ -1,7 +1,7 @@
 {
   "meta": {
     "schema_version": 1,
-    "timestamp_utc": "2026-11-13T17:38:28.530050+00:00",
+    "timestamp_utc": "2026-11-23T23:04:17.476523+00:00",
     "python": "3.14.4",
     "numpy": "2.5.1",
     "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
@@ -14,6 +14,7 @@
       "--emit-assertions",
       "--spec",
       "/home/vraje/s2r_runs/demo4b_pll_deck/pll_spec.md",
+      "--derive-pll-loop",
       "--emit-uvm-ms",
       "--uvm-ms-lib",
       "/home/vraje/uvm_ms_demo/ms",
@@ -25,6 +26,7 @@
       "/home/vraje/xezim/target/release/xezim"
     ],
     "cwd": "/home/vraje/spice2rnm",
+    "license": "",
     "netlist": "/home/vraje/s2r_runs/demo4b_pll_deck/pll_analog.cir",
     "ngspice_bin": "/home/vraje/ngspice-install/bin/ngspice",
     "xezim_bin": "/home/vraje/xezim/target/release/xezim"
@@ -54,7 +56,7 @@
             "in": "input",
             "out": "output"
           },
-          "netlist_text": "subckt fragment: inv1\n.param vcc=3.3\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\nmn1  out in  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmp1  out in  dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u",
+          "netlist_text": "subckt fragment: inv1\n.param vcc=3.3\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\nmn1  out in  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmp1  out in  dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u",
           "source": "native"
         },
         "pipeline_result": {
@@ -107,6 +109,20 @@
               "chars": 1771
             }
           },
+          "cost": {
+            "pipeline": {
+              "what": "the whole pipeline for this block",
+              "wall_s": 46.2816,
+              "cpu_s": 17.2072,
+              "scale": {}
+            },
+            "ac_sweep": {
+              "what": "the .ac characterization sweep alone",
+              "wall_s": 0.0281,
+              "cpu_s": 0.1337,
+              "scale": {}
+            }
+          },
           "tf": {
             "gain": -5.534746931262576,
             "zeros_hz": [
@@ -118,6 +134,10 @@
             "rms_error_db": 6.058940136305675e-09,
             "max_error_db": 4.562083955050866e-08
           },
+          "tf_source": "",
+          "tf_crosscheck": null,
+          "measured_fit": null,
+          "input_delay_s": null,
           "dc_sweep": {
             "success": true,
             "x": {
@@ -150,7 +170,7 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 275
+              "chars": 244
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
@@ -1003,7 +1023,7 @@
           "sv_path": "/home/vraje/s2r_runs/demo4b_pll/inv1/inv1.sv",
           "sv_text": {
             "__omitted__": "bulk field; written to its own file",
-            "chars": 25259
+            "chars": 25801
           },
           "equivalence": {
             "success": true,
@@ -1061,6 +1081,27 @@
               "last": 3.29999918
             },
             "metric": "rms_voltage",
+            "cost": {
+              "spice": {
+                "what": "ngspice transient, the reference",
+                "wall_s": 2.009,
+                "cpu_s": 15.763,
+                "scale": {
+                  "span_s": 1.410703994626569e-08,
+                  "points": 5760,
+                  "step_s": 6.122847198900039e-13
+                }
+              },
+              "model": {
+                "what": "xezim, the generated model",
+                "wall_s": 0.6337,
+                "cpu_s": 0.6286,
+                "scale": {
+                  "span_s": 1.410703994626569e-08,
+                  "elaborates": 1
+                }
+              }
+            },
             "timing_threshold_pp": null,
             "norm_mode": "composite_excursion",
             "norm_value": 3.3048638668,
@@ -1103,7 +1144,7 @@
             "in": "input",
             "out": "output"
           },
-          "netlist_text": "subckt fragment: inv2\n.param vcc=3.3\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\nmn1  out in  ss  sub  n1  w=6u  l=0.35u  AS=12p AD=12p PS=16u PD=16u\nmp1  out in  dd  well  p1  w=12u l=0.35u  AS=24p AD=24p PS=28u PD=28u",
+          "netlist_text": "subckt fragment: inv2\n.param vcc=3.3\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\nmn1  out in  ss  sub  n1  w=6u  l=0.35u  AS=12p AD=12p PS=16u PD=16u\nmp1  out in  dd  well  p1  w=12u l=0.35u  AS=24p AD=24p PS=28u PD=28u",
           "source": "native"
         },
         "pipeline_result": {
@@ -1149,11 +1190,25 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 426
+              "chars": 364
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
               "chars": 1780
+            }
+          },
+          "cost": {
+            "pipeline": {
+              "what": "the whole pipeline for this block",
+              "wall_s": 55.6464,
+              "cpu_s": 103.4188,
+              "scale": {}
+            },
+            "ac_sweep": {
+              "what": "the .ac characterization sweep alone",
+              "wall_s": 0.0205,
+              "cpu_s": 0.1081,
+              "scale": {}
             }
           },
           "tf": {
@@ -1165,6 +1220,10 @@
             "rms_error_db": 0.20115726114140728,
             "max_error_db": 1.3479230366187878
           },
+          "tf_source": "",
+          "tf_crosscheck": null,
+          "measured_fit": null,
+          "input_delay_s": null,
           "dc_sweep": {
             "success": true,
             "x": {
@@ -1197,7 +1256,7 @@
             "errors": [],
             "stdout": {
               "__omitted__": "bulk field; written to its own file",
-              "chars": 1683
+              "chars": 307
             },
             "netlist_used": {
               "__omitted__": "bulk field; written to its own file",
@@ -2183,13 +2242,13 @@
           "sv_path": "/home/vraje/s2r_runs/demo4b_pll/inv2/inv2.sv",
           "sv_text": {
             "__omitted__": "bulk field; written to its own file",
-            "chars": 29564
+            "chars": 30952
           },
           "equivalence": {
             "success": true,
             "checked": true,
-            "rms_error_norm": 0.02588957822076849,
-            "max_error_norm": 0.9990090974358179,
+            "rms_error_norm": 0.021677284640512526,
+            "max_error_norm": 0.17586920772178777,
             "threshold": 0.15,
             "timing": null,
             "spice_t": {
@@ -2235,12 +2294,33 @@
                 5760
               ],
               "n_nonfinite": 0,
-              "min": 0.0,
+              "min": 9.84193439e-08,
               "max": 3.29999948,
-              "first": 0.0,
+              "first": 3.29999948,
               "last": 3.29999948
             },
             "metric": "rms_voltage",
+            "cost": {
+              "spice": {
+                "what": "ngspice transient, the reference",
+                "wall_s": 3.1055,
+                "cpu_s": 24.3986,
+                "scale": {
+                  "span_s": 2.1120940399573594e-08,
+                  "points": 5760,
+                  "step_s": 9.167074826203816e-13
+                }
+              },
+              "model": {
+                "what": "xezim, the generated model",
+                "wall_s": 1.1092,
+                "cpu_s": 1.102,
+                "scale": {
+                  "span_s": 2.1120940399573594e-08,
+                  "elaborates": 1
+                }
+              }
+            },
             "timing_threshold_pp": null,
             "norm_mode": "composite_excursion",
             "norm_value": 3.30327270139,
@@ -2292,7 +2372,7 @@
           "out-": "other",
           "out+": "other"
         },
-        "netlist_text": "subckt fragment: gaincell\n.param vcc=3.3\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\nmn1  out- in+   ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn2  out- out+  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn3  out+ out-  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn4  out+ in-   ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmp1  out- co    dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u\nmp2  out+ co    dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u",
+        "netlist_text": "subckt fragment: gaincell\n.param vcc=3.3\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\nmn1  out- in+   ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn2  out- out+  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn3  out+ out-  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn4  out+ in-   ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmp1  out- co    dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u\nmp2  out+ co    dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u",
         "source": "native"
       },
       {
@@ -2307,7 +2387,7 @@
           "cont": "other",
           "dd": "other"
         },
-        "netlist_text": "subckt fragment: ro_vco\n.param vcc=3.3\n.subckt gaincell dd ss sub well co in- in+ out- out+\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\nmn1  out- in+   ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn2  out- out+  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn3  out+ out-  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn4  out+ in-   ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmp1  out- co    dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u\nmp2  out+ co    dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u\n.ends\n.subckt inv1 dd ss sub well in out\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\nmn1  out in  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmp1  out in  dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u\n.ends\n.subckt inv2 dd ss sub well in out\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\nmn1  out in  ss  sub  n1  w=6u  l=0.35u  AS=12p AD=12p PS=16u PD=16u\nmp1  out in  dd  well  p1  w=12u l=0.35u  AS=24p AD=24p PS=28u PD=28u\n.ends\nvin  inm1 outp7 dc 0\nvin2 inp1 outm7 dc 0\nvss  ss   0 dc 0\nve   sub  0 dc 0\nvpe  well 0 dc 3.3\nxinv1 dd ss sub well cont inm1  inp1  outm1 outp1 gaincell\nxinv2 dd ss sub well cont outp1 outm1 outm2 outp2 gaincell\nxinv3 dd ss sub well cont outp2 outm2 outm3 outp3 gaincell\nxinv4 dd ss sub well cont outp3 outm3 outm4 outp4 gaincell\nxinv5 dd ss sub well cont outp4 outm4 outm5 outp5 gaincell\nxinv6 dd ss sub well cont outp5 outm5 outm6 outp6 gaincell\nxinv7 dd ss sub well cont outp6 outm6 outm7 outp7 gaincell\nxinv11 dd 0 sub well outm1 outm2 inv1\nxinv12 dd 0 sub well outm2 aout inv2\ncout  aout 0 0.2pF",
+        "netlist_text": "subckt fragment: ro_vco\n.param vcc=3.3\n.subckt gaincell dd ss sub well co in- in+ out- out+\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\nmn1  out- in+   ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn2  out- out+  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn3  out+ out-  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmn4  out+ in-   ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmp1  out- co    dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u\nmp2  out+ co    dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u\n.ends\n.subckt inv1 dd ss sub well in out\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\nmn1  out in  ss  sub  n1  w=2u  l=0.35u  AS=3p AD=3p PS=4u PD=4u\nmp1  out in  dd  well  p1  w=4u l=0.35u  AS=7p AD=7p PS=6u PD=6u\n.ends\n.subckt inv2 dd ss sub well in out\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\nmn1  out in  ss  sub  n1  w=6u  l=0.35u  AS=12p AD=12p PS=16u PD=16u\nmp1  out in  dd  well  p1  w=12u l=0.35u  AS=24p AD=24p PS=28u PD=28u\n.ends\nvin  inm1 outp7 dc 0\nvin2 inp1 outm7 dc 0\nvss  ss   0 dc 0\nve   sub  0 dc 0\nvpe  well 0 dc 3.3\nxinv1 dd ss sub well cont inm1  inp1  outm1 outp1 gaincell\nxinv2 dd ss sub well cont outp1 outm1 outm2 outp2 gaincell\nxinv3 dd ss sub well cont outp2 outm2 outm3 outp3 gaincell\nxinv4 dd ss sub well cont outp3 outm3 outm4 outp4 gaincell\nxinv5 dd ss sub well cont outp4 outm4 outm5 outp5 gaincell\nxinv6 dd ss sub well cont outp5 outm5 outm6 outp6 gaincell\nxinv7 dd ss sub well cont outp6 outm6 outm7 outp7 gaincell\nxinv11 dd 0 sub well outm1 outm2 inv1\nxinv12 dd 0 sub well outm2 aout inv2\ncout  aout 0 0.2pF",
         "source": "native"
       },
       {
@@ -2324,7 +2404,7 @@
           "dra": "other",
           "dd": "other"
         },
-        "netlist_text": "subckt fragment: cpump\n.param vcc=3.3\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\nvss ss 0 dc 0\nmnd dra pdn  ss ss n1 w=12u l=0.35u AS=24p AD=24p PS=28u PD=28u\nmpd dra pupb dd dd p1 w=24u l=0.35u AS=48p AD=48p PS=52u PD=52u",
+        "netlist_text": "subckt fragment: cpump\n.param vcc=3.3\n.model P1 PMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07 Lint=6.23e-8 Wint=1.22e-7 Vth0=-.6732829 K1= .8362093  K2=-8.606622E-02  K3= 1.82 Dvt0= 1.903801  Dvt1= .5333922  Dvt2=-.1862677 Nlx= 1.28e-8  W0= 2.1e-6 K3b= -0.24 Vsat= 103503.2  Ua= 1.39995E-09  Ub= 1.e-19  Uc=-2.73e-11 Rdsw= 460  U0= 138.7609 A0= .4716551 Ags=0.12 Keta=-1.871516E-03  A1= .3417965  A2= 0.83 Voff=-.074182  NFactor= 1.54389  Cit=-1.015667E-03 Eta0= 6.024776E-02  Etab=-4.64593E-03 Dsub= .23222404 Pclm= .989 Pdiblc1= 2.07418E-02  Pdiblc2= 1.33813E-3 Drout= .3222404  Pscbe1= 118000  Pscbe2= 1E-09 Pvag= 0\n.model N1 NMOS version = 3.3.0 Level=        8 Tnom=27.0 Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07 Lint=9.36e-8 Wint=1.47e-7 Vth0= .6322    K1= .756  K2= -3.83e-2  K3= -2.612 Dvt0= 2.812  Dvt1= 0.462  Dvt2=-9.17e-2 Nlx= 3.52291E-08  W0= 1.163e-6 K3b= 2.233 Vsat= 86301.58  Ua= 6.47e-9  Ub= 4.23e-18  Uc=-4.706281E-11 Rdsw= 650  U0= 388.3203 wr=1 A0= .3496967 Ags=.1    B0=0.546    B1= 1 Keta=-3.605872E-02  A1= 2.778747E-02  A2= .9 Voff=-6.735529E-02  NFactor= 1.139926  Cit= 1.622527E-04 Eta0= 1.0281729E-02  Etab=-5.042203E-03 Dsub= .31871233 Pclm= 1.114846 Pdiblc1= 2.45357E-03  Pdiblc2= 6.406289E-03 Drout= .31871233  Pscbe1= 5000000  Pscbe2= 5E-09 Pvag= 0 delta=0.01\nvss ss 0 dc 0\nmnd dra pdn  ss ss n1 w=12u l=0.35u AS=24p AD=24p PS=28u PD=28u\nmpd dra pupb dd dd p1 w=24u l=0.35u AS=48p AD=48p PS=52u PD=52u",
         "source": "native"
       },
       {
@@ -2537,9 +2617,9 @@
         "holdout_ps": 1774.5080741033687,
         "intrinsic_jitter": {
           "n_cycles": 200,
-          "mean_period_s": 2.5051545094559213e-09,
-          "rms_s": 1.2616310337829319e-11,
-          "pk_pk_s": 6.695364177037924e-11,
+          "mean_period_s": 2.5065796946446546e-09,
+          "rms_s": 1.197798118607601e-11,
+          "pk_pk_s": 7.081477677104948e-11,
           "rel_uncertainty": 0.05,
           "control_v": 1.8499999999999999,
           "sources": [
@@ -2549,7 +2629,7 @@
         "isf_jitter": {
           "usable": false,
           "measured": false,
-          "why_not": "the declared source is worth 12.62 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.99 ps -- 0.0016 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.0016 of its period. Sixteen transients would refine a number no reader could see move"
+          "why_not": "the declared source is worth 11.98 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.788 ps -- 0.00151 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00151 of its period. Sixteen transients would refine a number no reader could see move"
         },
         "supply_sensitivity": {
           "source": "VBIAS2",
@@ -2571,6 +2651,24 @@
           ],
           "control_v": 1.8499999999999999
         },
+        "model_timing": {
+          "sub": 16,
+          "dt_fs": 32784.99177789214,
+          "dt_s": 3.278499177789214e-11,
+          "t_half_min_s": 5.245598684462742e-10,
+          "f_max_hz": 953180046.8857453,
+          "f_table_max_hz": 804472818.5576761,
+          "supply_margin_v": 0.33,
+          "dfdv_hz_per_v": 450627964.6305129,
+          "noise_interval_s": 1e-10,
+          "noise_nets": [
+            "dd"
+          ],
+          "jitter": false,
+          "clamped": null,
+          "why": "the deck declares 100 ps noise on dd. The fastest half period this model can produce is 524.6 ps -- the table's 804.5 MHz plus 450.6 MHz/V over 10% of the 3.3 V nominal, no specification range being given -- so tracking that noise at 2 samples per interval wants 10.5 sub-steps, and the next power of two is 16 (step 32.78 ps).",
+          "warnings": []
+        },
         "jitter_transfer": {
           "ran": true,
           "checked": true,
@@ -2585,16 +2683,16 @@
               "source": "vctrl",
               "replay_node": "cont",
               "model_port": "cont",
-              "worst_ratio": 0.9521378761097212,
-              "worst_sigma_v": 0.05,
+              "worst_ratio": 0.9025141813330376,
+              "worst_sigma_v": 0.005,
               "tol_frac": 0.25,
               "floor_spice_s": 5.0452312476854353e-14,
-              "floor_model_s": 4.142837625474882e-23,
+              "floor_model_s": 3.885550158483809e-16,
               "points": [
                 {
                   "sigma_v": 0.0,
                   "spice_rms_s": 5.0452312476854353e-14,
-                  "model_rms_s": 4.142837625474882e-23,
+                  "model_rms_s": 3.885550158483809e-16,
                   "spice_cycles": 200,
                   "model_cycles": 200,
                   "ratio": null,
@@ -2603,35 +2701,40 @@
                 },
                 {
                   "sigma_v": 0.005,
-                  "spice_rms_s": 2.5444037133787635e-12,
-                  "model_rms_s": 2.4257196867667796e-12,
-                  "spice_cycles": 200,
+                  "spice_rms_s": 2.674920523419262e-12,
+                  "model_rms_s": 2.4141537063246758e-12,
+                  "spice_cycles": 199,
                   "model_cycles": 200,
-                  "ratio": 0.9533548760411212,
+                  "ratio": 0.9025141813330376,
                   "judged": true,
-                  "note": "model 2.426 ps against reference 2.544 ps over 200 cycles"
+                  "note": "model 2.414 ps against reference 2.675 ps over 199 cycles"
                 },
                 {
                   "sigma_v": 0.02,
-                  "spice_rms_s": 1.0277453324660126e-11,
-                  "model_rms_s": 9.919765342206865e-12,
-                  "spice_cycles": 200,
+                  "spice_rms_s": 9.742401890459454e-12,
+                  "model_rms_s": 9.444709317814008e-12,
+                  "spice_cycles": 199,
                   "model_cycles": 200,
-                  "ratio": 0.9651968273507008,
+                  "ratio": 0.969443616061767,
                   "judged": true,
-                  "note": "model 9.92 ps against reference 10.28 ps over 200 cycles"
+                  "note": "model 9.445 ps against reference 9.742 ps over 199 cycles"
                 },
                 {
                   "sigma_v": 0.05,
-                  "spice_rms_s": 2.601704054691699e-11,
-                  "model_rms_s": 2.4771809729002044e-11,
+                  "spice_rms_s": 2.488283914765513e-11,
+                  "model_rms_s": 2.2913431756898512e-11,
                   "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 0.9521378761097212,
+                  "ratio": 0.920852786168406,
                   "judged": true,
-                  "note": "model 24.77 ps against reference 26.02 ps over 200 cycles"
+                  "note": "model 22.91 ps against reference 24.88 ps over 200 cycles"
                 }
               ],
+              "replay_interval_s": 1.0003458165086163e-10,
+              "deck_interval_s": 1e-10,
+              "model_sub": 16,
+              "model_sub_used": 16,
+              "step_note": "SUB left at the model's own 16. This bench replays at 100 ps against the 100 ps the deck declares, and the model's step tracks that.",
               "errors": []
             },
             {
@@ -2641,16 +2744,16 @@
               "source": "VBIAS2",
               "replay_node": "dd",
               "model_port": "vdd",
-              "worst_ratio": 0.9489171373663321,
+              "worst_ratio": 1.0560526565401485,
               "worst_sigma_v": 0.05,
               "tol_frac": 0.25,
               "floor_spice_s": 5.0452312476854353e-14,
-              "floor_model_s": 4.142837625474882e-23,
+              "floor_model_s": 3.885550158483809e-16,
               "points": [
                 {
                   "sigma_v": 0.0,
                   "spice_rms_s": 5.0452312476854353e-14,
-                  "model_rms_s": 4.142837625474882e-23,
+                  "model_rms_s": 3.885550158483809e-16,
                   "spice_cycles": 200,
                   "model_cycles": 200,
                   "ratio": null,
@@ -2659,48 +2762,53 @@
                 },
                 {
                   "sigma_v": 0.005,
-                  "spice_rms_s": 2.9281632946156037e-12,
-                  "model_rms_s": 2.8299411714338013e-12,
+                  "spice_rms_s": 2.8172514906544468e-12,
+                  "model_rms_s": 2.8038262759978113e-12,
                   "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 0.9664560636483572,
+                  "ratio": 0.9952346410318105,
                   "judged": true,
-                  "note": "model 2.83 ps against reference 2.928 ps over 200 cycles"
+                  "note": "model 2.804 ps against reference 2.817 ps over 200 cycles"
                 },
                 {
                   "sigma_v": 0.02,
-                  "spice_rms_s": 1.1617579129835217e-11,
-                  "model_rms_s": 1.1867848209473958e-11,
-                  "spice_cycles": 199,
+                  "spice_rms_s": 1.0875828253939526e-11,
+                  "model_rms_s": 1.0612010842879736e-11,
+                  "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 1.0215422745859353,
+                  "ratio": 0.9757427751799751,
                   "judged": true,
-                  "note": "model 11.87 ps against reference 11.62 ps over 199 cycles"
+                  "note": "model 10.61 ps against reference 10.88 ps over 200 cycles"
                 },
                 {
                   "sigma_v": 0.05,
-                  "spice_rms_s": 2.6844764119424477e-11,
-                  "model_rms_s": 2.54734567214787e-11,
-                  "spice_cycles": 199,
+                  "spice_rms_s": 2.6942931520741798e-11,
+                  "model_rms_s": 2.8453154407458676e-11,
+                  "spice_cycles": 200,
                   "model_cycles": 200,
-                  "ratio": 0.9489171373663321,
+                  "ratio": 1.0560526565401485,
                   "judged": true,
-                  "note": "model 25.47 ps against reference 26.84 ps over 199 cycles"
+                  "note": "model 28.45 ps against reference 26.94 ps over 200 cycles"
                 }
               ],
+              "replay_interval_s": 1.0003458165086163e-10,
+              "deck_interval_s": 1e-10,
+              "model_sub": 16,
+              "model_sub_used": 16,
+              "step_note": "SUB left at the model's own 16. This bench replays at 100 ps against the 100 ps the deck declares, and the model's step tracks that.",
               "errors": []
             }
           ],
-          "source": "VBIAS2",
-          "worst_ratio": 0.9489171373663321,
-          "worst_sigma_v": 0.05,
-          "worst_path": "supply",
+          "source": "vctrl",
+          "worst_ratio": 0.9025141813330376,
+          "worst_sigma_v": 0.005,
+          "worst_path": "control",
           "tol_frac": 0.25,
           "points": [
             {
               "sigma_v": 0.0,
               "spice_rms_s": 5.0452312476854353e-14,
-              "model_rms_s": 4.142837625474882e-23,
+              "model_rms_s": 3.885550158483809e-16,
               "spice_cycles": 200,
               "model_cycles": 200,
               "ratio": null,
@@ -2709,33 +2817,33 @@
             },
             {
               "sigma_v": 0.005,
-              "spice_rms_s": 2.9281632946156037e-12,
-              "model_rms_s": 2.8299411714338013e-12,
-              "spice_cycles": 200,
+              "spice_rms_s": 2.674920523419262e-12,
+              "model_rms_s": 2.4141537063246758e-12,
+              "spice_cycles": 199,
               "model_cycles": 200,
-              "ratio": 0.9664560636483572,
+              "ratio": 0.9025141813330376,
               "judged": true,
-              "note": "model 2.83 ps against reference 2.928 ps over 200 cycles"
+              "note": "model 2.414 ps against reference 2.675 ps over 199 cycles"
             },
             {
               "sigma_v": 0.02,
-              "spice_rms_s": 1.1617579129835217e-11,
-              "model_rms_s": 1.1867848209473958e-11,
+              "spice_rms_s": 9.742401890459454e-12,
+              "model_rms_s": 9.444709317814008e-12,
               "spice_cycles": 199,
               "model_cycles": 200,
-              "ratio": 1.0215422745859353,
+              "ratio": 0.969443616061767,
               "judged": true,
-              "note": "model 11.87 ps against reference 11.62 ps over 199 cycles"
+              "note": "model 9.445 ps against reference 9.742 ps over 199 cycles"
             },
             {
               "sigma_v": 0.05,
-              "spice_rms_s": 2.6844764119424477e-11,
-              "model_rms_s": 2.54734567214787e-11,
-              "spice_cycles": 199,
+              "spice_rms_s": 2.488283914765513e-11,
+              "model_rms_s": 2.2913431756898512e-11,
+              "spice_cycles": 200,
               "model_cycles": 200,
-              "ratio": 0.9489171373663321,
+              "ratio": 0.920852786168406,
               "judged": true,
-              "note": "model 25.47 ps against reference 26.84 ps over 199 cycles"
+              "note": "model 22.91 ps against reference 24.88 ps over 200 cycles"
             }
           ],
           "errors": []
@@ -2745,10 +2853,10 @@
           "checked": true,
           "metric": "frequency_at_control",
           "threshold_pct": 2.0,
-          "worst_pct_breakpoint": 0.0008107656705893706,
-          "worst_pct_holdout": 4.987048424274327,
-          "worst_pct_holdout_band": 0.02365193957708041,
-          "worst_ps_holdout": 1774.7815897689843,
+          "worst_pct_breakpoint": 2.5055314210549286e-05,
+          "worst_pct_holdout": 4.986256075348041,
+          "worst_pct_holdout_band": 0.022837786947297614,
+          "worst_ps_holdout": 1774.4996100953558,
           "n_compared": 29,
           "swing_hi_v": 3.3,
           "swing_ref_v": 3.3,
@@ -2757,209 +2865,209 @@
             [
               0.49499999999999994,
               804472818.5576761,
-              804479341.0,
-              0.0008107656705893706,
+              804472626.5,
+              2.3873736628560084e-05,
               false
             ],
             [
               0.78375,
               735322257.3620701,
-              735327883.3,
-              0.0007650924244374374,
+              735322081.5,
+              2.3916331964434697e-05,
               false
             ],
             [
               1.0724999999999998,
               663445964.7009504,
-              663451074.1,
-              0.0007701244672126763,
+              663445807.6,
+              2.367954527581727e-05,
               false
             ],
             [
               1.3612499999999998,
               580386264.1424712,
-              580390751.5,
-              0.0007731614463533119,
+              580386124.9,
+              2.3991350796885075e-05,
               false
             ],
             [
               1.6499999999999997,
               477403257.34208715,
-              477406987.6,
-              0.0007813580466613762,
+              477403141.6,
+              2.424409833583193e-05,
               false
             ],
             [
               1.75,
               438729202.2417712,
-              438732638.8,
-              0.0007832921293922606,
+              438729094.2,
+              2.462607852011296e-05,
               false
             ],
             [
               1.8499999999999999,
               399861721.2156399,
-              399864861.7,
-              0.0007853864294850943,
+              399861623.1,
+              2.453739848570851e-05,
               false
             ],
             [
               1.9387499999999995,
               365868944.714722,
-              365871824.5,
-              0.0007871022268497445,
+              365868855.5,
+              2.438434444350512e-05,
               false
             ],
             [
               1.9499999999999997,
               361611464.48053116,
-              361614312.4,
-              0.0007875571765693722,
+              361611376.1,
+              2.4440749648415283e-05,
               false
             ],
             [
               2.05,
               324148008.66615707,
-              324150568.1,
-              0.0007895817853906921,
+              324147930.2,
+              2.420689744978536e-05,
               false
             ],
             [
               2.2274999999999996,
               257011965.20368367,
-              257014006.7,
-              0.0007943132526380541,
+              257011901.8,
+              2.4669551571699756e-05,
               false
             ],
             [
               2.51625,
               136625164.78720412,
-              136626260.6,
-              0.0008020513706932751,
+              136625130.9,
+              2.4803053352225232e-05,
               false
             ],
             [
               2.6606249999999996,
               74162781.65424877,
-              74163379.56,
-              0.0008062007890849124,
+              74162763.1,
+              2.5018281426267374e-05,
               false
             ],
             [
               2.7328124999999996,
               42408825.85566191,
-              42409168.55,
-              0.00080806662759279,
+              42408815.23,
+              2.5055314210549286e-05,
               false
             ],
             [
               2.8049999999999997,
               16739484.530096145,
-              16739620.07,
-              0.000809695221785091,
+              16739480.34,
+              2.503121996778884e-05,
               false
             ],
             [
               0.6393749999999999,
               769944705.2655075,
-              769903401.3,
-              0.005364824397158481,
+              769897355.2,
+              0.006150179006024548,
               true
             ],
             [
               0.9281249999999999,
               700185016.6772195,
-              699389472.9,
-              0.11374832022004332,
+              699383943.1,
+              0.11453988687082496,
               true
             ],
             [
               1.2168749999999997,
               624034933.3000995,
-              621920908.5,
-              0.33991859273524544,
+              621915959.6,
+              0.34071704824270843,
               true
             ],
             [
               1.5056249999999998,
               531189810.5572494,
-              528898870.3,
-              0.43315279836953907,
+              528894633.8,
+              0.4339572781744931,
               true
             ],
             [
               1.7,
               458144231.8173013,
-              458069816.6,
-              0.016245387625318762,
+              458066120.6,
+              0.017052389117747084,
               true
             ],
             [
               1.7943749999999996,
               421453210.3536438,
-              421485061.1,
-              0.0075567912829896285,
+              421481656.4,
+              0.006749059164097904,
               true
             ],
             [
               1.7999999999999998,
               419264484.6558139,
-              419298746.4,
-              0.008171201197305591,
+              419295359.4,
+              0.0073634833999457585,
               true
             ],
             [
               1.9,
               380623820.7862156,
-              380713867.0,
-              0.02365193957708041,
+              380710766.7,
+              0.022837786947297614,
               true
             ],
             [
               1.9999999999999998,
               342813423.4834564,
-              342882445.4,
-              0.020129906756553868,
+              342879653.8,
+              0.01931590743563602,
               true
             ],
             [
               2.083125,
               311795454.9317373,
-              311621563.2,
-              0.05580221405465435,
+              311619023.3,
+              0.056617734652040085,
               true
             ],
             [
               2.3718749999999997,
               198927538.27812976,
-              196820136.3,
-              1.0707247834223517,
+              196818516.3,
+              1.071556689775606,
               true
             ],
             [
               2.5884374999999995,
               105100554.61337389,
-              105395037.0,
-              0.2794082102994116,
+              105394163.3,
+              0.2785815432590533,
               true
             ],
             [
               2.6967187499999996,
               58246557.9833232,
-              58286054.23,
-              0.06776277309995586,
+              58285569.26,
+              0.06693127848296813,
               true
             ],
             [
               2.7689062499999997,
               28099505.049088717,
-              29574394.42,
-              4.987048424274327,
+              29574147.79,
+              4.986256075348041,
               true
             ]
           ],
           "warnings": [
-            "held-out frequency error is 0.024% inside the measured operating band 1.6500..2.0500 V (5 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.987% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed."
+            "held-out frequency error is 0.023% inside the measured operating band 1.6500..2.0500 V (5 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.986% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed."
           ],
           "errors": []
         },
@@ -2979,13 +3087,14 @@
           "refinement pass 1: the worst held-out error did not improve (3.286% -> 6.694%). Subdividing is not converging here, which is what a curve bending faster than the grid can follow looks like -- each new midpoint lands somewhere harder. More passes would not fix it; a different range or a different interpolant would.",
           "refinement pass 2: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
           "intrinsic jitter: the top-level deck declares transient noise on dd, which this block is wired to, so it was restored onto VBIAS2 for the measurement -- extraction had rebuilt that rail as a plain DC source and the condition would otherwise not be measured at all",
-          "intrinsic jitter at 1.85 V: 12.62 ps rms over 200 cycles (66.95 ps peak-to-peak, mean period 2505 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
+          "intrinsic jitter at 1.85 V: 11.98 ps rms over 200 cycles (70.81 ps peak-to-peak, mean period 2507 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
           "supply sensitivity at 1.85 V control: 450.6 MHz/V from 'VBIAS2' (nominal 3.3 V, 3 points). For scale, 100 mV of droop is worth 45.06 MHz here -- a model without this input cannot show that at all.",
-          "ISF: not measured -- the declared source is worth 12.62 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.99 ps -- 0.0016 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.0016 of its period. Sixteen transients would refine a number no reader could see move",
-          "model jitter: none emitted, and none is wanted. The 12.62 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
-          "held-out frequency error is 0.024% inside the measured operating band 1.6500..2.0500 V (5 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.987% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed.",
-          "jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.95 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
-          "jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 0.95 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+          "ISF: not measured -- the declared source is worth 11.98 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.788 ps -- 0.00151 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00151 of its period. Sixteen transients would refine a number no reader could see move",
+          "model jitter: none emitted, and none is wanted. The 11.98 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
+          "model timing: SUB = 16, step 32.78 ps, from a fastest half period of 524.6 ps (953.2 MHz: the table's 804.5 MHz plus 450.6 MHz/V over 0.33 V of assumed supply margin). Noise of 100 ps on dd sets it. For scale, the step used to be read from the ports at t = 0, where this deck's control voltage decides between 621.5 ps and 2.987e+04 ps depending on an ordering IEEE 1800 leaves undefined.",
+          "held-out frequency error is 0.023% inside the measured operating band 1.6500..2.0500 V (5 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.986% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed.",
+          "jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.90 at 0.005 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+          "jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 1.06 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
           "jitter transfer: run because the top-level deck declares transient noise on dd, which this block is wired to, so this design is asking for noise to be simulated -- the block's own fragment shows a plain DC source there because extraction rebuilt it -- 2 path(s) exercised (control, supply)"
         ],
         "errors": []
@@ -3061,6 +3170,7 @@
           "first": 300.0,
           "last": 300.0
         },
+        "noise": [],
         "dc_gain_to_out": null,
         "sv_path": "/home/vraje/s2r_runs/demo4b_pll/lpfilt/lpfilt.sv",
         "module_name": "lpfilt",
@@ -3077,6 +3187,7 @@
           "t_end_s": 3.555960495039637e-06,
           "n_compared": 1000,
           "compare_csv_path": "/home/vraje/s2r_runs/demo4b_pll/lpfilt/equivalence/rc_compare.csv",
+          "noise": [],
           "warnings": [],
           "errors": []
         },
@@ -3615,6 +3726,16 @@
         "basis": "source vpe ties it to 3.3 V"
       }
     },
+    "integration": {
+      "source": {
+        "kind": "flag",
+        "flag": "--derive-pll-loop"
+      },
+      "action": "derive_pll_loop",
+      "notes": [
+        "--derive-pll-loop is DEPRECATED. It guesses an integer-N charge-pump PLL's topology from port shapes -- the module with as many outputs as there are external gates drives the pump, one-in one-out modules chain in file order, the first declared input gets the loop clock -- and none of that is a fact about any other circuit. State the wiring in a `## Integration` section instead; this flag will go"
+      ]
+    },
     "warnings": [
       "dropped ngspice's `external` keyword from 2 source(s) (Vpdn, Vpupb): it needs a controlling program supplying values through the callback, and the isolated decks this tool runs have none. The sources still hold their declared dc value during characterization. Those nodes are where the digital side drives this partition.",
       "net 'dra' is driven by a complementary pair with independent gates -- a switched driver, not a logic swing -- so its rails are not read as a band; where it sits is a property of the loop",
@@ -3639,13 +3760,14 @@
       "block 'ro_vco' (vco): refinement pass 1: the worst held-out error did not improve (3.286% -> 6.694%). Subdividing is not converging here, which is what a curve bending faster than the grid can follow looks like -- each new midpoint lands somewhere harder. More passes would not fix it; a different range or a different interpolant would.",
       "block 'ro_vco' (vco): refinement pass 2: 1 interval(s) missed 2%; adding their measured midpoints to the table and re-scoring on fresh points",
       "block 'ro_vco' (vco): intrinsic jitter: the top-level deck declares transient noise on dd, which this block is wired to, so it was restored onto VBIAS2 for the measurement -- extraction had rebuilt that rail as a plain DC source and the condition would otherwise not be measured at all",
-      "block 'ro_vco' (vco): intrinsic jitter at 1.85 V: 12.62 ps rms over 200 cycles (66.95 ps peak-to-peak, mean period 2505 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
+      "block 'ro_vco' (vco): intrinsic jitter at 1.85 V: 11.98 ps rms over 200 cycles (70.81 ps peak-to-peak, mean period 2507 ps), from the noise this deck declares on VBIAS2. The rms carries about 5% uncertainty at this cycle count.",
       "block 'ro_vco' (vco): supply sensitivity at 1.85 V control: 450.6 MHz/V from 'VBIAS2' (nominal 3.3 V, 3 points). For scale, 100 mV of droop is worth 45.06 MHz here -- a model without this input cannot show that at all.",
-      "block 'ro_vco' (vco): ISF: not measured -- the declared source is worth 12.62 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.99 ps -- 0.0016 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.0016 of its period. Sixteen transients would refine a number no reader could see move",
-      "block 'ro_vco' (vco): model jitter: none emitted, and none is wanted. The 12.62 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
-      "block 'ro_vco' (vco): held-out frequency error is 0.024% inside the measured operating band 1.6500..2.0500 V (5 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.987% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed.",
-      "block 'ro_vco' (vco): jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.95 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
-      "block 'ro_vco' (vco): jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 0.95 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+      "block 'ro_vco' (vco): ISF: not measured -- the declared source is worth 11.98 ps rms at this oscillator, and its own measurement carries 5%. Because the two add in quadrature, an intrinsic contribution would have to exceed 3.788 ps -- 0.00151 of the period -- before it changed the total by as much as that uncertainty, and a ring does not reach 0.00151 of its period. Sixteen transients would refine a number no reader could see move",
+      "block 'ro_vco' (vco): model jitter: none emitted, and none is wanted. The 11.98 ps rms measured here comes from VBIAS2, a top-level source, and the generated composition drives that source itself -- so the disturbance reaches this model through its own input, exactly as it does in the netlist. A model emitting it as well would count it twice.",
+      "block 'ro_vco' (vco): model timing: SUB = 16, step 32.78 ps, from a fastest half period of 524.6 ps (953.2 MHz: the table's 804.5 MHz plus 450.6 MHz/V over 0.33 V of assumed supply margin). Noise of 100 ps on dd sets it. For scale, the step used to be read from the ports at t = 0, where this deck's control voltage decides between 621.5 ps and 2.987e+04 ps depending on an ordering IEEE 1800 leaves undefined.",
+      "block 'ro_vco' (vco): held-out frequency error is 0.023% inside the measured operating band 1.6500..2.0500 V (5 point(s)), which is what this gate judges. Over the WHOLE characterized range it reaches 4.986% at 2.7689 V -- outside the band, where the curve bends hardest and the loop does not go. That is reported, not failed.",
+      "block 'ro_vco' (vco): jitter transfer (control): jitter transfer on 'vctrl': 3 amplitude(s) judged, worst ratio 0.90 at 0.005 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
+      "block 'ro_vco' (vco): jitter transfer (supply): jitter transfer on 'VBIAS2': 3 amplitude(s) judged, worst ratio 1.06 at 0.05 V rms (tolerance +/-25%). The reference floor with nothing injected is 0.05045 ps.",
       "block 'ro_vco' (vco): jitter transfer: run because the top-level deck declares transient noise on dd, which this block is wired to, so this design is asking for noise to be simulated -- the block's own fragment shows a plain DC source there because extraction rebuilt it -- 2 path(s) exercised (control, supply)",
       "block 'ro_vco' characterized on the VCO path: 15-point tuning curve, 4.986% held-out error",
       "block 'inv1': input port 'in' is net 'xvco.outm1', which the deck itself gives as 0.0000..3.3000 V (a complementary pair drives it between 0 V and 3.3 V), derived and not measured -- 100% of the 3.3 V rail. The comparison below is judged over the whole range, which is what this block uses.",

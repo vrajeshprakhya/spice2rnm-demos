@@ -1,0 +1,3 @@
+SPICE against the model: lpf2_house
+
+Not raced separately: the same circuit and the same model as lpf2, generated in the house style. See ../lpf2/timing.txt.

@@ -1,0 +1,31 @@
+SPICE against the model, on the same job: pll_nocosim
+
+Each row is one race. Both sides get the same input and produce the
+same output signal. Only the thing doing the computing differs:
+ngspice solving the transistor circuit, or xezim running the
+generated model.
+
+  what                SPICE           model           simulated time          model is
+  inverter inv1       1.99 s          0.569 s         14.11 ns each           3.49x faster
+  inverter inv2       3.38 s          1.14 s          21.12 ns each           2.96x faster
+  loop filter lpfilt  0.0352 s        0.0282 s        3.556 us each           1.25x faster
+
+Notes:
+  - inverter inv1: over 3 runs SPICE took 1.73 s to 4.6 s and the model 0.446 s to 0.833 s; the table shows the median of each.
+  - inverter inv2: over 3 runs SPICE took 2.99 s to 3.42 s and the model 1.12 s to 1.2 s; the table shows the median of each.
+  - loop filter lpfilt: over 3 runs SPICE took 0.0316 s to 0.0439 s and the model 0.0254 s to 0.0324 s; the table shows the median of each.
+  - ro_vco: not raced, oscillator: its SPICE side is the characterisation sweep, not a deck kept beside the model's run.
+  - cpump: not raced, charge pump: the same.
+
+How it was measured: wall clock on this machine, start to finish
+as a user would run each side (start the program, read the input,
+simulate, write the result), the two sides taking turns. Median
+of 3 runs when both finish in under 120 s, otherwise one run.
+Both read the pair the equivalence
+check left in the run directory, from a scratch copy.
+
+Measured 2026-11-24T00:21Z on 11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz, 8 threads.
+Run directory ~/s2r_runs/demo4b_pll (finished 2026-11-23T23:04Z).
+Simulators: ngspice-46; xezim built as 531e42af-dirty (its checkout is at d9d09b14).
+The model raced is the one in that run directory; STAMP says
+which spice2rnm revision made the run.

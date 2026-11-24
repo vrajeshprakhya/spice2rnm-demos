@@ -1,22 +1,54 @@
-Last curated: 2026-11-23T21:03:34Z  (ctle_sparams)
-Whole showcase: 2026-09-20T18:56:59Z  (last full refresh)
+Last curated: 2026-11-24T00:20:08Z  (every case)
+Whole showcase: 2026-11-24T00:20:08Z  (last full refresh)
 spice2rnm:  067f697
-demos:      21aa061
+demos:      a0058d3
 xezim:      d9d09b14
 xezim-core: c21c319
 
 Cases: when each was curated, at which revisions, from which run
-  lpf2          2026-11-23T04:23:21Z  spice2rnm 87bbe6f  demos 51da6da  xezim d9d09b14  xezim-core c21c319  run lpf2 finished 2026-11-23T04:21Z
-  dcc2          2026-09-23T05:15:30Z  spice2rnm fd247d3  demos c32c4ad  xezim 531e42a  xezim-core 482f03f  run dcc2 finished 2026-09-23T05:06Z
-  pi            2026-09-20T18:56:59Z  spice2rnm a676738  demos 291e676  xezim 531e42a  xezim-core 482f03f  (carried from the whole-showcase stamp)
-  pll_cosim     2026-11-13T19:34:13Z  spice2rnm 50f31aa  demos 356e774  xezim 531e42af  xezim-core 482f03f  run demo4_pll finished 2026-11-13T17:27Z
-  pll_nocosim   2026-11-13T17:57:06Z  spice2rnm 50f31aa  demos 356e774  xezim 531e42af  xezim-core 482f03f  run demo4b_pll finished 2026-11-13T17:38Z
-  lpf2_house    2026-11-23T03:43:33Z  spice2rnm 87bbe6f  demos 51da6da  xezim d9d09b14  xezim-core c21c319  (generated directly with refresh.sh's own house command, not by a full refresh)
-  ctle_sparams  2026-11-23T21:03:34Z  spice2rnm 067f697  demos 21aa061  xezim d9d09b14  xezim-core c21c319  run ctle_sparams finished 2026-11-23T21:03Z
+  lpf2          2026-11-24T00:20:08Z  spice2rnm 067f697  demos a0058d3  xezim d9d09b14  xezim-core c21c319  run lpf2 finished 2026-11-23T23:26Z
+  dcc2          2026-11-24T00:20:08Z  spice2rnm 067f697  demos a0058d3  xezim d9d09b14  xezim-core c21c319  run dcc2 finished 2026-11-23T23:29Z
+  pi            2026-11-24T00:20:08Z  spice2rnm 067f697  demos a0058d3  xezim d9d09b14  xezim-core c21c319  run demo3_pi finished 2026-11-23T23:33Z
+  pll_cosim     2026-11-24T00:20:08Z  spice2rnm 067f697  demos a0058d3  xezim d9d09b14  xezim-core c21c319  run demo4_pll finished 2026-11-24T00:11Z
+  pll_nocosim   2026-11-24T00:20:08Z  spice2rnm 067f697  demos a0058d3  xezim d9d09b14  xezim-core c21c319  run demo4b_pll finished 2026-11-23T23:04Z
+  lpf2_house    2026-11-24T00:20:08Z  spice2rnm 067f697  demos a0058d3  xezim d9d09b14  xezim-core c21c319  run lpf2 finished 2026-11-23T23:26Z
+  ctle_sparams  2026-11-24T00:20:08Z  spice2rnm 067f697  demos a0058d3  xezim d9d09b14  xezim-core c21c319  run ctle_sparams finished 2026-11-24T00:15Z
 
-Run summary (from the last full refresh, 2026-09-20T18:56:59Z):
-  NONE RECORDED. These artifacts were curated from existing run
-  directories (--no-run), so no single run_all.sh summary
-  describes all four. The tool revisions above are what
-  generated them; per-case verdicts are in each result.json
-  and each equivalence/ directory.
+Run summary:
+    demo_1_lpf.sh     177 s   exit 0
+    demo_2_dcc.sh     294 s   exit 0
+    demo_3_pi.sh       38 s   exit 0
+    demo_4a_pll_cosim.sh 2395 s   exit 0
+    demo_5_sparams_ctle.sh   95 s   exit 0
+    TOTAL            2999 s
+  
+    demo 1  LPF
+      chirp          rms_error_norm=0.0007249666017660382
+      PRBS           rms 0.0067 normalized
+      DC             dc checks=49 failed=0
+      AC             ac checks=15 failed=0
+  
+    demo 2  DCC
+      transient      rms_error_norm=0.07446434161109415
+      duty null      50% duty null at vctrl = 1.1477 V
+      DC             dc checks=46 failed=0
+      AC             ac checks=0 (no AC golden
+      duty           duty checks=14 failed=0 | worst 0.316 pp
+  
+    demo 3  PI
+      settings       measured 9 of 9 settings
+      traversal      traversal -500.1 ps, LSB -62.51 ps, monotonic
+      phase          phase checks=9 failed=0 | worst 3.2627 ps
+      DNL            DNL worst         : -100.5 ps  (-1.61 LSB)
+  
+    demo 4a PLL
+      equivalence    equivalence  : 5 pass, 0 fail
+      floor          floor        : PASS
+      system         system       : PASS -- 4 boundary signal(s), 0 failed
+      vout           vout worst |diff| 0.004048 V
+      lock           locked within 0.00% of 400.00 MHz
+  
+    problems
+      none
+  
+    logs: /tmp/spice2rnm_demos
