@@ -1,0 +1,52 @@
+[*] Inverter inv2 from demo 4b's PLL: circuit against model
+[*] Open with:  gtkwave pll_nocosim_inv2.fst pll_nocosim_inv2.gtkw
+[dumpfile] "pll_nocosim_inv2.fst"
+[timestart] 0
+[size] 1400 860
+*-22.409479 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] inv2.
+[signals_width] 180
+[sst_expanded] 0
+@200
+-stimulus
+[color] 4
+@8420
+inv2.vin
+@20000
+-
+-
+-
+@200
+-circuit (ngspice)
+[color] 3
+@10420
+inv2.vout_circuit
+@20000
+-
+-
+-
+-
+-
+@200
+-model (xezim)
+[color] 2
+@10420
+inv2.vout_model
+@20000
+-
+-
+-
+-
+-
+@200
+-model - circuit
+[color] 7
+@10420
+inv2.error
+@20000
+-
+-
+-
+-
+[pattern_trace] 1
+[pattern_trace] 0

@@ -83,15 +83,23 @@ curate() {  # src-dir, dest-name
 # 100 KB each, while the chirp's waveform file is 7 MB and, like the
 # traces in equivalence/, is rebuilt by one command rather than committed.
 curate_waveforms() {  # case, dest-name
-  local dst="$HERE/$2/waveforms"
-  python3 "$DEMOS/harness/wave_bundle.py" "$1" --out "$RUNS/$1_wave" \
-    | sed 's/^/  /' || { echo "wave_bundle.py failed for $1"; exit 1; }
-  # The UVM-MS run as waveforms, into the same folder (after wave_bundle,
-  # which starts the folder empty). It re-runs the generated environment
-  # with a recording, so it takes minutes, not seconds.
-  if python3 "$DEMOS/harness/uvm_wave.py" --cases | tr ' ' '\n' | grep -qx "$1"; then
-    python3 "$DEMOS/harness/uvm_wave.py" "$1" --out "$RUNS/$1_wave" \
-      | sed 's/^/  /' || { echo "uvm_wave.py failed for $1"; exit 1; }
+  local dst="$HERE/$2/waveforms" want_svg=1
+  if python3 "$DEMOS/harness/pll_wave.py" --cases | tr ' ' '\n' | grep -qx "$1"; then
+    want_svg=0
+    # Demo 4b's PLL: the loop holding lock (re-run with a recording, about
+    # two minutes) and each block it was built from, circuit vs model.
+    python3 "$DEMOS/harness/pll_wave.py" "$1" --out "$RUNS/$1_wave" \
+      | sed 's/^/  /' || { echo "pll_wave.py failed for $1"; exit 1; }
+  else
+    python3 "$DEMOS/harness/wave_bundle.py" "$1" --out "$RUNS/$1_wave" \
+      | sed 's/^/  /' || { echo "wave_bundle.py failed for $1"; exit 1; }
+    # The UVM-MS run as waveforms, into the same folder (after wave_bundle,
+    # which starts the folder empty). It re-runs the generated environment
+    # with a recording, so it takes minutes, not seconds.
+    if python3 "$DEMOS/harness/uvm_wave.py" --cases | tr ' ' '\n' | grep -qx "$1"; then
+      python3 "$DEMOS/harness/uvm_wave.py" "$1" --out "$RUNS/$1_wave" \
+        | sed 's/^/  /' || { echo "uvm_wave.py failed for $1"; exit 1; }
+    fi
   fi
   # vcd2fst stamps the date inside every .fst, so a re-curated file whose
   # waveform did not change would still be new bytes, and a new 0.2 MB in
@@ -101,7 +109,12 @@ curate_waveforms() {  # case, dest-name
   cp "$dst"/*.fst "$keep/" 2>/dev/null || true
   rm -rf "$dst"
   mkdir -p "$dst"
-  cp "$RUNS/$1_wave"/*.svg "$RUNS/$1_wave"/*.html "$RUNS/$1_wave"/README.txt "$dst/"
+  # (not every bundle has pictures: the PLL's are all zoomable pages)
+  local w
+  for w in "$RUNS/$1_wave"/*.svg "$RUNS/$1_wave"/*.html "$RUNS/$1_wave"/README.txt; do
+    [ -e "$w" ] && cp "$w" "$dst/"
+  done
+  [ -f "$dst/README.txt" ] || { echo "no README.txt in $RUNS/$1_wave"; exit 1; }
   # Waveform files go in git only while small: each refresh that changes
   # one adds its full size to history forever. Bigger ones ride on a
   # GitHub Release instead, and the README says so.
@@ -130,7 +143,9 @@ curate_waveforms() {  # case, dest-name
   local n p
   n=$(ls "$dst"/*.svg 2>/dev/null | wc -l)
   p=$(ls "$dst"/*.html 2>/dev/null | wc -l)
-  [ "$n" -ge 1 ] && [ "$p" -ge 1 ] || { echo "waveform curation for $2 found no pictures or pages"; exit 1; }
+  # Every bundle has zoomable pages; wave_bundle.py's must also have still
+  # pictures (pll_wave.py draws none).
+  [ "$p" -ge 1 ] && [ "$n" -ge "$want_svg" ] || { echo "waveform curation for $2 found no pictures or pages"; exit 1; }
   echo "  $2/waveforms: $n pictures, $p zoomable pages"
 }
 
@@ -581,6 +596,7 @@ want ctle_sparams && curate_sparams ctle_sparams ctle_sparams
 
 echo "curating waveform pictures:"
 want lpf2 && curate_waveforms lpf2 lpf2
+want pll_nocosim && curate_waveforms pll_nocosim pll_nocosim
 
 echo "curating equivalence evidence:"
 want lpf2 && curate_equivalence "$HOME/s2r_runs/lpf2"     lpf2  equivalence

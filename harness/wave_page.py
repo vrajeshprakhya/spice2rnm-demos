@@ -103,7 +103,10 @@ def write_spec_page(path, spec, colors):
       traces  [{key, label, legend (opt), pts, color, w, a}]
               color is a CSS colour name below: vin circuit model error
       panels  [{id, ylabel, keys, mul (1), unit ('V'), sym, skip_startup,
-                ratio, height}]   ratio: a 0-based "error / tolerance" axis
+                ratio, height, dec (2), signed (True)}]
+              ratio: a 0-based "error / tolerance" axis
+              dec, signed: how the hover readout prints a value in any
+              unit other than plain volts (unit '' for a logic level)
       marks   [{t, panel, y, color, kind ('dot'|'ring'), text}]
       shades  [{a, b, label}]  boxes [{a, b, label}]  hlines [{panel, y, label}]
       presets [{label, a, b}]  settle  t1  legend_marks [{color, kind, label}]
@@ -119,6 +122,8 @@ def write_spec_page(path, spec, colors):
                        "sym": bool(p.get("sym")),
                        "skip": bool(p.get("skip_startup")),
                        "ratio": bool(p.get("ratio")),
+                       "dec": p.get("dec", 2),
+                       "signed": p.get("signed", True),
                        "h": p.get("height", 200)})
     meta = {"times": meta_t, "traces": meta_tr, "tscale": 1 / T_SCALE,
             "vscale": 1 / V_SCALE, "gap": GAP, "panels": panels,
@@ -565,7 +570,10 @@ footer { font-size: 12.5px; color: var(--muted); margin-top: 26px;
   function fmtVal(k, v) {
     const p = PANELS.find(q => q.keys.includes(k));
     if (v !== v) return "–";
-    if (p && p.mul !== 1) { const x = v * p.mul; return (x >= 0 ? "+" : "−") + Math.abs(x).toFixed(2) + " " + p.unit; }
+    if (p && (p.mul !== 1 || p.unit !== "V")) {
+      const x = v * p.mul, s = p.signed ? (x >= 0 ? "+" : "−") : (x < 0 ? "−" : "");
+      return s + Math.abs(x).toFixed(p.dec) + (p.unit ? " " + p.unit : "");
+    }
     return v.toFixed(4) + " V";
   }
   function showReadout() {
